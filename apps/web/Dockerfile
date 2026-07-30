@@ -18,6 +18,8 @@ WORKDIR /app
 COPY .gitignore .gitignore
 COPY --from=builder /app/out/json/ .
 COPY --from=builder /app/out/package-lock.json ./package-lock.json
+# Copy Prisma schema so postinstall hook can run
+COPY --from=builder /app/out/full/packages/db/prisma ./packages/db/prisma
 RUN npm install
 
 # Build the project and its dependencies
