@@ -13,6 +13,7 @@
   "dependencies": {
     "@eslint/eslintrc": "0.1.0",
     "@repo/types": "*",
+    "@repo/db": "*",
     "@repo/ui": "*",
     "next": "16.2.0",
     "react": "^19.2.0",
