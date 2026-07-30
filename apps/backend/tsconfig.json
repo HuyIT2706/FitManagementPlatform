@@ -18,7 +18,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["node"],
+    "types": ["node", "jest"],
     "incremental": true,
     "tsBuildInfoFile": "./dist/.tsbuildinfo",
     "skipLibCheck": true,
