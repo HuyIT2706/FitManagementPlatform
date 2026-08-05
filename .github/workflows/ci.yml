@@ -28,7 +28,8 @@ jobs:
 
       - name: Lint code
         run: npx turbo run lint
-
+      - name: Type check
+        run: npx turbo run check-types
       - name: Build applications
         run: npx turbo run build
 

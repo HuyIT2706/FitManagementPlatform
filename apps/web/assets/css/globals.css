@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+@theme {
+  /* Fonts */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-plus-jakarta-sans), ui-sans-serif, system-ui, sans-serif;
+
+  /* Theme Colors mapped to CSS Variables */
+  --color-surface: var(--theme-surface);
+  --color-surface-dim: var(--theme-surface-dim);
+  --color-surface-bright: var(--theme-surface-bright);
+  --color-surface-container-lowest: var(--theme-surface-container-lowest);
+  --color-surface-container-low: var(--theme-surface-container-low);
+  --color-surface-container: var(--theme-surface-container);
+  --color-surface-container-high: var(--theme-surface-container-high);
+  --color-surface-container-highest: var(--theme-surface-container-highest);
+  --color-on-surface: var(--theme-on-surface);
+  --color-on-surface-variant: var(--theme-on-surface-variant);
+  --color-inverse-surface: var(--theme-inverse-surface);
+  --color-inverse-on-surface: var(--theme-inverse-on-surface);
+  --color-outline: var(--theme-outline);
+  --color-outline-variant: var(--theme-outline-variant);
+  --color-surface-tint: var(--theme-surface-tint);
+  
+  --color-primary: var(--theme-primary);
+  --color-on-primary: var(--theme-on-primary);
+  --color-primary-container: var(--theme-primary-container);
+  --color-on-primary-container: var(--theme-on-primary-container);
+  --color-inverse-primary: var(--theme-inverse-primary);
+  
+  --color-secondary: var(--theme-secondary);
+  --color-on-secondary: var(--theme-on-secondary);
+  --color-secondary-container: var(--theme-secondary-container);
+  --color-on-secondary-container: var(--theme-on-secondary-container);
+  
+  --color-tertiary: var(--theme-tertiary);
+  --color-on-tertiary: var(--theme-on-tertiary);
+  --color-tertiary-container: var(--theme-tertiary-container);
+  --color-on-tertiary-container: var(--theme-on-tertiary-container);
+  
+  --color-error: var(--theme-error);
+  --color-on-error: var(--theme-on-error);
+  --color-error-container: var(--theme-error-container);
+  --color-on-error-container: var(--theme-on-error-container);
+  
+  --color-primary-fixed: var(--theme-primary-fixed);
+  --color-primary-fixed-dim: var(--theme-primary-fixed-dim);
+  --color-on-primary-fixed: var(--theme-on-primary-fixed);
+  --color-on-primary-fixed-variant: var(--theme-on-primary-fixed-variant);
+  
+  --color-secondary-fixed: var(--theme-secondary-fixed);
+  --color-secondary-fixed-dim: var(--theme-secondary-fixed-dim);
+  --color-on-secondary-fixed: var(--theme-on-secondary-fixed);
+  --color-on-secondary-fixed-variant: var(--theme-on-secondary-fixed-variant);
+  
+  --color-tertiary-fixed: var(--theme-tertiary-fixed);
+  --color-tertiary-fixed-dim: var(--theme-tertiary-fixed-dim);
+  --color-on-tertiary-fixed: var(--theme-on-tertiary-fixed);
+  --color-on-tertiary-fixed-variant: var(--theme-on-tertiary-fixed-variant);
+  
+  --color-background: var(--theme-background);
+  --color-on-background: var(--theme-on-background);
+  --color-surface-variant: var(--theme-surface-variant);
+}
+
+@layer base {
+  :root {
+    --theme-surface: #f9f9ff;
+    --theme-surface-dim: #d3daec;
+    --theme-surface-bright: #f9f9ff;
+    --theme-surface-container-lowest: #ffffff;
+    --theme-surface-container-low: #f1f3ff;
+    --theme-surface-container: #e8eeff;
+    --theme-surface-container-high: #e1e8fb;
+    --theme-surface-container-highest: #dce2f5;
+    --theme-on-surface: #151c29;
+    --theme-on-surface-variant: #404a38;
+    --theme-inverse-surface: #2a303e;
+    --theme-inverse-on-surface: #ecf0ff;
+    --theme-outline: #707a67;
+    --theme-outline-variant: #bfcab3;
+    --theme-surface-tint: #2e6c00;
+    --theme-primary: #2d6900;
+    --theme-on-primary: #ffffff;
+    --theme-primary-container: #3a8500;
+    --theme-on-primary-container: #f9ffed;
+    --theme-inverse-primary: #81dd4a;
+    --theme-secondary: #316b00;
+    --theme-on-secondary: #ffffff;
+    --theme-secondary-container: #95fc51;
+    --theme-on-secondary-container: #347200;
+    --theme-tertiary: #396726;
+    --theme-on-tertiary: #ffffff;
+    --theme-tertiary-container: #51803c;
+    --theme-on-tertiary-container: #f8ffee;
+    --theme-error: #ba1a1a;
+    --theme-on-error: #ffffff;
+    --theme-error-container: #ffdad6;
+    --theme-on-error-container: #93000a;
+    --theme-primary-fixed: #9cfa63;
+    --theme-primary-fixed-dim: #81dd4a;
+    --theme-on-primary-fixed: #092100;
+    --theme-on-primary-fixed-variant: #215100;
+    --theme-secondary-fixed: #95fc51;
+    --theme-secondary-fixed-dim: #7ade35;
+    --theme-on-secondary-fixed: #0a2100;
+    --theme-on-secondary-fixed-variant: #235100;
+    --theme-tertiary-fixed: #bbf1a0;
+    --theme-tertiary-fixed-dim: #a0d586;
+    --theme-on-tertiary-fixed: #052100;
+    --theme-on-tertiary-fixed-variant: #245112;
+    --theme-background: #f9f9ff;
+    --theme-on-background: #151c29;
+    --theme-surface-variant: #dce2f5;
+  }
+
+  .dark {
+    --theme-surface: #0c1320;
+    --theme-surface-dim: #0c1320;
+    --theme-surface-bright: #323948;
+    --theme-surface-container-lowest: #070e1b;
+    --theme-surface-container-low: #151c29;
+    --theme-surface-container: #19202d;
+    --theme-surface-container-high: #232a38;
+    --theme-surface-container-highest: #2e3543;
+    --theme-on-surface: #dce2f5;
+    --theme-on-surface-variant: #bfcab3;
+    --theme-inverse-surface: #dce2f5;
+    --theme-inverse-on-surface: #2a303e;
+    --theme-outline: #8a947f;
+    --theme-outline-variant: #404a38;
+    --theme-surface-tint: #81dd4a;
+    --theme-primary: #81dd4a;
+    --theme-on-primary: #153800;
+    --theme-primary-container: #4da40f;
+    --theme-on-primary-container: #113100;
+    --theme-inverse-primary: #2e6c00;
+    --theme-secondary: #7ade35;
+    --theme-on-secondary: #163800;
+    --theme-secondary-container: #58b900;
+    --theme-on-secondary-container: #1b4200;
+    --theme-tertiary: #a0d586;
+    --theme-on-tertiary: #0e3900;
+    --theme-tertiary-container: #6c9d55;
+    --theme-on-tertiary-container: #0b3100;
+    --theme-error: #ffb4ab;
+    --theme-on-error: #690005;
+    --theme-error-container: #93000a;
+    --theme-on-error-container: #ffdad6;
+    --theme-primary-fixed: #9cfa63;
+    --theme-primary-fixed-dim: #81dd4a;
+    --theme-on-primary-fixed: #092100;
+    --theme-on-primary-fixed-variant: #215100;
+    --theme-secondary-fixed: #95fc51;
+    --theme-secondary-fixed-dim: #7ade35;
+    --theme-on-secondary-fixed: #0a2100;
+    --theme-on-secondary-fixed-variant: #235100;
+    --theme-tertiary-fixed: #bbf1a0;
+    --theme-tertiary-fixed-dim: #a0d586;
+    --theme-on-tertiary-fixed: #052100;
+    --theme-on-tertiary-fixed-variant: #245112;
+    --theme-background: #0c1320;
+    --theme-on-background: #dce2f5;
+    --theme-surface-variant: #2e3543;
+  }
+}
+
