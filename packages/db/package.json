@@ -8,7 +8,11 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "seed": "prisma db seed"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.10.2"
@@ -17,6 +21,7 @@
     "@repo/typescript-config": "*",
     "@types/node": "^22.20.1",
     "prisma": "^5.10.2",
+    "ts-node": "^10.9.2",
     "typescript": "^5.0.0"
   }
 }

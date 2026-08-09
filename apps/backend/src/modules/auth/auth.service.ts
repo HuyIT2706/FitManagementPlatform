@@ -1,13 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unused-vars */
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
-import { OAuth2Client } from 'google-auth-library';
-
-// const client = new OAuth2Client(
-//   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID,
-// );
 
 @Injectable()
 export class AuthService {
@@ -15,6 +10,27 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
   ) {}
+
+  async getTokens(userId: string, email: string, role: string) {
+    const payload = { sub: userId, email, role };
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(payload, {
+        expiresIn: '15m',
+      }),
+      this.jwtService.signAsync(payload, {
+        expiresIn: '7d',
+      }),
+    ]);
+    return { accessToken, refreshToken };
+  }
+
+  async updateRefreshTokenHash(userId: string, refreshToken: string) {
+    const hash = await bcrypt.hash(refreshToken, 10);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { refreshTokenHash: hash },
+    });
+  }
 
   async login(email: string, pass: string) {
     if (!email || !pass) {
@@ -28,9 +44,13 @@ export class AuthService {
     if (!isMatch) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    const payload = { sub: user.id, email: user.email, role: user.role };
+    
+    const tokens = await this.getTokens(user.id, user.email, user.role);
+    await this.updateRefreshTokenHash(user.id, tokens.refreshToken);
+
     return {
-      access_token: await this.jwtService.signAsync(payload),
+      access_token: tokens.accessToken,
+      refresh_token: tokens.refreshToken,
       user: {
         id: user.id,
         email: user.email,
@@ -57,7 +77,6 @@ export class AuthService {
       let user = await this.prisma.user.findUnique({ where: { email } });
 
       if (!user) {
-        // Create new user for Google login
         user = await this.prisma.user.create({
           data: {
             email: email,
@@ -68,9 +87,12 @@ export class AuthService {
         });
       }
 
-      const jwtPayload = { sub: user.id, email: user.email, role: user.role };
+      const tokens = await this.getTokens(user.id, user.email, user.role);
+      await this.updateRefreshTokenHash(user.id, tokens.refreshToken);
+
       return {
-        access_token: await this.jwtService.signAsync(jwtPayload),
+        access_token: tokens.accessToken,
+        refresh_token: tokens.refreshToken,
         user: {
           id: user.id,
           email: user.email,
@@ -83,5 +105,28 @@ export class AuthService {
       console.error(e);
       throw new UnauthorizedException('Google authentication failed');
     }
+  }
+
+  async logout(userId: string) {
+    await this.prisma.user.updateMany({
+      where: { id: userId, refreshTokenHash: { not: null } },
+      data: { refreshTokenHash: null },
+    });
+  }
+
+  async refreshTokens(userId: string, refreshToken: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user || !user.refreshTokenHash) {
+      throw new ForbiddenException('Access Denied');
+    }
+
+    const rtMatches = await bcrypt.compare(refreshToken, user.refreshTokenHash);
+    if (!rtMatches) {
+      throw new ForbiddenException('Access Denied');
+    }
+
+    const tokens = await this.getTokens(user.id, user.email, user.role);
+    await this.updateRefreshTokenHash(user.id, tokens.refreshToken);
+    return tokens;
   }
 }

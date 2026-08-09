@@ -60,6 +60,8 @@ model User {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
+  refreshTokenHash String?
+
   onboardingCompleted Boolean  @default(false)
   targetWeight        Float?
   height              Float?

@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import TopBar from "../../components/navigation/TopBar";
 import BottomNavBar from "../../components/navigation/BottomNavBar";
 import apiClient from "../../api/axios";
@@ -9,12 +10,17 @@ import apiClient from "../../api/axios";
 
 export default function Home() {
   const [userData, setUserData] = useState<any>(null);
+  const [dailyData, setDailyData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiClient.get("/users/me")
-      .then(res => {
-        setUserData(res.data);
+    Promise.all([
+      apiClient.get("/users/me"),
+      apiClient.get("/nutrition/daily")
+    ])
+      .then(([userRes, dailyRes]) => {
+        setUserData(userRes.data);
+        setDailyData(dailyRes.data);
         setLoading(false);
       })
       .catch(err => {
@@ -42,11 +48,44 @@ export default function Home() {
   const targetCarbs = target.targetCarbs || 0;
   const targetFat = target.targetFat || 0;
 
-  // Mocked consumed data for preview
-  const consumedCalo = 0;
-  const consumedProtein = 0;
-  const consumedCarbs = 0;
-  const consumedFat = 0;
+  const consumedCalo = dailyData?.consumed?.calories || 0;
+  const consumedProtein = dailyData?.consumed?.protein || 0;
+  const consumedCarbs = dailyData?.consumed?.carbs || 0;
+  const consumedFat = dailyData?.consumed?.fat || 0;
+
+  const getMealCalories = (type: string) => {
+    if (!dailyData?.meals) return 0;
+    const meal = dailyData.meals.find((m: any) => m.mealName === type);
+    return meal ? meal.totalCalories : 0;
+  };
+
+  const getMealConfig = (freq: number) => {
+    switch (freq) {
+      case 2: return [
+        { id: 'BREAKFAST', name: 'Bữa Sáng', icon: 'wb_twilight' },
+        { id: 'DINNER', name: 'Bữa Tối', icon: 'dark_mode' },
+      ];
+      case 3: return [
+        { id: 'BREAKFAST', name: 'Bữa Sáng', icon: 'wb_twilight' },
+        { id: 'LUNCH', name: 'Bữa Trưa', icon: 'light_mode' },
+        { id: 'DINNER', name: 'Bữa Tối', icon: 'dark_mode' },
+      ];
+      case 5: return [
+        { id: 'BREAKFAST', name: 'Bữa Sáng', icon: 'wb_twilight' },
+        { id: 'MORNING_SNACK', name: 'Phụ Sáng', icon: 'bakery_dining' },
+        { id: 'LUNCH', name: 'Bữa Trưa', icon: 'light_mode' },
+        { id: 'AFTERNOON_SNACK', name: 'Phụ Chiều', icon: 'icecream' },
+        { id: 'DINNER', name: 'Bữa Tối', icon: 'dark_mode' },
+      ];
+      case 4:
+      default: return [
+        { id: 'BREAKFAST', name: 'Bữa Sáng', icon: 'wb_twilight' },
+        { id: 'LUNCH', name: 'Bữa Trưa', icon: 'light_mode' },
+        { id: 'DINNER', name: 'Bữa Tối', icon: 'dark_mode' },
+        { id: 'SNACK', name: 'Bữa Phụ', icon: 'icecream' },
+      ];
+    }
+  };
 
   const caloPercentage = targetCalo ? Math.min((consumedCalo / targetCalo) * 100, 100) : 0;
   const proteinPercentage = targetProtein ? Math.min((consumedProtein / targetProtein) * 100, 100) : 0;
@@ -60,7 +99,7 @@ export default function Home() {
     <div className="min-h-screen bg-background pb-32 pt-2 md:pt-0 dark text-on-surface">
       <TopBar userData={userData} onLogout={handleLogout} />
 
-      <main className="max-w-7xl mx-auto px-container-padding md:mt-8 space-y-gutter">
+      <main className="max-w-7xl mx-auto px-container-padding md:mt-8 ">
         {/* Horizontal Calendar Strip */}
         <section className="flex overflow-x-auto no-scrollbar gap-3 py-2 -mx-container-padding px-container-padding snap-x">
           <div className=" flex flex-col items-center justify-center p-3 rounded-2xl bento-card w-16 h-20 snap-center opacity-70">
@@ -75,8 +114,8 @@ export default function Home() {
             <span className="font-body-md text-sm text-on-surface-variant">Th 4</span>
             <span className="font-headline-md text-xl font-bold mt-1">19</span>
           </div>
-          <div className=" flex flex-col items-center justify-center p-3 rounded-2xl bg-green-light/20 border border-green-light w-20 h-24 snap-center relative shadow-[0_0_15px_rgba(102,200,28,0.2)]">
-            <span className="font-label-lg text-[12px] text-green-light font-bold">Hôm nay</span>
+          <div className=" flex flex-col items-center justify-center p-3 rounded-2xl bg-green-light/20 border border-green-light w-22 h-20 snap-center relative shadow-[0_0_15px_rgba(102,200,28,0.2)]">
+            <span className="font-label-lg text-[12px] text-green-light font-bold whitespace-nowrap">Hôm nay</span>
             <span className="font-stats-xl text-3xl font-extrabold text-green-light mt-1">20</span>
             <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-light rounded-full shadow-[0_0_10px_rgba(102,200,28,0.8)]"></div>
           </div>
@@ -199,69 +238,22 @@ export default function Home() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
-              {/* Breakfast */}
-              <div className="bento-card p-4 flex items-center justify-between group hover:bg-surface-bright/30 transition-colors cursor-pointer border border-bento-border/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant">
-                    <span className="material-symbols-outlined">wb_twilight</span>
+              {getMealConfig(userData?.mealFrequency || 4).map((meal) => (
+                <div key={meal.id} className="bento-card p-4 flex items-center justify-between group hover:bg-surface-bright/30 transition-colors border border-bento-border/50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant">
+                      <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>{meal.icon}</span>
+                    </div>
+                    <div>
+                      <h4 className="font-label-lg text-sm font-semibold text-on-surface">{meal.name}</h4>
+                      <span className="font-body-md text-sm text-on-surface-variant">{getMealCalories(meal.id)} kcal</span>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-label-lg text-sm font-semibold text-on-surface">Bữa Sáng</h4>
-                    <span className="font-body-md text-sm text-on-surface-variant">450-550 kcal</span>
-                  </div>
+                  <Link href={`/add-meal?type=${meal.id}`} className="w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-green-light/20 hover:text-green-light hover:border-green-light transition-all">
+                    <span className="material-symbols-outlined text-[20px]">add</span>
+                  </Link>
                 </div>
-                <button className="w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-green-light/20 hover:text-green-light hover:border-green-light transition-all">
-                  <span className="material-symbols-outlined text-[20px]">add</span>
-                </button>
-              </div>
-
-              {/* Lunch */}
-              <div className="bento-card p-4 flex items-center justify-between group hover:bg-surface-bright/30 transition-colors cursor-pointer border border-bento-border/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant">
-                    <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>light_mode</span>
-                  </div>
-                  <div>
-                    <h4 className="font-label-lg text-sm font-semibold text-on-surface">Bữa Trưa</h4>
-                    <span className="font-body-md text-sm text-on-surface-variant">600-750 kcal</span>
-                  </div>
-                </div>
-                <button className="w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-green-light/20 hover:text-green-light hover:border-green-light transition-all">
-                  <span className="material-symbols-outlined text-[20px]">add</span>
-                </button>
-              </div>
-
-              {/* Dinner */}
-              <div className="bento-card p-4 flex items-center justify-between group hover:bg-surface-bright/30 transition-colors cursor-pointer border border-bento-border/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant">
-                    <span className="material-symbols-outlined">dark_mode</span>
-                  </div>
-                  <div>
-                    <h4 className="font-label-lg text-sm font-semibold text-on-surface">Bữa Tối</h4>
-                    <span className="font-body-md text-sm text-on-surface-variant">500-600 kcal</span>
-                  </div>
-                </div>
-                <button className="w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-green-light/20 hover:text-green-light hover:border-green-light transition-all">
-                  <span className="material-symbols-outlined text-[20px]">add</span>
-                </button>
-              </div>
-
-              {/* Snacks */}
-              <div className="bento-card p-4 flex items-center justify-between group hover:bg-surface-bright/30 transition-colors cursor-pointer border border-bento-border/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant">
-                    <span className="material-symbols-outlined">icecream</span>
-                  </div>
-                  <div>
-                    <h4 className="font-label-lg text-sm font-semibold text-on-surface">Bữa Phụ</h4>
-                    <span className="font-body-md text-sm text-on-surface-variant">150-200 kcal</span>
-                  </div>
-                </div>
-                <button className="w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-green-light/20 hover:text-green-light hover:border-green-light transition-all">
-                  <span className="material-symbols-outlined text-[20px]">add</span>
-                </button>
-              </div>
+              ))}
             </div>
           </div>
         </div>

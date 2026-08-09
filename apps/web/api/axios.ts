@@ -5,6 +5,7 @@ const apiClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
 
 apiClient.interceptors.request.use(
@@ -22,18 +23,46 @@ apiClient.interceptors.request.use(
   },
 );
 
-// Response interceptor
 apiClient.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
-    if (error.response?.status === 401) {
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (originalRequest.url === "/auth/refresh") {
       if (typeof window !== "undefined") {
         localStorage.removeItem("jwt_token");
         window.location.href = "/login";
       }
+      return Promise.reject(error);
     }
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        const refreshResponse = await axios.post(
+          "http://localhost:3100/auth/refresh",
+          {},
+          { withCredentials: true },
+        );
+
+        const newAccessToken = refreshResponse.data.access_token;
+        if (newAccessToken && typeof window !== "undefined") {
+          localStorage.setItem("jwt_token", newAccessToken);
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          return apiClient(originalRequest);
+        }
+      } catch (refreshError) {
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("jwt_token");
+          window.location.href = "/login";
+        }
+        return Promise.reject(refreshError);
+      }
+    }
+
     return Promise.reject(error);
   },
 );
