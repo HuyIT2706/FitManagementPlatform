@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import apiClient from "../../api/axios";
 import toast from "../../utils/toast";
 import type { FoodItem } from "../../interface";
 
-export default function AddMealPage() {
+function AddMealContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const mealType = searchParams.get("type") || "BREAKFAST"; // BREAKFAST, LUNCH, DINNER, SNACK
@@ -226,5 +226,19 @@ export default function AddMealPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function AddMealPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-background text-on-surface">
+          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      }
+    >
+      <AddMealContent />
+    </Suspense>
   );
 }
