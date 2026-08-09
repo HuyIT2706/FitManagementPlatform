@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,17 +5,17 @@ import Link from "next/link";
 import TopBar from "../../components/navigation/TopBar";
 import BottomNavBar from "../../components/navigation/BottomNavBar";
 import apiClient from "../../api/axios";
-
+import type { UserDataHome, DailyNutritionData } from "../../interface";
 
 export default function Home() {
-  const [userData, setUserData] = useState<any>(null);
-  const [dailyData, setDailyData] = useState<any>(null);
+  const [userData, setUserData] = useState<UserDataHome | null>(null);
+  const [dailyData, setDailyData] = useState<DailyNutritionData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
-      apiClient.get("/users/me"),
-      apiClient.get("/nutrition/daily")
+      apiClient.get<UserDataHome>("/users/me"),
+      apiClient.get<DailyNutritionData>("/nutrition/daily")
     ])
       .then(([userRes, dailyRes]) => {
         setUserData(userRes.data);
@@ -55,7 +54,7 @@ export default function Home() {
 
   const getMealCalories = (type: string) => {
     if (!dailyData?.meals) return 0;
-    const meal = dailyData.meals.find((m: any) => m.mealName === type);
+    const meal = dailyData.meals.find((m) => m.mealName === type);
     return meal ? meal.totalCalories : 0;
   };
 

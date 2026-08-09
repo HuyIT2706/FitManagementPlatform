@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useOnboardingStore } from '../../store/onboardingStore';
+import { useOnboardingStore, type OnboardingState } from '../../store/onboardingStore';
 import apiClient from '../../api/axios';
 import { ArrowLeft, Check } from 'lucide-react';
 
@@ -123,7 +122,7 @@ export default function OnboardingPage() {
 // STEP COMPONENTS
 // ------------------------------------------------------------------
 
-function StepAge({ store }: { store: any }) {
+function StepAge({ store }: { store: OnboardingState }) {
   return (
     <div className="flex flex-col items-center justify-center flex-1 h-full pb-20">
       <h2 className="text-3xl font-bold mb-4 text-center">Bạn bao nhiêu tuổi?</h2>
@@ -142,7 +141,7 @@ function StepAge({ store }: { store: any }) {
   );
 }
 
-function StepGender({ store }: { store: any }) {
+function StepGender({ store }: { store: OnboardingState }) {
   const options = [
     { id: 'MALE', label: 'Nam', icon: '♂️' },
     { id: 'FEMALE', label: 'Nữ', icon: '♀️' }
@@ -168,7 +167,7 @@ function StepGender({ store }: { store: any }) {
   );
 }
 
-function StepWeight({ store }: { store: any }) {
+function StepWeight({ store }: { store: OnboardingState }) {
   return (
     <div className="flex flex-col flex-1 h-full space-y-12">
       <div>
@@ -209,7 +208,7 @@ function StepWeight({ store }: { store: any }) {
   );
 }
 
-function StepHeight({ store }: { store: any }) {
+function StepHeight({ store }: { store: OnboardingState }) {
   return (
     <div className="flex flex-col items-center flex-1 h-full">
       <h2 className="text-3xl font-bold mb-4 w-full text-left">Chiều cao hiện tại</h2>
@@ -229,7 +228,7 @@ function StepHeight({ store }: { store: any }) {
   );
 }
 
-function StepActivity({ store }: { store: any }) {
+function StepActivity({ store }: { store: OnboardingState }) {
   const options = [
     { id: 'SEDENTARY', label: 'Ít vận động', desc: 'Làm việc văn phòng, ít đi lại, không tập thể dục thường xuyên' },
     { id: 'LIGHTLY_ACTIVE', label: 'Vận động nhẹ', desc: 'Tập thể dục nhẹ nhàng 1-3 ngày/tuần hoặc công việc đi lại nhiều' },
@@ -258,7 +257,7 @@ function StepActivity({ store }: { store: any }) {
   );
 }
 
-function StepBMI({ store }: { store: any }) {
+function StepBMI({ store }: { store: OnboardingState }) {
   const heightM = (store.height || 170) / 100;
   const bmi = store.weight ? (store.weight / (heightM * heightM)).toFixed(1) : '24.2';
   
@@ -285,7 +284,7 @@ function StepBMI({ store }: { store: any }) {
   );
 }
 
-function StepMeal({ store }: { store: any }) {
+function StepMeal({ store }: { store: OnboardingState }) {
   const options = [2, 3, 4, 5];
   return (
     <div className="flex flex-col flex-1 h-full">
@@ -311,7 +310,7 @@ function StepMeal({ store }: { store: any }) {
   );
 }
 
-function StepDiet({ store }: { store: any }) {
+function StepDiet({ store }: { store: OnboardingState }) {
   const options = [
     { id: 'NONE', label: 'Không bị dị ứng', icon: '✅' },
     { id: 'SEAFOOD', label: 'Hải sản', icon: '🦐' },
@@ -344,7 +343,7 @@ function StepDiet({ store }: { store: any }) {
   );
 }
 
-function StepHealth({ store }: { store: any }) {
+function StepHealth({ store }: { store: OnboardingState }) {
   const options = [
     { id: 'HEALTHY', label: 'Khỏe mạnh', desc: 'Không có vấn đề sức khỏe' },
     { id: 'DIABETES', label: 'Tiểu đường', desc: 'Đường huyết cao' },
@@ -376,7 +375,7 @@ function StepHealth({ store }: { store: any }) {
   );
 }
 
-function StepNotify({ store }: { store: any }) {
+function StepNotify({ store }: { store: OnboardingState }) {
   return (
     <div className="flex flex-col items-center flex-1 h-full pb-20">
       <div className="w-24 h-24 bg-[#10b981]/20 rounded-full flex items-center justify-center mb-8 mt-10">

@@ -3,15 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import apiClient from "../../api/axios";
-
-interface FoodItem {
-  id: string;
-  name: string;
-  caloriesPer100g: number;
-  proteinPer100g: number;
-  carbsPer100g: number;
-  fatPer100g: number;
-}
+import toast from "../../utils/toast";
+import type { FoodItem } from "../../interface";
 
 export default function AddMealPage() {
   const router = useRouter();
@@ -63,6 +56,7 @@ export default function AddMealPage() {
   const handleAddToList = () => {
     if (selectedFood && weight && weight > 0) {
       setAddedItems([...addedItems, { food: selectedFood, weightInGram: Number(weight) }]);
+      toast.info(`Đã thêm ${selectedFood.name} (${weight}g)`);
       setSelectedFood(null);
       setWeight("");
       setQuery("");
@@ -71,8 +65,11 @@ export default function AddMealPage() {
 
   const handleRemoveItem = (index: number) => {
     const newItems = [...addedItems];
-    newItems.splice(index, 1);
+    const removed = newItems.splice(index, 1);
     setAddedItems(newItems);
+    if (removed[0]) {
+      toast.info(`Đã bỏ ${removed[0].food.name}`);
+    }
   };
 
   const handleSaveMeal = async () => {
@@ -86,9 +83,11 @@ export default function AddMealPage() {
           weightInGram: item.weightInGram
         }))
       });
+      toast.success(`Đã ghi nhận ${mealNameMap[mealType] || 'bữa ăn'}!`);
       router.push("/home");
     } catch (error) {
       console.error("Failed to save meal:", error);
+      toast.error("Không thể lưu bữa ăn. Vui lòng thử lại!");
       setIsSaving(false);
     }
   };

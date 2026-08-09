@@ -30,7 +30,15 @@ export class NutritionService {
     let totalCarbs = 0;
     let totalFat = 0;
 
-    const itemsData: any[] = [];
+    const itemsData: Array<{
+      foodLibraryId: string;
+      foodName: string;
+      weightInGram: number;
+      calories: number;
+      protein: number;
+      carbs: number;
+      fat: number;
+    }> = [];
 
     for (const item of dto.items) {
       const food = await this.prisma.foodLibrary.findUnique({

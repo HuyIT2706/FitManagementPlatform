@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
 import {
   Controller,
   Patch,
@@ -11,6 +10,7 @@ import {
 import { UsersService } from './users.service';
 import { OnboardingDto } from './dto/onboarding.dto';
 import { JwtGuard } from '../auth/jwt.guard';
+import type { RequestWithUser } from '../../common/interfaces/request-with-user.interface';
 
 @Controller('users')
 export class UsersController {
@@ -18,13 +18,16 @@ export class UsersController {
 
   @UseGuards(JwtGuard)
   @Get('me')
-  async getMe(@Request() req) {
+  async getMe(@Request() req: RequestWithUser) {
     return this.usersService.getMe(req.user.sub);
   }
 
   @UseGuards(JwtGuard)
   @Patch('onboarding')
-  async completeOnboarding(@Request() req, @Body() dto: OnboardingDto) {
+  async completeOnboarding(
+    @Request() req: RequestWithUser,
+    @Body() dto: OnboardingDto,
+  ) {
     return this.usersService.completeOnboarding(req.user.sub, dto);
   }
 

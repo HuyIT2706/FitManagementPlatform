@@ -1,7 +1,15 @@
-/* eslint-disable @next/next/no-img-element, @typescript-eslint/no-explicit-any */
+/* eslint-disable @next/next/no-img-element */
 import React from "react";
+import type { UserData } from "../../interface";
 
-export default function TopBar({ userData, onLogout }: { userData: any, onLogout: () => void }) {
+export type { UserData };
+
+interface TopBarProps {
+  userData?: UserData | null;
+  onLogout: () => void;
+}
+
+export default function TopBar({ userData, onLogout }: TopBarProps) {
   return (
     <>
       {/* TopAppBar (Web) */}

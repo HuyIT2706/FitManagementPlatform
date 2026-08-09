@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
 import {
   Controller,
   Get,
@@ -11,6 +10,7 @@ import {
 import { NutritionService } from './nutrition.service';
 import { LogMealDto } from './dto/log-meal.dto';
 import { JwtGuard } from '../auth/jwt.guard';
+import type { RequestWithUser } from '../../common/interfaces/request-with-user.interface';
 
 @UseGuards(JwtGuard)
 @Controller('nutrition')
@@ -23,12 +23,15 @@ export class NutritionController {
   }
 
   @Post('meals')
-  async logMeal(@Request() req, @Body() dto: LogMealDto) {
+  async logMeal(@Request() req: RequestWithUser, @Body() dto: LogMealDto) {
     return this.nutritionService.logMeal(req.user.sub, dto);
   }
 
   @Get('daily')
-  async getDailyNutrition(@Request() req, @Query('date') dateString?: string) {
+  async getDailyNutrition(
+    @Request() req: RequestWithUser,
+    @Query('date') dateString?: string,
+  ) {
     // If no date is provided, use today's date
     const date = dateString ? new Date(dateString) : new Date();
     return this.nutritionService.getDailyNutrition(req.user.sub, date);

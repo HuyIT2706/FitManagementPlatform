@@ -2,6 +2,7 @@ import { Body, Controller, Post, HttpCode, HttpStatus, Res, Req, UseGuards } fro
 import { AuthService } from './auth.service';
 import type { Response, Request } from 'express';
 import { JwtGuard } from './jwt.guard';
+import type { RequestWithUser } from '../../common/interfaces/request-with-user.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -19,7 +20,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async signIn(
-    @Body() signInDto: Record<string, any>,
+    @Body() signInDto: { email: string; password: string },
     @Res({ passthrough: true }) res: Response,
   ) {
     const { access_token, refresh_token, user } = await this.authService.login(signInDto.email, signInDto.password);
@@ -44,7 +45,7 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const refreshToken = req.cookies?.refresh_token;
+    const refreshToken = (req.cookies as Record<string, string> | undefined)?.refresh_token;
     if (!refreshToken) {
       res.status(HttpStatus.FORBIDDEN).send({ message: 'Access Denied' });
       return;
@@ -54,7 +55,7 @@ export class AuthController {
     // Actually, we need userId. We can decode the token to get userId, or require client to send it.
     // It's better to decode the token. Let's let the JwtService handle it, but wait, the JwtGuard is not applied.
     // I will extract the userId from the payload inside the controller.
-    const jwtPayload = JSON.parse(Buffer.from(refreshToken.split('.')[1], 'base64').toString());
+    const jwtPayload = JSON.parse(Buffer.from(refreshToken.split('.')[1], 'base64').toString()) as { sub: string };
     const userId = jwtPayload.sub;
 
     const tokens = await this.authService.refreshTokens(userId, refreshToken);
@@ -66,7 +67,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('logout')
   async logout(
-    @Req() req: any,
+    @Req() req: RequestWithUser,
     @Res({ passthrough: true }) res: Response,
   ) {
     const userId = req.user.sub;

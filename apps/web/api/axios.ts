@@ -24,11 +24,11 @@ apiClient.interceptors.request.use(
 );
 
 apiClient.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  async (error) => {
-    const originalRequest = error.config;
+    (response) => {
+        return response;
+    },
+    async (error) => {
+        const originalRequest = error.config;
 
     if (originalRequest.url === "/auth/refresh") {
       if (typeof window !== "undefined") {

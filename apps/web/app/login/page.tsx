@@ -51,8 +51,9 @@ function LoginContent() {
         } else {
           window.location.href = '/';
         }
-      } catch (err: any) {
-        setError(err.message || 'Đã có lỗi xảy ra');
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Đã có lỗi xảy ra';
+        setError(msg);
       } finally {
         setLoading(false);
       }
@@ -68,7 +69,7 @@ function LoginContent() {
     setError('');
 
     try {
-      const response = await apiClient.post('/auth/login', { email, password }).catch(err => {
+      const response = await apiClient.post('/auth/login', { email, password }).catch((err: { response?: { data?: { message?: string } } }) => {
         throw new Error(err.response?.data?.message || 'Sai email hoặc mật khẩu');
       });
       const data = response.data;
@@ -80,8 +81,9 @@ function LoginContent() {
       } else {
         window.location.href = '/';
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Đã có lỗi xảy ra';
+      setError(msg);
     } finally {
       setLoading(false);
     }

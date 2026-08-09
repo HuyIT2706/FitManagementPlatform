@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { OnboardingData } from '@repo/types';
 
-interface OnboardingState extends OnboardingData {
+export interface OnboardingState extends OnboardingData {
   // Actions
   setAge: (age: number) => void;
   setGender: (gender: string) => void;
