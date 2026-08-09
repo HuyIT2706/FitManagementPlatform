@@ -61,6 +61,48 @@
   --color-background: var(--theme-background);
   --color-on-background: var(--theme-on-background);
   --color-surface-variant: var(--theme-surface-variant);
+  
+  /* Custom Bento Theme */
+  --color-bento-bg: #202939;
+  --color-bento-border: #324054;
+  --color-macro-protein: #0086C9;
+  --color-macro-carbs: #EF6820;
+  --color-macro-fats: #F63D68;
+  --color-green-light: #66C81C;
+  --color-dark-slate: #121926;
+  
+  --spacing-container-padding: 24px;
+  --spacing-stack-sm: 8px;
+  --spacing-gutter: 16px;
+  
+  --font-headline-md: "Plus Jakarta Sans", sans-serif;
+  --font-display-lg: "Plus Jakarta Sans", sans-serif;
+  --font-stats-xl: "Plus Jakarta Sans", sans-serif;
+  --font-label-lg: "Inter", sans-serif;
+  --font-body-md: "Inter", sans-serif;
+}
+
+@layer utilities {
+  .bento-card {
+    background-color: rgba(32, 41, 57, 0.7);
+    border: 1px solid #324054;
+    backdrop-filter: blur(12px);
+    border-radius: 1rem;
+  }
+  .progress-ring__circle {
+    stroke-dasharray: 816 816;
+    stroke-dashoffset: 200;
+    transition: stroke-dashoffset 0.35s;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 @layer base {
