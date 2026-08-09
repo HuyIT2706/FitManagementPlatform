@@ -60,6 +60,14 @@ model User {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
+  onboardingCompleted Boolean  @default(false)
+  targetWeight        Float?
+  height              Float?
+  mealFrequency       Int?
+  dietaryPreferences  String[]
+  healthConditions    String[]
+  pushNotifications   Boolean  @default(true)
+
   trainerProfiles StudentProfile[] @relation("TrainerRelation")
   studentProfiles StudentProfile[] @relation("StudentRelation")
 
