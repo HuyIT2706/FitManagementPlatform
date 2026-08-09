@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { ArrowLeft, Mail, Eye, EyeOff } from 'lucide-react';

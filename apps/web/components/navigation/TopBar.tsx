@@ -1,6 +1,7 @@
+/* eslint-disable @next/next/no-img-element */
 import React from "react";
 
-export default function TopBar({ userData, onLogout }: { userData: any, onLogout: () => void }) {
+export default function TopBar({ userData, onLogout }: { userData: Record<string, unknown> | null, onLogout: () => void }) {
   return (
     <>
       {/* TopAppBar (Web) */}

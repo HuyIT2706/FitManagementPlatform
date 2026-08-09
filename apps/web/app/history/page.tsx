@@ -5,7 +5,7 @@ import TopBar from "../../components/navigation/TopBar";
 import BottomNavBar from "../../components/navigation/BottomNavBar";
 
 export default function HistoryPage() {
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -237,7 +237,7 @@ export default function HistoryPage() {
                 </div>
                 <div className="ml-16 bg-blue-500/10 border border-blue-500/20 p-3 rounded-xl flex items-start gap-3">
                   <span className="material-symbols-outlined text-blue-400 text-lg">chat_bubble</span>
-                  <p className="text-xs text-blue-300 italic leading-relaxed">Note từ PT: "Bữa trưa ăn chuẩn! Tiếp tục duy trì lượng đạm này nhé."</p>
+                  <p className="text-xs text-blue-300 italic leading-relaxed">Note từ PT: &quot;Bữa trưa ăn chuẩn! Tiếp tục duy trì lượng đạm này nhé.&quot;</p>
                 </div>
               </div>
               

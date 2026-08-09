@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -5,7 +6,7 @@ import TopBar from "../../components/navigation/TopBar";
 import BottomNavBar from "../../components/navigation/BottomNavBar";
 
 export default function WorkoutPage() {
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [checkedExercises, setCheckedExercises] = useState<Record<number, boolean>>({
     0: true,
@@ -121,7 +122,7 @@ export default function WorkoutPage() {
                   <img alt="Coach Avatar" className="w-10 h-10 rounded-full object-cover border border-primary/40" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1XRmNcoyKgXasEXbx57gFk4z4yYg1TWQqCYoN5IF0Pnrdcx_BCDPYz_Q7DXtum8Co3zPtbTiRp7oqZKNurhC23lmSeWqR-Mv0nBtacFyGZVFw2qgQ0uRL_OpMu0uqmnX2P57wFCVzBslgQI05V0gmJmCbIjbmmLHR6g4yjUvSggPs7e52O9lta5tvwl6S4MAyIrf5htKNl_9RLJodUzAhkfmjNn5W1Rk44Ij7YLcL5nsi-hzt0ntP" />
                   <p className="text-sm text-primary leading-relaxed">
                     <strong className="text-on-surface block mb-1">Coach Huy:</strong>
-                    "Ăn đúng lượng Carbs trước tập 1 tiếng để có sức nâng tạ nhé!"
+                    &quot;Ăn đúng lượng Carbs trước tập 1 tiếng để có sức nâng tạ nhé!&quot;
                   </p>
                 </div>
                 
