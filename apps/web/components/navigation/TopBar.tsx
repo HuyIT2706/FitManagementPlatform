@@ -1,7 +1,7 @@
-/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @next/next/no-img-element, @typescript-eslint/no-explicit-any */
 import React from "react";
 
-export default function TopBar({ userData, onLogout }: { userData: Record<string, unknown> | null, onLogout: () => void }) {
+export default function TopBar({ userData, onLogout }: { userData: any, onLogout: () => void }) {
   return (
     <>
       {/* TopAppBar (Web) */}
@@ -46,7 +46,7 @@ export default function TopBar({ userData, onLogout }: { userData: Record<string
           </div>
           <div className="flex flex-col">
             <span className="font-label-lg text-sm text-on-surface-variant">Chào buổi sáng,</span>
-            <span className="font-headline-md text-lg text-on-surface -mt-1 truncate max-w-[150px]">{userData?.fullName || 'Thành viên'}</span>
+            <span className="font-headline-md text-lg text-on-surface -mt-1 truncate max-w-36">{userData?.fullName || 'Thành viên'}</span>
           </div>
         </div>
         <button onClick={onLogout} className="p-2 bg-bento-bg border border-bento-border rounded-full text-red-400 hover:text-red-500 transition-colors">

@@ -1,38 +1,25 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
 import TopBar from "../../components/navigation/TopBar";
 import BottomNavBar from "../../components/navigation/BottomNavBar";
+import apiClient from "../../api/axios";
 
 export default function HistoryPage() {
-  const [userData, setUserData] = useState<Record<string, unknown> | null>(null);
+  const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("jwt_token");
-    if (!token) {
-      window.location.href = "/login";
-      return;
-    }
-
-    fetch("http://localhost:3100/users/me", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-    .then(res => {
-      if (!res.ok) throw new Error("Unauthorized");
-      return res.json();
-    })
-    .then(data => {
-      setUserData(data);
-      setLoading(false);
-    })
-    .catch(err => {
-      console.error(err);
-      localStorage.removeItem("jwt_token");
-      window.location.href = "/login";
-    });
+    apiClient.get("/users/me")
+      .then(res => {
+        setUserData(res.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
   }, []);
 
   const handleLogout = () => {
@@ -106,7 +93,7 @@ export default function HistoryPage() {
                 <button className="material-symbols-outlined text-on-surface-variant hover:text-green-light transition-colors">chevron_right</button>
               </div>
             </div>
-            <div className="grid grid-cols-7 gap-y-3 gap-x-1 flex-grow text-center h-full">
+            <div className="grid grid-cols-7 gap-y-3 gap-x-1 grow text-center h-full">
               {/* Weekdays */}
               {['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].map(day => (
                 <span key={day} className="text-[10px] font-bold text-on-surface-variant/50">{day}</span>

@@ -1,39 +1,26 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
 import TopBar from "../../components/navigation/TopBar";
 import BottomNavBar from "../../components/navigation/BottomNavBar";
+import apiClient from "../../api/axios";
 
 
 export default function Home() {
-  const [userData, setUserData] = useState<Record<string, unknown> | null>(null);
+  const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("jwt_token");
-    if (!token) {
-      window.location.href = "/login";
-      return;
-    }
-
-    fetch("http://localhost:3100/users/me", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-    .then(res => {
-      if (!res.ok) throw new Error("Unauthorized");
-      return res.json();
-    })
-    .then(data => {
-      setUserData(data);
-      setLoading(false);
-    })
-    .catch(err => {
-      console.error(err);
-      localStorage.removeItem("jwt_token");
-      window.location.href = "/login";
-    });
+    apiClient.get("/users/me")
+      .then(res => {
+        setUserData(res.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
   }, []);
 
   const handleLogout = () => {

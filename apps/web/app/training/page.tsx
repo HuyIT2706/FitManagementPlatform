@@ -1,12 +1,13 @@
-/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @next/next/no-img-element, @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
 import TopBar from "../../components/navigation/TopBar";
 import BottomNavBar from "../../components/navigation/BottomNavBar";
+import apiClient from "../../api/axios";
 
 export default function WorkoutPage() {
-  const [userData, setUserData] = useState<Record<string, unknown> | null>(null);
+  const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [checkedExercises, setCheckedExercises] = useState<Record<number, boolean>>({
     0: true,
@@ -20,30 +21,15 @@ export default function WorkoutPage() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("jwt_token");
-    if (!token) {
-      window.location.href = "/login";
-      return;
-    }
-
-    fetch("http://localhost:3100/users/me", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-    .then(res => {
-      if (!res.ok) throw new Error("Unauthorized");
-      return res.json();
-    })
-    .then(data => {
-      setUserData(data);
-      setLoading(false);
-    })
-    .catch(err => {
-      console.error(err);
-      localStorage.removeItem("jwt_token");
-      window.location.href = "/login";
-    });
+    apiClient.get("/users/me")
+      .then(res => {
+        setUserData(res.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
   }, []);
 
   const handleLogout = () => {
@@ -131,7 +117,7 @@ export default function WorkoutPage() {
                     <div className="w-12 h-12 rounded-lg bg-orange-400/10 flex items-center justify-center text-orange-400">
                       <span className="material-symbols-outlined">wb_twilight</span>
                     </div>
-                    <div className="flex-grow">
+                    <div className="grow">
                       <div className="flex justify-between">
                         <h4 className="font-bold text-on-surface text-sm">Bữa Sáng</h4>
                         <span className="text-on-surface-variant text-[11px]">450 kcal</span>
@@ -144,7 +130,7 @@ export default function WorkoutPage() {
                     <div className="w-12 h-12 rounded-lg bg-green-light/10 flex items-center justify-center text-green-light">
                       <span className="material-symbols-outlined">wb_sunny</span>
                     </div>
-                    <div className="flex-grow">
+                    <div className="grow">
                       <div className="flex justify-between">
                         <h4 className="font-bold text-on-surface text-sm">Bữa Trưa</h4>
                         <span className="text-on-surface-variant text-[11px]">650 kcal</span>
@@ -191,7 +177,7 @@ export default function WorkoutPage() {
                 ].map((exercise, index) => (
                   <div key={index} className={`rounded-2xl h-44 overflow-hidden relative transition-all ${checkedExercises[index] ? 'border-2 border-green-light/40' : 'border border-white/10'}`} 
                        style={{ backgroundImage: `url('${exercise.img}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-4 flex flex-col justify-end z-10">
+                    <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent p-4 flex flex-col justify-end z-10">
                       <div className="flex justify-between items-end w-full">
                         <div>
                           <h4 className="font-bold text-white text-lg font-headline-md leading-tight">{exercise.name}</h4>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { OnboardingDto } from './dto/onboarding.dto';
@@ -17,8 +18,8 @@ export class UsersService {
         bodyMetrics: {
           orderBy: { recordedAt: 'desc' },
           take: 1,
-        }
-      }
+        },
+      },
     });
   }
 
@@ -26,15 +27,15 @@ export class UsersService {
     const w = dto.weight || 70;
     const h = dto.height || 170;
     const gender = dto.gender || 'MALE';
-    
+
     let age = 25;
     if (dto.dateOfBirth) {
       const dob = new Date(dto.dateOfBirth);
       const diff_ms = Date.now() - dob.getTime();
-      const age_dt = new Date(diff_ms); 
+      const age_dt = new Date(diff_ms);
       age = Math.abs(age_dt.getUTCFullYear() - 1970);
     }
-    
+
     let bmr = 10 * w + 6.25 * h - 5 * age;
     if (gender === 'FEMALE') {
       bmr -= 161;
@@ -44,17 +45,25 @@ export class UsersService {
 
     let activityMultiplier = 1.2;
     switch (dto.activityLevel) {
-      case 'LIGHTLY_ACTIVE': activityMultiplier = 1.375; break;
-      case 'MODERATELY_ACTIVE': activityMultiplier = 1.55; break;
-      case 'VERY_ACTIVE': activityMultiplier = 1.725; break;
-      case 'EXTRA_ACTIVE': activityMultiplier = 1.9; break;
+      case 'LIGHTLY_ACTIVE':
+        activityMultiplier = 1.375;
+        break;
+      case 'MODERATELY_ACTIVE':
+        activityMultiplier = 1.55;
+        break;
+      case 'VERY_ACTIVE':
+        activityMultiplier = 1.725;
+        break;
+      case 'EXTRA_ACTIVE':
+        activityMultiplier = 1.9;
+        break;
     }
 
     const tdee = Math.round(bmr * activityMultiplier);
-    
+
     let goal = 'MAINTAIN';
     let suggestedOffset = 0;
-    
+
     if (dto.targetWeight !== undefined && dto.weight !== undefined) {
       if (dto.targetWeight < dto.weight) {
         goal = 'LOSE_WEIGHT';
@@ -65,8 +74,10 @@ export class UsersService {
       }
     }
 
-    const targetCalo = tdee + (dto.caloriesOffset !== undefined ? dto.caloriesOffset : suggestedOffset);
-    
+    const targetCalo =
+      tdee +
+      (dto.caloriesOffset !== undefined ? dto.caloriesOffset : suggestedOffset);
+
     const targetProtein = Math.round((targetCalo * 0.3) / 4);
     const targetCarbs = Math.round((targetCalo * 0.4) / 4);
     const targetFat = Math.round((targetCalo * 0.3) / 9);
@@ -79,20 +90,27 @@ export class UsersService {
       targetCalo,
       targetProtein,
       targetCarbs,
-      targetFat
+      targetFat,
     };
   }
 
   async completeOnboarding(userId: string, dto: OnboardingDto) {
-    const { weight, height, targetWeight, dateOfBirth, caloriesOffset, ...rest } = dto;
+    const {
+      weight,
+      height,
+      targetWeight,
+      dateOfBirth,
+      caloriesOffset,
+      ...rest
+    } = dto;
     const dob = dateOfBirth ? new Date(dateOfBirth) : undefined;
-    
+
     const calc = this.previewTDEE(dto);
 
     return this.prisma.$transaction(async (tx) => {
       if (weight) {
         await tx.bodyMetric.create({
-          data: { userId, weight, height }
+          data: { userId, weight, height },
         });
       }
 
@@ -103,7 +121,7 @@ export class UsersService {
           targetProtein: calc.targetProtein,
           targetCarbs: calc.targetCarbs,
           targetFat: calc.targetFat,
-        }
+        },
       });
 
       return tx.user.update({
@@ -114,7 +132,7 @@ export class UsersService {
           height,
           dateOfBirth: dob,
           onboardingCompleted: true,
-        }
+        },
       });
     });
   }

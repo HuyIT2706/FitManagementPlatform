@@ -1,4 +1,11 @@
-import { IsOptional, IsNumber, IsString, IsArray, IsBoolean, IsEnum } from 'class-validator';
+import {
+  IsOptional,
+  IsNumber,
+  IsString,
+  IsArray,
+  IsBoolean,
+  IsEnum,
+} from 'class-validator';
 import { ActivityLevel, Gender } from '@prisma/client';
 
 export class OnboardingDto {
@@ -12,7 +19,7 @@ export class OnboardingDto {
 
   @IsOptional()
   @IsNumber()
-  weight?: number; 
+  weight?: number;
 
   @IsOptional()
   @IsNumber()

@@ -1,4 +1,13 @@
-import { Controller, Patch, Body, UseGuards, Request, Get, Post } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
+import {
+  Controller,
+  Patch,
+  Body,
+  UseGuards,
+  Request,
+  Get,
+  Post,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { OnboardingDto } from './dto/onboarding.dto';
 import { JwtGuard } from '../auth/jwt.guard';
@@ -21,7 +30,7 @@ export class UsersController {
 
   @UseGuards(JwtGuard)
   @Post('preview-tdee')
-  async previewTdee(@Body() dto: OnboardingDto) {
+  previewTdee(@Body() dto: OnboardingDto) {
     return this.usersService.previewTDEE(dto);
   }
 }

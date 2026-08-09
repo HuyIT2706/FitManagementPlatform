@@ -1,39 +1,25 @@
-/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @next/next/no-img-element, @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
 import TopBar from "../../components/navigation/TopBar";
 import BottomNavBar from "../../components/navigation/BottomNavBar";
+import apiClient from "../../api/axios";
 
 export default function ProfilePage() {
-  const [userData, setUserData] = useState<Record<string, unknown> | null>(null);
+  const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("jwt_token");
-    if (!token) {
-      window.location.href = "/login";
-      return;
-    }
-
-    fetch("http://localhost:3100/users/me", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-    .then(res => {
-      if (!res.ok) throw new Error("Unauthorized");
-      return res.json();
-    })
-    .then(data => {
-      setUserData(data);
-      setLoading(false);
-    })
-    .catch(err => {
-      console.error(err);
-      localStorage.removeItem("jwt_token");
-      window.location.href = "/login";
-    });
+    apiClient.get("/users/me")
+      .then(res => {
+        setUserData(res.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
   }, []);
 
   const handleLogout = () => {
@@ -126,7 +112,7 @@ export default function ProfilePage() {
                 <div className="text-base font-bold text-primary">Bình thường</div>
               </div>
             </div>
-            <div className="h-[1px] w-full md:h-10 md:w-[1px] bg-white/10"></div>
+            <div className="h-px w-full md:h-10 md:w-px bg-white/10"></div>
             <div className="flex items-center gap-4 w-full md:w-auto">
               <div className="w-12 h-12 rounded-full bg-surface-bright/50 flex items-center justify-center border border-white/5">
                 <span className="material-symbols-outlined text-orange-400 text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>

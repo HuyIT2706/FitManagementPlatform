@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 import LogoApp from '../../assets/imgs/logoApp.jpg';
+import apiClient from '../../api/axios';
 
 // You must set this in your environment variables
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID";
@@ -41,16 +42,8 @@ function LoginContent() {
         // Example only: If you want to use the backend `verifyIdToken` endpoint, 
         // you would need flow: 'auth-code' or use the implicit flow token depending on your setup.
         // For standard JWT API:
-        const response = await fetch('http://localhost:3100/auth/google', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: tokenResponse.access_token, userInfo }), 
-          // Note: Backend might need to be adjusted to accept access_token instead of id_token
-        });
-
-        if (!response.ok) throw new Error('Google Login Failed');
-
-        const data = await response.json();
+        const response = await apiClient.post('/auth/google', { token: tokenResponse.access_token, userInfo });
+        const data = response.data;
         localStorage.setItem('jwt_token', data.access_token);
         
         if (data.user?.onboardingCompleted === false) {
@@ -75,18 +68,10 @@ function LoginContent() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3100/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+      const response = await apiClient.post('/auth/login', { email, password }).catch(err => {
+        throw new Error(err.response?.data?.message || 'Sai email hoặc mật khẩu');
       });
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.message || 'Sai email hoặc mật khẩu');
-      }
-
-      const data = await response.json();
+      const data = response.data;
       localStorage.setItem('jwt_token', data.access_token);
       
       // Redirect based on onboarding status

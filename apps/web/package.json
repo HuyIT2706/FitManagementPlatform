@@ -17,6 +17,7 @@
     "@repo/types": "*",
     "@repo/ui": "*",
     "@tailwindcss/postcss": "^4.3.3",
+    "axios": "^1.19.0",
     "framer-motion": "^13.0.0",
     "lucide-react": "^1.28.0",
     "next": "16.2.0",

@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useOnboardingStore } from '../../store/onboardingStore';
+import apiClient from '../../api/axios';
 import { ArrowLeft, Check } from 'lucide-react';
 
 const steps = 10;
@@ -23,14 +24,7 @@ export default function OnboardingPage() {
     } else {
       // Final Submit
       try {
-        const token = localStorage.getItem('jwt_token');
-        const response = await fetch('http://localhost:3100/users/onboarding', {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
+        const formData = {
             gender: store.gender,
             weight: store.weight,
             targetWeight: store.targetWeight,
@@ -42,16 +36,13 @@ export default function OnboardingPage() {
             pushNotifications: store.pushNotifications,
             // Calculate date of birth approx from age
             dateOfBirth: store.age ? new Date(new Date().getFullYear() - store.age, 0, 1).toISOString() : undefined
-          })
-        });
-
-        if (response.ok) {
-          window.location.href = '/';
-        } else {
-          alert('Có lỗi xảy ra khi lưu thông tin');
-        }
+        };
+        
+        await apiClient.patch('/users/onboarding', formData);
+        window.location.href = '/';
       } catch (err) {
         console.error(err);
+        alert('Có lỗi xảy ra khi lưu thông tin');
       }
     }
   };
@@ -221,7 +212,7 @@ function StepWeight({ store }: { store: any }) {
 function StepHeight({ store }: { store: any }) {
   return (
     <div className="flex flex-col items-center flex-1 h-full">
-      <h2 className="text-3xl font-bold mb-4 text-center w-full text-left">Chiều cao hiện tại</h2>
+      <h2 className="text-3xl font-bold mb-4 w-full text-left">Chiều cao hiện tại</h2>
       <p className="text-white/60 mb-16 w-full text-left">Thông tin này giúp chúng tôi tính chỉ số BMI và mục tiêu calo.</p>
       
       <div className="flex items-end justify-center text-[#10b981] mt-10">
@@ -277,8 +268,8 @@ function StepBMI({ store }: { store: any }) {
       <p className="text-white/60 text-center mb-10">Dựa vào thông tin của bạn</p>
       
       <div className="relative w-64 h-32 overflow-hidden flex justify-center mb-12">
-        <div className="absolute top-0 w-64 h-64 border-[16px] border-[#10b981] rounded-full border-b-transparent border-r-transparent rotate-45 opacity-20"></div>
-        <div className="absolute top-0 w-64 h-64 border-[16px] border-[#10b981] rounded-full border-b-transparent border-r-transparent -rotate-45" style={{ clipPath: 'polygon(50% 50%, 0 0, 50% 0)' }}></div>
+        <div className="absolute top-0 w-64 h-64 border-16 border-[#10b981] rounded-full border-b-transparent border-r-transparent rotate-45 opacity-20"></div>
+        <div className="absolute top-0 w-64 h-64 border-16 border-[#10b981] rounded-full border-b-transparent border-r-transparent -rotate-45" style={{ clipPath: 'polygon(50% 50%, 0 0, 50% 0)' }}></div>
         <div className="absolute bottom-4 flex flex-col items-center">
           <span className="text-5xl font-bold text-white">{bmi}</span>
           <span className="text-[#10b981] font-semibold">Bình thường</span>
