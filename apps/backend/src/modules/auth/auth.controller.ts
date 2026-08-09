@@ -1,4 +1,13 @@
-import { Body, Controller, Post, HttpCode, HttpStatus, Res, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  HttpCode,
+  HttpStatus,
+  Res,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type { Response, Request } from 'express';
 import { JwtGuard } from './jwt.guard';
@@ -23,7 +32,10 @@ export class AuthController {
     @Body() signInDto: { email: string; password: string },
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { access_token, refresh_token, user } = await this.authService.login(signInDto.email, signInDto.password);
+    const { access_token, refresh_token, user } = await this.authService.login(
+      signInDto.email,
+      signInDto.password,
+    );
     this.setRefreshTokenCookie(res, refresh_token);
     return { access_token, user };
   }
@@ -34,7 +46,8 @@ export class AuthController {
     @Body() googleDto: { token: string },
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { access_token, refresh_token, user } = await this.authService.googleLogin(googleDto.token);
+    const { access_token, refresh_token, user } =
+      await this.authService.googleLogin(googleDto.token);
     this.setRefreshTokenCookie(res, refresh_token);
     return { access_token, user };
   }
@@ -45,7 +58,8 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const refreshToken = (req.cookies as Record<string, string> | undefined)?.refresh_token;
+    const refreshToken = (req.cookies as Record<string, string> | undefined)
+      ?.refresh_token;
     if (!refreshToken) {
       res.status(HttpStatus.FORBIDDEN).send({ message: 'Access Denied' });
       return;
@@ -55,7 +69,9 @@ export class AuthController {
     // Actually, we need userId. We can decode the token to get userId, or require client to send it.
     // It's better to decode the token. Let's let the JwtService handle it, but wait, the JwtGuard is not applied.
     // I will extract the userId from the payload inside the controller.
-    const jwtPayload = JSON.parse(Buffer.from(refreshToken.split('.')[1], 'base64').toString()) as { sub: string };
+    const jwtPayload = JSON.parse(
+      Buffer.from(refreshToken.split('.')[1], 'base64').toString(),
+    ) as { sub: string };
     const userId = jwtPayload.sub;
 
     const tokens = await this.authService.refreshTokens(userId, refreshToken);
