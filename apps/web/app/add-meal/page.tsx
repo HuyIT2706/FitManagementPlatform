@@ -9,7 +9,8 @@ import type { FoodItem } from "../../interface";
 function AddMealContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const mealType = searchParams.get("type") || "BREAKFAST"; // BREAKFAST, LUNCH, DINNER, SNACK
+  const mealType = searchParams.get("type") || "BREAKFAST";
+  const dateParam = searchParams.get("date");
 
   const [query, setQuery] = useState("");
   const [foods, setFoods] = useState<FoodItem[]>([]);
@@ -78,6 +79,7 @@ function AddMealContent() {
     try {
       await apiClient.post("/nutrition/meals", {
         mealName: mealType,
+        logDate: dateParam || undefined,
         items: addedItems.map(item => ({
           foodId: item.food.id,
           weightInGram: item.weightInGram
