@@ -93,70 +93,43 @@ export default function Home() {
   }
 
   // Generate 7 days for currentMonday
-  const weekDays = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(currentMonday);
-    d.setDate(currentMonday.getDate() + i);
-    return d;
-  });
-
+  const weekDays = getWeekDays(currentMonday);
   const dayLabelMap = ["CN", "Th 2", "Th 3", "Th 4", "Th 5", "Th 6", "Th 7"];
 
-  const target = userData?.nutritionTargets?.[0] || {};
-  const targetCalo = target.targetCalo || 0;
-  const targetProtein = target.targetProtein || 0;
-  const targetCarbs = target.targetCarbs || 0;
-  const targetFat = target.targetFat || 0;
+  // Dữ liệu mục tiêu và tiêu thụ từ Backend API
+  const targetCalo = dailyData?.targets?.calories || userData?.nutritionTargets?.[0]?.targetCalo || 0;
+  const targetProtein = dailyData?.targets?.protein || userData?.nutritionTargets?.[0]?.targetProtein || 0;
+  const targetCarbs = dailyData?.targets?.carbs || userData?.nutritionTargets?.[0]?.targetCarbs || 0;
+  const targetFat = dailyData?.targets?.fat || userData?.nutritionTargets?.[0]?.targetFat || 0;
 
   const consumedCalo = dailyData?.consumed?.calories || 0;
   const consumedProtein = dailyData?.consumed?.protein || 0;
   const consumedCarbs = dailyData?.consumed?.carbs || 0;
   const consumedFat = dailyData?.consumed?.fat || 0;
 
-  const getMealCalories = (type: string) => {
-    if (!dailyData?.meals) return 0;
-    const meal = dailyData.meals.find((m) => m.mealName === type);
-    return meal ? meal.totalCalories : 0;
+  // Tiến độ & SVG strokeDashoffset đã được Backend tính toán sẵn
+  const proteinPercentage = dailyData?.progress?.proteinPercent || 0;
+  const carbsPercentage = dailyData?.progress?.carbsPercent || 0;
+  const fatPercentage = dailyData?.progress?.fatPercent || 0;
+  const strokeDashoffset = dailyData?.progress?.strokeDashoffset ?? 816;
+  const remainingCalories = dailyData?.progress?.remainingCalories ?? Math.max(0, targetCalo - consumedCalo);
+
+  // Cấu hình các khung bữa ăn trong ngày từ Backend API
+  const mealSlots = dailyData?.mealSlots || [
+    { id: "BREAKFAST", name: "Bữa Sáng", icon: "wb_twilight" },
+    { id: "LUNCH", name: "Bữa Trưa", icon: "light_mode" },
+    { id: "DINNER", name: "Bữa Tối", icon: "dark_mode" },
+    { id: "SNACK", name: "Bữa Phụ", icon: "icecream" },
+  ];
+
+  // Đọc thông tin các món đã tổng hợp trực tiếp từ Backend
+  const getMealDetails = (type: string) => {
+    const summary = dailyData?.mealSummary?.[type];
+    return {
+      totalCalories: summary?.totalCalories || 0,
+      items: summary?.items || [],
+    };
   };
-
-  const getMealConfig = (freq: number) => {
-    switch (freq) {
-      case 2:
-        return [
-          { id: "BREAKFAST", name: "Bữa Sáng", icon: "wb_twilight" },
-          { id: "DINNER", name: "Bữa Tối", icon: "dark_mode" },
-        ];
-      case 3:
-        return [
-          { id: "BREAKFAST", name: "Bữa Sáng", icon: "wb_twilight" },
-          { id: "LUNCH", name: "Bữa Trưa", icon: "light_mode" },
-          { id: "DINNER", name: "Bữa Tối", icon: "dark_mode" },
-        ];
-      case 5:
-        return [
-          { id: "BREAKFAST", name: "Bữa Sáng", icon: "wb_twilight" },
-          { id: "MORNING_SNACK", name: "Phụ Sáng", icon: "bakery_dining" },
-          { id: "LUNCH", name: "Bữa Trưa", icon: "light_mode" },
-          { id: "AFTERNOON_SNACK", name: "Phụ Chiều", icon: "icecream" },
-          { id: "DINNER", name: "Bữa Tối", icon: "dark_mode" },
-        ];
-      case 4:
-      default:
-        return [
-          { id: "BREAKFAST", name: "Bữa Sáng", icon: "wb_twilight" },
-          { id: "LUNCH", name: "Bữa Trưa", icon: "light_mode" },
-          { id: "DINNER", name: "Bữa Tối", icon: "dark_mode" },
-          { id: "SNACK", name: "Bữa Phụ", icon: "icecream" },
-        ];
-    }
-  };
-
-  const caloPercentage = targetCalo ? Math.min((consumedCalo / targetCalo) * 100, 100) : 0;
-  const proteinPercentage = targetProtein ? Math.min((consumedProtein / targetProtein) * 100, 100) : 0;
-  const carbsPercentage = targetCarbs ? Math.min((consumedCarbs / targetCarbs) * 100, 100) : 0;
-  const fatPercentage = targetFat ? Math.min((consumedFat / targetFat) * 100, 100) : 0;
-
-  const circumference = 816;
-  const strokeDashoffset = circumference - (caloPercentage / 100) * circumference;
 
   const isSelectedDateToday = isSameDay(selectedDate, new Date());
   const selectedDateFormattedStr = formatYYYYMMDD(selectedDate);
@@ -269,7 +242,7 @@ export default function Home() {
 
             <div className="grid grid-cols-3 w-full gap-4 mt-6 z-10 border-t border-bento-border/50 pt-6">
               <div className="flex flex-col items-center">
-                <span className="font-headline-md text-xl font-bold text-on-surface">{Math.max(0, targetCalo - consumedCalo)}</span>
+                <span className="font-headline-md text-xl font-bold text-on-surface">{remainingCalories}</span>
                 <span className="font-label-lg text-xs text-on-surface-variant uppercase tracking-wider">Còn lại</span>
               </div>
               <div className="flex flex-col items-center border-l border-r border-bento-border/50">
@@ -346,26 +319,71 @@ export default function Home() {
               </button>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
-              {getMealConfig(userData?.mealFrequency || 4).map((meal) => (
-                <div key={meal.id} className="bento-card p-4 flex items-center justify-between group hover:bg-surface-bright/30 transition-colors border border-bento-border/50">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant">
-                      <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>{meal.icon}</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-gutter">
+              {mealSlots.map((mealConfig) => {
+                const mealDetails = getMealDetails(mealConfig.id);
+                const hasItems = mealDetails.items.length > 0;
+
+                return (
+                  <div
+                    key={mealConfig.id}
+                    className="bento-card p-5 flex flex-col justify-between group hover:bg-surface-bright/30 transition-colors border border-bento-border/50 rounded-2xl"
+                  >
+                    {/* Header: Icon, Meal Name, Total Calories & Add Button */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-surface-bright/40 border border-white/10 flex items-center justify-center text-on-surface-variant">
+                          <span
+                            className="material-symbols-outlined"
+                            style={{ fontVariationSettings: "'FILL' 1" }}
+                          >
+                            {mealConfig.icon}
+                          </span>
+                        </div>
+                        <div>
+                          <h4 className="font-headline-md text-base font-bold text-on-surface">
+                            {mealConfig.name}
+                          </h4>
+                          <span className="font-body-md text-xs text-green-light font-bold">
+                            {mealDetails.totalCalories} kcal
+                          </span>
+                        </div>
+                      </div>
+
+                      <Link
+                        href={`/add-meal?type=${mealConfig.id}&date=${selectedDateFormattedStr}`}
+                        className="w-8 h-8 rounded-full border border-outline-variant/40 flex items-center justify-center text-on-surface-variant hover:bg-green-light/20 hover:text-green-light hover:border-green-light transition-all"
+                        aria-label={`Thêm ${mealConfig.name}`}
+                      >
+                        <span className="material-symbols-outlined text-[20px]">add</span>
+                      </Link>
                     </div>
-                    <div>
-                      <h4 className="font-label-lg text-sm font-semibold text-on-surface">{meal.name}</h4>
-                      <span className="font-body-md text-sm text-on-surface-variant">{getMealCalories(meal.id)} kcal</span>
+
+                    {/* Food Items List */}
+                    <div className="mt-3 pt-3 border-t border-bento-border/40">
+                      {hasItems ? (
+                        <div className="flex flex-wrap gap-1.5">
+                          {mealDetails.items.map((item, idx) => (
+                            <span
+                              key={idx}
+                              className="text-xs bg-surface-bright/20 border border-white/10 text-on-surface-variant px-2.5 py-1 rounded-lg font-medium"
+                            >
+                              {item.foodName}{" "}
+                              <span className="text-on-surface-variant/60">
+                                ({item.weightInGram}g)
+                              </span>
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-on-surface-variant/50 italic">
+                          Chưa có món ăn nào
+                        </p>
+                      )}
                     </div>
                   </div>
-                  <Link 
-                    href={`/add-meal?type=${meal.id}&date=${selectedDateFormattedStr}`} 
-                    className="w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-green-light/20 hover:text-green-light hover:border-green-light transition-all"
-                  >
-                    <span className="material-symbols-outlined text-[20px]">add</span>
-                  </Link>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

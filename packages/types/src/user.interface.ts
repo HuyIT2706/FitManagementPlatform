@@ -39,4 +39,21 @@ export interface NutritionTarget {
 export interface UserDataHome extends UserData {
   mealFrequency?: number;
   nutritionTargets?: NutritionTarget[];
+  assignedPt?: {
+    id?: string;
+    fullName?: string;
+    avatarUrl?: string | null;
+    phone?: string | null;
+    email?: string;
+  } | null;
+  activePackage?: {
+    id?: string;
+    totalSessions?: number;
+    remainingSessions?: number;
+    startDate?: Date | string;
+    endDate?: Date | string;
+    gymPackage?: {
+      title?: string;
+    };
+  } | null;
 }

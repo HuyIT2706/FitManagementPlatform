@@ -8,7 +8,7 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async getMe(userId: string) {
-    return this.prisma.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: {
         nutritionTargets: {
@@ -19,8 +19,37 @@ export class UsersService {
           orderBy: { recordedAt: 'desc' },
           take: 1,
         },
+        studentProfiles: {
+          include: {
+            trainer: {
+              select: {
+                id: true,
+                fullName: true,
+                avatarUrl: true,
+                phone: true,
+                email: true,
+              },
+            },
+          },
+        },
+        userPackages: {
+          where: { isActive: true },
+          include: { gymPackage: true },
+          take: 1,
+        },
       },
     });
+
+    if (!user) return null;
+
+    const assignedPt = user.studentProfiles?.[0]?.trainer || null;
+    const activePackage = user.userPackages?.[0] || null;
+
+    return {
+      ...user,
+      assignedPt,
+      activePackage,
+    };
   }
 
   previewTDEE(dto: OnboardingDto) {

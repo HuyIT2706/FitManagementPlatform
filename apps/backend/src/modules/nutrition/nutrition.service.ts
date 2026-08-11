@@ -115,28 +115,156 @@ export class NutritionService {
       },
     });
 
-    // Tổng kết toàn ngày
+    // Tổng kết toàn ngày & Nhóm theo bữa ăn (mealName)
     let totalCalories = 0;
     let totalProtein = 0;
     let totalCarbs = 0;
     let totalFat = 0;
+
+    const mealSummaryMap: Record<
+      string,
+      {
+        mealName: string;
+        totalCalories: number;
+        totalProtein: number;
+        totalCarbs: number;
+        totalFat: number;
+        items: Array<{ foodName: string; weightInGram: number; calories: number }>;
+      }
+    > = {};
 
     meals.forEach((meal) => {
       totalCalories += meal.totalCalories;
       totalProtein += meal.totalProtein;
       totalCarbs += meal.totalCarbs;
       totalFat += meal.totalFat;
+
+      const type = meal.mealName;
+      if (!mealSummaryMap[type]) {
+        mealSummaryMap[type] = {
+          mealName: type,
+          totalCalories: 0,
+          totalProtein: 0,
+          totalCarbs: 0,
+          totalFat: 0,
+          items: [],
+        };
+      }
+
+      mealSummaryMap[type].totalCalories += meal.totalCalories;
+      mealSummaryMap[type].totalProtein += meal.totalProtein;
+      mealSummaryMap[type].totalCarbs += meal.totalCarbs;
+      mealSummaryMap[type].totalFat += meal.totalFat;
+
+      if (meal.items) {
+        meal.items.forEach((item) => {
+          mealSummaryMap[type].items.push({
+            foodName: item.foodName,
+            weightInGram: item.weightInGram,
+            calories: item.calories,
+          });
+        });
+      }
     });
+
+    // Làm tròn số liệu cho từng bữa ăn
+    Object.values(mealSummaryMap).forEach((summary) => {
+      summary.totalCalories = Math.round(summary.totalCalories * 10) / 10;
+      summary.totalProtein = Math.round(summary.totalProtein * 10) / 10;
+      summary.totalCarbs = Math.round(summary.totalCarbs * 10) / 10;
+      summary.totalFat = Math.round(summary.totalFat * 10) / 10;
+    });
+
+    // Lấy thông tin user và mục tiêu dinh dưỡng từ DB
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        nutritionTargets: {
+          orderBy: { effectiveDate: "desc" },
+          take: 1,
+        },
+      },
+    });
+
+    const target = user?.nutritionTargets?.[0];
+    const targetCalo = target?.targetCalo || 2000;
+    const targetProtein = target?.targetProtein || 150;
+    const targetCarbs = target?.targetCarbs || 200;
+    const targetFat = target?.targetFat || 65;
+
+    const consumedCaloRound = Math.round(totalCalories * 10) / 10;
+    const consumedProteinRound = Math.round(totalProtein * 10) / 10;
+    const consumedCarbsRound = Math.round(totalCarbs * 10) / 10;
+    const consumedFatRound = Math.round(totalFat * 10) / 10;
+
+    const caloPercentage = targetCalo ? Math.min((consumedCaloRound / targetCalo) * 100, 100) : 0;
+    const proteinPercentage = targetProtein ? Math.min((consumedProteinRound / targetProtein) * 100, 100) : 0;
+    const carbsPercentage = targetCarbs ? Math.min((consumedCarbsRound / targetCarbs) * 100, 100) : 0;
+    const fatPercentage = targetFat ? Math.min((consumedFatRound / targetFat) * 100, 100) : 0;
+
+    const circumference = 816;
+    const strokeDashoffset = Math.round(circumference - (caloPercentage / 100) * circumference);
+    const remainingCalories = Math.max(0, targetCalo - consumedCaloRound);
+
+    const mealSlots = this.getMealSlotsByFrequency(user?.mealFrequency);
 
     return {
       date: startOfDay.toISOString(),
-      consumed: {
-        calories: Math.round(totalCalories * 10) / 10,
-        protein: Math.round(totalProtein * 10) / 10,
-        carbs: Math.round(totalCarbs * 10) / 10,
-        fat: Math.round(totalFat * 10) / 10,
+      targets: {
+        calories: targetCalo,
+        protein: targetProtein,
+        carbs: targetCarbs,
+        fat: targetFat,
       },
+      consumed: {
+        calories: consumedCaloRound,
+        protein: consumedProteinRound,
+        carbs: consumedCarbsRound,
+        fat: consumedFatRound,
+      },
+      progress: {
+        caloriesPercent: Math.round(caloPercentage * 10) / 10,
+        proteinPercent: Math.round(proteinPercentage * 10) / 10,
+        carbsPercent: Math.round(carbsPercentage * 10) / 10,
+        fatPercent: Math.round(fatPercentage * 10) / 10,
+        strokeDashoffset,
+        remainingCalories,
+      },
+      mealSlots,
       meals,
+      mealSummary: mealSummaryMap,
     };
+  }
+
+  private getMealSlotsByFrequency(freq?: number | null) {
+    switch (freq) {
+      case 2:
+        return [
+          { id: "BREAKFAST", name: "Bữa Sáng", icon: "wb_twilight" },
+          { id: "DINNER", name: "Bữa Tối", icon: "dark_mode" },
+        ];
+      case 3:
+        return [
+          { id: "BREAKFAST", name: "Bữa Sáng", icon: "wb_twilight" },
+          { id: "LUNCH", name: "Bữa Trưa", icon: "light_mode" },
+          { id: "DINNER", name: "Bữa Tối", icon: "dark_mode" },
+        ];
+      case 5:
+        return [
+          { id: "BREAKFAST", name: "Bữa Sáng", icon: "wb_twilight" },
+          { id: "MORNING_SNACK", name: "Phụ Sáng", icon: "bakery_dining" },
+          { id: "LUNCH", name: "Bữa Trưa", icon: "light_mode" },
+          { id: "AFTERNOON_SNACK", name: "Phụ Chiều", icon: "icecream" },
+          { id: "DINNER", name: "Bữa Tối", icon: "dark_mode" },
+        ];
+      case 4:
+      default:
+        return [
+          { id: "BREAKFAST", name: "Bữa Sáng", icon: "wb_twilight" },
+          { id: "LUNCH", name: "Bữa Trưa", icon: "light_mode" },
+          { id: "DINNER", name: "Bữa Tối", icon: "dark_mode" },
+          { id: "SNACK", name: "Bữa Phụ", icon: "icecream" },
+        ];
+    }
   }
 }
