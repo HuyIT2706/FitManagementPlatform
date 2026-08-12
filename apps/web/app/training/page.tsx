@@ -1,8 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useEffect, useState } from "react";
-import TopBar from "../../components/navigation/TopBar";
 import BottomNavBar from "../../components/navigation/BottomNavBar";
 import apiClient from "../../api/axios";
 import type {
@@ -12,6 +10,7 @@ import type {
   MealPlanAssigned,
   ExerciseCategoryType,
 } from "../../interface";
+import Header from "../../components/ui/Header";
 
 const CATEGORIES: Array<{ id: ExerciseCategoryType; label: string }> = [
   { id: "ALL", label: "Tất cả" },
@@ -107,7 +106,7 @@ export default function WorkoutPage() {
 
   return (
     <div className="min-h-screen bg-background pb-32 pt-2 md:pt-0 dark text-on-surface">
-      <TopBar userData={userData} onLogout={handleLogout} />
+      <Header userData={userData} onLogout={handleLogout} />
 
       <main className="max-w-7xl mx-auto px-container-padding mt-4 md:mt-8 space-y-gutter">
         {/* VIP Header - Check-in button removed */}

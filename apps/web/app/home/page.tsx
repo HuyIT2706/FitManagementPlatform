@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import TopBar from "../../components/navigation/TopBar";
+import Header from "../../components/ui/Header";
 import BottomNavBar from "../../components/navigation/BottomNavBar";
 import apiClient from "../../api/axios";
 import type { UserDataHome, DailyNutritionData } from "../../interface";
@@ -136,7 +136,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background pb-32 pt-2 md:pt-0 dark text-on-surface">
-      <TopBar userData={userData} onLogout={handleLogout} />
+      <Header userData={userData} onLogout={handleLogout} />
 
       <main className="max-w-7xl mx-auto px-container-padding md:mt-8 space-y-6">
         {/* Horizontal Calendar Strip with Navigation */}

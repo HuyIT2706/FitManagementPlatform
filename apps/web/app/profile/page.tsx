@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import TopBar from "../../components/navigation/TopBar";
+import Header from "../../components/ui/Header";
 import BottomNavBar from "../../components/navigation/BottomNavBar";
 import apiClient from "../../api/axios";
 
@@ -41,7 +41,7 @@ export default function ProfilePage() {
   
   return (
     <div className="min-h-screen bg-background pb-32 pt-2 md:pt-0 dark text-on-surface">
-      <TopBar userData={userData} onLogout={handleLogout} />
+      <Header userData={userData} onLogout={handleLogout} />
 
       <main className="px-4 md:px-10 pt-4 max-w-7xl mx-auto flex flex-col gap-4">
         {/* Profile Header Hero (Bento Cell) */}
