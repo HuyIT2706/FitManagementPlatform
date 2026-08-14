@@ -6,11 +6,15 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
+    "check-types": "turbo run check-types",
+    "db:studio": "prisma studio --schema=packages/db/prisma/schema.prisma",
+    "db:push": "prisma db push --schema=packages/db/prisma/schema.prisma",
+    "db:generate": "prisma generate --schema=packages/db/prisma/schema.prisma"
   },
   "packageManager": "npm@10.8.2",
   "devDependencies": {
     "prettier": "^3.7.4",
+    "prisma": "^5.10.2",
     "turbo": "^2.10.7",
     "typescript": "5.9.2"
   },

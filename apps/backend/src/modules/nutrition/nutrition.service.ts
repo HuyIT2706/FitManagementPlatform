@@ -129,7 +129,11 @@ export class NutritionService {
         totalProtein: number;
         totalCarbs: number;
         totalFat: number;
-        items: Array<{ foodName: string; weightInGram: number; calories: number }>;
+        items: Array<{
+          foodName: string;
+          weightInGram: number;
+          calories: number;
+        }>;
       }
     > = {};
 
@@ -180,7 +184,7 @@ export class NutritionService {
       where: { id: userId },
       include: {
         nutritionTargets: {
-          orderBy: { effectiveDate: "desc" },
+          orderBy: { effectiveDate: 'desc' },
           take: 1,
         },
       },
@@ -197,13 +201,23 @@ export class NutritionService {
     const consumedCarbsRound = Math.round(totalCarbs * 10) / 10;
     const consumedFatRound = Math.round(totalFat * 10) / 10;
 
-    const caloPercentage = targetCalo ? Math.min((consumedCaloRound / targetCalo) * 100, 100) : 0;
-    const proteinPercentage = targetProtein ? Math.min((consumedProteinRound / targetProtein) * 100, 100) : 0;
-    const carbsPercentage = targetCarbs ? Math.min((consumedCarbsRound / targetCarbs) * 100, 100) : 0;
-    const fatPercentage = targetFat ? Math.min((consumedFatRound / targetFat) * 100, 100) : 0;
+    const caloPercentage = targetCalo
+      ? Math.min((consumedCaloRound / targetCalo) * 100, 100)
+      : 0;
+    const proteinPercentage = targetProtein
+      ? Math.min((consumedProteinRound / targetProtein) * 100, 100)
+      : 0;
+    const carbsPercentage = targetCarbs
+      ? Math.min((consumedCarbsRound / targetCarbs) * 100, 100)
+      : 0;
+    const fatPercentage = targetFat
+      ? Math.min((consumedFatRound / targetFat) * 100, 100)
+      : 0;
 
     const circumference = 816;
-    const strokeDashoffset = Math.round(circumference - (caloPercentage / 100) * circumference);
+    const strokeDashoffset = Math.round(
+      circumference - (caloPercentage / 100) * circumference,
+    );
     const remainingCalories = Math.max(0, targetCalo - consumedCaloRound);
 
     const mealSlots = this.getMealSlotsByFrequency(user?.mealFrequency);
@@ -240,30 +254,30 @@ export class NutritionService {
     switch (freq) {
       case 2:
         return [
-          { id: "BREAKFAST", name: "Bữa Sáng", icon: "wb_twilight" },
-          { id: "DINNER", name: "Bữa Tối", icon: "dark_mode" },
+          { id: 'BREAKFAST', name: 'Bữa Sáng', icon: 'wb_twilight' },
+          { id: 'DINNER', name: 'Bữa Tối', icon: 'dark_mode' },
         ];
       case 3:
         return [
-          { id: "BREAKFAST", name: "Bữa Sáng", icon: "wb_twilight" },
-          { id: "LUNCH", name: "Bữa Trưa", icon: "light_mode" },
-          { id: "DINNER", name: "Bữa Tối", icon: "dark_mode" },
+          { id: 'BREAKFAST', name: 'Bữa Sáng', icon: 'wb_twilight' },
+          { id: 'LUNCH', name: 'Bữa Trưa', icon: 'light_mode' },
+          { id: 'DINNER', name: 'Bữa Tối', icon: 'dark_mode' },
         ];
       case 5:
         return [
-          { id: "BREAKFAST", name: "Bữa Sáng", icon: "wb_twilight" },
-          { id: "MORNING_SNACK", name: "Phụ Sáng", icon: "bakery_dining" },
-          { id: "LUNCH", name: "Bữa Trưa", icon: "light_mode" },
-          { id: "AFTERNOON_SNACK", name: "Phụ Chiều", icon: "icecream" },
-          { id: "DINNER", name: "Bữa Tối", icon: "dark_mode" },
+          { id: 'BREAKFAST', name: 'Bữa Sáng', icon: 'wb_twilight' },
+          { id: 'MORNING_SNACK', name: 'Phụ Sáng', icon: 'bakery_dining' },
+          { id: 'LUNCH', name: 'Bữa Trưa', icon: 'light_mode' },
+          { id: 'AFTERNOON_SNACK', name: 'Phụ Chiều', icon: 'icecream' },
+          { id: 'DINNER', name: 'Bữa Tối', icon: 'dark_mode' },
         ];
       case 4:
       default:
         return [
-          { id: "BREAKFAST", name: "Bữa Sáng", icon: "wb_twilight" },
-          { id: "LUNCH", name: "Bữa Trưa", icon: "light_mode" },
-          { id: "DINNER", name: "Bữa Tối", icon: "dark_mode" },
-          { id: "SNACK", name: "Bữa Phụ", icon: "icecream" },
+          { id: 'BREAKFAST', name: 'Bữa Sáng', icon: 'wb_twilight' },
+          { id: 'LUNCH', name: 'Bữa Trưa', icon: 'light_mode' },
+          { id: 'DINNER', name: 'Bữa Tối', icon: 'dark_mode' },
+          { id: 'SNACK', name: 'Bữa Phụ', icon: 'icecream' },
         ];
     }
   }

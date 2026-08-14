@@ -1,38 +1,152 @@
 import { PrismaClient } from '@prisma/client';
+import fs from 'fs';
+import path from 'path';
 
 const prisma = new PrismaClient();
+
+const parseNum = (val: any): number | null => {
+  if (val === null || val === undefined) return null;
+  if (typeof val === 'number') return isNaN(val) ? null : val;
+  if (typeof val === 'string') {
+    const clean = val.replace(/[^\d.-]/g, '');
+    if (!clean) return null;
+    const n = parseFloat(clean);
+    return isNaN(n) ? null : n;
+  }
+  return null;
+};
+
+const parseNumReq = (val: any, defaultVal = 0): number => {
+  const n = parseNum(val);
+  return n ?? defaultVal;
+};
 
 async function main() {
   console.log('Bắt đầu xoá dữ liệu cũ...');
   await prisma.foodLibrary.deleteMany();
 
-  console.log('Bắt đầu chèn dữ liệu thực phẩm (FoodLibrary)...');
-
-  const foods = [
-    { name: 'Ức gà luộc', caloriesPer100g: 165, proteinPer100g: 31, carbsPer100g: 0, fatPer100g: 3.6 },
-    { name: 'Cơm trắng', caloriesPer100g: 130, proteinPer100g: 2.7, carbsPer100g: 28, fatPer100g: 0.3 },
-    { name: 'Trứng gà (luộc)', caloriesPer100g: 155, proteinPer100g: 13, carbsPer100g: 1.1, fatPer100g: 11 },
-    { name: 'Thịt bò (nạc)', caloriesPer100g: 250, proteinPer100g: 26, carbsPer100g: 0, fatPer100g: 15 },
-    { name: 'Khoai lang luộc', caloriesPer100g: 86, proteinPer100g: 1.6, carbsPer100g: 20, fatPer100g: 0.1 },
-    { name: 'Whey Protein (1 muỗng ~30g)', caloriesPer100g: 396, proteinPer100g: 80, carbsPer100g: 10, fatPer100g: 4 }, // Per 100g scale
-    { name: 'Súp lơ xanh luộc', caloriesPer100g: 34, proteinPer100g: 2.8, carbsPer100g: 7, fatPer100g: 0.4 },
-    { name: 'Cá hồi', caloriesPer100g: 208, proteinPer100g: 20, carbsPer100g: 0, fatPer100g: 13 },
-    { name: 'Bánh mì ngũ cốc', caloriesPer100g: 265, proteinPer100g: 11, carbsPer100g: 41, fatPer100g: 4.2 },
-    { name: 'Thịt lợn nạc', caloriesPer100g: 143, proteinPer100g: 26, carbsPer100g: 0, fatPer100g: 3.5 },
-    { name: 'Đậu hũ non', caloriesPer100g: 61, proteinPer100g: 6.6, carbsPer100g: 2.8, fatPer100g: 3.2 },
-    { name: 'Phở bò', caloriesPer100g: 115, proteinPer100g: 5.2, carbsPer100g: 18, fatPer100g: 2.3 },
-    { name: 'Bún bò Huế', caloriesPer100g: 120, proteinPer100g: 4.5, carbsPer100g: 15, fatPer100g: 4 },
-    { name: 'Dưa hấu', caloriesPer100g: 30, proteinPer100g: 0.6, carbsPer100g: 8, fatPer100g: 0.2 },
-    { name: 'Chuối tây', caloriesPer100g: 89, proteinPer100g: 1.1, carbsPer100g: 23, fatPer100g: 0.3 },
+  console.log('Đang tìm file dữ liệu thực phẩm...');
+  
+  const possiblePaths = [
+    path.join(__dirname, 'caloer_with_images.json'),
   ];
 
-  for (const food of foods) {
-    await prisma.foodLibrary.create({
-      data: food,
-    });
+  let jsonPath = '';
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      jsonPath = p;
+      break;
+    }
   }
 
-  console.log(`Đã chèn thành công ${foods.length} thực phẩm.`);
+  if (!jsonPath) {
+    console.error('Không tìm thấy file caloer_full_data.json hoặc DataFood.json');
+    return;
+  }
+
+  console.log(`Đang đọc dữ liệu từ: ${jsonPath}`);
+  const fileContent = fs.readFileSync(jsonPath, 'utf-8');
+  const rawData = JSON.parse(fileContent);
+
+  let itemsArray: any[] = [];
+  if (Array.isArray(rawData)) {
+    itemsArray = rawData;
+  } else if (typeof rawData === 'object' && rawData !== null) {
+    itemsArray = Object.entries(rawData).map(([key, val]: [string, any]) => ({
+      keyName: key,
+      ...val,
+    }));
+  }
+
+  console.log(`Đã đọc ${itemsArray.length} thực phẩm. Đang chuẩn bị dữ liệu...`);
+
+  const foodsToInsert = itemsArray.map((item: any) => {
+    const name = item.ten_mon_an || item['Name (Tên Tiếng Việt)'] || item.keyName || 'Không xác định';
+    const calories = parseNumReq(item.nang_luong ?? item['Calorie (kcal)']);
+    const protein = parseNumReq(item.dam_protein ?? item['Protein (g)']);
+    const carbs = parseNumReq(item.carbohydrate ?? item['Tinh Bột (g)']);
+    const fat = parseNumReq(item.chat_beo ?? item['Chất Béo (g)']);
+
+    return {
+      name,
+      caloriesPer100g: calories,
+      proteinPer100g: protein,
+      carbsPer100g: carbs,
+      fatPer100g: fat,
+      fiberPer100g: parseNum(item.chat_xo ?? item['Fiber / Chất Xơ (g)']),
+      sugarPer100g: parseNum(item.duong),
+      saturatedFatPer100g: parseNum(item.chat_beo_bao_hoa),
+      transFatPer100g: parseNum(item.chat_beo_chuyen_hoa),
+      waterPer100g: parseNum(item.nuoc ?? item['Water / Nước (g)']),
+      calciumPer100g: parseNum(item.canxi),
+      ironPer100g: parseNum(item.sat),
+      potassiumPer100g: parseNum(item.kali),
+      magnesiumPer100g: parseNum(item.magie),
+      sodiumPer100g: parseNum(item.natri ?? item['Salt / Muối (g)']),
+      vitaminAPer100g: parseNum(item.vitamin_a),
+      vitaminCPer100g: parseNum(item.vitamin_c),
+      vitaminDPer100g: parseNum(item.vitamin_d),
+      vitaminEPer100g: parseNum(item.vitamin_e),
+      conAxitPer100g: parseNum(item.con_axit),
+      source: item.nguon_tham_khao || null,
+      imageUrl: item.image_url || item.imageUrl || item.image || item.anh || item.thumb || null,
+    };
+  });
+
+  console.log('Bắt đầu chèn dữ liệu thực phẩm vào Database...');
+
+  const chunkSize = 2000;
+  for (let i = 0; i < foodsToInsert.length; i += chunkSize) {
+    const chunk = foodsToInsert.slice(i, i + chunkSize);
+    await prisma.foodLibrary.createMany({
+      data: chunk,
+      skipDuplicates: true,
+    });
+    console.log(`Đã chèn ${Math.min(i + chunk.length, foodsToInsert.length)}/${foodsToInsert.length} bản ghi...`);
+  }
+
+  console.log('Đã chèn thành công toàn bộ thực phẩm.');
+
+  console.log('-----------------------------------');
+  console.log('Bắt đầu xoá dữ liệu bài tập cũ...');
+  await prisma.exerciseLibrary.deleteMany();
+
+  const exercisesJsonPath = path.join(__dirname, 'exercises_vi.json');
+  if (fs.existsSync(exercisesJsonPath)) {
+    console.log(`Đang đọc file bài tập từ: ${exercisesJsonPath}`);
+    const exercisesContent = fs.readFileSync(exercisesJsonPath, 'utf-8');
+    const rawExercises = JSON.parse(exercisesContent);
+
+    console.log(`Đã đọc ${rawExercises.length} bài tập. Đang chuẩn bị dữ liệu...`);
+
+    const exercisesToInsert = rawExercises.map((ex: any) => ({
+      id: ex.id || undefined,
+      name: ex.name || 'Bài tập không tên',
+      category: ex.category || null,
+      force: ex.force || null,
+      level: ex.level || null,
+      mechanic: ex.mechanic || null,
+      equipment: ex.equipment || null,
+      primaryMuscles: Array.isArray(ex.primaryMuscles) ? ex.primaryMuscles : [],
+      secondaryMuscles: Array.isArray(ex.secondaryMuscles) ? ex.secondaryMuscles : [],
+      instructions: Array.isArray(ex.instructions) ? ex.instructions : [],
+      setupImageUrl: ex.setup_image_url || null,
+      startImageUrl: ex.start_image_url || null,
+    }));
+
+    const exChunkSize = 1000;
+    for (let i = 0; i < exercisesToInsert.length; i += exChunkSize) {
+      const chunk = exercisesToInsert.slice(i, i + exChunkSize);
+      await prisma.exerciseLibrary.createMany({
+        data: chunk,
+        skipDuplicates: true,
+      });
+      console.log(`Đã chèn ${Math.min(i + chunk.length, exercisesToInsert.length)}/${exercisesToInsert.length} bài tập...`);
+    }
+    console.log('Đã chèn thành công toàn bộ bài tập.');
+  } else {
+    console.log('Không tìm thấy file exercises_vi.json để nạp bài tập.');
+  }
 }
 
 main()

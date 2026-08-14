@@ -48,3 +48,123 @@ export interface PTDashboardData {
   pendingMeals: PTPendingMeal[];
   students: PTStudentSummary[];
 }
+
+export interface AssignedExerciseItem {
+  id: string;
+  exerciseId: string;
+  name: string;
+  category: string;
+  sets: number;
+  reps: number;
+  weightInKg: number;
+  restSeconds?: number;
+  dayOfWeek?: string;
+}
+
+export interface InBodyHistoryPoint {
+  date: string;
+  weightKg: number;
+  bodyFatPercent: number;
+  muscleMassKg: number;
+}
+
+export interface PTStudentDetail {
+  id: string;
+  fullName: string;
+  email: string;
+  phone?: string;
+  avatarUrl?: string;
+  packageName: string;
+  remainingSessions: number;
+  totalSessions: number;
+  joinedDate: string;
+  targetCalories: number;
+  targetProtein: number;
+  targetCarbs: number;
+  targetFat: number;
+  bodyMetrics: {
+    weightKg: number;
+    heightCm: number;
+    bodyFatPercent: number;
+    muscleMassKg: number;
+    updatedAt: string;
+  };
+  bodyMetricsHistory?: InBodyHistoryPoint[];
+  assignedExercises: AssignedExerciseItem[];
+  prescribedMealPlan?: {
+    breakfast: string;
+    lunch: string;
+    dinner: string;
+    snack?: string;
+  };
+  beforeAfterPhotos?: {
+    beforeUrl: string;
+    beforeDate: string;
+    afterUrl: string;
+    afterDate: string;
+  };
+}
+
+export interface AssignWorkoutDto {
+  studentId: string;
+  exercises: {
+    exerciseId: string;
+    name: string;
+    category: string;
+    sets: number;
+    reps: number;
+    weightInKg: number;
+    restSeconds?: number;
+    dayOfWeek?: string;
+  }[];
+}
+
+export interface AssignNutritionDto {
+  studentId: string;
+  targetCalories: number;
+  targetProtein: number;
+  targetCarbs: number;
+  targetFat: number;
+  prescribedMealPlan?: {
+    breakfast: string;
+    lunch: string;
+    dinner: string;
+    snack?: string;
+  };
+}
+
+export interface UpdateInBodyDto {
+  studentId: string;
+  weightKg: number;
+  heightCm: number;
+  bodyFatPercent: number;
+  muscleMassKg: number;
+  date?: string;
+}
+
+export interface SendInviteDto {
+  studentEmail: string;
+  packageName: string;
+  totalSessions: number;
+  remainingSessions: number;
+  note?: string;
+}
+
+export interface BindPtDto {
+  ptCodeOrInviteCode: string;
+}
+
+export interface UpdateStudentSessionsDto {
+  studentId: string;
+  fullName?: string;
+  phone?: string;
+  packageName?: string;
+  totalSessions?: number;
+  remainingSessions?: number;
+}
+
+export interface PTCodeQrData {
+  ptCode: string;
+  qrCodeUrl: string;
+  coachName: string;
+}

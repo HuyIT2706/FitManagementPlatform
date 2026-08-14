@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import Header from "../../components/ui/Header";
 import PTBottomNavBar from "../../components/navigation/PTBottomNavBar";
 import apiClient from "../../api/axios";
@@ -325,9 +326,9 @@ export default function PTPage() {
               <h3 className="font-headline-md font-bold text-xl text-on-surface">
                 Danh sách học viên
               </h3>
-              <a href="/pt/students" className="text-xs text-primary font-bold hover:underline">
+              <Link href="/pt/students" className="text-xs text-primary font-bold hover:underline">
                 Xem tất cả
-              </a>
+              </Link>
             </div>
 
             <div className="space-y-3">

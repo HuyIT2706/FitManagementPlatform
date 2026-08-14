@@ -12,15 +12,16 @@ export type ExerciseCategoryType =
 export interface ExerciseItem {
   id: string;
   name: string;
-  category: ExerciseCategoryType;
-  categoryName: string;
-  imageUrl: string;
-  description?: string;
-  sets?: number;
-  reps?: number;
-  weightInKg?: number;
-  durationMinutes?: number;
-  caloriesBurn?: number;
+  category?: string | null;
+  force?: string | null;
+  level?: string | null;
+  mechanic?: string | null;
+  equipment?: string | null;
+  primaryMuscles?: string[];
+  secondaryMuscles?: string[];
+  instructions?: string[];
+  setupImageUrl?: string | null;
+  startImageUrl?: string | null;
 }
 
 export interface ExercisePaginatedResponse {

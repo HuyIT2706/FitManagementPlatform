@@ -264,11 +264,18 @@ model ProgressPhoto {
 }
 
 model ExerciseLibrary {
-  id          String           @id @default(uuid())
-  name        String
-  category    ExerciseCategory
-  videoUrl    String?
-  description String?
+  id               String   @id
+  name             String
+  category         String?
+  force            String?
+  level            String?
+  mechanic         String?
+  equipment        String?
+  primaryMuscles   String[] @default([])
+  secondaryMuscles String[] @default([])
+  instructions     String[] @default([])
+  setupImageUrl    String?
+  startImageUrl    String?
 
   scheduleExercises ScheduleExercise[]
 
@@ -276,12 +283,29 @@ model ExerciseLibrary {
 }
 
 model FoodLibrary {
-  id              String @id @default(uuid())
-  name            String
-  caloriesPer100g Float
-  proteinPer100g  Float
-  carbsPer100g    Float
-  fatPer100g      Float
+  id                  String  @id @default(uuid())
+  name                String
+  caloriesPer100g     Float
+  proteinPer100g      Float
+  carbsPer100g        Float
+  fatPer100g          Float
+  fiberPer100g        Float?
+  sugarPer100g        Float?
+  saturatedFatPer100g Float?
+  transFatPer100g     Float?
+  waterPer100g        Float?
+  calciumPer100g      Float?
+  ironPer100g         Float?
+  potassiumPer100g    Float?
+  magnesiumPer100g    Float?
+  sodiumPer100g       Float?
+  vitaminAPer100g     Float?
+  vitaminCPer100g     Float?
+  vitaminDPer100g     Float?
+  vitaminEPer100g     Float?
+  conAxitPer100g      Float?
+  source              String?
+  imageUrl            String?
 
   mealItems MealItem[]
 

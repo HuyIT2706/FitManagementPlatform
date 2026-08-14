@@ -11,10 +11,12 @@ export class WorkoutController {
   @Get('exercises')
   async getExercises(
     @Query('category') category?: string,
+    @Query('muscle') muscle?: string,
+    @Query('search') search?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
-    return this.workoutService.getExercises(category, page, limit);
+    return this.workoutService.getExercises(category, muscle, search, page, limit);
   }
 
   @Get('assigned-meal-plan')

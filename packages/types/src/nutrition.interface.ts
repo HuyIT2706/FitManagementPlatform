@@ -5,6 +5,23 @@ export interface FoodItem {
   proteinPer100g: number;
   carbsPer100g: number;
   fatPer100g: number;
+  fiberPer100g?: number | null;
+  sugarPer100g?: number | null;
+  saturatedFatPer100g?: number | null;
+  transFatPer100g?: number | null;
+  waterPer100g?: number | null;
+  calciumPer100g?: number | null;
+  ironPer100g?: number | null;
+  potassiumPer100g?: number | null;
+  magnesiumPer100g?: number | null;
+  sodiumPer100g?: number | null;
+  vitaminAPer100g?: number | null;
+  vitaminCPer100g?: number | null;
+  vitaminDPer100g?: number | null;
+  vitaminEPer100g?: number | null;
+  conAxitPer100g?: number | null;
+  source?: string | null;
+  imageUrl?: string | null;
 }
 
 export interface MealItemData {
