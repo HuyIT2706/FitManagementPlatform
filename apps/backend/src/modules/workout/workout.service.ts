@@ -1,10 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import type { Prisma } from '@repo/db';
 import { PrismaService } from '../../prisma/prisma.service';
-import type {
-  ExerciseItem,
-  ExercisePaginatedResponse,
-  MealPlanAssigned,
-} from '@repo/types';
+import type { ExercisePaginatedResponse, MealPlanAssigned } from '@repo/types';
 
 @Injectable()
 export class WorkoutService {
@@ -20,7 +17,7 @@ export class WorkoutService {
     const pageNum = Math.max(1, Number(page) || 1);
     const limitNum = Math.max(1, Number(limit) || 10);
 
-    const where: any = {};
+    const where: Prisma.ExerciseLibraryWhereInput = {};
     if (category && category !== 'ALL') {
       where.category = {
         contains: category,
