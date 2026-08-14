@@ -92,7 +92,8 @@ export default function FoodSelector({ onFoodAdded, title = "Thư viện thực 
           search
         </span>
         <input 
-          type="text" 
+          type="text"
+          suppressHydrationWarning
           placeholder="Tìm kiếm món ăn" 
           className="w-full bg-surface-bright/30 border border-white/10 rounded-full py-3.5 pl-12 pr-10 text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary transition-colors"
           value={query}
@@ -241,6 +242,7 @@ export default function FoodSelector({ onFoodAdded, title = "Thư viện thực 
               <div className="relative">
                 <input 
                   type="number" 
+                  suppressHydrationWarning
                   className="w-full bg-white/[0.05] border border-white/15 rounded-2xl p-4 text-3xl font-extrabold text-center text-primary focus:outline-none focus:border-primary transition-colors"
                   placeholder="100"
                   value={weight}

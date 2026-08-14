@@ -28,10 +28,13 @@ export const useMealBuilderStore = create<MealBuilderState>((set, get) => ({
       );
       if (existingIndex > -1) {
         const updated = [...state.addedItems];
-        updated[existingIndex] = {
-          ...updated[existingIndex],
-          weightInGram: updated[existingIndex].weightInGram + weightInGram,
-        };
+        const existingItem = updated[existingIndex];
+        if (existingItem) {
+          updated[existingIndex] = {
+            ...existingItem,
+            weightInGram: existingItem.weightInGram + weightInGram,
+          };
+        }
         return { addedItems: updated };
       }
       return { addedItems: [...state.addedItems, { food, weightInGram }] };
@@ -47,8 +50,9 @@ export const useMealBuilderStore = create<MealBuilderState>((set, get) => ({
   updateWeight: (index, weightInGram) => {
     set((state) => {
       const updated = [...state.addedItems];
-      if (updated[index]) {
-        updated[index] = { ...updated[index], weightInGram };
+      const targetItem = updated[index];
+      if (targetItem) {
+        updated[index] = { ...targetItem, weightInGram };
       }
       return { addedItems: updated };
     });
