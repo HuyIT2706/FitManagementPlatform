@@ -66,6 +66,11 @@ model User {
   targetWeight        Float?
   height              Float?
   mealFrequency       Int?
+  caloriesOffset      Float?   @default(0)
+  bmr                 Float?
+  tdee                Float?
+  bmi                 Float?
+  goal                String?
   dietaryPreferences  String[]
   healthConditions    String[]
   pushNotifications   Boolean  @default(true)
@@ -148,13 +153,16 @@ model AttendanceHistory {
 }
 
 model NutritionTarget {
-  id            String   @id @default(uuid())
-  studentId     String
-  targetCalo    Float
-  targetProtein Float
-  targetCarbs   Float
-  targetFat     Float
-  effectiveDate DateTime @default(now())
+  id             String   @id @default(uuid())
+  studentId      String
+  bmr            Float?
+  tdee           Float?
+  caloriesOffset Float?   @default(0)
+  targetCalo     Float
+  targetProtein  Float
+  targetCarbs    Float
+  targetFat      Float
+  effectiveDate  DateTime @default(now())
 
   student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
 

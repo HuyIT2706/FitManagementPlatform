@@ -20,6 +20,7 @@ export interface OnboardingData {
   targetWeight: number | null;
   height: number | null;
   activityLevel: string | null;
+  caloriesOffset?: number | null;
   mealFrequency: number | null;
   dietaryPreferences: string[];
   healthConditions: string[];
@@ -29,6 +30,9 @@ export interface OnboardingData {
 export interface NutritionTarget {
   id?: string;
   studentId?: string;
+  bmr?: number;
+  tdee?: number;
+  caloriesOffset?: number;
   targetCalo?: number;
   targetProtein?: number;
   targetCarbs?: number;
@@ -37,8 +41,28 @@ export interface NutritionTarget {
 }
 
 export interface UserDataHome extends UserData {
+  age?: number;
+  height?: number;
+  weight?: number;
+  targetWeight?: number;
+  dateOfBirth?: Date | string;
+  gender?: string;
+  activityLevel?: string;
+  bmr?: number;
+  tdee?: number;
+  bmi?: number;
+  goal?: 'LOSE_WEIGHT' | 'GAIN_WEIGHT' | 'MAINTAIN';
+  suggestedOffset?: number;
   mealFrequency?: number;
   nutritionTargets?: NutritionTarget[];
+  bodyMetrics?: Array<{
+    id?: string;
+    weight?: number;
+    height?: number;
+    bodyFat?: number | null;
+    muscleMass?: number | null;
+    recordedAt?: Date | string;
+  }>;
   assignedPt?: {
     id?: string;
     fullName?: string;
