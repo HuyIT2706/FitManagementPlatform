@@ -1,6 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
-import React from "react";
-import type { UserData } from "../../interface";
+'use client';
+
+import React from 'react';
+import { Bell, LogOut } from 'lucide-react';
+import type { UserData } from '../../interface';
 
 export interface HeaderProps {
   userData?: UserData | null;
@@ -23,16 +26,31 @@ export default function Header({ userData, onLogout }: HeaderProps) {
             )}
           </div>
           <div className="flex flex-col">
-            <span className="font-headline-md text-xl font-bold text-on-surface tracking-tight">FitManagementPlatform</span>
+            <span className="font-headline-md text-xl font-bold text-on-surface tracking-tight">
+              FitManagementPlatform
+            </span>
             <span className="text-xs text-primary font-semibold">Member Badge</span>
           </div>
         </div>
+
         <div className="flex gap-3 items-center">
-          <button className="p-2.5 hover:bg-surface-bright/30 rounded-full text-on-surface-variant transition-colors cursor-pointer" aria-label="Thông báo">
-            <span className="material-symbols-outlined text-[20px]">notifications</span>
+          {/* Circular Badge Notification Bell Button (Style like Image 2) */}
+          <button
+            type="button"
+            className="w-10 h-10 rounded-full bg-green-light/10 border border-green-light/30 text-green-light hover:bg-green-light/20 flex items-center justify-center transition-all cursor-pointer shadow-[0_0_10px_rgba(102,200,28,0.2)]"
+            aria-label="Thông báo"
+          >
+            <Bell size={18} />
           </button>
-          <button onClick={onLogout} className="p-2.5 hover:bg-surface-bright/30 rounded-full text-red-400 hover:text-red-500 transition-colors cursor-pointer" aria-label="Đăng xuất">
-            <span className="material-symbols-outlined text-[20px]">logout</span>
+
+          {/* Circular Badge Logout Button (Style like Image 2) */}
+          <button
+            type="button"
+            onClick={onLogout}
+            className="w-10 h-10 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 flex items-center justify-center transition-all cursor-pointer shadow-[0_0_10px_rgba(248,113,113,0.2)]"
+            aria-label="Đăng xuất"
+          >
+            <LogOut size={18} />
           </button>
         </div>
       </header>
@@ -52,12 +70,30 @@ export default function Header({ userData, onLogout }: HeaderProps) {
           </div>
           <div className="flex flex-col">
             <span className="font-label-lg text-xs text-on-surface-variant">Xin chào,</span>
-            <span className="font-headline-md text-base font-bold text-on-surface -mt-0.5 truncate max-w-40">{userData?.fullName || 'Thành viên'}</span>
+            <span className="font-headline-md text-base font-bold text-on-surface -mt-0.5 truncate max-w-40">
+              {userData?.fullName || 'Thành viên'}
+            </span>
           </div>
         </div>
-        <button onClick={onLogout} className="p-2 rounded-full bg-surface-bright/30 border border-white/10 text-red-400 hover:text-red-500 transition-colors cursor-pointer" aria-label="Đăng xuất">
-          <span className="material-symbols-outlined text-[20px]">logout</span>
-        </button>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="w-9 h-9 rounded-full bg-green-light/10 border border-green-light/30 text-green-light flex items-center justify-center transition-all cursor-pointer"
+            aria-label="Thông báo"
+          >
+            <Bell size={16} />
+          </button>
+
+          <button
+            type="button"
+            onClick={onLogout}
+            className="w-9 h-9 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 hover:text-red-300 flex items-center justify-center transition-all cursor-pointer"
+            aria-label="Đăng xuất"
+          >
+            <LogOut size={16} />
+          </button>
+        </div>
       </div>
     </>
   );

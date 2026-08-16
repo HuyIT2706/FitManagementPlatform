@@ -3,6 +3,7 @@ export * from "./toast.interface";
 export * from "./onboarding.interface";
 export * from "./training.interface";
 export * from "./history.interface";
+export * from "./profile.interface";
 export type {
   MealItem,
   CalendarStripProps,
