@@ -1,13 +1,16 @@
-/* eslint-disable @next/next/no-img-element */
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import Header from "../../../components/ui/Header";
-import PTBottomNavBar from "../../../components/navigation/PTBottomNavBar";
-import apiClient from "../../../api/axios";
-import type { UserDataHome } from "../../../interface";
-import type { PTCodeQrData, PTDashboardData } from "@repo/types";
-import { toast } from "../../../utils/toast";
+import { useEffect, useState } from 'react';
+import Header from '../../../components/ui/Header';
+import PTBottomNavBar from '../../../components/navigation/PTBottomNavBar';
+import apiClient from '../../../api/axios';
+import type { UserDataHome } from '../../../interface';
+import type { PTCodeQrData, PTDashboardData } from '@repo/types';
+import { toast } from '../../../utils/toast';
+
+import PtProfileCard from './components/PtProfileCard';
+import PtQrCodeCard from './components/PtQrCodeCard';
+import PtProfileSettingsList from './components/PtProfileSettingsList';
 
 export default function PTProfilePage() {
   const [userData, setUserData] = useState<UserDataHome | null>(null);
@@ -17,9 +20,9 @@ export default function PTProfilePage() {
 
   useEffect(() => {
     Promise.all([
-      apiClient.get<UserDataHome>("/users/me"),
-      apiClient.get<PTCodeQrData>("/pt/code-qr"),
-      apiClient.get<PTDashboardData>("/pt/dashboard"),
+      apiClient.get<UserDataHome>('/users/me'),
+      apiClient.get<PTCodeQrData>('/pt/code-qr'),
+      apiClient.get<PTDashboardData>('/pt/dashboard'),
     ])
       .then(([userRes, qrRes, dashRes]) => {
         setUserData(userRes.data);
@@ -28,18 +31,18 @@ export default function PTProfilePage() {
         setLoading(false);
       })
       .catch((err: unknown) => {
-        console.error("Error fetching PT profile data:", err);
+        console.error('Error fetching PT profile data:', err);
         setLoading(false);
       });
   }, []);
 
   const handleLogout = (): void => {
-    localStorage.removeItem("jwt_token");
-    window.location.href = "/login";
+    localStorage.removeItem('jwt_token');
+    window.location.href = '/login';
   };
 
   const handleCopyPtCode = (): void => {
-    const code = codeQrData?.ptCode || "PT-HUY066";
+    const code = codeQrData?.ptCode || 'PT-HUY066';
     navigator.clipboard.writeText(code);
     toast.success(`Đã sao chép Mã PT (${code}) vào bộ nhớ tạm!`);
   };
@@ -52,7 +55,7 @@ export default function PTProfilePage() {
     );
   }
 
-  const ptCode = codeQrData?.ptCode || "PT-HUY066";
+  const ptCode = codeQrData?.ptCode || 'PT-HUY066';
   const qrUrl =
     codeQrData?.qrCodeUrl ||
     `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://fitmanagement.app/bind?ptCode=${ptCode}`;
@@ -66,134 +69,17 @@ export default function PTProfilePage() {
 
       <main className="max-w-4xl mx-auto px-container-padding mt-4 md:mt-8 space-y-6">
         {/* PT Profile Hero Card */}
-        <div className="bento-card rounded-3xl p-6 md:p-8 space-y-6 border border-outline-variant/30 text-center relative overflow-hidden">
-          <div className="w-24 h-24 rounded-full overflow-hidden mx-auto border-2 border-primary shadow-[0_0_20px_rgba(102,200,28,0.4)]">
-            {userData?.avatarUrl ? (
-              <img src={userData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-green-light text-dark-slate flex items-center justify-center text-3xl font-extrabold">
-                {userData?.fullName?.charAt(0) || "P"}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-1">
-            <h1 className="text-2xl font-extrabold font-headline-md text-on-surface">
-              {userData?.fullName || "Coach Huấn Luyện Viên"}
-            </h1>
-            <p className="text-xs text-on-surface-variant font-medium">
-              {userData?.email || "pt@fitmanagement.com"}
-            </p>
-            <div className="pt-1">
-              <span className="bg-primary/10 text-primary text-xs font-bold px-3.5 py-1 rounded-full border border-primary/30 inline-block uppercase tracking-wider">
-                Senior Personal Trainer
-              </span>
-            </div>
-          </div>
-
-          {/* Real Backend PT Stats */}
-          <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/10">
-            <div className="bg-surface-bright/30 p-3 rounded-2xl border border-white/5">
-              <span className="text-2xl font-extrabold text-primary block">{totalStudents}</span>
-              <span className="text-xs font-semibold text-on-surface-variant">Học viên VIP</span>
-            </div>
-            <div className="bg-surface-bright/30 p-3 rounded-2xl border border-white/5">
-              <span className="text-2xl font-extrabold text-on-surface block">{completedHours}+</span>
-              <span className="text-xs font-semibold text-on-surface-variant">Buổi hoàn thành</span>
-            </div>
-            <div className="bg-surface-bright/30 p-3 rounded-2xl border border-white/5">
-              <span className="text-2xl font-extrabold text-orange-400 block">4.9 ★</span>
-              <span className="text-xs font-semibold text-on-surface-variant">Đánh giá cao</span>
-            </div>
-          </div>
-        </div>
+        <PtProfileCard
+          userData={userData}
+          totalStudents={totalStudents}
+          completedHours={completedHours}
+        />
 
         {/* PT Unique Code & QR Code Card */}
-        <div className="bento-card rounded-3xl p-6 md:p-8 border border-primary/30 space-y-6 bg-primary/5 relative overflow-hidden">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <div className="inline-flex items-center gap-1.5 bg-primary/15 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2 border border-primary/30">
-                <span className="material-symbols-outlined text-[16px]">qr_code_2</span>
-                Mã Định Danh PT Coach
-              </div>
-              <h3 className="text-xl font-bold text-on-surface">
-                Mã PT & QR Code Liên Kết 1-1
-              </h3>
-              <p className="text-xs text-on-surface-variant mt-1 font-medium max-w-md leading-relaxed">
-                Cho học viên quét mã QR hoặc gõ Mã PT này khi đăng ký/liên kết tài khoản để kết nối trực tiếp với Coach.
-              </p>
-            </div>
-
-            {/* QR Code Container */}
-            <div className="bg-white p-3.5 rounded-2xl border border-white/20 shadow-lg self-center sm:self-auto shrink-0 text-center">
-              <img src={qrUrl} alt="PT QR Code" className="w-32 h-32 mx-auto rounded-lg" />
-              <span className="text-[11px] text-gray-900 font-extrabold block mt-1.5 font-mono">
-                {ptCode}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-center gap-3 pt-2 border-t border-white/10">
-            <div className="flex-1 bg-surface-bright/60 border border-white/10 rounded-2xl px-4 py-3 flex items-center justify-between w-full">
-              <span className="text-xs text-on-surface-variant font-medium">Mã PT của bạn:</span>
-              <strong className="text-lg font-extrabold text-primary tracking-wider font-mono">{ptCode}</strong>
-            </div>
-
-            <button
-              type="button"
-              suppressHydrationWarning
-              onClick={handleCopyPtCode}
-              className="w-full sm:w-auto px-6 py-3.5 bg-primary text-dark-slate rounded-2xl font-extrabold text-xs shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
-            >
-              <span className="material-symbols-outlined text-[18px]">content_copy</span>
-              Sao chép Mã PT
-            </button>
-          </div>
-        </div>
+        <PtQrCodeCard ptCode={ptCode} qrUrl={qrUrl} onCopyPtCode={handleCopyPtCode} />
 
         {/* Account settings */}
-        <div className="bento-card rounded-3xl p-6 border border-outline-variant/30 space-y-3">
-          <h3 className="text-base font-bold text-on-surface px-1">Cài đặt tài khoản</h3>
-
-          <div className="space-y-2">
-            <button 
-              type="button"
-              suppressHydrationWarning
-              className="w-full p-4 rounded-2xl bg-surface-bright/30 border border-white/5 flex items-center justify-between text-sm font-semibold hover:bg-surface-bright/50 transition-colors cursor-pointer"
-            >
-              <span className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary">person</span>
-                Thông tin cá nhân Coach
-              </span>
-              <span className="material-symbols-outlined text-on-surface-variant">chevron_right</span>
-            </button>
-
-            <button 
-              type="button"
-              suppressHydrationWarning
-              className="w-full p-4 rounded-2xl bg-surface-bright/30 border border-white/5 flex items-center justify-between text-sm font-semibold hover:bg-surface-bright/50 transition-colors cursor-pointer"
-            >
-              <span className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary">lock</span>
-                Đổi mật khẩu
-              </span>
-              <span className="material-symbols-outlined text-on-surface-variant">chevron_right</span>
-            </button>
-
-            <button
-              type="button"
-              suppressHydrationWarning
-              onClick={handleLogout}
-              className="w-full p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-between text-sm font-bold hover:bg-red-500/20 transition-colors cursor-pointer"
-            >
-              <span className="flex items-center gap-3">
-                <span className="material-symbols-outlined">logout</span>
-                Đăng xuất tài khoản PT
-              </span>
-              <span className="material-symbols-outlined">chevron_right</span>
-            </button>
-          </div>
-        </div>
+        <PtProfileSettingsList onLogout={handleLogout} />
       </main>
 
       <PTBottomNavBar activeTab="profile" />
