@@ -10,8 +10,6 @@ export default function DailyFuelHeroCard({
   selectedDateFormatted,
 }: DailyFuelHeroCardProps) {
   const [animatedCalo, setAnimatedCalo] = useState(0);
-
-  // Trigger smooth transition from 0 to consumedCalo on load or date change
   useEffect(() => {
     setAnimatedCalo(0);
     const timer = setTimeout(() => {
@@ -23,14 +21,8 @@ export default function DailyFuelHeroCard({
   const safeTarget = targetCalo > 0 ? targetCalo : 2000;
   const rawPercentage = (consumedCalo / safeTarget) * 100;
   const percentage = Math.min(100, Math.max(0, (animatedCalo / safeTarget) * 100));
-
-  // Radius r = 130
-  // Full 360-degree circumference = 2 * Math.PI * 130 = 816.814
-  // 270-degree Gauge Arc length (75% arc starting at 7 o'clock): 0.75 * 816.814 = 612.61
   const maxArcLength = 612.61;
   const fullCircumference = 816.814;
-
-  // Exact green stroke length (0px at 0% up to 612.61px at 100%)
   const currentStrokeLength = (percentage / 100) * maxArcLength;
 
   return (
@@ -49,11 +41,8 @@ export default function DailyFuelHeroCard({
         </div>
         <Flame size={26} className="text-green-light" />
       </div>
-
-      {/* Dynamic 270-degree Gauge Fuel Arc with 1.5s Smooth Transition */}
       <div className="relative w-64 h-64 flex items-center justify-center z-10 my-4">
         <svg className="w-full h-full transform rotate-[135deg]" viewBox="0 0 280 280">
-          {/* Background Track Arc (270 degrees, starting at 7 o'clock going to 5 o'clock) */}
           <circle
             cx="140"
             cy="140"
@@ -65,7 +54,6 @@ export default function DailyFuelHeroCard({
             strokeDasharray={`${maxArcLength} ${fullCircumference}`}
             strokeDashoffset="0"
           />
-          {/* Dynamic Green Progress Arc with 1.5s Transition */}
           {animatedCalo > 0 && (
             <circle
               className="progress-ring__circle"

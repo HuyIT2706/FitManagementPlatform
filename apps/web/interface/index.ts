@@ -8,3 +8,9 @@ export type {
   MacroCardsProps,
   DailyMealGridProps,
 } from "./home.interface";
+export type {
+  TrainingVipBannerProps,
+  ExerciseLibraryGridProps,
+  AssignedMealPlanCardProps,
+  ExerciseDetailModalProps,
+} from "./training.interface";
