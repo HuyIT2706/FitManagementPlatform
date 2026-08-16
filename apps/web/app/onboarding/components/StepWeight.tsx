@@ -1,6 +1,7 @@
 'use client';
 
 import { type OnboardingState } from '../../../store/onboardingStore';
+import { Scale } from 'lucide-react';
 
 interface StepWeightProps {
   store: OnboardingState;
@@ -8,10 +9,13 @@ interface StepWeightProps {
 
 export default function StepWeight({ store }: StepWeightProps) {
   return (
-    <div className="flex flex-col flex-1 h-full space-y-12">
+    <div className="flex flex-col flex-1 h-full space-y-10">
       <div>
-        <h2 className="text-3xl font-bold mb-4">Chỉ số cơ thể</h2>
-        <p className="text-white/60">Xác định điểm xuất phát và đích đến của bạn.</p>
+        <div className="flex items-center gap-2 mb-2">
+          <Scale className="text-[#10b981]" size={28} />
+          <h2 className="text-3xl font-bold">Chỉ số cơ thể</h2>
+        </div>
+        <p className="text-white/60 text-base">Xác định điểm xuất phát và đích đến của bạn.</p>
       </div>
 
       <div className="space-y-8">

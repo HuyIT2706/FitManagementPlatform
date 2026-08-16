@@ -52,7 +52,7 @@ export default function StepCalorieOffset({ store }: StepCalorieOffsetProps) {
         <Flame className="text-[#10b981]" size={28} />
         <h2 className="text-3xl font-bold">Mức độ Thâm hụt Calo</h2>
       </div>
-      <p className="text-white/60 mb-6">
+      <p className="text-white/60 text-base mb-6">
         Chọn tốc độ {isLosing ? 'giảm cân' : 'tăng cân'} phù hợp nhất với cơ địa & lối sống của bạn.
       </p>
 

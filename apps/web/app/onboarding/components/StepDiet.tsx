@@ -18,10 +18,8 @@ export default function StepDiet({ store }: StepDietProps) {
 
   const handleSelect = (optId: string) => {
     if (optId === 'NONE') {
-      // If select NONE, clear all others and set NONE
       store.toggleDietaryPreference('NONE');
     } else {
-      // If select specific allergy, remove NONE if present
       if (store.dietaryPreferences.includes('NONE')) {
         store.toggleDietaryPreference('NONE');
       }
@@ -35,7 +33,7 @@ export default function StepDiet({ store }: StepDietProps) {
         <ShieldCheck className="text-[#10b981]" size={28} />
         <h2 className="text-3xl font-bold">Hạn chế ăn uống hoặc Dị ứng</h2>
       </div>
-      <p className="text-white/60 mb-8">Vui lòng chọn để chúng tôi loại trừ các thực phẩm gây dị ứng khỏi thực đơn của bạn.</p>
+      <p className="text-white/60 text-base mb-8">Vui lòng chọn để chúng tôi loại trừ các thực phẩm gây dị ứng khỏi thực đơn của bạn.</p>
 
       <div className="space-y-3">
         {options.map((opt) => {

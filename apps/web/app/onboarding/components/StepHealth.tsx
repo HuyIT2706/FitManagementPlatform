@@ -32,7 +32,7 @@ export default function StepHealth({ store }: StepHealthProps) {
         <Activity className="text-[#10b981]" size={28} />
         <h2 className="text-3xl font-bold">Tình trạng sức khỏe</h2>
       </div>
-      <p className="text-white/60 mb-8">Vui lòng chọn để thiết lập các bài tập và dinh dưỡng an toàn.</p>
+      <p className="text-white/60 text-base mb-8">Vui lòng chọn để thiết lập các bài tập và dinh dưỡng an toàn.</p>
 
       <div className="space-y-4 overflow-y-auto pb-4">
         {options.map((opt) => {

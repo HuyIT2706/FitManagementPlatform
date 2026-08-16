@@ -1,6 +1,7 @@
 'use client';
 
 import { type OnboardingState } from '../../../store/onboardingStore';
+import { Zap } from 'lucide-react';
 
 interface StepActivityProps {
   store: OnboardingState;
@@ -16,8 +17,11 @@ export default function StepActivity({ store }: StepActivityProps) {
 
   return (
     <div className="flex flex-col flex-1 h-full">
-      <h2 className="text-3xl font-bold mb-4">Lối sống & Mức độ hoạt động</h2>
-      <p className="text-white/60 mb-8">Chọn mức mô tả đúng nhất hoạt động của bạn hàng ngày.</p>
+      <div className="flex items-center gap-2 mb-2">
+        <Zap className="text-[#10b981]" size={28} />
+        <h2 className="text-3xl font-bold">Lối sống & Mức độ hoạt động</h2>
+      </div>
+      <p className="text-white/60 text-base mb-8">Chọn mức mô tả đúng nhất hoạt động của bạn hàng ngày.</p>
 
       <div className="space-y-4 overflow-y-auto pb-4">
         {options.map((opt) => (

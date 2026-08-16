@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { type OnboardingState } from '../../../store/onboardingStore';
 import apiClient from '../../../api/axios';
+import { Gauge } from 'lucide-react';
 
 interface StepBMIProps {
   store: OnboardingState;
@@ -56,8 +57,11 @@ export default function StepBMI({ store }: StepBMIProps) {
 
   return (
     <div className="flex flex-col items-center flex-1 h-full">
-      <h2 className="text-2xl font-bold mb-2">Kết quả BMI</h2>
-      <p className="text-white/60 text-center mb-10">Tính toán trực tiếp từ Backend</p>
+      <div className="flex items-center gap-2 mb-2">
+        <Gauge className="text-[#10b981]" size={28} />
+        <h2 className="text-3xl font-bold">Kết quả BMI</h2>
+      </div>
+      <p className="text-white/60 text-base text-center mb-10">Tính toán trực tiếp từ Backend dựa vào thông tin của bạn.</p>
 
       <div className="relative w-64 h-36 overflow-hidden flex justify-center mb-10">
         {/* Background track */}

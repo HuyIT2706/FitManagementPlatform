@@ -1,7 +1,7 @@
 'use client';
 
 import { type OnboardingState } from '../../../store/onboardingStore';
-import { User, UserCheck } from 'lucide-react';
+import { User, UserCheck, Users } from 'lucide-react';
 
 interface StepGenderProps {
   store: OnboardingState;
@@ -35,8 +35,13 @@ export default function StepGender({ store }: StepGenderProps) {
 
   return (
     <div className="flex flex-col flex-1 h-full">
-      <h2 className="text-3xl font-bold mb-4">Giới tính của bạn</h2>
-      <p className="text-white/60 mb-12">Để chúng tôi biết cá nhân hóa chương trình tập luyện phù hợp nhất.</p>
+      <div className="flex items-center gap-2 mb-2">
+        <Users className="text-[#10b981]" size={28} />
+        <h2 className="text-3xl font-bold">Giới tính của bạn</h2>
+      </div>
+      <p className="text-white/60 text-base mb-10">
+        Để chúng tôi biết cá nhân hóa chương trình tập luyện phù hợp nhất.
+      </p>
 
       <div className="flex space-x-4">
         {options.map((opt) => {
