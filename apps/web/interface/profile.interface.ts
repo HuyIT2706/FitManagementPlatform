@@ -2,6 +2,7 @@ import type { UserDataHome } from './home.interface';
 
 export interface ProfileHeaderCardProps {
   userData: UserDataHome | null;
+  onEditProfile?: () => void;
 }
 
 export interface PtCoachBindCardProps {
@@ -36,4 +37,5 @@ export interface DailyMacroTargetMasterProps {
 
 export interface ProfileSettingsListProps {
   onLogout: () => void;
+  onEditProfile?: () => void;
 }

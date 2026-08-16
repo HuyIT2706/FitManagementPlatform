@@ -1,6 +1,21 @@
 import { Injectable } from '@nestjs/common';
+import type { Gender, ActivityLevel } from '@repo/db';
 import { PrismaService } from '../../prisma/prisma.service';
 import { OnboardingDto } from './dto/onboarding.dto';
+
+export interface UpdateProfileDto {
+  fullName?: string;
+  phone?: string;
+  avatarUrl?: string;
+  gender?: Gender;
+  height?: number;
+  weight?: number;
+  targetWeight?: number;
+  bodyFat?: number;
+  muscleMass?: number;
+  activityLevel?: ActivityLevel;
+  goal?: string;
+}
 
 @Injectable()
 export class UsersService {
@@ -98,102 +113,39 @@ export class UsersService {
       age = Math.abs(ageDt.getUTCFullYear() - 1970);
     }
 
-    // Mifflin-St Jeor BMR Formula
-    let bmr = 10 * weight + 6.25 * height - 5 * age;
-    if (gender === 'FEMALE') {
-      bmr -= 161;
-    } else {
-      bmr += 5;
-    }
+    const bmr =
+      gender === 'MALE'
+        ? 10 * weight + 6.25 * height - 5 * age + 5
+        : 10 * weight + 6.25 * height - 5 * age - 161;
 
-    let activityMultiplier = 1.2;
-    switch (user.activityLevel) {
-      case 'LIGHTLY_ACTIVE':
-        activityMultiplier = 1.375;
-        break;
-      case 'MODERATELY_ACTIVE':
-        activityMultiplier = 1.55;
-        break;
-      case 'VERY_ACTIVE':
-        activityMultiplier = 1.725;
-        break;
-      case 'EXTRA_ACTIVE':
-        activityMultiplier = 1.9;
-        break;
-    }
-
-    const calculatedTdee = Math.round(bmr * activityMultiplier);
-    const heightM = height / 100;
-    const calculatedBmi =
-      heightM > 0 ? Math.round((weight / (heightM * heightM)) * 10) / 10 : 24.5;
-    const userRecord = user as unknown as {
-      bmr?: number | null;
-      tdee?: number | null;
-      bmi?: number | null;
-      goal?: string | null;
-      caloriesOffset?: number | null;
+    const activityMultipliers: Record<string, number> = {
+      SEDENTARY: 1.2,
+      LIGHTLY_ACTIVE: 1.375,
+      MODERATELY_ACTIVE: 1.55,
+      VERY_ACTIVE: 1.725,
+      EXTRA_ACTIVE: 1.9,
     };
+    const multiplier =
+      activityMultipliers[user.activityLevel || 'VERY_ACTIVE'] || 1.725;
+    const tdee = Math.round(bmr * multiplier);
 
-    const calculatedGoal =
-      user.targetWeight !== null && user.targetWeight !== undefined
-        ? user.targetWeight < weight
-          ? 'LOSE_WEIGHT'
-          : user.targetWeight > weight
-            ? 'GAIN_WEIGHT'
-            : 'MAINTAIN'
-        : 'MAINTAIN';
+    const heightM = height / 100;
+    const bmi =
+      heightM > 0 ? Math.round((weight / (heightM * heightM)) * 10) / 10 : 24.5;
+    const bmiInfo = this.getBMICategory(bmi);
 
-    const calculatedOffset =
-      userRecord.caloriesOffset && userRecord.caloriesOffset !== 0
-        ? userRecord.caloriesOffset
-        : calculatedGoal === 'LOSE_WEIGHT'
-          ? -400
-          : calculatedGoal === 'GAIN_WEIGHT'
-            ? 400
-            : 0;
-
-    const finalBmr = userRecord.bmr ?? Math.round(bmr);
-    const finalTdee = userRecord.tdee ?? calculatedTdee;
-    const finalBmi = userRecord.bmi ?? calculatedBmi;
-    const finalGoal = userRecord.goal ?? calculatedGoal;
-    const finalOffset = calculatedOffset;
-
-    // Auto-update Postgres DB if null
-    if (
-      userRecord.bmr === null ||
-      userRecord.tdee === null ||
-      userRecord.bmi === null ||
-      userRecord.goal === null
-    ) {
-      this.prisma.user
-        .update({
-          where: { id: userId },
-          data: {
-            bmr: finalBmr,
-            tdee: finalTdee,
-            bmi: finalBmi,
-            goal: finalGoal,
-            caloriesOffset: finalOffset,
-          },
-        })
-        .catch((err: unknown) => {
-          console.error('Error backfilling user metrics DB:', err);
-        });
-    }
-
-    const bmiInfo = this.getBMICategory(finalBmi);
+    const isLosing = (weight || 70) > (user.targetWeight || 70);
+    const suggestedOffset = isLosing ? -400 : 300;
 
     return {
       ...user,
-      bmr: finalBmr,
-      tdee: finalTdee,
-      bmi: finalBmi,
+      bmr: Math.round(bmr),
+      tdee,
+      bmi,
       bmiCategory: bmiInfo.category,
       bmiColor: bmiInfo.color,
       bmiDescription: bmiInfo.description,
-      goal: finalGoal,
-      caloriesOffset: finalOffset,
-      suggestedOffset: finalOffset,
+      suggestedOffset,
       assignedPt,
       activePackage,
     };
@@ -203,43 +155,37 @@ export class UsersService {
     if (isLosing) {
       return [
         {
-          offset: -400,
-          title: 'Thâm hụt Chuẩn (-400 kcal/ngày)',
-          recommended: true,
-          desc: 'Tốc độ giảm cân bền vững & an toàn (~0.4kg/tuần). Dễ duy trì lâu dài.',
+          label: 'Chậm & Chắc (Giảm ~0.25kg/tuần)',
+          value: -250,
+          description: 'Thâm hụt nhẹ, dễ duy trì lâu dài',
         },
         {
-          offset: -250,
-          title: 'Thâm hụt Nhẹ (-250 kcal/ngày)',
-          recommended: false,
-          desc: 'Giảm chậm rãi, phù hợp với người mới bắt đầu không muốn nhịn ăn.',
+          label: 'Khuyến nghị (Giảm ~0.5kg/tuần)',
+          value: -400,
+          description: 'Cân bằng giữa tốc độ giảm mỡ và giữ cơ',
         },
         {
-          offset: -550,
-          title: 'Thâm hụt Mạnh (-550 kcal/ngày)',
-          recommended: false,
-          desc: 'Tốc độ giảm cân nhanh hơn (~0.5 - 0.6kg/tuần), cần kỷ luật cao.',
+          label: 'Cấp tốc (Giảm ~0.75kg/tuần)',
+          value: -600,
+          description: 'Yêu cầu tính kỷ luật cao',
         },
       ];
     }
     return [
       {
-        offset: 400,
-        title: 'Thặng dư Chuẩn (+400 kcal/ngày)',
-        recommended: true,
-        desc: 'Tăng cơ bắp tối ưu, hạn chế tích tụ mỡ thừa.',
+        label: 'Tăng cơ nạc (Tăng ~0.25kg/tuần)',
+        value: 250,
+        description: 'Hạn chế tối đa tích mỡ thừa',
       },
       {
-        offset: 250,
-        title: 'Thặng dư Nhẹ (+250 kcal/ngày)',
-        recommended: false,
-        desc: 'Tăng cân chậm, săn chắc, giữ cơ thể nhẹ nhàng.',
+        label: 'Khuyến nghị (Tăng ~0.4kg/tuần)',
+        value: 400,
+        description: 'Tối ưu tốc độ phát triển cơ bắp',
       },
       {
-        offset: 500,
-        title: 'Thặng dư Mạnh (+500 kcal/ngày)',
-        recommended: false,
-        desc: 'Tăng cân & thể tích cơ nhanh hơn, dành cho người gầy lâu năm.',
+        label: 'Tăng cân nhanh (Tăng ~0.6kg/tuần)',
+        value: 600,
+        description: 'Phù hợp người gầy lâu năm',
       },
     ];
   }
@@ -248,52 +194,37 @@ export class UsersService {
     const w = dto.weight || 70;
     const h = dto.height || 170;
     const gender = dto.gender || 'MALE';
-
     let age = 25;
+
     if (dto.dateOfBirth) {
       const dob = new Date(dto.dateOfBirth);
-      const diff_ms = Date.now() - dob.getTime();
-      const age_dt = new Date(diff_ms);
-      age = Math.abs(age_dt.getUTCFullYear() - 1970);
+      const diffMs = Date.now() - dob.getTime();
+      const ageDt = new Date(diffMs);
+      age = Math.abs(ageDt.getUTCFullYear() - 1970);
     }
 
-    let bmr = 10 * w + 6.25 * h - 5 * age;
-    if (gender === 'FEMALE') {
-      bmr -= 161;
-    } else {
-      bmr += 5;
-    }
+    const bmr =
+      gender === 'MALE'
+        ? 10 * w + 6.25 * h - 5 * age + 5
+        : 10 * w + 6.25 * h - 5 * age - 161;
 
-    let activityMultiplier = 1.2;
-    switch (dto.activityLevel) {
-      case 'LIGHTLY_ACTIVE':
-        activityMultiplier = 1.375;
-        break;
-      case 'MODERATELY_ACTIVE':
-        activityMultiplier = 1.55;
-        break;
-      case 'VERY_ACTIVE':
-        activityMultiplier = 1.725;
-        break;
-      case 'EXTRA_ACTIVE':
-        activityMultiplier = 1.9;
-        break;
-    }
+    const activityMultipliers: Record<string, number> = {
+      SEDENTARY: 1.2,
+      LIGHTLY_ACTIVE: 1.375,
+      MODERATELY_ACTIVE: 1.55,
+      VERY_ACTIVE: 1.725,
+      EXTRA_ACTIVE: 1.9,
+    };
+    const multiplier =
+      activityMultipliers[dto.activityLevel || 'VERY_ACTIVE'] || 1.725;
+    const tdee = Math.round(bmr * multiplier);
 
-    const tdee = Math.round(bmr * activityMultiplier);
-
-    let goal = 'MAINTAIN';
-    let suggestedOffset = 0;
-
-    if (dto.targetWeight !== undefined && dto.weight !== undefined) {
-      if (dto.targetWeight < dto.weight) {
-        goal = 'LOSE_WEIGHT';
-        suggestedOffset = -400;
-      } else if (dto.targetWeight > dto.weight) {
-        goal = 'GAIN_WEIGHT';
-        suggestedOffset = 400;
-      }
-    }
+    const goal = String(
+      dto.goal ||
+        (w > (dto.targetWeight || 70) ? 'LOSE_WEIGHT' : 'GAIN_WEIGHT'),
+    );
+    const isLosing = goal === 'LOSE_WEIGHT';
+    const suggestedOffset = isLosing ? -400 : 300;
 
     const targetCalo =
       tdee +
@@ -308,7 +239,6 @@ export class UsersService {
       heightM > 0 ? Math.round((w / (heightM * heightM)) * 10) / 10 : 24.5;
     const bmiInfo = this.getBMICategory(bmi);
 
-    const isLosing = (dto.weight || 70) > (dto.targetWeight || 70);
     const calorieOffsetOptions = this.getCalorieOffsetOptions(isLosing);
 
     return {
@@ -374,13 +304,46 @@ export class UsersService {
           bmr: calc.bmr,
           tdee: calc.tdee,
           bmi: calc.bmi,
-          goal: calc.goal,
+          goal: String(calc.goal),
           caloriesOffset:
             caloriesOffset !== undefined
               ? caloriesOffset
               : calc.suggestedOffset,
           onboardingCompleted: true,
         },
+      });
+    });
+  }
+
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    const updateData: Record<string, unknown> = {};
+
+    if (dto.fullName) updateData.fullName = dto.fullName;
+    if (dto.phone !== undefined) updateData.phone = dto.phone;
+    if (dto.avatarUrl !== undefined) updateData.avatarUrl = dto.avatarUrl;
+    if (dto.gender) updateData.gender = dto.gender;
+    if (dto.height) updateData.height = Number(dto.height);
+    if (dto.targetWeight) updateData.targetWeight = Number(dto.targetWeight);
+    if (dto.activityLevel) updateData.activityLevel = dto.activityLevel;
+    if (dto.goal) updateData.goal = dto.goal;
+
+    return this.prisma.$transaction(async (tx) => {
+      if (dto.weight || dto.bodyFat || dto.muscleMass) {
+        const user = await tx.user.findUnique({ where: { id: userId } });
+        await tx.bodyMetric.create({
+          data: {
+            userId,
+            weight: dto.weight ? Number(dto.weight) : user?.targetWeight || 70,
+            height: dto.height ? Number(dto.height) : user?.height || undefined,
+            bodyFat: dto.bodyFat ? Number(dto.bodyFat) : undefined,
+            muscleMass: dto.muscleMass ? Number(dto.muscleMass) : undefined,
+          },
+        });
+      }
+
+      return tx.user.update({
+        where: { id: userId },
+        data: updateData,
       });
     });
   }

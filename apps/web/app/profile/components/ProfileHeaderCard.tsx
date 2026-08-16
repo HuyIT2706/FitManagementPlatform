@@ -4,10 +4,8 @@
 import { UserCheck, Edit3 } from 'lucide-react';
 import type { ProfileHeaderCardProps } from '../../../interface';
 
-export default function ProfileHeaderCard({ userData }: ProfileHeaderCardProps) {
-  const ptName = userData?.assignedPt
-    ? `PT Phụ trách: Coach ${userData.assignedPt.fullName}`
-    : 'PT Phụ trách: Coach Bùi Văn Huy';
+export default function ProfileHeaderCard({ userData, onEditProfile }: ProfileHeaderCardProps) {
+  const ptName = userData?.assignedPt ? `PT Phụ trách: ${userData.assignedPt.fullName}` : '';
 
   return (
     <section className="bento-card rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center md:items-start gap-6 relative overflow-hidden border border-outline-variant/30">
@@ -42,13 +40,14 @@ export default function ProfileHeaderCard({ userData }: ProfileHeaderCardProps) 
         </p>
         <div className="flex items-center gap-2 text-xs text-on-surface-variant bg-surface-bright/40 px-3 py-2 rounded-lg border border-white/5">
           <UserCheck size={16} className="text-primary shrink-0" />
-          <span className="font-semibold">{ptName}</span>
+          <span className="font-semibold">{ptName || 'Chưa liên kết PT'}</span>
         </div>
       </div>
 
       <button
         type="button"
         suppressHydrationWarning
+        onClick={onEditProfile}
         className="mt-4 md:mt-0 flex items-center gap-2 px-4 py-2 rounded-full border border-outline-variant text-green-light font-bold text-xs hover:bg-green-light/10 transition-colors z-10 cursor-pointer"
       >
         <Edit3 size={14} />

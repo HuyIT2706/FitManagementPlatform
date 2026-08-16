@@ -12,10 +12,12 @@ import ProfileBiometricsGrid from './components/ProfileBiometricsGrid';
 import TransformationJourneySlider from './components/TransformationJourneySlider';
 import DailyMacroTargetMaster from './components/DailyMacroTargetMaster';
 import ProfileSettingsList from './components/ProfileSettingsList';
+import EditProfileModal from './components/EditProfileModal';
 
 export default function ProfilePage() {
   const [userData, setUserData] = useState<UserDataHome | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
   const fetchUserData = () => {
     apiClient
@@ -94,7 +96,10 @@ export default function ProfilePage() {
 
       <main className="px-4 md:px-10 pt-4 max-w-7xl mx-auto flex flex-col gap-4">
         {/* 1. Profile Header Hero */}
-        <ProfileHeaderCard userData={userData} />
+        <ProfileHeaderCard
+          userData={userData}
+          onEditProfile={() => setIsEditProfileOpen(true)}
+        />
 
         {/* 2. PT Coach Code & QR Binding Card */}
         <PtCoachBindCard onBindSuccess={fetchUserData} />
@@ -129,7 +134,18 @@ export default function ProfilePage() {
         />
 
         {/* 6. Settings Bento List */}
-        <ProfileSettingsList onLogout={handleLogout} />
+        <ProfileSettingsList
+          onLogout={handleLogout}
+          onEditProfile={() => setIsEditProfileOpen(true)}
+        />
+
+        {/* 7. Edit Profile Modal */}
+        <EditProfileModal
+          isOpen={isEditProfileOpen}
+          userData={userData}
+          onClose={() => setIsEditProfileOpen(false)}
+          onSuccess={fetchUserData}
+        />
       </main>
 
       <BottomNavBar activeTab="profile" />

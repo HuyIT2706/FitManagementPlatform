@@ -23,6 +23,15 @@ export class UsersController {
   }
 
   @UseGuards(JwtGuard)
+  @Patch('me')
+  async updateProfile(
+    @Request() req: RequestWithUser,
+    @Body() dto: Record<string, any>,
+  ) {
+    return this.usersService.updateProfile(req.user.sub, dto);
+  }
+
+  @UseGuards(JwtGuard)
   @Patch('onboarding')
   async completeOnboarding(
     @Request() req: RequestWithUser,

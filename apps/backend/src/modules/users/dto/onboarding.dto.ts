@@ -34,6 +34,10 @@ export class OnboardingDto {
   activityLevel?: ActivityLevel;
 
   @IsOptional()
+  @IsString()
+  goal?: string;
+
+  @IsOptional()
   @IsNumber()
   mealFrequency?: number;
 
