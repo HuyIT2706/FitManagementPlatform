@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Header from '../../components/ui/Header';
 import BottomNavBar from '../../components/navigation/BottomNavBar';
 import apiClient from '../../api/axios';
-import type { UserDataHome, DailyNutritionData } from '../../interface';
+import type { UserDataHome, DailyNutritionData, MealSlotConfig } from '../../interface';
 import {
   formatYYYYMMDD,
   getMonday,
@@ -115,11 +115,11 @@ export default function Home() {
   const strokeDashoffset = dailyData?.progress?.strokeDashoffset ?? 816;
   const remainingCalories = dailyData?.progress?.remainingCalories ?? Math.max(0, targetCalo - consumedCalo);
 
-  const mealSlots = dailyData?.mealSlots || [
-    { id: 'BREAKFAST', name: 'Bữa Sáng' },
-    { id: 'LUNCH', name: 'Bữa Trưa' },
-    { id: 'DINNER', name: 'Bữa Tối' },
-    { id: 'SNACK', name: 'Bữa Phụ' },
+  const mealSlots: MealSlotConfig[] = dailyData?.mealSlots || [
+    { id: 'BREAKFAST', name: 'Bữa Sáng', icon: 'wb_twilight' },
+    { id: 'LUNCH', name: 'Bữa Trưa', icon: 'light_mode' },
+    { id: 'DINNER', name: 'Bữa Tối', icon: 'dark_mode' },
+    { id: 'SNACK', name: 'Bữa Phụ', icon: 'icecream' },
   ];
 
   const getMealDetails = (type: string) => {

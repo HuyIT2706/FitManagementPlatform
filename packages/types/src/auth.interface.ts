@@ -19,3 +19,8 @@ export interface LoginResponse {
     onboardingCompleted: boolean;
   };
 }
+
+export interface RequestWithUser {
+  user: JwtPayloadUser;
+}
+

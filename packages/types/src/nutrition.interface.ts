@@ -64,7 +64,7 @@ export interface MealSummaryItem {
 export interface MealSlotConfig {
   id: string;
   name: string;
-  icon: string;
+  icon?: string;
 }
 
 export interface NutritionTargetSummary {

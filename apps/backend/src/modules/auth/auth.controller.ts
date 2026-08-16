@@ -11,7 +11,7 @@ import {
 import { AuthService } from './auth.service';
 import type { Response, Request } from 'express';
 import { JwtGuard } from './jwt.guard';
-import type { RequestWithUser } from '../../common/interfaces/request-with-user.interface';
+import type { RequestWithUser } from '@repo/types';
 
 @Controller('auth')
 export class AuthController {

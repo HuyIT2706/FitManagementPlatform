@@ -10,7 +10,7 @@ import {
 import { UsersService } from './users.service';
 import { OnboardingDto } from './dto/onboarding.dto';
 import { JwtGuard } from '../auth/jwt.guard';
-import type { RequestWithUser } from '../../common/interfaces/request-with-user.interface';
+import type { RequestWithUser } from '@repo/types';
 
 @Controller('users')
 export class UsersController {

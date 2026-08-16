@@ -1,63 +1,10 @@
-export interface UserDataHome {
-  id: string;
-  name: string;
-  avatar?: string;
-  nutritionTargets?: Array<{
-    targetCalo: number;
-    targetProtein: number;
-    targetCarbs: number;
-    targetFat: number;
-  }>;
-}
+import type { MealSlotConfig } from '@repo/types';
 
-export interface DailyNutritionData {
-  date: string;
-  targets?: {
-    calories: number;
-    protein: number;
-    carbs: number;
-    fat: number;
-  };
-  consumed?: {
-    calories: number;
-    protein: number;
-    carbs: number;
-    fat: number;
-  };
-  progress?: {
-    proteinPercent: number;
-    carbsPercent: number;
-    fatPercent: number;
-    strokeDashoffset?: number;
-    remainingCalories?: number;
-  };
-  mealSlots?: Array<{
-    id: string;
-    name: string;
-    icon?: string;
-  }>;
-  mealSummary?: Record<
-    string,
-    {
-      totalCalories: number;
-      items: Array<{
-        foodName: string;
-        weightInGram: number;
-        calories: number;
-      }>;
-    }
-  >;
-}
+export type { UserDataHome, DailyNutritionData, MealSlotConfig } from '@repo/types';
 
 export interface MealItem {
   foodName: string;
   weightInGram: number;
-}
-
-export interface MealSlotConfig {
-  id: string;
-  name: string;
-  icon?: string;
 }
 
 export interface CalendarStripProps {

@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { PtService } from './pt.service';
 import { JwtGuard } from '../auth/jwt.guard';
-import type { RequestWithUser } from '../../common/interfaces/request-with-user.interface';
+import type { RequestWithUser } from '@repo/types';
 import type {
   AssignNutritionDto,
   AssignWorkoutDto,

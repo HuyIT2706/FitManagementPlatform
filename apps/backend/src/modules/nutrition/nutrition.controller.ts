@@ -10,7 +10,7 @@ import {
 import { NutritionService } from './nutrition.service';
 import { LogMealDto } from './dto/log-meal.dto';
 import { JwtGuard } from '../auth/jwt.guard';
-import type { RequestWithUser } from '../../common/interfaces/request-with-user.interface';
+import type { RequestWithUser } from '@repo/types';
 
 @UseGuards(JwtGuard)
 @Controller('nutrition')
