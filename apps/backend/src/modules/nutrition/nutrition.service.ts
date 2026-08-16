@@ -233,6 +233,7 @@ export class NutritionService {
     );
     const remainingCalories = Math.max(0, targetCalo - consumedCaloRound);
 
+    const streak = await this.getStreakData(userId);
     const mealSlots = this.getMealSlotsByFrequency(user?.mealFrequency);
 
     return {
@@ -257,9 +258,66 @@ export class NutritionService {
         strokeDashoffset,
         remainingCalories,
       },
+      streak,
       mealSlots,
       meals,
       mealSummary: mealSummaryMap,
+    };
+  }
+
+  async getStreakData(userId: string) {
+    const mealLogs = await this.prisma.mealLog.findMany({
+      where: {
+        userId,
+        totalCalories: { gt: 0 },
+      },
+      select: {
+        logDate: true,
+      },
+      orderBy: {
+        logDate: 'desc',
+      },
+    });
+
+    const loggedDatesSet = new Set<string>();
+    mealLogs.forEach((log) => {
+      const d = new Date(log.logDate);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      loggedDatesSet.add(`${yyyy}-${mm}-${dd}`);
+    });
+
+    const loggedDates = Array.from(loggedDatesSet);
+    const totalLoggedDays = loggedDates.length;
+
+    let currentStreak = 0;
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+    const checkDate = new Date(now);
+    if (!loggedDatesSet.has(todayStr)) {
+      checkDate.setDate(checkDate.getDate() - 1);
+    }
+
+    while (true) {
+      const yyyy = checkDate.getFullYear();
+      const mm = String(checkDate.getMonth() + 1).padStart(2, '0');
+      const dd = String(checkDate.getDate()).padStart(2, '0');
+      const dateKey = `${yyyy}-${mm}-${dd}`;
+
+      if (loggedDatesSet.has(dateKey)) {
+        currentStreak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+
+    return {
+      currentStreak,
+      totalLoggedDays,
+      loggedDates,
     };
   }
 

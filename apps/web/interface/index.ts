@@ -1,6 +1,8 @@
 export * from "@repo/types";
 export * from "./toast.interface";
 export * from "./onboarding.interface";
+export * from "./training.interface";
+export * from "./history.interface";
 export type {
   MealItem,
   CalendarStripProps,
@@ -8,9 +10,3 @@ export type {
   MacroCardsProps,
   DailyMealGridProps,
 } from "./home.interface";
-export type {
-  TrainingVipBannerProps,
-  ExerciseLibraryGridProps,
-  AssignedMealPlanCardProps,
-  ExerciseDetailModalProps,
-} from "./training.interface";

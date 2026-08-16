@@ -83,6 +83,12 @@ export interface NutritionProgress {
   remainingCalories: number;
 }
 
+export interface StreakData {
+  currentStreak: number;
+  totalLoggedDays: number;
+  loggedDates: string[];
+}
+
 export interface DailyNutritionData {
   date?: string;
   targets?: NutritionTargetSummary;
@@ -93,6 +99,7 @@ export interface DailyNutritionData {
     fat?: number;
   };
   progress?: NutritionProgress;
+  streak?: StreakData;
   mealSlots?: MealSlotConfig[];
   meals?: MealData[];
   mealSummary?: Record<string, MealSummaryItem>;

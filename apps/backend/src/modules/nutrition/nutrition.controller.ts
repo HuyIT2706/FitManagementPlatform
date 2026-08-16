@@ -27,6 +27,11 @@ export class NutritionController {
     return this.nutritionService.logMeal(req.user.sub, dto);
   }
 
+  @Get('streak')
+  async getStreakData(@Request() req: RequestWithUser) {
+    return this.nutritionService.getStreakData(req.user.sub);
+  }
+
   @Get('daily')
   async getDailyNutrition(
     @Request() req: RequestWithUser,
