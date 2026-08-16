@@ -5,6 +5,7 @@ export * from "./training.interface";
 export * from "./history.interface";
 export * from "./profile.interface";
 export * from "./add-meal.interface";
+export * from "./pt.interface";
 export type {
   MealItem,
   CalendarStripProps,
