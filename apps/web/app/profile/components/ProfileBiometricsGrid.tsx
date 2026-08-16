@@ -103,6 +103,9 @@ export default function ProfileBiometricsGrid({
             <div className="text-xl font-bold text-orange-400">
               {tdee} <span className="text-xs font-normal text-white/70">kcal/ngày</span>
             </div>
+            <div className="text-[11px] text-on-surface-variant font-medium mt-0.5">
+              {activityLabel}
+            </div>
           </div>
         </div>
       </div>
