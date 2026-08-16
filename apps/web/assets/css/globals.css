@@ -90,11 +90,7 @@
     border-radius: 1rem;
   }
   .progress-ring__circle {
-    stroke-dasharray: 816 816;
-    stroke-dashoffset: 200;
-    transition: stroke-dashoffset 0.35s;
-    transform: rotate(-90deg);
-    transform-origin: 50% 50%;
+    transition: stroke-dasharray 1.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .no-scrollbar::-webkit-scrollbar {
     display: none;

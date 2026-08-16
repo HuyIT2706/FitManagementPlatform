@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogMealDto } from './dto/log-meal.dto';
 
@@ -24,7 +28,16 @@ export class NutritionService {
   }
 
   async logMeal(userId: string, dto: LogMealDto) {
-    // Tự động tính toán tổng macro từ các món ăn
+    const targetLogDate = dto.logDate ? new Date(dto.logDate) : new Date();
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    if (targetLogDate > todayEnd) {
+      throw new BadRequestException(
+        'Không thể ghi nhận bữa ăn cho các ngày trước hiện tại!',
+      );
+    }
+
     let totalCalories = 0;
     let totalProtein = 0;
     let totalCarbs = 0;

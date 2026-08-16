@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useOnboardingStore } from '../../store/onboardingStore';
 import apiClient from '../../api/axios';
 import { toast } from '../../utils/toast';
+import { type OnboardingFormData } from '../../interface';
 import { ArrowLeft } from 'lucide-react';
 import StepAge from './components/StepAge';
 import StepGender from './components/StepGender';
@@ -24,7 +25,7 @@ export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isClient, setIsClient] = useState(false);
   const store = useOnboardingStore();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<OnboardingFormData>({
     birthYear: store.birthYear || 2000,
     gender: store.gender,
     weight: store.weight,

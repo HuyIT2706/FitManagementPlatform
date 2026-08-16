@@ -42,6 +42,17 @@ function AddMealContent() {
 
   const handleSaveMeal = async () => {
     if (addedItems.length === 0) return;
+
+    if (dateParam) {
+      const targetDate = new Date(dateParam);
+      const todayEnd = new Date();
+      todayEnd.setHours(23, 59, 59, 999);
+      if (targetDate > todayEnd) {
+        toast.error("Không thể ghi nhận bữa ăn cho các ngày trước hiện tại!");
+        return;
+      }
+    }
+
     setIsSaving(true);
     try {
       await apiClient.post("/nutrition/meals", {
