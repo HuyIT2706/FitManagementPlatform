@@ -93,7 +93,7 @@ export default function DailyMealGrid({
                     {mealDetails.items.map((item, idx) => (
                       <span
                         key={idx}
-                        className="text-xs bg-surface-bright/20 border border-white/10 text-on-surface-variant px-2.5 py-1 rounded-lg font-medium"
+                        className="text-xs bg-surface-bright/20 border border-white/10 text-on-surface-variant px-2.5 py-1 rounded-lg font-medium capitalize"
                       >
                         {item.foodName}{' '}
                         <span className="text-on-surface-variant/60">

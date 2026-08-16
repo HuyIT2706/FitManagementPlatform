@@ -114,7 +114,7 @@ export default function ExerciseLibraryGrid({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {exercises.map((exercise) => {
-              const isChecked = Boolean(checkedExercises[exercise.id]);
+              const isChecked = Boolean(checkedExercises?.[exercise.id]);
               const setupImg =
                 exercise.setupImageUrl ||
                 exercise.startImageUrl ||
@@ -169,7 +169,7 @@ export default function ExerciseLibraryGrid({
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      onToggleExercise(exercise.id);
+                      onToggleExercise?.(exercise.id);
                     }}
                     aria-label="Đánh dấu hoàn thành"
                     className={`absolute bottom-3 right-3 z-20 w-10 h-10 rounded-full flex items-center justify-center transition-all backdrop-blur-md border cursor-pointer ${

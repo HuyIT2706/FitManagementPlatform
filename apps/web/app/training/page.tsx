@@ -8,17 +8,22 @@ import type {
   ExerciseItem,
   ExercisePaginatedResponse,
   MealPlanAssigned,
+  AssignedWorkoutPlanData,
 } from '../../interface';
 import Header from '../../components/ui/Header';
 
 import TrainingVipBanner from './components/TrainingVipBanner';
 import ExerciseLibraryGrid from './components/ExerciseLibraryGrid';
 import AssignedMealPlanCard from './components/AssignedMealPlanCard';
+import AssignedWorkoutPlanCard from './components/AssignedWorkoutPlanCard';
 import ExerciseDetailModal from './components/ExerciseDetailModal';
 
 export default function WorkoutPage() {
   const [userData, setUserData] = useState<UserDataHome | null>(null);
   const [assignedMealPlan, setAssignedMealPlan] = useState<MealPlanAssigned | null>(null);
+  const [assignedWorkoutPlan, setAssignedWorkoutPlan] = useState<AssignedWorkoutPlanData | null>(
+    null
+  );
 
   const [exercises, setExercises] = useState<ExerciseItem[]>([]);
   const [selectedMuscle, setSelectedMuscle] = useState<string>('ALL');
@@ -49,10 +54,12 @@ export default function WorkoutPage() {
     Promise.all([
       apiClient.get<UserDataHome>('/users/me'),
       apiClient.get<MealPlanAssigned | null>('/workout/assigned-meal-plan'),
+      apiClient.get<AssignedWorkoutPlanData | null>('/workout/assigned-workout-plan'),
     ])
-      .then(([userRes, mealPlanRes]) => {
+      .then(([userRes, mealPlanRes, workoutPlanRes]) => {
         setUserData(userRes.data);
         setAssignedMealPlan(mealPlanRes.data);
+        setAssignedWorkoutPlan(workoutPlanRes.data);
         setLoading(false);
       })
       .catch((err) => {
@@ -102,8 +109,11 @@ export default function WorkoutPage() {
     setCurrentPage(1);
   };
 
-  const toggleExercise = (id: string) => {
-    setCheckedExercises((prev) => ({ ...prev, [id]: !prev[id] }));
+  const handleToggleExerciseCheck = (exerciseId: string) => {
+    setCheckedExercises((prev) => ({
+      ...prev,
+      [exerciseId]: !prev[exerciseId],
+    }));
   };
 
   const handleLogout = () => {
@@ -119,53 +129,51 @@ export default function WorkoutPage() {
     );
   }
 
-  const hasPt = Boolean(userData?.assignedPt || assignedMealPlan);
-  const ptName =
-    userData?.assignedPt?.fullName || assignedMealPlan?.coachName || 'Coach Bùi Văn Huy';
-
   return (
-    <div className="min-h-screen bg-background pb-32 pt-2 md:pt-0 dark text-on-surface">
+    <div className="min-h-screen bg-background text-on-surface pb-32 pt-2 md:pt-0 dark">
       <Header userData={userData} onLogout={handleLogout} />
 
       <main className="max-w-7xl mx-auto px-container-padding mt-4 md:mt-8 space-y-gutter">
-        {/* VIP Header Banner */}
+        {/* VIP Member Status Banner */}
         <TrainingVipBanner userData={userData} assignedMealPlan={assignedMealPlan} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
-          {/* Main Exercise Library Section */}
-          <div className={`${hasPt ? 'lg:col-span-7' : 'lg:col-span-12'} space-y-6`}>
-            <ExerciseLibraryGrid
-              exercises={exercises}
-              totalExercises={totalExercises}
-              selectedMuscle={selectedMuscle}
-              searchQuery={searchQuery}
-              exerciseLoading={exerciseLoading}
-              currentPage={currentPage}
-              totalPages={totalPages}
-              checkedExercises={checkedExercises}
-              onMuscleSelect={handleMuscleSelect}
-              onSearchChange={handleSearchChange}
-              onClearSearch={handleClearSearch}
-              onToggleExercise={toggleExercise}
-              onSelectExercise={(exercise) => setActiveExercise(exercise)}
-              onPageChange={(page) => setCurrentPage(page)}
-            />
-          </div>
+        {/* Assigned 1:1 Workout Plan Section from Backend */}
+        <AssignedWorkoutPlanCard
+          assignedWorkoutPlan={assignedWorkoutPlan}
+          checkedExercises={checkedExercises}
+          onToggleExerciseCheck={handleToggleExerciseCheck}
+        />
 
-          {/* Conditional Assigned Meal Plan Section */}
-          {hasPt && (
-            <div className="lg:col-span-5 space-y-6">
-              <AssignedMealPlanCard assignedMealPlan={assignedMealPlan} ptName={ptName} />
-            </div>
-          )}
-        </div>
+        {/* Assigned 1:1 Meal Plan Section from Backend */}
+        <AssignedMealPlanCard
+          assignedMealPlan={assignedMealPlan}
+          ptName={userData?.assignedPt?.fullName || 'Coach Bùi Văn Huy'}
+        />
 
-        {/* ULTRA-MODERN EXERCISE DETAIL MODAL */}
-        <ExerciseDetailModal
-          activeExercise={activeExercise}
-          onClose={() => setActiveExercise(null)}
+        {/* Exercise Library Grid with Muscle Filters & Search */}
+        <ExerciseLibraryGrid
+          exercises={exercises}
+          selectedMuscle={selectedMuscle}
+          searchQuery={searchQuery}
+          exerciseLoading={exerciseLoading}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalExercises={totalExercises}
+          checkedExercises={checkedExercises}
+          onMuscleSelect={handleMuscleSelect}
+          onSearchChange={handleSearchChange}
+          onClearSearch={handleClearSearch}
+          onToggleExercise={handleToggleExerciseCheck}
+          onSelectExercise={(ex) => setActiveExercise(ex)}
+          onPageChange={(p) => setCurrentPage(p)}
         />
       </main>
+
+      <ExerciseDetailModal
+        activeExercise={activeExercise}
+        exercise={activeExercise}
+        onClose={() => setActiveExercise(null)}
+      />
 
       <BottomNavBar activeTab="workout" />
     </div>

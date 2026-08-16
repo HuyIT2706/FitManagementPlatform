@@ -355,26 +355,102 @@ export class PtService {
     return Promise.resolve(studentProfilesMap[studentId] || fallback);
   }
 
-  assignWorkoutToStudent(dto: AssignWorkoutDto) {
-    return Promise.resolve({
+  async assignWorkoutToStudent(dto: AssignWorkoutDto) {
+    if (dto.studentId) {
+      const schedule = await this.prisma.workoutSchedule.create({
+        data: {
+          studentId: dto.studentId,
+          title: 'Lịch Tập 1:1 Do PT Giao',
+          scheduledDate: new Date(),
+          note: `Gồm ${dto.exercises?.length || 0} bài tập cá nhân hóa`,
+        },
+      });
+
+      if (dto.exercises && dto.exercises.length > 0) {
+        for (const ex of dto.exercises) {
+          const exLib = await this.prisma.exerciseLibrary.findFirst({
+            where: {
+              name: { contains: ex.name, mode: 'insensitive' },
+            },
+          });
+
+          if (exLib) {
+            await this.prisma.scheduleExercise.create({
+              data: {
+                workoutScheduleId: schedule.id,
+                exerciseLibraryId: exLib.id,
+                sets: ex.sets || 3,
+                reps: ex.reps || 10,
+                weight: ex.weightInKg || 0,
+              },
+            });
+          }
+        }
+      }
+    }
+
+    return {
       success: true,
       studentId: dto.studentId,
-      assignedCount: dto.exercises.length,
-      message: 'Đã lưu và giao giáo án tập luyện mới cho học viên thành công!',
-    });
+      assignedCount: dto.exercises?.length || 0,
+      message: 'Đã lưu và giao giáo án tập luyện mới vào DB thành công!',
+    };
   }
 
-  assignNutritionToStudent(dto: AssignNutritionDto) {
-    return Promise.resolve({
+  async assignNutritionToStudent(dto: AssignNutritionDto) {
+    if (dto.studentId) {
+      await this.prisma.nutritionTarget.create({
+        data: {
+          studentId: dto.studentId,
+          targetCalo: dto.targetCalories,
+          targetProtein: dto.targetProtein,
+          targetCarbs: dto.targetCarbs,
+          targetFat: dto.targetFat,
+        },
+      });
+
+      await this.prisma.user
+        .update({
+          where: { id: dto.studentId },
+          data: {
+            tdee: dto.targetCalories,
+          },
+        })
+        .catch(() => null);
+    }
+
+    return {
       success: true,
       studentId: dto.studentId,
       targetCalories: dto.targetCalories,
-      message: 'Đã cập nhật thực đơn & mục tiêu dinh dưỡng cho học viên!',
-    });
+      message: 'Đã cập nhật thực đơn & mục tiêu dinh dưỡng vào DB thành công!',
+    };
   }
 
-  updateInBody(dto: UpdateInBodyDto) {
-    return Promise.resolve({
+  async updateInBody(dto: UpdateInBodyDto) {
+    if (dto.studentId) {
+      await this.prisma.bodyMetric.create({
+        data: {
+          userId: dto.studentId,
+          weight: dto.weightKg,
+          height: dto.heightCm,
+          bodyFat: dto.bodyFatPercent,
+          muscleMass: dto.muscleMassKg,
+        },
+      });
+
+      await this.prisma.user
+        .update({
+          where: { id: dto.studentId },
+          data: {
+            targetWeight: dto.weightKg,
+            height: dto.heightCm,
+          },
+        })
+        .catch(() => null);
+    }
+
+    return {
       success: true,
       studentId: dto.studentId,
       bodyMetrics: {
@@ -384,8 +460,8 @@ export class PtService {
         muscleMassKg: dto.muscleMassKg,
         updatedAt: dto.date || new Date().toLocaleDateString('vi-VN'),
       },
-      message: 'Đã cập nhật chỉ số InBody mới cho học viên thành công!',
-    });
+      message: 'Đã cập nhật chỉ số InBody mới vào DB cho học viên thành công!',
+    };
   }
 
   checkInSession(sessionId: string) {

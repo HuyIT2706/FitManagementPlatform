@@ -75,33 +75,114 @@ export class WorkoutService {
     });
 
     const trainer = user?.studentProfiles?.[0]?.trainer;
-    if (!trainer) {
-      return null;
-    }
+    const latestTarget = user?.nutritionTargets?.[0];
 
-    const targetCalo = user.nutritionTargets?.[0]?.targetCalo || 1734;
+    const coachName = trainer
+      ? `Coach ${trainer.fullName}`
+      : 'Coach Bùi Văn Huy';
+    const coachAvatar = trainer?.avatarUrl || undefined;
+
+    // Use DB target calories or fallback to user TDEE/default
+    const targetKcal = Math.round(
+      latestTarget?.targetCalo || user?.tdee || 2000,
+    );
+    const targetProtein = Math.round(latestTarget?.targetProtein || 150);
+    const targetCarbs = Math.round(latestTarget?.targetCarbs || 200);
+    const targetFat = Math.round(latestTarget?.targetFat || 60);
+
+    // Calculate calories per meal based on targets
+    const breakfastKcal = Math.round(targetKcal * 0.25);
+    const lunchKcal = Math.round(targetKcal * 0.35);
+    const dinnerKcal = Math.round(targetKcal * 0.3);
+    const snackKcal = Math.round(targetKcal * 0.1);
 
     return {
-      coachName: `Coach ${trainer.fullName}`,
-      coachAvatar: trainer.avatarUrl || undefined,
-      coachAdvice:
-        'Ăn đúng lượng Carbs trước tập 1 tiếng để có sức nâng tạ nhé!',
+      coachName,
+      coachAvatar,
+      coachAdvice: `Mục tiêu hằng ngày: ${targetKcal} kcal (Protein: ${targetProtein}g, Carb: ${targetCarbs}g, Fat: ${targetFat}g). Nhớ ăn đúng khẩu phần và uống đủ 2.5L nước!`,
       meals: [
         {
           name: 'Bữa Sáng',
-          kcal: 450,
-          description: '3 Trứng ốp la + 100g Yến mạch',
+          kcal: breakfastKcal,
+          description: `Bữa sáng dinh dưỡng (~${breakfastKcal} kcal) • Protein: ${Math.round(targetProtein * 0.25)}g`,
           icon: 'wb_twilight',
         },
         {
           name: 'Bữa Trưa',
-          kcal: 650,
-          description: '200g Ức gà + 150g Gạo lứt',
+          kcal: lunchKcal,
+          description: `Bữa trưa chính năng lượng (~${lunchKcal} kcal) • Carb & Protein hợp lý`,
           icon: 'wb_sunny',
         },
+        {
+          name: 'Bữa Tối',
+          kcal: dinnerKcal,
+          description: `Bữa tối nhẹ nhàng phục hồi cơ (~${dinnerKcal} kcal) • Tăng cường chất xơ`,
+          icon: 'nights_stay',
+        },
+        {
+          name: 'Bữa Phụ',
+          kcal: snackKcal,
+          description: `Bữa phụ bổ sung Whey/Trái cây (~${snackKcal} kcal)`,
+          icon: 'local_cafe',
+        },
       ],
-      totalKcal: 1100,
-      targetKcal: Math.round(targetCalo),
+      totalKcal: targetKcal,
+      targetKcal,
+    };
+  }
+
+  async getAssignedWorkoutPlan(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        studentProfiles: {
+          include: {
+            trainer: true,
+          },
+        },
+        workoutSchedules: {
+          orderBy: { scheduledDate: 'desc' },
+          take: 1,
+          include: {
+            exercises: {
+              include: {
+                exercise: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const trainer = user?.studentProfiles?.[0]?.trainer;
+    const latestSchedule = user?.workoutSchedules?.[0];
+
+    const coachName = trainer
+      ? `Coach ${trainer.fullName}`
+      : 'Coach Bùi Văn Huy';
+    const coachAvatar = trainer?.avatarUrl || undefined;
+
+    const exercises = (latestSchedule?.exercises || []).map((se) => ({
+      id: se.id,
+      name: se.exercise?.name || 'Bài tập 1:1',
+      category: se.exercise?.category || 'FULL_BODY',
+      sets: se.sets,
+      reps: se.reps,
+      weightInKg: se.weight || 0,
+      instructions: se.exercise?.instructions || [],
+      setupImageUrl: se.exercise?.setupImageUrl || undefined,
+      startImageUrl: se.exercise?.startImageUrl || undefined,
+    }));
+
+    return {
+      coachName,
+      coachAvatar,
+      scheduleTitle: latestSchedule?.title || 'Lịch Tập 1:1 Cá Nhân Hóa',
+      note:
+        latestSchedule?.note ||
+        'Tập trung chuẩn phom dáng và đẩy tạ đúng biên độ.',
+      exercisesCount: exercises.length,
+      exercises,
     };
   }
 }

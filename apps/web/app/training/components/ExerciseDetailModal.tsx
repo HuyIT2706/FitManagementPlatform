@@ -5,9 +5,12 @@ import { X } from 'lucide-react';
 import type { ExerciseDetailModalProps } from '../../../interface';
 
 export default function ExerciseDetailModal({
-  activeExercise,
+  activeExercise: propActive,
+  exercise,
   onClose,
 }: ExerciseDetailModalProps) {
+  const activeExercise = propActive || exercise;
+
   if (!activeExercise) return null;
 
   return (

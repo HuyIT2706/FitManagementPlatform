@@ -21,11 +21,11 @@ export interface ExerciseLibraryGridProps {
   exerciseLoading: boolean;
   currentPage: number;
   totalPages: number;
-  checkedExercises: Record<string, boolean>;
+  checkedExercises?: Record<string, boolean>;
   onMuscleSelect: (muscleId: string) => void;
   onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onClearSearch: () => void;
-  onToggleExercise: (id: string) => void;
+  onToggleExercise?: (id: string) => void;
   onSelectExercise: (exercise: ExerciseItem) => void;
   onPageChange: (page: number) => void;
 }
@@ -35,7 +35,33 @@ export interface AssignedMealPlanCardProps {
   ptName: string;
 }
 
+export interface AssignedWorkoutPlanData {
+  coachName: string;
+  coachAvatar?: string;
+  scheduleTitle: string;
+  note: string;
+  exercisesCount: number;
+  exercises: Array<{
+    id: string;
+    name: string;
+    category: string;
+    sets: number;
+    reps: number;
+    weightInKg: number;
+    instructions?: string[];
+    setupImageUrl?: string;
+    startImageUrl?: string;
+  }>;
+}
+
+export interface AssignedWorkoutPlanCardProps {
+  assignedWorkoutPlan: AssignedWorkoutPlanData | null;
+  checkedExercises: Record<string, boolean>;
+  onToggleExerciseCheck: (id: string) => void;
+}
+
 export interface ExerciseDetailModalProps {
-  activeExercise: ExerciseItem | null;
+  exercise?: ExerciseItem | null;
+  activeExercise?: ExerciseItem | null;
   onClose: () => void;
 }

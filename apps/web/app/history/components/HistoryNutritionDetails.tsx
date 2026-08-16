@@ -140,11 +140,11 @@ export default function HistoryNutritionDetails({
                 {/* Food Items List */}
                 <div className="mt-3 pt-3 border-t border-bento-border/40">
                   {hasItems ? (
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-2 border-green-500">
                       {mealDetails.items.map((item, idx) => (
                         <span
                           key={idx}
-                          className="text-xs bg-surface-bright/20 border border-white/10 text-on-surface-variant px-2.5 py-1 rounded-lg font-medium"
+                          className="text-xs bg-surface-bright/20 border border-white/10 text-on-surface-variant px-2.5 py-1 rounded-lg font-medium capitalize"
                         >
                           {item.foodName}{' '}
                           <span className="text-on-surface-variant/60">

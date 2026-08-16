@@ -29,4 +29,9 @@ export class WorkoutController {
   async getAssignedMealPlan(@Request() req: RequestWithUser) {
     return this.workoutService.getAssignedMealPlan(req.user.sub);
   }
+
+  @Get('assigned-workout-plan')
+  async getAssignedWorkoutPlan(@Request() req: RequestWithUser) {
+    return this.workoutService.getAssignedWorkoutPlan(req.user.sub);
+  }
 }
