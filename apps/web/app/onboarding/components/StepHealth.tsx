@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { type OnboardingState } from '../../../store/onboardingStore';
-import { Check, Activity, ShieldAlert, HeartPulse, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Check, ShieldAlert, HeartPulse, CheckCircle2, AlertTriangle } from 'lucide-react';
 
 interface StepHealthProps {
   store: OnboardingState;

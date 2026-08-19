@@ -4,6 +4,7 @@ import type {
   AssignNutritionDto,
   AssignWorkoutDto,
   BindPtDto,
+  CreateProgressPhotoDto,
   PTCodeQrData,
   PTDashboardData,
   PTSessionItem,
@@ -162,7 +163,11 @@ export class PtService {
       include: {
         bodyMetrics: {
           orderBy: { recordedAt: 'desc' },
-          take: 1,
+          take: 10,
+        },
+        progressPhotos: {
+          orderBy: { takenAt: 'desc' },
+          take: 10,
         },
         nutritionTargets: {
           orderBy: { effectiveDate: 'desc' },
@@ -185,6 +190,11 @@ export class PtService {
     const latestTarget = student.nutritionTargets?.[0];
     const pkg = student.userPackages?.[0];
 
+    const beforePhoto = student.progressPhotos.find((p) => p.tag === 'BEFORE');
+    const afterPhoto = student.progressPhotos.find(
+      (p) => p.tag === 'AFTER' || p.tag === 'FRONT',
+    );
+
     return {
       id: student.id,
       fullName: student.fullName,
@@ -194,7 +204,7 @@ export class PtService {
       email: student.email,
       phone: student.phone || undefined,
       gender: student.gender || 'MALE',
-      packageName: 'Gói PT 1:1 VIP',
+      packageName: pkg ? 'Gói PT 1:1 VIP' : 'Gói Tiêu chuẩn',
       remainingSessions: pkg?.remainingSessions ?? 10,
       totalSessions: pkg?.totalSessions ?? 12,
       inBody: {
@@ -206,6 +216,35 @@ export class PtService {
           ? latestMetric.recordedAt.toLocaleDateString('vi-VN')
           : 'Hôm nay',
       },
+      bodyMetrics: {
+        weightKg: latestMetric?.weight ?? student.targetWeight ?? 70,
+        heightCm: student.height ?? 170,
+        bodyFatPercent: latestMetric?.bodyFat ?? 18.5,
+        muscleMassKg: latestMetric?.muscleMass ?? 32.5,
+        updatedAt: latestMetric?.recordedAt
+          ? latestMetric.recordedAt.toLocaleDateString('vi-VN')
+          : 'Hôm nay',
+      },
+      bodyMetricsHistory: student.bodyMetrics.map((bm) => ({
+        date: bm.recordedAt.toLocaleDateString('vi-VN'),
+        weightKg: bm.weight,
+        bodyFatPercent: bm.bodyFat ?? 18,
+        muscleMassKg: bm.muscleMass ?? 32,
+      })),
+      beforeAfterPhotos: {
+        beforeUrl:
+          beforePhoto?.photoUrl ||
+          'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1000&q=80',
+        afterUrl:
+          afterPhoto?.photoUrl ||
+          'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1000&q=80',
+        beforeWeight: beforePhoto
+          ? student.targetWeight
+            ? student.targetWeight + 5
+            : 85
+          : 85,
+        afterWeight: afterPhoto ? latestMetric?.weight || 80 : 80,
+      },
       nutritionTarget: {
         targetCalories: latestTarget?.targetCalo ?? 2200,
         proteinGrams: latestTarget?.targetProtein ?? 160,
@@ -214,6 +253,49 @@ export class PtService {
       },
       currentWorkoutTitle: 'Lịch Tập Tăng Cơ Cá Nhân Hóa',
     };
+  }
+
+  async getStudentPhotos(studentId: string) {
+    return this.prisma.progressPhoto.findMany({
+      where: { userId: studentId },
+      orderBy: { takenAt: 'desc' },
+    });
+  }
+
+  async addStudentPhoto(studentId: string, dto: CreateProgressPhotoDto) {
+    return this.prisma.progressPhoto.create({
+      data: {
+        userId: studentId,
+        photoUrl: dto.photoUrl,
+        tag: dto.tag || 'AFTER',
+        takenAt: dto.takenAt ? new Date(dto.takenAt) : new Date(),
+      },
+    });
+  }
+
+  async deleteStudentPhoto(studentId: string, photoId: string) {
+    const photo = await this.prisma.progressPhoto.findUnique({
+      where: { id: photoId },
+    });
+    if (!photo || photo.userId !== studentId) {
+      throw new NotFoundException('Không tìm thấy ảnh tiến trình của học viên');
+    }
+    return this.prisma.progressPhoto.delete({
+      where: { id: photoId },
+    });
+  }
+
+  async getStudentMeals(studentId: string) {
+    return this.prisma.mealLog.findMany({
+      where: { userId: studentId },
+      orderBy: { logDate: 'desc' },
+      include: {
+        items: true,
+        reviews: {
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+    });
   }
 
   async assignWorkoutToStudent(dto: AssignWorkoutDto) {
@@ -350,7 +432,7 @@ export class PtService {
     };
   }
 
-  async approveMeal(mealId: string, note?: string) {
+  async approveMeal(mealId: string, ptId?: string, note?: string) {
     const mealLog = await this.prisma.mealLog.findUnique({
       where: { id: mealId },
       include: { user: true },
@@ -360,7 +442,7 @@ export class PtService {
       await this.prisma.mealReview.create({
         data: {
           mealLogId: mealId,
-          ptId: mealLog.userId,
+          ptId: ptId || mealLog.userId,
           comment: note || 'Bữa ăn đầy đủ dinh dưỡng chuẩn mục tiêu!',
         },
       });

@@ -25,6 +25,8 @@ export interface TransformationJourneyProps {
   weightKg: number;
   targetWeightKg: number;
   goalTextMap: Record<string, string>;
+  studentId?: string;
+  isPtView?: boolean;
 }
 
 export interface DailyMacroTargetMasterProps {

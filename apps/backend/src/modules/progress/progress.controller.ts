@@ -10,7 +10,11 @@ import {
 } from '@nestjs/common';
 import { ProgressService } from './progress.service';
 import { JwtGuard } from '../auth/jwt.guard';
-import type { RequestWithUser, CreateProgressPhotoDto, CreateBodyMetricDto } from '@repo/types';
+import type {
+  RequestWithUser,
+  CreateProgressPhotoDto,
+  CreateBodyMetricDto,
+} from '@repo/types';
 
 @UseGuards(JwtGuard)
 @Controller('progress')

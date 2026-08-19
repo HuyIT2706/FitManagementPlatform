@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -15,6 +16,7 @@ import type {
   AssignNutritionDto,
   AssignWorkoutDto,
   BindPtDto,
+  CreateProgressPhotoDto,
   SendInviteDto,
   UpdateInBodyDto,
   UpdateStudentSessionsDto,
@@ -35,11 +37,6 @@ export class PtController {
     return this.ptService.getPtCodeAndQr(req.user.sub);
   }
 
-  @Get('students/:id')
-  async getStudentDetail(@Param('id') id: string) {
-    return this.ptService.getStudentDetail(id);
-  }
-
   @Post('students/invite')
   async sendInvite(
     @Request() req: RequestWithUser,
@@ -53,12 +50,30 @@ export class PtController {
     return this.ptService.bindPtByStudent(req.user.sub, dto);
   }
 
-  @Patch('students/:id')
-  async updateStudent(
+  @Get('students/:id/photos')
+  async getStudentPhotos(@Param('id') id: string) {
+    return this.ptService.getStudentPhotos(id);
+  }
+
+  @Post('students/:id/photos')
+  async addStudentPhoto(
     @Param('id') id: string,
-    @Body() dto: UpdateStudentSessionsDto,
+    @Body() dto: CreateProgressPhotoDto,
   ) {
-    return this.ptService.updateStudentSessions(id, dto);
+    return this.ptService.addStudentPhoto(id, dto);
+  }
+
+  @Delete('students/:id/photos/:photoId')
+  async deleteStudentPhoto(
+    @Param('id') id: string,
+    @Param('photoId') photoId: string,
+  ) {
+    return this.ptService.deleteStudentPhoto(id, photoId);
+  }
+
+  @Get('students/:id/meals')
+  async getStudentMeals(@Param('id') id: string) {
+    return this.ptService.getStudentMeals(id);
   }
 
   @Post('students/:id/assign-workout')
@@ -79,6 +94,19 @@ export class PtController {
     return this.ptService.updateInBody({ ...dto, studentId: id });
   }
 
+  @Patch('students/:id')
+  async updateStudent(
+    @Param('id') id: string,
+    @Body() dto: UpdateStudentSessionsDto,
+  ) {
+    return this.ptService.updateStudentSessions(id, dto);
+  }
+
+  @Get('students/:id')
+  async getStudentDetail(@Param('id') id: string) {
+    return this.ptService.getStudentDetail(id);
+  }
+
   @Post('check-in/:sessionId')
   async checkInSession(@Param('sessionId') sessionId: string) {
     return this.ptService.checkInSession(sessionId);
@@ -86,9 +114,10 @@ export class PtController {
 
   @Post('approve-meal/:mealId')
   async approveMeal(
+    @Request() req: RequestWithUser,
     @Param('mealId') mealId: string,
     @Body('note') note?: string,
   ) {
-    return this.ptService.approveMeal(mealId, note);
+    return this.ptService.approveMeal(mealId, req.user.sub, note);
   }
 }

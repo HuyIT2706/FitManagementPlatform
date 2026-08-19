@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Camera, History, Lock, ChevronsLeftRight, Plus, Trash2, Calendar, Tag, X, Check } from 'lucide-react';
+import { Camera, History, Lock, ChevronsLeftRight, Trash2, Calendar, X, Check } from 'lucide-react';
 import apiClient from '../../../api/axios';
 import type { TransformationJourneyProps, ProgressPhotoItem } from '../../../interface';
 import { toastStore } from '../../../utils/toast/toastStore';
@@ -12,9 +12,10 @@ export default function TransformationJourneySlider({
   weightKg,
   targetWeightKg,
   goalTextMap,
+  studentId,
+  isPtView = false,
 }: TransformationJourneyProps) {
   const [photos, setPhotos] = useState<ProgressPhotoItem[]>([]);
-  const [loading, setLoading] = useState(true);
   const [sliderPosition, setSliderPosition] = useState(50); // percentage (0 - 100)
   const [isDragging, setIsDragging] = useState(false);
 
@@ -30,19 +31,20 @@ export default function TransformationJourneySlider({
 
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const apiEndpoint = isPtView && studentId ? `/pt/students/${studentId}/photos` : '/progress/photos';
+
   const fetchPhotos = useCallback(() => {
-    setLoading(true);
+    if (isPtView && !studentId) return;
     apiClient
-      .get<ProgressPhotoItem[]>('/progress/photos')
+      .get<ProgressPhotoItem[]>(apiEndpoint)
       .then((res) => {
-        setPhotos(res.data);
-        setLoading(false);
+        setPhotos(Array.isArray(res.data) ? res.data : []);
       })
       .catch((err) => {
         console.error('Error fetching progress photos:', err);
-        setLoading(false);
+        setPhotos([]);
       });
-  }, []);
+  }, [apiEndpoint, isPtView, studentId]);
 
   useEffect(() => {
     fetchPhotos();
@@ -60,7 +62,6 @@ export default function TransformationJourneySlider({
   }, []);
 
   const handleMouseDown = () => setIsDragging(true);
-  const handleMouseUp = () => setIsDragging(false);
 
   useEffect(() => {
     const handleGlobalMouseMove = (e: MouseEvent) => {
@@ -116,7 +117,7 @@ export default function TransformationJourneySlider({
 
     setSubmitting(true);
     apiClient
-      .post('/progress/photos', {
+      .post(apiEndpoint, {
         photoUrl: newPhotoUrl.trim(),
         tag: newTag,
         weightAtTime: parseFloat(newWeight) || weightKg,
@@ -138,8 +139,10 @@ export default function TransformationJourneySlider({
     if (photoId.startsWith('default-')) return;
     if (!confirm('Bạn có chắc chắn muốn xóa ảnh tiến trình này không?')) return;
 
+    const deleteUrl = isPtView && studentId ? `/pt/students/${studentId}/photos/${photoId}` : `/progress/photos/${photoId}`;
+
     apiClient
-      .delete(`/progress/photos/${photoId}`)
+      .delete(deleteUrl)
       .then(() => {
         toastStore.addToast('Đã xóa ảnh tiến trình', 'success');
         fetchPhotos();
@@ -155,7 +158,9 @@ export default function TransformationJourneySlider({
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
         <div className="flex flex-col gap-1">
-          <h3 className="text-xl font-headline-md font-bold text-on-surface">Hành Trình Lột Xác (Before / After Slider)</h3>
+          <h3 className="text-xl font-headline-md font-bold text-on-surface">
+            {isPtView ? 'Ảnh Tiến Trình Học Viên (Before / After)' : 'Hành Trình Lột Xác (Before / After Slider)'}
+          </h3>
           <div className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-green-light/10 border border-green-light/30 text-green-light text-[10px] font-bold shadow-[0_0_10px_rgba(102,200,28,0.3)] w-max">
             {goalTextMap[goal] || 'Mục tiêu tập luyện'} ({weightKg}kg -&gt; {targetWeightKg}kg)
           </div>
@@ -167,7 +172,7 @@ export default function TransformationJourneySlider({
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors cursor-pointer"
           >
             <Camera size={14} />
-            Cập nhật ảnh mới
+            {isPtView ? 'Thêm ảnh cho học viên' : 'Cập nhật ảnh mới'}
           </button>
           <button
             type="button"
@@ -227,7 +232,7 @@ export default function TransformationJourneySlider({
       <div className="flex items-center justify-between text-xs text-on-surface-variant opacity-80">
         <div className="flex items-center gap-2">
           <Lock size={14} className="shrink-0" />
-          <p>Kéo thanh trượt để so sánh ảnh Trước & Sau. Ảnh bảo mật chỉ bạn và PT xem.</p>
+          <p>Kéo thanh trượt để so sánh ảnh Trước & Sau. {isPtView ? 'PT có quyền CRUD ảnh tiến trình.' : 'Ảnh bảo mật chỉ bạn và PT xem.'}</p>
         </div>
         <span className="font-semibold text-green-light">Tỷ lệ: {Math.round(sliderPosition)}%</span>
       </div>
@@ -239,7 +244,7 @@ export default function TransformationJourneySlider({
             <div className="flex justify-between items-center pb-2 border-b border-white/10">
               <h4 className="text-lg font-bold flex items-center gap-2">
                 <Camera className="text-green-light" size={20} />
-                Cập nhật ảnh tiến trình hình thể
+                {isPtView ? 'Cập nhật ảnh tiến trình cho học viên' : 'Cập nhật ảnh tiến trình hình thể'}
               </h4>
               <button
                 type="button"
@@ -361,10 +366,10 @@ export default function TransformationJourneySlider({
               </button>
             </div>
 
-            <div className="overflow-y-auto flex-1 pr-1">
+            <div className="overflow-y-auto flex-1 pr-1 no-scrollbar">
               {photos.length === 0 ? (
                 <div className="py-12 text-center text-white/50 text-sm">
-                  Chưa có ảnh tiến trình nào được lưu. Bấm &quot;Cập nhật ảnh mới&quot; để thêm ảnh đầu tiên!
+                  Chưa có ảnh tiến trình nào được lưu. Bấm &quot;Thêm ảnh&quot; để tải ảnh lên!
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">

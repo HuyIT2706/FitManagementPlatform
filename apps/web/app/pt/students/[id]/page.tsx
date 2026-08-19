@@ -13,6 +13,7 @@ import type {
   PTStudentDetail,
 } from "@repo/types";
 import { toast } from "../../../../utils/toast";
+import TransformationJourneySlider from "../../../profile/components/TransformationJourneySlider";
 
 export default function PTStudentDetailPage({
   params,
@@ -904,53 +905,15 @@ export default function PTStudentDetailPage({
               </div>
             </div>
 
-            {/* Before / After Gallery Comparison */}
-            <div className="bento-card rounded-3xl p-6 md:p-8 border border-outline-variant/30 space-y-4">
-              <h3 className="text-lg font-bold text-on-surface flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary">compare</span>
-                Hình ảnh so sánh tiến độ Before / After
-              </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
-                <div className="space-y-2 text-center">
-                  <div className="h-64 rounded-2xl overflow-hidden border border-white/10 relative">
-                    <img
-                      src={
-                        studentDetail.beforeAfterPhotos?.beforeUrl ||
-                        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=600&q=80"
-                      }
-                      alt="Before"
-                      className="w-full h-full object-cover"
-                    />
-                    <span className="absolute top-3 left-3 bg-dark-slate/80 text-white text-xs font-bold px-3 py-1 rounded-full border border-white/20">
-                      BEFORE (Lúc bắt đầu)
-                    </span>
-                  </div>
-                  <p className="text-xs font-bold text-on-surface-variant">
-                    {studentDetail.beforeAfterPhotos?.beforeDate || "Ngày 15/01/2026 (78 kg)"}
-                  </p>
-                </div>
-
-                <div className="space-y-2 text-center">
-                  <div className="h-64 rounded-2xl overflow-hidden border border-primary/40 relative shadow-[0_0_20px_rgba(102,200,28,0.2)]">
-                    <img
-                      src={
-                        studentDetail.beforeAfterPhotos?.afterUrl ||
-                        "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=600&q=80"
-                      }
-                      alt="After"
-                      className="w-full h-full object-cover"
-                    />
-                    <span className="absolute top-3 left-3 bg-primary text-dark-slate text-xs font-extrabold px-3 py-1 rounded-full shadow-md">
-                      AFTER (Hiện tại)
-                    </span>
-                  </div>
-                  <p className="text-xs font-bold text-primary">
-                    {studentDetail.beforeAfterPhotos?.afterDate || "Ngày 10/02/2026 (72.5 kg)"}
-                  </p>
-                </div>
-              </div>
-            </div>
+            {/* Interactive Before / After Comparison Slider & Photo Manager for PT */}
+            <TransformationJourneySlider
+              goal="LOSE_WEIGHT"
+              weightKg={studentDetail.inBody?.weightKg || 75}
+              targetWeightKg={70}
+              goalTextMap={{ LOSE_WEIGHT: 'Giảm mỡ & Tăng cơ' }}
+              studentId={studentId}
+              isPtView={true}
+            />
           </section>
         )}
 

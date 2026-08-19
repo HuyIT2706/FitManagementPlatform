@@ -21,4 +21,3 @@ import { ProgressModule } from './modules/progress/progress.module';
   ],
 })
 export class AppModule {}
-
