@@ -674,7 +674,7 @@ export default function PTStudentDetailPage({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <h3 className="text-lg font-bold text-on-surface flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary">monitor_weight</span>
-                  Chỉ số thể hình InBody ({studentDetail.bodyMetrics.updatedAt})
+                  Chỉ số thể hình InBody ({studentDetail.bodyMetrics?.updatedAt || 'Vừa cập nhật'})
                 </h3>
 
                 <button
@@ -763,28 +763,28 @@ export default function PTStudentDetailPage({
                 <div className="bg-surface-bright/40 p-4 rounded-2xl border border-white/10">
                   <span className="text-xs text-on-surface-variant block font-medium">Cân nặng</span>
                   <strong className="text-xl font-extrabold text-primary">
-                    {studentDetail.bodyMetrics.weightKg} kg
+                    {studentDetail.bodyMetrics?.weightKg ?? 70} kg
                   </strong>
                 </div>
 
                 <div className="bg-surface-bright/40 p-4 rounded-2xl border border-white/10">
                   <span className="text-xs text-on-surface-variant block font-medium">Chiều cao</span>
                   <strong className="text-xl font-extrabold text-on-surface">
-                    {studentDetail.bodyMetrics.heightCm} cm
+                    {studentDetail.bodyMetrics?.heightCm ?? 175} cm
                   </strong>
                 </div>
 
                 <div className="bg-surface-bright/40 p-4 rounded-2xl border border-white/10">
                   <span className="text-xs text-on-surface-variant block font-medium">Tỷ lệ mỡ</span>
                   <strong className="text-xl font-extrabold text-amber-400">
-                    {studentDetail.bodyMetrics.bodyFatPercent}%
+                    {studentDetail.bodyMetrics?.bodyFatPercent ?? 18}%
                   </strong>
                 </div>
 
                 <div className="bg-surface-bright/40 p-4 rounded-2xl border border-white/10">
                   <span className="text-xs text-on-surface-variant block font-medium">Khối lượng cơ</span>
                   <strong className="text-xl font-extrabold text-blue-400">
-                    {studentDetail.bodyMetrics.muscleMassKg} kg
+                    {studentDetail.bodyMetrics?.muscleMassKg ?? 32} kg
                   </strong>
                 </div>
               </div>
@@ -846,7 +846,7 @@ export default function PTStudentDetailPage({
                   </div>
 
                   {/* Render Columns / Trend Points */}
-                  {historyPoints.map((pt, idx) => {
+                  {historyPoints.map((pt: InBodyHistoryPoint, idx: number) => {
                     let val = pt.weightKg;
                     let unit = "kg";
                     let minVal = 70;

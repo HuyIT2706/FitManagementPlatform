@@ -5,7 +5,7 @@ import { UserPlus } from 'lucide-react';
 import Header from '../../../components/ui/Header';
 import PTBottomNavBar from '../../../components/navigation/PTBottomNavBar';
 import apiClient from '../../../api/axios';
-import type { UserDataHome } from '../../../interface';
+import type { UserDataHome, PTDashboardData } from '../../../interface';
 import { toast } from '../../../utils/toast';
 
 import PtStudentCard, { type StudentListItem } from './components/PtStudentCard';
@@ -13,6 +13,7 @@ import PtInviteStudentModal from './components/PtInviteStudentModal';
 
 export default function PTStudentsPage() {
   const [userData, setUserData] = useState<UserDataHome | null>(null);
+  const [ptData, setPtData] = useState<PTDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Invite Student Modal State
@@ -24,10 +25,13 @@ export default function PTStudentsPage() {
   const [generatedInviteUrl, setGeneratedInviteUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    apiClient
-      .get<UserDataHome>('/users/me')
-      .then((res) => {
-        setUserData(res.data);
+    Promise.all([
+      apiClient.get<UserDataHome>('/users/me'),
+      apiClient.get<PTDashboardData>('/pt/dashboard'),
+    ])
+      .then(([userRes, ptRes]) => {
+        setUserData(userRes.data);
+        setPtData(ptRes.data);
         setLoading(false);
       })
       .catch((err) => {
@@ -83,44 +87,31 @@ export default function PTStudentsPage() {
     );
   }
 
-  const studentsList: StudentListItem[] = [
-    {
-      id: 'std-101',
-      name: 'Bùi Văn Huy',
-      pkg: 'Gói PT VIP 1-1',
-      remaining: 8,
-      total: 12,
-      avatar:
-        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-    },
-    {
-      id: 'std-102',
-      name: 'Nguyễn Văn A',
-      pkg: 'Gói PT Chuẩn',
-      remaining: 5,
-      total: 10,
-      avatar:
-        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-    },
-    {
-      id: 'std-103',
-      name: 'Trần Thị B',
-      pkg: 'Gói PT VIP 1-1',
-      remaining: 12,
-      total: 36,
-      avatar:
-        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
-    },
-    {
-      id: 'std-104',
-      name: 'Lê Văn C',
-      pkg: 'Gói PT Chuẩn',
-      remaining: 2,
-      total: 12,
-      avatar:
-        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
-    },
-  ];
+  const rawStudents = ptData?.students || [];
+
+  const studentsList: StudentListItem[] =
+    rawStudents.length > 0
+      ? rawStudents.map((s) => ({
+          id: s.id,
+          name: s.fullName,
+          pkg: s.packageName || 'Gói PT VIP 1-1',
+          remaining: s.remainingSessions,
+          total: s.totalSessions,
+          avatar:
+            s.avatarUrl ||
+            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+        }))
+      : [
+          {
+            id: 'std-101',
+            name: 'Bùi Văn Huy',
+            pkg: 'Gói PT VIP 1-1',
+            remaining: 8,
+            total: 12,
+            avatar:
+              'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+          },
+        ];
 
   return (
     <div className="min-h-screen bg-background pb-32 pt-2 md:pt-0 dark text-on-surface">

@@ -162,17 +162,27 @@ export class WorkoutService {
       : 'Coach Bùi Văn Huy';
     const coachAvatar = trainer?.avatarUrl || undefined;
 
-    const exercises = (latestSchedule?.exercises || []).map((se) => ({
-      id: se.id,
-      name: se.exercise?.name || 'Bài tập 1:1',
-      category: se.exercise?.category || 'FULL_BODY',
-      sets: se.sets,
-      reps: se.reps,
-      weightInKg: se.weight || 0,
-      instructions: se.exercise?.instructions || [],
-      setupImageUrl: se.exercise?.setupImageUrl || undefined,
-      startImageUrl: se.exercise?.startImageUrl || undefined,
-    }));
+    const exercises = (latestSchedule?.exercises || []).map((se) => {
+      const ex = se.exercise as {
+        name?: string;
+        category?: string;
+        instructions?: string[];
+        setupImageUrl?: string;
+        startImageUrl?: string;
+      } | null;
+
+      return {
+        id: se.id,
+        name: ex?.name || 'Bài tập 1:1',
+        category: ex?.category || 'FULL_BODY',
+        sets: se.sets,
+        reps: se.reps,
+        weightInKg: se.weight || 0,
+        instructions: ex?.instructions || [],
+        setupImageUrl: ex?.setupImageUrl || undefined,
+        startImageUrl: ex?.startImageUrl || undefined,
+      };
+    });
 
     return {
       coachName,

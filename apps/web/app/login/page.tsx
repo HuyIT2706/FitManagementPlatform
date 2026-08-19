@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, Mail, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, User, Dumbbell, Award, Briefcase, Info } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -8,44 +8,49 @@ import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 import LogoApp from '../../assets/imgs/logoApp.jpg';
 import apiClient from '../../api/axios';
 
-// You must set this in your environment variables
-const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID";
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID';
 
 function LoginContent() {
-  const [showEmailForm, setShowEmailForm] = useState(false);
+  const [authMode, setAuthMode] = useState<'LOGIN' | 'REGISTER'>('LOGIN');
+  const [role, setRole] = useState<'USER' | 'PT'>('USER');
+
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  // PT specific fields
+  const [experienceYears, setExperienceYears] = useState<number>(2);
+  const [specialties, setSpecialties] = useState('Tăng cơ, Giảm mỡ, Calisthenics');
+  const [bio, setBio] = useState('');
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [pendingPtNotice, setPendingPtNotice] = useState<string | null>(null);
 
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      // Typically, for backend verification, we need an id_token or send access_token to userinfo endpoint.
-      // @react-oauth/google's useGoogleLogin without flow="auth-code" returns access_token.
-      // To get id_token easily, you can use the <GoogleLogin /> component, 
-      // but since we are designing a custom button, we fetch user info or change flow.
-      
       try {
         if (!tokenResponse.access_token) {
           throw new Error('Không nhận được token từ Google. Vui lòng thử lại.');
         }
-        
+
         setLoading(true);
         setError('');
-        // Fetch user info from Google
         const userInfo = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
           headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
-        }).then(res => res.json());
-        
-        // Example only: If you want to use the backend `verifyIdToken` endpoint, 
-        // you would need flow: 'auth-code' or use the implicit flow token depending on your setup.
-        // For standard JWT API:
-        const response = await apiClient.post('/auth/google', { token: tokenResponse.access_token, userInfo });
+        }).then((res) => res.json());
+
+        const response = await apiClient.post('/auth/google', {
+          token: tokenResponse.access_token,
+          userInfo,
+        });
         const data = response.data;
         localStorage.setItem('jwt_token', data.access_token);
-        
-        if (data.user?.onboardingCompleted === false) {
+
+        if (data.user?.role === 'PT') {
+          window.location.href = '/pt';
+        } else if (data.user?.onboardingCompleted === false) {
           window.location.href = '/onboarding';
         } else {
           window.location.href = '/';
@@ -62,23 +67,62 @@ function LoginContent() {
     },
   });
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setPendingPtNotice(null);
 
     try {
-      const response = await apiClient.post('/auth/login', { email, password }).catch((err: { response?: { data?: { message?: string } } }) => {
-        throw new Error(err.response?.data?.message || 'Sai email hoặc mật khẩu');
-      });
-      const data = response.data;
-      localStorage.setItem('jwt_token', data.access_token);
-      
-      // Redirect based on onboarding status
-      if (data.user?.onboardingCompleted === false) {
-        window.location.href = '/onboarding';
+      if (authMode === 'LOGIN') {
+        const response = await apiClient.post('/auth/login', { email, password }).catch((err: { response?: { data?: { message?: string } } }) => {
+          throw new Error(err.response?.data?.message || 'Sai email hoặc mật khẩu');
+        });
+        const data = response.data;
+        localStorage.setItem('jwt_token', data.access_token);
+
+        if (data.isPendingPtApproval) {
+          setPendingPtNotice(
+            'Tài khoản PT của bạn đã đăng ký thành công và đang chờ Admin kiểm duyệt trước khi truy cập giao diện PT!'
+          );
+          setLoading(false);
+          return;
+        }
+
+        if (data.user?.role === 'PT') {
+          window.location.href = '/pt';
+        } else if (data.user?.onboardingCompleted === false) {
+          window.location.href = '/onboarding';
+        } else {
+          window.location.href = '/';
+        }
       } else {
-        window.location.href = '/';
+        // Register Mode
+        const payload = {
+          email,
+          password,
+          fullName,
+          role,
+          ...(role === 'PT' && {
+            experienceYears,
+            specialties: specialties.split(',').map((s) => s.trim()),
+            bio,
+          }),
+        };
+
+        const response = await apiClient.post('/auth/register', payload).catch((err: { response?: { data?: { message?: string } } }) => {
+          throw new Error(err.response?.data?.message || 'Không thể đăng ký tài khoản');
+        });
+        const data = response.data;
+        localStorage.setItem('jwt_token', data.access_token);
+
+        if (role === 'PT') {
+          setPendingPtNotice(
+            'Đã gửi đơn đăng ký làm Huấn luyện viên PT! Hồ sơ của bạn đang chờ Admin kiểm duyệt.'
+          );
+        } else {
+          window.location.href = '/onboarding';
+        }
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Đã có lỗi xảy ra';
@@ -90,135 +134,293 @@ function LoginContent() {
 
   return (
     <div className="bg-background text-on-background min-h-screen flex flex-col justify-between overflow-x-hidden relative">
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-20" 
-        style={{ backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.1) 0%, transparent 100%)' }}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-20"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.1) 0%, transparent 100%)',
+        }}
       />
-      
+
       <header className="w-full sticky top-0 z-50 flex items-center p-4">
-        <Link href="/">
-          <button className="w-10 h-10 rounded-full bg-surface-container/50 backdrop-blur-md border border-outline-variant flex items-center justify-center hover:bg-surface-variant transition-colors active:scale-95 text-on-surface">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+        <Link
+          href="/"
+          className="w-10 h-10 rounded-full bg-surface-container/50 backdrop-blur-md border border-outline-variant flex items-center justify-center hover:bg-surface-variant transition-colors active:scale-95 text-on-surface"
+        >
+          <ArrowLeft className="w-5 h-5" />
         </Link>
       </header>
 
-      <main className="flex-1 flex flex-col justify-center items-center px-4 max-w-md mx-auto w-full z-10 space-y-10">
-        
-        <section className="flex flex-col items-center text-center space-y-6">
-          <div className="w-24 h-24 rounded-2xl bg-surface-container-high border border-primary p-2 shadow-[0_0_24px_rgba(78,222,163,0.15)] relative overflow-hidden flex items-center justify-center">
-            <Image 
-              alt="NutriCore Logo" 
-              className="w-full h-full object-cover rounded-xl" 
-              src={LogoApp} 
+      <main className="flex-1 flex flex-col justify-center items-center px-4 max-w-md mx-auto w-full z-10 space-y-5 my-auto">
+        <section className="flex flex-col items-center text-center space-y-3">
+          <div className="w-16 h-16 rounded-2xl bg-surface-container-high border border-primary p-2 shadow-[0_0_24px_rgba(78,222,163,0.15)] relative overflow-hidden flex items-center justify-center">
+            <Image
+              alt="FitManagement Logo"
+              className="w-full h-full object-cover rounded-xl"
+              src={LogoApp}
             />
           </div>
-          <div className="space-y-3">
-            <h1 className="text-3xl md:text-4xl font-bold font-heading text-on-surface">
-              Trợ lý dinh dưỡng cá nhân của bạn
+          <div className="space-y-1">
+            <h1 className="text-2xl font-bold font-heading text-on-surface">
+              FitManagement Platform
             </h1>
-            <p className="text-base text-on-surface-variant px-4">
-              Lên kế hoạch dinh dưỡng cá nhân hóa, tối ưu lịch tập và bứt phá giới hạn thể hình của bạn.
+            <p className="text-xs text-on-surface-variant px-4">
+              Nền tảng quản lý tập luyện & dinh dưỡng thông minh dành cho Học viên và PT.
             </p>
           </div>
         </section>
 
-        <section className="w-full space-y-6">
+        {/* Mode Switcher: Login vs Register */}
+        <div className="flex bg-surface-bright/40 p-1.5 rounded-2xl border border-white/10 w-full">
+          <button
+            type="button"
+            suppressHydrationWarning
+            onClick={() => {
+              setAuthMode('LOGIN');
+              setError('');
+              setPendingPtNotice(null);
+            }}
+            className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              authMode === 'LOGIN'
+                ? 'bg-primary text-dark-slate shadow-[0_0_12px_rgba(102,200,28,0.4)]'
+                : 'text-on-surface-variant hover:text-on-surface'
+            }`}
+          >
+            Đăng Nhập
+          </button>
+          <button
+            type="button"
+            suppressHydrationWarning
+            onClick={() => {
+              setAuthMode('REGISTER');
+              setError('');
+              setPendingPtNotice(null);
+            }}
+            className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              authMode === 'REGISTER'
+                ? 'bg-primary text-dark-slate shadow-[0_0_12px_rgba(102,200,28,0.4)]'
+                : 'text-on-surface-variant hover:text-on-surface'
+            }`}
+          >
+            Đăng Ký Mới
+          </button>
+        </div>
+
+        {/* Role Switcher in Register Mode */}
+        {authMode === 'REGISTER' && (
+          <div className="w-full space-y-1.5">
+            <label className="block text-[11px] font-semibold text-on-surface-variant text-center">
+              Bạn đăng ký với vai trò:
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setRole('USER')}
+                className={`py-2.5 px-3 rounded-xl border text-xs font-extrabold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  role === 'USER'
+                    ? 'border-primary bg-primary/10 text-primary shadow-[0_0_12px_rgba(102,200,28,0.25)]'
+                    : 'border-white/10 bg-surface-bright/20 text-on-surface-variant hover:bg-surface-bright/40'
+                }`}
+              >
+                <User size={16} /> Học Viên
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole('PT')}
+                className={`py-2.5 px-3 rounded-xl border text-xs font-extrabold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  role === 'PT'
+                    ? 'border-primary bg-primary/10 text-primary shadow-[0_0_12px_rgba(102,200,28,0.25)]'
+                    : 'border-white/10 bg-surface-bright/20 text-on-surface-variant hover:bg-surface-bright/40'
+                }`}
+              >
+                <Dumbbell size={16} /> HLV PT
+              </button>
+            </div>
+          </div>
+        )}
+
+        <section className="w-full space-y-4">
           {error && (
-            <div className="w-full p-3 text-sm text-on-error bg-error/20 border border-error rounded-xl text-center">
+            <div className="w-full p-3 text-xs text-red-300 bg-red-500/20 border border-red-500/40 rounded-xl text-center font-semibold">
               {error}
             </div>
           )}
 
-          {!showEmailForm ? (
-            <>
-              <button 
-                onClick={() => googleLogin()}
-                disabled={loading}
-                className="w-full h-12 rounded-full bg-surface-container/80 backdrop-blur-md border border-outline-variant flex items-center justify-center space-x-3 hover:bg-surface-variant transition-colors active:scale-95 disabled:opacity-50"
-              >
-                <svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M22.56 12.25C22.56 11.47 22.49 10.72 22.36 10H12V14.26H17.92C17.67 15.63 16.89 16.81 15.74 17.58V20.35H19.31C21.4 18.42 22.56 15.6 22.56 12.25Z" fill="#4285F4"></path>
-                  <path d="M12 23C14.97 23 17.46 22.02 19.31 20.35L15.74 17.58C14.74 18.25 13.48 18.66 12 18.66C9.13001 18.66 6.70001 16.72 5.84001 14.12H2.15002V16.99C3.97002 20.61 7.74001 23 12 23Z" fill="#34A853"></path>
-                  <path d="M5.84 14.12C5.62 13.46 5.5 12.75 5.5 12C5.5 11.25 5.62 10.54 5.84 9.88V7.01H2.15C1.4 8.52 1 10.21 1 12C1 13.79 1.4 15.48 2.15 16.99L5.84 14.12Z" fill="#FBBC05"></path>
-                  <path d="M12 5.34C13.62 5.34 15.06 5.89 16.2 6.98L19.39 3.79C17.45 1.99 14.96 1 12 1C7.74001 1 3.97002 3.39 2.15002 7.01L5.84001 9.88C6.70001 7.28 9.13001 5.34 12 5.34Z" fill="#EA4335"></path>
-                </svg>
-                <span className="text-sm font-semibold text-on-surface">Tiếp tục với Google</span>
-              </button>
+          {pendingPtNotice && (
+            <div className="w-full p-4 text-xs text-amber-300 bg-amber-500/15 border border-amber-500/30 rounded-2xl text-center space-y-2">
+              <Info size={24} className="mx-auto text-amber-400" />
+              <p className="font-bold leading-relaxed">{pendingPtNotice}</p>
+            </div>
+          )}
 
-              <div className="flex items-center w-full">
-                <div className="flex-1 h-px bg-outline-variant/50"></div>
-                <span className="px-4 text-xs font-medium text-on-surface-variant uppercase tracking-wider">hoặc</span>
-                <div className="flex-1 h-px bg-outline-variant/50"></div>
-              </div>
-
-              <button 
-                onClick={() => setShowEmailForm(true)}
-                className="w-full h-12 rounded-full bg-surface-container/80 backdrop-blur-md border border-outline-variant flex items-center justify-center space-x-3 hover:bg-surface-variant transition-colors active:scale-95"
-              >
-                <Mail className="w-5 h-5 text-on-surface-variant" />
-                <span className="text-sm font-semibold text-on-surface">Tiếp tục với Email</span>
-              </button>
-            </>
-          ) : (
-            <form onSubmit={handleEmailLogin} className="w-full space-y-4 animate-in fade-in zoom-in-95 duration-200">
-              <div className="space-y-4">
+          {/* Main Direct Auth Form */}
+          <form
+            onSubmit={handleSubmit}
+            className="w-full space-y-3 animate-in fade-in zoom-in-95 duration-200"
+          >
+            {authMode === 'REGISTER' && (
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-on-surface-variant">
+                  Họ và Tên (*):
+                </label>
                 <input
-                  type="email"
-                  placeholder="Email của bạn"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-12 px-4 rounded-xl bg-surface-container border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none text-on-surface placeholder:text-on-surface-variant/50 transition-all"
+                  type="text"
                   required
+                  placeholder="Nguyễn Văn A"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="w-full h-11 px-4 rounded-xl bg-surface-container border border-outline-variant focus:border-primary outline-none text-xs text-on-surface"
                 />
-                
-                <div className="relative">
+              </div>
+            )}
+
+            <div className="space-y-1">
+              <label className="block text-xs font-semibold text-on-surface-variant">
+                Địa chỉ Email (*):
+              </label>
+              <input
+                type="email"
+                required
+                placeholder="name@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full h-11 px-4 rounded-xl bg-surface-container border border-outline-variant focus:border-primary outline-none text-xs text-on-surface"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-xs font-semibold text-on-surface-variant">
+                Mật khẩu (*):
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  placeholder="Mật khẩu bảo mật"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full h-11 px-4 pr-12 rounded-xl bg-surface-container border border-outline-variant focus:border-primary outline-none text-xs text-on-surface"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface cursor-pointer"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* PT Specific Application Fields */}
+            {authMode === 'REGISTER' && role === 'PT' && (
+              <div className="p-4 rounded-2xl bg-surface-bright/30 border border-primary/30 space-y-3 pt-3">
+                <div className="text-xs font-bold text-primary flex items-center gap-1.5 uppercase">
+                  <Award size={16} /> Hồ sơ Đăng ký Huấn luyện viên (PT):
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-semibold text-on-surface-variant">
+                    Số năm kinh nghiệm:
+                  </label>
+                  <div className="relative">
+                    <Briefcase
+                      size={14}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"
+                    />
+                    <input
+                      type="number"
+                      min="1"
+                      value={experienceYears}
+                      onChange={(e) => setExperienceYears(Number(e.target.value))}
+                      className="w-full h-9 pl-9 pr-3 rounded-lg bg-black/40 border border-white/10 text-xs text-white outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-semibold text-on-surface-variant">
+                    Chuyên môn chính:
+                  </label>
                   <input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Mật khẩu"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full h-12 px-4 pr-12 rounded-xl bg-surface-container border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none text-on-surface placeholder:text-on-surface-variant/50 transition-all"
-                    required
+                    type="text"
+                    value={specialties}
+                    onChange={(e) => setSpecialties(e.target.value)}
+                    placeholder="Tăng cơ, Giảm mỡ, Calisthenics"
+                    className="w-full h-9 px-3 rounded-lg bg-black/40 border border-white/10 text-xs text-white outline-none"
                   />
-                  <button 
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface"
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-semibold text-on-surface-variant">
+                    Giới thiệu ngắn (Bio):
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                    placeholder="Giới thiệu kinh nghiệm và phong cách huấn luyện của bạn..."
+                    className="w-full p-2.5 rounded-lg bg-black/40 border border-white/10 text-xs text-white outline-none resize-none"
+                  />
                 </div>
               </div>
+            )}
 
-              <div className="pt-2 flex flex-col space-y-3">
-                <button 
-                  type="submit"
-                  disabled={loading}
-                  className="w-full h-12 rounded-full bg-primary text-on-primary flex items-center justify-center font-semibold hover:bg-primary/90 transition-colors active:scale-95 disabled:opacity-50"
-                >
-                  {loading ? 'Đang xử lý...' : 'Đăng nhập'}
-                </button>
-                
-                <button 
-                  type="button"
-                  onClick={() => setShowEmailForm(false)}
-                  className="text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors"
-                >
-                  Quay lại
-                </button>
-              </div>
-            </form>
-          )}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full h-12 rounded-full bg-primary text-dark-slate font-extrabold flex items-center justify-center hover:bg-primary/90 transition-colors active:scale-95 disabled:opacity-50 cursor-pointer shadow-[0_0_15px_rgba(102,200,28,0.4)] text-sm mt-2"
+            >
+              {loading
+                ? 'Đang xử lý...'
+                : authMode === 'LOGIN'
+                ? 'Đăng nhập'
+                : role === 'PT'
+                ? 'Đăng ký làm HLV PT (Chờ Duyệt)'
+                : 'Tạo tài khoản Học viên'}
+            </button>
+          </form>
+
+          {/* Divider HOẶC */}
+          <div className="flex items-center w-full pt-1">
+            <div className="flex-1 h-px bg-outline-variant/40"></div>
+            <span className="px-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
+              hoặc
+            </span>
+            <div className="flex-1 h-px bg-outline-variant/40"></div>
+          </div>
+
+          {/* Google Login Button below form */}
+          <button
+            onClick={() => googleLogin()}
+            disabled={loading}
+            className="w-full h-11 rounded-full bg-surface-container/80 backdrop-blur-md border border-outline-variant flex items-center justify-center space-x-3 hover:bg-surface-variant transition-colors active:scale-95 disabled:opacity-50 cursor-pointer text-xs"
+          >
+            <svg fill="none" height="18" viewBox="0 0 24 24" width="18">
+              <path
+                d="M22.56 12.25C22.56 11.47 22.49 10.72 22.36 10H12V14.26H17.92C17.67 15.63 16.89 16.81 15.74 17.58V20.35H19.31C21.4 18.42 22.56 15.6 22.56 12.25Z"
+                fill="#4285F4"
+              ></path>
+              <path
+                d="M12 23C14.97 23 17.46 22.02 19.31 20.35L15.74 17.58C14.74 18.25 13.48 18.66 12 18.66C9.13001 18.66 6.70001 16.72 5.84001 14.12H2.15002V16.99C3.97002 20.61 7.74001 23 12 23Z"
+                fill="#34A853"
+              ></path>
+              <path
+                d="M5.84 14.12C5.62 13.46 5.5 12.75 5.5 12C5.5 11.25 5.62 10.54 5.84 9.88V7.01H2.15C1.4 8.52 1 10.21 1 12C1 13.79 1.4 15.48 2.15 16.99L5.84 14.12Z"
+                fill="#FBBC05"
+              ></path>
+              <path
+                d="M12 5.34C13.62 5.34 15.06 5.89 16.2 6.98L19.39 3.79C17.45 1.99 14.96 1 12 1C7.74001 1 3.97002 3.39 2.15002 7.01L5.84001 9.88C6.70001 7.28 9.13001 5.34 12 5.34Z"
+                fill="#EA4335"
+              ></path>
+            </svg>
+            <span className="text-xs font-semibold text-on-surface">Tiếp tục với Google</span>
+          </button>
         </section>
       </main>
 
-      <footer className="w-full px-4 py-6 text-center space-y-4 z-10 pb-8">
-        <Link href="/help" className="inline-block text-sm font-semibold text-secondary hover:text-secondary-fixed transition-colors">
-          Cần trợ giúp?
-        </Link>
-        <p className="text-xs font-medium text-on-surface-variant max-w-xs mx-auto leading-relaxed">
-          Tôi đồng ý với <Link href="/privacy" className="text-primary hover:text-primary-fixed transition-colors">Chính sách bảo mật</Link>, <Link href="/terms" className="text-primary hover:text-primary-fixed transition-colors">Điều khoản dịch vụ</Link>, <Link href="/data" className="text-primary hover:text-primary-fixed transition-colors">Thỏa thuận xử lý dữ liệu</Link>
+      <footer className="w-full px-4 py-3 text-center space-y-1.5 z-10 pb-6">
+        <p className="text-xs font-medium text-on-surface-variant max-w-xs mx-auto leading-relaxed opacity-75">
+          Tự động đồng bộ hệ thống Dinh dưỡng & Thể hình FitManagement
         </p>
       </footer>
     </div>

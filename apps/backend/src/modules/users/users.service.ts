@@ -155,37 +155,61 @@ export class UsersService {
     if (isLosing) {
       return [
         {
-          label: 'Chậm & Chắc (Giảm ~0.25kg/tuần)',
+          offset: -250,
           value: -250,
+          title: 'Chậm & Chắc (Giảm ~0.25kg/tuần)',
+          label: 'Chậm & Chắc (Giảm ~0.25kg/tuần)',
+          desc: 'Thâm hụt nhẹ, dễ duy trì lâu dài',
           description: 'Thâm hụt nhẹ, dễ duy trì lâu dài',
+          recommended: false,
         },
         {
-          label: 'Khuyến nghị (Giảm ~0.5kg/tuần)',
+          offset: -400,
           value: -400,
+          title: 'Khuyến nghị (Giảm ~0.5kg/tuần)',
+          label: 'Khuyến nghị (Giảm ~0.5kg/tuần)',
+          desc: 'Cân bằng giữa tốc độ giảm mỡ và giữ cơ',
           description: 'Cân bằng giữa tốc độ giảm mỡ và giữ cơ',
+          recommended: true,
         },
         {
-          label: 'Cấp tốc (Giảm ~0.75kg/tuần)',
+          offset: -600,
           value: -600,
+          title: 'Cấp tốc (Giảm ~0.75kg/tuần)',
+          label: 'Cấp tốc (Giảm ~0.75kg/tuần)',
+          desc: 'Yêu cầu tính kỷ luật cao',
           description: 'Yêu cầu tính kỷ luật cao',
+          recommended: false,
         },
       ];
     }
     return [
       {
-        label: 'Tăng cơ nạc (Tăng ~0.25kg/tuần)',
+        offset: 250,
         value: 250,
+        title: 'Tăng cơ nạc (Tăng ~0.25kg/tuần)',
+        label: 'Tăng cơ nạc (Tăng ~0.25kg/tuần)',
+        desc: 'Hạn chế tối đa tích mỡ thừa',
         description: 'Hạn chế tối đa tích mỡ thừa',
+        recommended: false,
       },
       {
-        label: 'Khuyến nghị (Tăng ~0.4kg/tuần)',
+        offset: 400,
         value: 400,
+        title: 'Khuyến nghị (Tăng ~0.4kg/tuần)',
+        label: 'Khuyến nghị (Tăng ~0.4kg/tuần)',
+        desc: 'Tối ưu tốc độ phát triển cơ bắp',
         description: 'Tối ưu tốc độ phát triển cơ bắp',
+        recommended: true,
       },
       {
-        label: 'Tăng cân nhanh (Tăng ~0.6kg/tuần)',
+        offset: 600,
         value: 600,
+        title: 'Tăng cân nhanh (Tăng ~0.6kg/tuần)',
+        label: 'Tăng cân nhanh (Tăng ~0.6kg/tuần)',
+        desc: 'Phù hợp người gầy lâu năm',
         description: 'Phù hợp người gầy lâu năm',
+        recommended: false,
       },
     ];
   }

@@ -95,19 +95,19 @@ export default function OnboardingPage() {
     }
 
     if (currentStep === 3) {
-      if (!formData.weight || formData.weight <= 0) {
-        toast.error('Vui lòng nhập cân nặng hiện tại hợp lệ.');
+      if (!formData.weight || formData.weight < 30 || formData.weight > 150) {
+        toast.error('Cân nặng hiện tại phải từ 30kg đến 150kg!');
         return;
       }
-      if (!formData.targetWeight || formData.targetWeight <= 0) {
-        toast.error('Vui lòng nhập cân nặng mục tiêu hợp lệ.');
+      if (!formData.targetWeight || formData.targetWeight < 30 || formData.targetWeight > 150) {
+        toast.error('Cân nặng mục tiêu phải từ 30kg đến 150kg!');
         return;
       }
     }
 
     if (currentStep === 4) {
-      if (!formData.height || formData.height <= 0) {
-        toast.error('Vui lòng nhập chiều cao hiện tại hợp lệ.');
+      if (!formData.height || formData.height < 100 || formData.height > 200) {
+        toast.error('Chiều cao hiện tại phải từ 100cm đến 200cm!');
         return;
       }
     }

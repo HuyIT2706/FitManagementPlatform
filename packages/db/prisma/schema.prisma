@@ -35,6 +35,12 @@ enum AttendanceStatus {
   CANCELLED
 }
 
+enum PtApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum ExerciseCategory {
   CHEST
   BACK
@@ -90,7 +96,26 @@ model User {
   bodyMetrics    BodyMetric[]
   progressPhotos ProgressPhoto[]
 
+  ptApplication PtApplication?
+
   @@map("users")
+}
+
+model PtApplication {
+  id              String              @id @default(uuid())
+  userId          String              @unique
+  experienceYears Int                 @default(1)
+  specialties     String[]            @default([])
+  certificateUrl  String?
+  bio             String?
+  status          PtApplicationStatus @default(PENDING)
+  adminNote       String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("pt_applications")
 }
 
 model StudentProfile {
@@ -298,22 +323,9 @@ model FoodLibrary {
   carbsPer100g        Float
   fatPer100g          Float
   fiberPer100g        Float?
-  sugarPer100g        Float?
-  saturatedFatPer100g Float?
-  transFatPer100g     Float?
-  waterPer100g        Float?
-  calciumPer100g      Float?
-  ironPer100g         Float?
-  potassiumPer100g    Float?
-  magnesiumPer100g    Float?
-  sodiumPer100g       Float?
-  vitaminAPer100g     Float?
-  vitaminCPer100g     Float?
-  vitaminDPer100g     Float?
-  vitaminEPer100g     Float?
-  conAxitPer100g      Float?
-  source              String?
+  category            String?
   imageUrl            String?
+  createdAt           DateTime @default(now())
 
   mealItems MealItem[]
 

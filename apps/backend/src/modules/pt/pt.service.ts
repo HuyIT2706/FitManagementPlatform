@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import type {
   AssignNutritionDto,
@@ -20,403 +20,246 @@ export class PtService {
   async getDashboardData(ptUserId: string): Promise<PTDashboardData> {
     const ptUser = await this.prisma.user.findUnique({
       where: { id: ptUserId },
+    });
+
+    const coachName = ptUser ? `Coach ${ptUser.fullName}` : 'Coach PT';
+    const coachAvatar = ptUser?.avatarUrl || undefined;
+
+    // Find all students assigned to this PT
+    const studentProfiles = await this.prisma.studentProfile.findMany({
+      where: { trainerId: ptUserId },
       include: {
-        trainerProfiles: {
+        student: {
           include: {
-            student: true,
+            userPackages: {
+              where: { isActive: true },
+              take: 1,
+            },
+            mealLogs: {
+              take: 5,
+              orderBy: { logDate: 'desc' },
+              include: {
+                reviews: true,
+                items: true,
+              },
+            },
+            bodyMetrics: {
+              take: 1,
+              orderBy: { recordedAt: 'desc' },
+            },
           },
         },
       },
     });
 
-    const coachName = ptUser ? `Coach ${ptUser.fullName}` : 'Coach Bùi Văn Huy';
-    const coachAvatar = ptUser?.avatarUrl || undefined;
+    const totalVipStudents = studentProfiles.length;
 
-    const todaySessions: PTSessionItem[] = [
-      {
-        id: 'session-1',
-        timeSlot: '08:00 - 09:00',
-        studentId: 'std-101',
-        studentName: 'Bùi Văn Huy',
-        studentAvatar:
-          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-        workoutName: 'Legs & Glutes Power',
-        status: 'PENDING',
-        remainingSessions: 8,
-        totalSessions: 12,
-      },
-      {
-        id: 'session-2',
-        timeSlot: '10:00 - 11:00',
-        studentId: 'std-102',
-        studentName: 'Nguyễn Văn A',
-        studentAvatar:
-          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-        workoutName: 'Chest & Triceps',
-        status: 'PENDING',
-        remainingSessions: 5,
-        totalSessions: 10,
-      },
-      {
-        id: 'session-3',
-        timeSlot: '14:00 - 15:00',
-        studentId: 'std-103',
-        studentName: 'Trần Thị B',
-        studentAvatar:
-          'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
-        workoutName: 'Full Body HIIT',
-        status: 'PENDING',
-        remainingSessions: 12,
-        totalSessions: 36,
-      },
-      {
-        id: 'session-4',
-        timeSlot: '16:30 - 17:30',
-        studentId: 'std-104',
-        studentName: 'Lê Văn C',
-        studentAvatar:
-          'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
-        workoutName: 'Back & Core Hypertrophy',
-        status: 'PENDING',
-        remainingSessions: 2,
-        totalSessions: 12,
-      },
-    ];
+    // Calculate session counts from member packages
+    let totalPackageSessionsCount = 0;
+    let remainingSessionsSum = 0;
 
-    return {
-      coachName,
-      coachAvatar,
-      totalVipStudents: 10,
-      todaySessionsCount: todaySessions.length,
-      completedSessionsCount: 18,
-      totalPackageSessionsCount: 24,
-      warningsCount: 2,
-      pendingMealCount: 2,
-      todaySessions,
-      pendingMeals: [
-        {
-          id: 'meal-rev-1',
-          studentId: 'std-101',
-          studentName: 'Bùi Văn Huy',
-          studentAvatar:
-            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-          mealName: 'Bữa Trưa',
-          calories: 650,
-          imageUrl:
-            'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
-          foodDescription: 'Ức gà + Cơm gạo lứt + Bông cải xanh',
-          proteinGrams: 45,
-          carbsGrams: 60,
-          fatGrams: 15,
-          loggedAt: new Date().toISOString(),
-        },
-        {
-          id: 'meal-rev-2',
-          studentId: 'std-103',
-          studentName: 'Trần Thị B',
-          studentAvatar:
-            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
-          mealName: 'Bữa Sáng',
-          calories: 420,
-          imageUrl:
-            'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80',
-          foodDescription: '3 Trứng ốp la + Bánh mì nguyên cám + Bơ quả',
-          proteinGrams: 28,
-          carbsGrams: 35,
-          fatGrams: 18,
-          loggedAt: new Date().toISOString(),
-        },
-      ],
-      students: [
-        {
-          id: 'std-101',
-          fullName: 'Bùi Văn Huy',
-          avatarUrl:
-            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-          packageName: 'VIP Package',
-          remainingSessions: 8,
-          totalSessions: 12,
-          lastWorkoutDate: 'Hôm nay',
-        },
-        {
-          id: 'std-102',
-          fullName: 'Nguyễn Văn A',
-          avatarUrl:
-            'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-          packageName: 'Standard Package',
-          remainingSessions: 5,
-          totalSessions: 10,
-          lastWorkoutDate: 'Hôm qua',
-        },
-        {
-          id: 'std-103',
-          fullName: 'Trần Thị B',
-          avatarUrl:
-            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
-          packageName: 'VIP Package',
-          remainingSessions: 12,
-          totalSessions: 36,
-          lastWorkoutDate: '2 ngày trước',
-        },
-        {
-          id: 'std-104',
-          fullName: 'Lê Văn C',
-          avatarUrl:
-            'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
-          packageName: 'Standard Package',
-          remainingSessions: 2,
-          totalSessions: 12,
-          lastWorkoutDate: '3 ngày trước',
-        },
-      ],
-    };
-  }
+    const students = studentProfiles.map((sp) => {
+      const student = sp.student;
+      const pkg = student.userPackages?.[0];
+      const totalSessions = pkg?.totalSessions ?? 12;
+      const remainingSessions = pkg?.remainingSessions ?? 10;
 
-  getStudentDetail(studentId: string): Promise<PTStudentDetail> {
-    const studentProfilesMap: Record<string, PTStudentDetail> = {
-      'std-101': {
-        id: 'std-101',
-        fullName: 'Bùi Văn Huy',
-        email: 'huy.bui@example.com',
-        phone: '0901234567',
+      totalPackageSessionsCount += totalSessions;
+      remainingSessionsSum += remainingSessions;
+
+      return {
+        id: student.id,
+        fullName: student.fullName,
         avatarUrl:
+          student.avatarUrl ||
           'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-        packageName: 'Gói PT VIP 1-1',
-        remainingSessions: 8,
-        totalSessions: 12,
-        joinedDate: '15/01/2026',
-        targetCalories: 2200,
-        targetProtein: 150,
-        targetCarbs: 220,
-        targetFat: 60,
-        bodyMetrics: {
-          weightKg: 72.5,
-          heightCm: 175,
-          bodyFatPercent: 18.2,
-          muscleMassKg: 34.8,
-          updatedAt: '01/02/2026',
-        },
-        bodyMetricsHistory: [
-          {
-            date: 'T9/2025',
-            weightKg: 78.0,
-            bodyFatPercent: 22.5,
-            muscleMassKg: 32.0,
-          },
-          {
-            date: 'T10/2025',
-            weightKg: 76.5,
-            bodyFatPercent: 21.0,
-            muscleMassKg: 33.0,
-          },
-          {
-            date: 'T11/2025',
-            weightKg: 75.0,
-            bodyFatPercent: 20.0,
-            muscleMassKg: 33.8,
-          },
-          {
-            date: 'T12/2025',
-            weightKg: 74.0,
-            bodyFatPercent: 19.2,
-            muscleMassKg: 34.2,
-          },
-          {
-            date: 'T1/2026',
-            weightKg: 73.0,
-            bodyFatPercent: 18.6,
-            muscleMassKg: 34.6,
-          },
-          {
-            date: 'T2/2026',
-            weightKg: 72.5,
-            bodyFatPercent: 18.2,
-            muscleMassKg: 34.8,
-          },
-        ],
-        assignedExercises: [
-          {
-            id: 'ae-1',
-            exerciseId: 'ex-legs-1',
-            name: 'Barbell Squat',
-            category: 'LEGS',
-            sets: 4,
-            reps: 10,
-            weightInKg: 80,
-            restSeconds: 90,
-            dayOfWeek: 'Thứ 2, Thứ 5',
-          },
-          {
-            id: 'ae-2',
-            exerciseId: 'ex-chest-1',
-            name: 'Bench Press',
-            category: 'CHEST',
-            sets: 4,
-            reps: 8,
-            weightInKg: 70,
-            restSeconds: 90,
-            dayOfWeek: 'Thứ 3, Thứ 6',
-          },
-        ],
-        prescribedMealPlan: {
-          breakfast: '3 Trứng ốp la + 2 lát bánh mì nguyên cám + 1 quả chuối',
-          lunch: '200g Ức gà áp chảo + 150g Cơm gạo lứt + Bông cải xanh luộc',
-          dinner: '200g Thăn bò nướng + Salad xà lách sốt olive',
-          snack: '1 Muỗng Whey Protein + 30g Hạnh nhân',
-        },
-        beforeAfterPhotos: {
-          beforeUrl:
-            'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=600&q=80',
-          beforeDate: '15/01/2026 (78 kg)',
-          afterUrl:
-            'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=600&q=80',
-          afterDate: '10/02/2026 (72.5 kg)',
-        },
-      },
-    };
+        packageName: pkg ? 'Gói PT 1:1' : 'Gói Tiêu chuẩn',
+        remainingSessions,
+        totalSessions,
+        lastWorkoutDate: 'Hôm nay',
+      };
+    });
 
-    const fallback: PTStudentDetail = {
-      id: studentId,
-      fullName: 'Học Viên PT',
-      email: 'student@example.com',
-      phone: '0987654321',
-      avatarUrl:
-        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-      packageName: 'Gói PT VIP 1-1',
-      remainingSessions: 6,
-      totalSessions: 12,
-      joinedDate: '01/02/2026',
-      targetCalories: 2000,
-      targetProtein: 140,
-      targetCarbs: 200,
-      targetFat: 55,
-      bodyMetrics: {
-        weightKg: 68.0,
-        heightCm: 170,
-        bodyFatPercent: 19.5,
-        muscleMassKg: 31.5,
-        updatedAt: '05/02/2026',
-      },
-      bodyMetricsHistory: [
-        {
-          date: 'T11/2025',
-          weightKg: 72.0,
-          bodyFatPercent: 22.0,
-          muscleMassKg: 30.0,
-        },
-        {
-          date: 'T12/2025',
-          weightKg: 70.5,
-          bodyFatPercent: 21.0,
-          muscleMassKg: 30.8,
-        },
-        {
-          date: 'T1/2026',
-          weightKg: 69.2,
-          bodyFatPercent: 20.1,
-          muscleMassKg: 31.2,
-        },
-        {
-          date: 'T2/2026',
-          weightKg: 68.0,
-          bodyFatPercent: 19.5,
-          muscleMassKg: 31.5,
-        },
-      ],
-      assignedExercises: [
-        {
-          id: 'ae-default-1',
-          exerciseId: 'ex-chest-1',
-          name: 'Bench Press',
-          category: 'CHEST',
-          sets: 3,
-          reps: 12,
-          weightInKg: 50,
-          restSeconds: 60,
-          dayOfWeek: 'Thứ 2',
-        },
-      ],
-      prescribedMealPlan: {
-        breakfast: 'Phở gà + 1 Quả trứng chần',
-        lunch: 'Ức gà nướng + Cơm gạo lứt + Rau củ luộc',
-        dinner: 'Cá hồi áp chảo + Bông cải hấp',
-        snack: 'Sữa chua không đường',
-      },
-      beforeAfterPhotos: {
-        beforeUrl:
-          'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=600&q=80',
-        beforeDate: '01/02/2026',
-        afterUrl:
-          'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=600&q=80',
-        afterDate: '10/02/2026',
-      },
-    };
+    const completedSessionsCount = Math.max(
+      0,
+      totalPackageSessionsCount - remainingSessionsSum,
+    );
 
-    return Promise.resolve(studentProfilesMap[studentId] || fallback);
-  }
+    // Build today's sessions list
+    const timeSlots = [
+      '08:00 - 09:00',
+      '10:00 - 11:00',
+      '14:00 - 15:00',
+      '16:30 - 17:30',
+    ];
+    const todaySessions: PTSessionItem[] = studentProfiles
+      .slice(0, 4)
+      .map((sp, idx) => {
+        const student = sp.student;
+        const pkg = student.userPackages?.[0];
 
-  async assignWorkoutToStudent(dto: AssignWorkoutDto) {
-    if (dto.studentId) {
-      const schedule = await this.prisma.workoutSchedule.create({
-        data: {
-          studentId: dto.studentId,
-          title: 'Lịch Tập 1:1 Do PT Giao',
-          scheduledDate: new Date(),
-          note: `Gồm ${dto.exercises?.length || 0} bài tập cá nhân hóa`,
-        },
+        return {
+          id: `session-${sp.id}`,
+          timeSlot: timeSlots[idx % timeSlots.length],
+          studentId: student.id,
+          studentName: student.fullName,
+          studentAvatar:
+            student.avatarUrl ||
+            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+          workoutName: 'Tập Lưng & Bụng Cá Nhân Hóa',
+          status: 'PENDING',
+          remainingSessions: pkg?.remainingSessions ?? 8,
+          totalSessions: pkg?.totalSessions ?? 12,
+        };
       });
 
-      if (dto.exercises && dto.exercises.length > 0) {
-        for (const ex of dto.exercises) {
-          const exLib = await this.prisma.exerciseLibrary.findFirst({
-            where: {
-              name: { contains: ex.name, mode: 'insensitive' },
-            },
+    // Extract pending meals awaiting PT review
+    const pendingMeals: PTDashboardData['pendingMeals'] = [];
+    for (const sp of studentProfiles) {
+      for (const log of sp.student.mealLogs) {
+        if (log.reviews.length === 0) {
+          const desc =
+            log.items.map((i) => i.foodName).join(' + ') || log.mealName;
+          pendingMeals.push({
+            id: log.id,
+            studentId: sp.student.id,
+            studentName: sp.student.fullName,
+            studentAvatar:
+              sp.student.avatarUrl ||
+              'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+            mealName: log.mealName,
+            calories: Math.round(log.totalCalories),
+            imageUrl:
+              'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
+            foodDescription: desc,
+            proteinGrams: Math.round(log.totalProtein),
+            carbsGrams: Math.round(log.totalCarbs),
+            fatGrams: Math.round(log.totalFat),
+            loggedAt: log.logDate.toISOString(),
           });
-
-          if (exLib) {
-            await this.prisma.scheduleExercise.create({
-              data: {
-                workoutScheduleId: schedule.id,
-                exerciseLibraryId: exLib.id,
-                sets: ex.sets || 3,
-                reps: ex.reps || 10,
-                weight: ex.weightInKg || 0,
-              },
-            });
-          }
         }
       }
     }
 
     return {
+      coachName,
+      coachAvatar,
+      totalVipStudents,
+      todaySessionsCount: todaySessions.length,
+      completedSessionsCount,
+      totalPackageSessionsCount,
+      warningsCount: 0,
+      pendingMealCount: pendingMeals.length,
+      todaySessions,
+      pendingMeals,
+      students,
+    };
+  }
+
+  async getStudentDetail(studentId: string): Promise<PTStudentDetail> {
+    const student = await this.prisma.user.findUnique({
+      where: { id: studentId },
+      include: {
+        bodyMetrics: {
+          orderBy: { recordedAt: 'desc' },
+          take: 1,
+        },
+        nutritionTargets: {
+          orderBy: { effectiveDate: 'desc' },
+          take: 1,
+        },
+        userPackages: {
+          where: { isActive: true },
+          take: 1,
+        },
+      },
+    });
+
+    if (!student) {
+      throw new NotFoundException(
+        `Không tìm thấy học viên với ID ${studentId}`,
+      );
+    }
+
+    const latestMetric = student.bodyMetrics?.[0];
+    const latestTarget = student.nutritionTargets?.[0];
+    const pkg = student.userPackages?.[0];
+
+    return {
+      id: student.id,
+      fullName: student.fullName,
+      avatarUrl:
+        student.avatarUrl ||
+        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+      email: student.email,
+      phone: student.phone || undefined,
+      gender: student.gender || 'MALE',
+      packageName: 'Gói PT 1:1 VIP',
+      remainingSessions: pkg?.remainingSessions ?? 10,
+      totalSessions: pkg?.totalSessions ?? 12,
+      inBody: {
+        weightKg: latestMetric?.weight ?? student.targetWeight ?? 70,
+        heightCm: student.height ?? 170,
+        bodyFatPercent: latestMetric?.bodyFat ?? 18.5,
+        muscleMassKg: latestMetric?.muscleMass ?? 32.5,
+        updatedAt: latestMetric?.recordedAt
+          ? latestMetric.recordedAt.toLocaleDateString('vi-VN')
+          : 'Hôm nay',
+      },
+      nutritionTarget: {
+        targetCalories: latestTarget?.targetCalo ?? 2200,
+        proteinGrams: latestTarget?.targetProtein ?? 160,
+        carbsGrams: latestTarget?.targetCarbs ?? 220,
+        fatGrams: latestTarget?.targetFat ?? 60,
+      },
+      currentWorkoutTitle: 'Lịch Tập Tăng Cơ Cá Nhân Hóa',
+    };
+  }
+
+  async assignWorkoutToStudent(dto: AssignWorkoutDto) {
+    if (dto.studentId) {
+      await this.prisma.workoutSchedule.create({
+        data: {
+          studentId: dto.studentId,
+          title: dto.title ? String(dto.title) : 'Lịch Tập 1:1 Cá Nhân Hóa',
+          scheduledDate: new Date(),
+          note: dto.note
+            ? String(dto.note)
+            : 'Tập đúng phom dáng và đảm bảo đủ số reps.',
+        },
+      });
+    }
+
+    return {
       success: true,
       studentId: dto.studentId,
-      assignedCount: dto.exercises?.length || 0,
-      message: 'Đã lưu và giao giáo án tập luyện mới vào DB thành công!',
+      workoutPlanTitle: dto.title ? String(dto.title) : undefined,
+      message: 'Đã giao bài tập 1:1 vào Database thành công!',
     };
   }
 
   async assignNutritionToStudent(dto: AssignNutritionDto) {
     if (dto.studentId) {
+      const targetCalories = Number(dto.targetCalories || 2200);
+      const targetProtein = Number(
+        dto.proteinGrams || Math.round((targetCalories * 0.3) / 4),
+      );
+      const targetCarbs = Number(
+        dto.carbsGrams || Math.round((targetCalories * 0.4) / 4),
+      );
+      const targetFat = Number(
+        dto.fatGrams || Math.round((targetCalories * 0.3) / 9),
+      );
+
       await this.prisma.nutritionTarget.create({
         data: {
           studentId: dto.studentId,
-          targetCalo: dto.targetCalories,
-          targetProtein: dto.targetProtein,
-          targetCarbs: dto.targetCarbs,
-          targetFat: dto.targetFat,
+          targetCalo: targetCalories,
+          targetProtein,
+          targetCarbs,
+          targetFat,
         },
       });
-
-      await this.prisma.user
-        .update({
-          where: { id: dto.studentId },
-          data: {
-            tdee: dto.targetCalories,
-          },
-        })
-        .catch(() => null);
     }
 
     return {
@@ -464,31 +307,88 @@ export class PtService {
     };
   }
 
-  checkInSession(sessionId: string) {
-    return Promise.resolve({
+  async checkInSession(sessionId: string) {
+    // Check if sessionId is session-id or studentId
+    const cleanId = sessionId.replace('session-', '');
+
+    const pkg = await this.prisma.memberPackage.findFirst({
+      where: {
+        OR: [{ id: cleanId }, { userId: cleanId }],
+        isActive: true,
+      },
+    });
+
+    if (pkg && pkg.remainingSessions > 0) {
+      const updatedPkg = await this.prisma.memberPackage.update({
+        where: { id: pkg.id },
+        data: {
+          remainingSessions: pkg.remainingSessions - 1,
+        },
+      });
+
+      await this.prisma.attendanceHistory.create({
+        data: {
+          memberPackageId: pkg.id,
+          studentId: pkg.userId,
+          status: 'CHECKED_IN',
+          note: 'PT Check-in điểm danh thành công',
+        },
+      });
+
+      return {
+        success: true,
+        sessionId,
+        remainingSessions: updatedPkg.remainingSessions,
+        message: `Đã check-in điểm danh học viên thành công! Số buổi còn lại: ${updatedPkg.remainingSessions}/${pkg.totalSessions}`,
+      };
+    }
+
+    return {
       success: true,
       sessionId,
-      message: 'Check-in trừ buổi học viên thành công!',
-    });
+      message: 'Đã điểm danh buổi tập cho học viên thành công!',
+    };
   }
 
-  approveMeal(mealId: string, note?: string) {
-    return Promise.resolve({
+  async approveMeal(mealId: string, note?: string) {
+    const mealLog = await this.prisma.mealLog.findUnique({
+      where: { id: mealId },
+      include: { user: true },
+    });
+
+    if (mealLog) {
+      await this.prisma.mealReview.create({
+        data: {
+          mealLogId: mealId,
+          ptId: mealLog.userId,
+          comment: note || 'Bữa ăn đầy đủ dinh dưỡng chuẩn mục tiêu!',
+        },
+      });
+    }
+
+    return {
       success: true,
       mealId,
       note,
-      message: 'Đã duyệt bữa ăn cho học viên!',
-    });
+      message: 'Đã ghi nhận nhận xét & duyệt bữa ăn cho học viên thành công!',
+    };
   }
 
-  getPtCodeAndQr(ptUserId: string): Promise<PTCodeQrData> {
-    const ptCode = ptUserId ? 'PT-HUY066' : 'PT-HUY066';
+  async getPtCodeAndQr(ptUserId: string): Promise<PTCodeQrData> {
+    const ptUser = await this.prisma.user.findUnique({
+      where: { id: ptUserId },
+    });
+
+    const ptCode = ptUser
+      ? `PT-${ptUser.fullName.toUpperCase().slice(0, 3)}${ptUser.id.slice(0, 3).toUpperCase()}`
+      : 'PT-HUY066';
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://fitmanagement.app/bind?ptCode=${ptCode}&user=${ptUserId}`;
-    return Promise.resolve({
+
+    return {
       ptCode,
       qrCodeUrl,
-      coachName: 'Coach Bùi Văn Huy',
-    });
+      coachName: ptUser ? `Coach ${ptUser.fullName}` : 'Coach Bùi Văn Huy',
+    };
   }
 
   sendStudentInvite(ptUserId: string, dto: SendInviteDto) {
@@ -506,15 +406,48 @@ export class PtService {
     });
   }
 
-  bindPtByStudent(studentUserId: string, dto: BindPtDto) {
-    return Promise.resolve({
+  async bindPtByStudent(studentUserId: string, dto: BindPtDto) {
+    let trainerId = dto.ptCodeOrInviteCode;
+
+    // Find PT user if code passed
+    const ptUser = await this.prisma.user.findFirst({
+      where: {
+        role: 'PT',
+        OR: [{ id: dto.ptCodeOrInviteCode }, { email: dto.ptCodeOrInviteCode }],
+      },
+    });
+
+    if (ptUser) {
+      trainerId = ptUser.id;
+    }
+
+    if (trainerId) {
+      await this.prisma.studentProfile
+        .upsert({
+          where: {
+            trainerId_studentId: {
+              trainerId,
+              studentId: studentUserId,
+            },
+          },
+          create: {
+            trainerId,
+            studentId: studentUserId,
+          },
+          update: {},
+        })
+        .catch(() => null);
+    }
+
+    return {
       success: true,
       studentUserId,
       ptCode: dto.ptCodeOrInviteCode,
-      coachName: 'Coach Bùi Văn Huy',
-      message:
-        'Chúc mừng! Đã liên kết tài khoản 1-1 với Coach Bùi Văn Huy thành công!',
-    });
+      coachName: ptUser ? `Coach ${ptUser.fullName}` : 'Coach Bùi Văn Huy',
+      message: ptUser
+        ? `Chúc mừng! Đã liên kết tài khoản 1-1 với Coach ${ptUser.fullName} thành công!`
+        : 'Đã gửi yêu cầu liên kết với Huấn luyện viên cá nhân!',
+    };
   }
 
   updateStudentSessions(studentId: string, dto: UpdateStudentSessionsDto) {

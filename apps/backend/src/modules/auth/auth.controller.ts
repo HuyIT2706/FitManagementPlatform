@@ -8,7 +8,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import { AuthService, RegisterDto } from './auth.service';
 import type { Response, Request } from 'express';
 import { JwtGuard } from './jwt.guard';
 import type { RequestWithUser } from '@repo/types';
@@ -26,18 +26,32 @@ export class AuthController {
     });
   }
 
+  @HttpCode(HttpStatus.CREATED)
+  @Post('register')
+  async register(
+    @Body() dto: RegisterDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.authService.register(dto);
+    this.setRefreshTokenCookie(res, result.refresh_token);
+    return {
+      access_token: result.access_token,
+      isPendingPtApproval: result.isPendingPtApproval,
+      message: result.message,
+      user: result.user,
+    };
+  }
+
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async signIn(
     @Body() signInDto: { email: string; password: string },
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { access_token, refresh_token, user } = await this.authService.login(
-      signInDto.email,
-      signInDto.password,
-    );
+    const { access_token, refresh_token, isPendingPtApproval, user } =
+      await this.authService.login(signInDto.email, signInDto.password);
     this.setRefreshTokenCookie(res, refresh_token);
-    return { access_token, user };
+    return { access_token, isPendingPtApproval, user };
   }
 
   @HttpCode(HttpStatus.OK)
@@ -65,10 +79,6 @@ export class AuthController {
       return;
     }
 
-    // Attempt to parse sub from the JWT directly or pass it to service
-    // Actually, we need userId. We can decode the token to get userId, or require client to send it.
-    // It's better to decode the token. Let's let the JwtService handle it, but wait, the JwtGuard is not applied.
-    // I will extract the userId from the payload inside the controller.
     const jwtPayload = JSON.parse(
       Buffer.from(refreshToken.split('.')[1], 'base64').toString(),
     ) as { sub: string };

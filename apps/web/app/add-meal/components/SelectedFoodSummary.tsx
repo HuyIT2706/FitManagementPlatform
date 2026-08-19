@@ -57,10 +57,10 @@ export default function SelectedFoodSummary({
                 type="button"
                 suppressHydrationWarning
                 onClick={() => onRemoveItem(index)}
-                className="text-red-400 p-1.5 hover:bg-red-400/10 rounded-full transition-colors cursor-pointer"
+                className="w-9 h-9 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 flex items-center justify-center transition-all cursor-pointer shrink-0"
                 aria-label="Xóa món ăn"
               >
-                <X size={16} />
+                <X size={18} />
               </button>
             </div>
           );

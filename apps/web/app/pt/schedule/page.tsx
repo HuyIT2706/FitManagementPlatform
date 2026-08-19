@@ -5,14 +5,16 @@ import { Calendar, RotateCcw } from 'lucide-react';
 import Header from '../../../components/ui/Header';
 import PTBottomNavBar from '../../../components/navigation/PTBottomNavBar';
 import apiClient from '../../../api/axios';
-import type { UserDataHome } from '../../../interface';
+import type { UserDataHome, PTDashboardData } from '../../../interface';
 import { getMonday, isSameDay } from '../../../utils/date';
+import { toast } from '../../../utils/toast';
 
 import PtScheduleWeekStrip from './components/PtScheduleWeekStrip';
 import PtScheduleSlotCard, { type ScheduleSlot } from './components/PtScheduleSlotCard';
 
 export default function PTSchedulePage() {
   const [userData, setUserData] = useState<UserDataHome | null>(null);
+  const [ptData, setPtData] = useState<PTDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
@@ -20,10 +22,13 @@ export default function PTSchedulePage() {
   const [checkedSessions, setCheckedSessions] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    apiClient
-      .get<UserDataHome>('/users/me')
-      .then((res) => {
-        setUserData(res.data);
+    Promise.all([
+      apiClient.get<UserDataHome>('/users/me'),
+      apiClient.get<PTDashboardData>('/pt/dashboard'),
+    ])
+      .then(([userRes, ptRes]) => {
+        setUserData(userRes.data);
+        setPtData(ptRes.data);
         setLoading(false);
       })
       .catch((err) => {
@@ -39,7 +44,15 @@ export default function PTSchedulePage() {
 
   const handleCheckIn = (sessionId: string) => {
     setCheckedSessions((prev) => ({ ...prev, [sessionId]: true }));
-    apiClient.post(`/pt/check-in/${sessionId}`).catch(console.error);
+    apiClient
+      .post<{ message?: string }>(`/pt/check-in/${sessionId}`)
+      .then((res) => {
+        toast.success(res.data.message || 'Đã điểm danh học viên & trừ số buổi thành công!');
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error('Không thể điểm danh học viên!');
+      });
   };
 
   const handleGoToToday = () => {
@@ -58,6 +71,8 @@ export default function PTSchedulePage() {
 
   const isSelectedToday = isSameDay(selectedDate, new Date());
 
+  const liveSessions = ptData?.todaySessions || [];
+
   // Timeline Schedule Data Slots (07:00 -> 20:00)
   const timelineSlots: ScheduleSlot[] = [
     {
@@ -67,15 +82,16 @@ export default function PTSchedulePage() {
       isBusy: false,
     },
     {
-      id: 'slot-0800',
-      startTime: '08:00',
-      endTime: '09:30',
-      studentName: 'Bùi Văn Huy',
+      id: liveSessions[0]?.id || 'slot-0800',
+      startTime: liveSessions[0]?.timeSlot?.split(' - ')?.[0] || '08:00',
+      endTime: liveSessions[0]?.timeSlot?.split(' - ')?.[1] || '09:30',
+      studentName: liveSessions[0]?.studentName || 'Bùi Văn Huy',
       studentAvatar:
+        liveSessions[0]?.studentAvatar ||
         'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
       packageName: 'Gói PT VIP 1-1',
-      sessionNumber: 'Buổi 8 / 12',
-      workoutName: 'Legs & Glutes Power (Đùi & Mông)',
+      sessionNumber: `Buổi ${liveSessions[0]?.remainingSessions ?? 8} / ${liveSessions[0]?.totalSessions ?? 12}`,
+      workoutName: liveSessions[0]?.workoutName || 'Legs & Glutes Power (Đùi & Mông)',
       exercisesCount: 5,
       status: 'ONGOING',
       isBusy: true,
@@ -87,15 +103,16 @@ export default function PTSchedulePage() {
       isBusy: false,
     },
     {
-      id: 'slot-1000',
-      startTime: '10:00',
-      endTime: '11:30',
-      studentName: 'Nguyễn Văn A',
+      id: liveSessions[1]?.id || 'slot-1000',
+      startTime: liveSessions[1]?.timeSlot?.split(' - ')?.[0] || '10:00',
+      endTime: liveSessions[1]?.timeSlot?.split(' - ')?.[1] || '11:30',
+      studentName: liveSessions[1]?.studentName || 'Nguyễn Văn A',
       studentAvatar:
+        liveSessions[1]?.studentAvatar ||
         'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
       packageName: 'Gói PT Chuẩn',
-      sessionNumber: 'Buổi 5 / 10',
-      workoutName: 'Chest & Triceps (Ngực & Tay sau)',
+      sessionNumber: `Buổi ${liveSessions[1]?.remainingSessions ?? 5} / ${liveSessions[1]?.totalSessions ?? 10}`,
+      workoutName: liveSessions[1]?.workoutName || 'Chest & Triceps (Ngực & Tay sau)',
       exercisesCount: 4,
       status: 'UPCOMING',
       isBusy: true,
@@ -107,15 +124,16 @@ export default function PTSchedulePage() {
       isBusy: false,
     },
     {
-      id: 'slot-1400',
-      startTime: '14:00',
-      endTime: '15:30',
-      studentName: 'Trần Thị B',
+      id: liveSessions[2]?.id || 'slot-1400',
+      startTime: liveSessions[2]?.timeSlot?.split(' - ')?.[0] || '14:00',
+      endTime: liveSessions[2]?.timeSlot?.split(' - ')?.[1] || '15:30',
+      studentName: liveSessions[2]?.studentName || 'Trần Thị B',
       studentAvatar:
+        liveSessions[2]?.studentAvatar ||
         'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
       packageName: 'Gói PT VIP 1-1',
-      sessionNumber: 'Buổi 12 / 36',
-      workoutName: 'Full Body HIIT & Core (Toàn thân)',
+      sessionNumber: `Buổi ${liveSessions[2]?.remainingSessions ?? 12} / ${liveSessions[2]?.totalSessions ?? 36}`,
+      workoutName: liveSessions[2]?.workoutName || 'Full Body HIIT & Core (Toàn thân)',
       exercisesCount: 6,
       status: 'UPCOMING',
       isBusy: true,
@@ -127,15 +145,16 @@ export default function PTSchedulePage() {
       isBusy: false,
     },
     {
-      id: 'slot-1700',
-      startTime: '17:00',
-      endTime: '18:30',
-      studentName: 'Lê Văn C',
+      id: liveSessions[3]?.id || 'slot-1700',
+      startTime: liveSessions[3]?.timeSlot?.split(' - ')?.[0] || '17:00',
+      endTime: liveSessions[3]?.timeSlot?.split(' - ')?.[1] || '18:30',
+      studentName: liveSessions[3]?.studentName || 'Lê Văn C',
       studentAvatar:
+        liveSessions[3]?.studentAvatar ||
         'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
       packageName: 'Gói PT Chuẩn',
-      sessionNumber: 'Buổi 2 / 12',
-      workoutName: 'Back & Core Hypertrophy (Lưng xô)',
+      sessionNumber: `Buổi ${liveSessions[3]?.remainingSessions ?? 2} / ${liveSessions[3]?.totalSessions ?? 12}`,
+      workoutName: liveSessions[3]?.workoutName || 'Back & Core Hypertrophy (Lưng xô)',
       exercisesCount: 5,
       status: 'UPCOMING',
       isBusy: true,

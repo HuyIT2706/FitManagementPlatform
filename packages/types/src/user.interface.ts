@@ -81,3 +81,38 @@ export interface UserDataHome extends UserData {
     };
   } | null;
 }
+
+export interface ProgressPhotoItem {
+  id: string;
+  userId: string;
+  photoUrl: string;
+  tag?: string | null;
+  takenAt: Date | string;
+  weightAtTime?: number | null;
+}
+
+export interface CreateProgressPhotoDto {
+  photoUrl: string;
+  tag?: string; // BEFORE, AFTER, FRONT, SIDE, BACK
+  weightAtTime?: number;
+  takenAt?: string;
+}
+
+export interface CreateBodyMetricDto {
+  weight: number;
+  height?: number;
+  bodyFat?: number;
+  muscleMass?: number;
+}
+
+export interface ParQAnswers {
+  heartCondition: boolean;
+  chestPainExercise: boolean;
+  chestPainNoExercise: boolean;
+  dizzinessLossBalance: boolean;
+  boneJointProblem: boolean;
+  bloodPressureMedicine: boolean;
+  otherReason: boolean;
+  notes?: string;
+}
+

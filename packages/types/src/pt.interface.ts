@@ -74,40 +74,58 @@ export interface PTStudentDetail {
   email: string;
   phone?: string;
   avatarUrl?: string;
+  gender?: string;
   packageName: string;
   remainingSessions: number;
   totalSessions: number;
-  joinedDate: string;
-  targetCalories: number;
-  targetProtein: number;
-  targetCarbs: number;
-  targetFat: number;
-  bodyMetrics: {
+  assignedExercises?: AssignedExerciseItem[];
+  targetCalories?: number;
+  targetProtein?: number;
+  targetCarbs?: number;
+  targetFat?: number;
+  bodyMetrics?: {
+    weightKg?: number;
+    heightCm?: number;
+    bodyFatPercent?: number;
+    muscleMassKg?: number;
+    updatedAt?: string;
+  };
+  bodyMetricsHistory?: InBodyHistoryPoint[];
+  prescribedMealPlan?: {
+    breakfast?: string;
+    lunch?: string;
+    dinner?: string;
+    snack?: string;
+  };
+  beforeAfterPhotos?: {
+    beforeUrl?: string;
+    afterUrl?: string;
+    beforeWeight?: number;
+    afterWeight?: number;
+    beforeDate?: string;
+    afterDate?: string;
+  };
+  inBody?: {
     weightKg: number;
     heightCm: number;
     bodyFatPercent: number;
     muscleMassKg: number;
     updatedAt: string;
   };
-  bodyMetricsHistory?: InBodyHistoryPoint[];
-  assignedExercises: AssignedExerciseItem[];
-  prescribedMealPlan?: {
-    breakfast: string;
-    lunch: string;
-    dinner: string;
-    snack?: string;
+  nutritionTarget?: {
+    targetCalories: number;
+    proteinGrams: number;
+    carbsGrams: number;
+    fatGrams: number;
   };
-  beforeAfterPhotos?: {
-    beforeUrl: string;
-    beforeDate: string;
-    afterUrl: string;
-    afterDate: string;
-  };
+  currentWorkoutTitle?: string;
 }
 
 export interface AssignWorkoutDto {
   studentId: string;
-  exercises: {
+  title?: string;
+  note?: string;
+  exercises?: {
     exerciseId: string;
     name: string;
     category: string;
@@ -121,10 +139,13 @@ export interface AssignWorkoutDto {
 
 export interface AssignNutritionDto {
   studentId: string;
-  targetCalories: number;
-  targetProtein: number;
-  targetCarbs: number;
-  targetFat: number;
+  targetCalories?: number;
+  proteinGrams?: number;
+  carbsGrams?: number;
+  fatGrams?: number;
+  targetProtein?: number;
+  targetCarbs?: number;
+  targetFat?: number;
   prescribedMealPlan?: {
     breakfast: string;
     lunch: string;

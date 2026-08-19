@@ -41,6 +41,10 @@ export const toastStore = {
     return id;
   },
 
+  addToast(message: string, type: ToastType = 'info', duration = 2500): string {
+    return this.add({ message, type, duration });
+  },
+
   remove(id: string) {
     toasts = toasts.filter((t) => t.id !== id);
     notify();
