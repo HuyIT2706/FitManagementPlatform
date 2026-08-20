@@ -13,6 +13,7 @@ export class RegisterDto {
   email!: string;
   password!: string;
   fullName!: string;
+  avatarUrl?: string;
   role?: 'USER' | 'PT';
   experienceYears?: number;
   specialties?: string[];
@@ -65,6 +66,7 @@ export class AuthService {
           email: dto.email,
           fullName: dto.fullName,
           passwordHash,
+          avatarUrl: dto.avatarUrl || undefined,
           role: isPtRegister ? 'PT' : 'USER',
         },
       });

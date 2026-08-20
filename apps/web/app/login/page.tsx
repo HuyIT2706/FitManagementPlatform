@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, Eye, EyeOff, User, Dumbbell, Award, Briefcase, Info } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, User, Dumbbell, Award, Briefcase, Info, Upload } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -20,6 +20,7 @@ function LoginContent() {
   const [showPassword, setShowPassword] = useState(false);
 
   // PT specific fields
+  const [avatarUrl, setAvatarUrl] = useState('');
   const [experienceYears, setExperienceYears] = useState<number>(2);
   const [specialties, setSpecialties] = useState('Tăng cơ, Giảm mỡ, Calisthenics');
   const [bio, setBio] = useState('');
@@ -102,6 +103,7 @@ function LoginContent() {
           email,
           password,
           fullName,
+          avatarUrl: avatarUrl.trim() || undefined,
           role,
           ...(role === 'PT' && {
             experienceYears,
@@ -215,6 +217,7 @@ function LoginContent() {
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
+                suppressHydrationWarning
                 onClick={() => setRole('USER')}
                 className={`py-2.5 px-3 rounded-xl border text-xs font-extrabold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                   role === 'USER'
@@ -226,6 +229,7 @@ function LoginContent() {
               </button>
               <button
                 type="button"
+                suppressHydrationWarning
                 onClick={() => setRole('PT')}
                 className={`py-2.5 px-3 rounded-xl border text-xs font-extrabold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                   role === 'PT'
@@ -266,6 +270,7 @@ function LoginContent() {
                 <input
                   type="text"
                   required
+                  suppressHydrationWarning
                   placeholder="Nguyễn Văn A"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
@@ -281,6 +286,7 @@ function LoginContent() {
               <input
                 type="email"
                 required
+                suppressHydrationWarning
                 placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -296,6 +302,7 @@ function LoginContent() {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
+                  suppressHydrationWarning
                   placeholder="Mật khẩu bảo mật"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -303,6 +310,7 @@ function LoginContent() {
                 />
                 <button
                   type="button"
+                  suppressHydrationWarning
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface cursor-pointer"
                 >
@@ -318,6 +326,80 @@ function LoginContent() {
                   <Award size={16} /> Hồ sơ Đăng ký Huấn luyện viên (PT):
                 </div>
 
+                <div className="space-y-1.5">
+                  <label className="block text-[11px] font-semibold text-on-surface-variant">
+                    Ảnh đại diện HLV (Tải từ máy):
+                  </label>
+                  <div className="flex items-center gap-3 bg-black/40 p-2.5 rounded-xl border border-white/10">
+                    <div className="w-12 h-12 rounded-full overflow-hidden border border-primary/50 bg-black/60 flex items-center justify-center shrink-0">
+                      {avatarUrl ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img src={avatarUrl} alt="Avatar preview" className="w-full h-full object-cover" />
+                      ) : (
+                        <User size={20} className="text-white/40" />
+                      )}
+                    </div>
+
+                    <div className="flex-1">
+                      <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/15 border border-primary/40 text-primary text-xs font-bold hover:bg-primary/25 transition-all">
+                        <Upload size={14} />
+                        {avatarUrl ? 'Đổi ảnh đại diện' : 'Chọn ảnh từ máy'}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          suppressHydrationWarning
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onload = (event) => {
+                                const img = document.createElement('img');
+                                img.onload = () => {
+                                  const canvas = document.createElement('canvas');
+                                  let width = img.width;
+                                  let height = img.height;
+                                  const maxDim = 400;
+
+                                  if (width > height) {
+                                    if (width > maxDim) {
+                                      height = Math.round((height * maxDim) / width);
+                                      width = maxDim;
+                                    }
+                                  } else {
+                                    if (height > maxDim) {
+                                      width = Math.round((width * maxDim) / height);
+                                      height = maxDim;
+                                    }
+                                  }
+
+                                  canvas.width = width;
+                                  canvas.height = height;
+                                  const ctx = canvas.getContext('2d');
+                                  ctx?.drawImage(img, 0, 0, width, height);
+                                  setAvatarUrl(canvas.toDataURL('image/jpeg', 0.85));
+                                };
+                                img.src = event.target?.result as string;
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                          className="hidden"
+                        />
+                      </label>
+                      {avatarUrl && (
+                        <button
+                          type="button"
+                          suppressHydrationWarning
+                          onClick={() => setAvatarUrl('')}
+                          className="ml-2 text-[11px] text-rose-400 hover:underline inline-block font-semibold cursor-pointer"
+                        >
+                          Xóa ảnh
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
                 <div className="space-y-1">
                   <label className="block text-[11px] font-semibold text-on-surface-variant">
                     Số năm kinh nghiệm:
@@ -330,6 +412,7 @@ function LoginContent() {
                     <input
                       type="number"
                       min="1"
+                      suppressHydrationWarning
                       value={experienceYears}
                       onChange={(e) => setExperienceYears(Number(e.target.value))}
                       className="w-full h-9 pl-9 pr-3 rounded-lg bg-black/40 border border-white/10 text-xs text-white outline-none"
@@ -343,6 +426,7 @@ function LoginContent() {
                   </label>
                   <input
                     type="text"
+                    suppressHydrationWarning
                     value={specialties}
                     onChange={(e) => setSpecialties(e.target.value)}
                     placeholder="Tăng cơ, Giảm mỡ, Calisthenics"
@@ -356,6 +440,7 @@ function LoginContent() {
                   </label>
                   <textarea
                     rows={2}
+                    suppressHydrationWarning
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
                     placeholder="Giới thiệu kinh nghiệm và phong cách huấn luyện của bạn..."
@@ -367,6 +452,7 @@ function LoginContent() {
 
             <button
               type="submit"
+              suppressHydrationWarning
               disabled={loading}
               className="w-full h-12 rounded-full bg-primary text-dark-slate font-extrabold flex items-center justify-center hover:bg-primary/90 transition-colors active:scale-95 disabled:opacity-50 cursor-pointer shadow-[0_0_15px_rgba(102,200,28,0.4)] text-sm mt-2"
             >
@@ -391,6 +477,8 @@ function LoginContent() {
 
           {/* Google Login Button below form */}
           <button
+            type="button"
+            suppressHydrationWarning
             onClick={() => googleLogin()}
             disabled={loading}
             className="w-full h-11 rounded-full bg-surface-container/80 backdrop-blur-md border border-outline-variant flex items-center justify-center space-x-3 hover:bg-surface-variant transition-colors active:scale-95 disabled:opacity-50 cursor-pointer text-xs"

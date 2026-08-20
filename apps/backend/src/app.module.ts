@@ -7,6 +7,7 @@ import { NutritionModule } from './modules/nutrition/nutrition.module';
 import { WorkoutModule } from './modules/workout/workout.module';
 import { PtModule } from './modules/pt/pt.module';
 import { ProgressModule } from './modules/progress/progress.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ProgressModule } from './modules/progress/progress.module';
     WorkoutModule,
     PtModule,
     ProgressModule,
+    AdminModule,
   ],
 })
 export class AppModule {}
