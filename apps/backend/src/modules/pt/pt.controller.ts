@@ -37,6 +37,27 @@ export class PtController {
     return this.ptService.getPtCodeAndQr(req.user.sub);
   }
 
+  @Get('profile')
+  async getPtProfile(@Request() req: RequestWithUser) {
+    return this.ptService.getPtProfile(req.user.sub);
+  }
+
+  @Patch('profile')
+  async updatePtProfile(
+    @Request() req: RequestWithUser,
+    @Body()
+    dto: {
+      fullName?: string;
+      phone?: string;
+      bio?: string;
+      experienceYears?: number;
+      specialties?: string[];
+      certificateUrl?: string;
+    },
+  ) {
+    return this.ptService.updatePtProfile(req.user.sub, dto);
+  }
+
   @Post('students/invite')
   async sendInvite(
     @Request() req: RequestWithUser,

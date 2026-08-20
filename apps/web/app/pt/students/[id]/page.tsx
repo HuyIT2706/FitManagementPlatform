@@ -398,24 +398,56 @@ export default function PTStudentDetailPage({
                   <select
                     value={newExName}
                     onChange={(e) => {
-                      setNewExName(e.target.value);
-                      if (e.target.value.includes("Squat") || e.target.value.includes("Leg")) {
+                      const name = e.target.value;
+                      setNewExName(name);
+                      if (name.includes("Squat") || name.includes("Leg") || name.includes("Deadlift")) {
                         setNewExCategory("LEGS");
-                      } else if (e.target.value.includes("Bench") || e.target.value.includes("Push")) {
+                      } else if (name.includes("Bench") || name.includes("Press") || name.includes("Dips")) {
                         setNewExCategory("CHEST");
-                      } else {
+                      } else if (name.includes("Row") || name.includes("Lat") || name.includes("Pull")) {
                         setNewExCategory("BACK");
+                      } else if (name.includes("Shoulder") || name.includes("Raises") || name.includes("OHP")) {
+                        setNewExCategory("SHOULDERS");
+                      } else if (name.includes("Bicep") || name.includes("Tricep") || name.includes("Curl")) {
+                        setNewExCategory("ARMS");
+                      } else {
+                        setNewExCategory("ABS");
                       }
                     }}
                     className="w-full bg-surface-bright border border-white/10 rounded-xl px-3 py-2.5 text-on-surface font-semibold focus:border-primary outline-none"
                   >
-                    <option value="Barbell Squat">Barbell Squat (Gánh đùi)</option>
-                    <option value="Bench Press">Bench Press (Đẩy ngực ngang)</option>
-                    <option value="Incline Dumbbell Press">Incline Press (Đẩy ngực dốc)</option>
-                    <option value="Deadlift">Deadlift (Kéo lưng đùi)</option>
-                    <option value="Lat Pulldown">Lat Pulldown (Kéo xô)</option>
-                    <option value="Dumbbell Shoulder Press">Shoulder Press (Đẩy vai)</option>
-                    <option value="Leg Press">Leg Press (Đạp đùi)</option>
+                    <optgroup label="🏋️ ĐÙI & MÔNG (LEGS)">
+                      <option value="Barbell Squat">Barbell Squat (Gánh đùi chuẩn)</option>
+                      <option value="Leg Press">Leg Press (Đạp đùi máy)</option>
+                      <option value="Romanian Deadlift">Romanian Deadlift (Kê đùi sau & Mông)</option>
+                      <option value="Bulgarian Split Squat">Bulgarian Split Squat (Squat đơn)</option>
+                      <option value="Leg Extension">Leg Extension (Đá đùi trước)</option>
+                    </optgroup>
+                    <optgroup label="💪 NGỰC (CHEST)">
+                      <option value="Bench Press">Bench Press (Đẩy ngực ngang tạ đòn)</option>
+                      <option value="Incline Dumbbell Press">Incline Press (Đẩy ngực dốc tạ đơn)</option>
+                      <option value="Chest Flyes">Chest Flyes (Ép ngực tạ đơn)</option>
+                      <option value="Dips">Dips (Xà kép ngực)</option>
+                    </optgroup>
+                    <optgroup label="🛡️ LƯNG & XÔ (BACK)">
+                      <option value="Conventional Deadlift">Conventional Deadlift (Kéo lưng tổng hợp)</option>
+                      <option value="Barbell Bent-Over Row">Bent-Over Row (Chèo thuyền tạ đòn)</option>
+                      <option value="Lat Pulldown">Lat Pulldown (Kéo xô rộng tay)</option>
+                      <option value="Seated Cable Row">Cable Row (Kéo xô ngồi máy)</option>
+                    </optgroup>
+                    <optgroup label="⚡ VAI (SHOULDERS)">
+                      <option value="Dumbbell Shoulder Press">Shoulder Press (Đẩy vai tạ đơn)</option>
+                      <option value="Lateral Raises">Lateral Raises (Dang vai ngang)</option>
+                      <option value="Face Pulls">Face Pulls (Kéo dây curoa vai sau)</option>
+                    </optgroup>
+                    <optgroup label="🔥 TAY (ARMS)">
+                      <option value="Barbell Bicep Curls">Bicep Curls (Cuốn tay trước tạ đòn)</option>
+                      <option value="Tricep Rope Pushdown">Tricep Pushdown (Đẩy tay sau dây cáp)</option>
+                    </optgroup>
+                    <optgroup label="🎯 BỤNG & CORE (ABS)">
+                      <option value="Hanging Leg Raise">Hanging Leg Raise (Co gối xà đơn)</option>
+                      <option value="Plank Hold">Plank Hold (Giữ bụng chuẩn y tế)</option>
+                    </optgroup>
                   </select>
                 </div>
 

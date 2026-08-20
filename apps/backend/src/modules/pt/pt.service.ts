@@ -592,4 +592,82 @@ export class PtService {
       message: `Đã gia hạn & cập nhật gói tập ${dto.packageName || 'PT 1:1'} (${dto.remainingSessions ?? 10}/${dto.totalSessions ?? 12} buổi) vào DB thành công!`,
     };
   }
+
+  async getPtProfile(ptUserId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: ptUserId },
+      include: {
+        ptApplication: true,
+        studentProfiles: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Không tìm thấy thông tin PT');
+    }
+
+    return {
+      id: user.id,
+      fullName: user.fullName,
+      email: user.email,
+      phone: user.phone || undefined,
+      avatarUrl: user.avatarUrl || undefined,
+      bio: user.ptApplication?.bio || 'HLV Cá Nhân Chuyên Nghiệp 1:1',
+      experienceYears: user.ptApplication?.experienceYears || 3,
+      specialties: user.ptApplication?.specialties?.length
+        ? user.ptApplication.specialties
+        : ['Tăng cơ giảm mỡ', 'Phục hồi chấn thương', 'Tập luyện 1:1'],
+      certificateUrl: user.ptApplication?.certificateUrl || undefined,
+      rating: 4.9,
+      totalStudents: user.studentProfiles.length,
+      monthlySessions: 48,
+    };
+  }
+
+  async updatePtProfile(
+    ptUserId: string,
+    dto: {
+      fullName?: string;
+      phone?: string;
+      bio?: string;
+      experienceYears?: number;
+      specialties?: string[];
+      certificateUrl?: string;
+    },
+  ) {
+    if (dto.fullName || dto.phone) {
+      await this.prisma.user.update({
+        where: { id: ptUserId },
+        data: {
+          ...(dto.fullName && { fullName: dto.fullName }),
+          ...(dto.phone && { phone: dto.phone }),
+        },
+      });
+    }
+
+    await this.prisma.ptApplication.upsert({
+      where: { userId: ptUserId },
+      create: {
+        userId: ptUserId,
+        bio: dto.bio || 'HLV Cá Nhân Chuyên Nghiệp 1:1',
+        experienceYears: dto.experienceYears || 3,
+        specialties: dto.specialties || ['Tăng cơ giảm mỡ'],
+        certificateUrl: dto.certificateUrl,
+      },
+      update: {
+        ...(dto.bio && { bio: dto.bio }),
+        ...(dto.experienceYears && { experienceYears: dto.experienceYears }),
+        ...(dto.specialties && { specialties: dto.specialties }),
+        ...(dto.certificateUrl !== undefined && {
+          certificateUrl: dto.certificateUrl,
+        }),
+      },
+    });
+
+    return {
+      success: true,
+      ptUserId,
+      message: 'Cập nhật hồ sơ cá nhân HLV thành công!',
+    };
+  }
 }
