@@ -525,19 +525,71 @@ export class PtService {
       success: true,
       studentUserId,
       ptCode: dto.ptCodeOrInviteCode,
-      coachName: ptUser ? `Coach ${ptUser.fullName}` : 'Coach Bùi Văn Huy',
       message: ptUser
         ? `Chúc mừng! Đã liên kết tài khoản 1-1 với Coach ${ptUser.fullName} thành công!`
         : 'Đã gửi yêu cầu liên kết với Huấn luyện viên cá nhân!',
     };
   }
 
-  updateStudentSessions(studentId: string, dto: UpdateStudentSessionsDto) {
-    return Promise.resolve({
+  async updateStudentSessions(
+    studentId: string,
+    dto: UpdateStudentSessionsDto,
+  ) {
+    if (dto.fullName || dto.phone) {
+      await this.prisma.user.update({
+        where: { id: studentId },
+        data: {
+          ...(dto.fullName && { fullName: dto.fullName }),
+          ...(dto.phone && { phone: dto.phone }),
+        },
+      });
+    }
+
+    let gymPkg = await this.prisma.gymPackage.findFirst({
+      where: { isActive: true },
+    });
+
+    if (!gymPkg) {
+      gymPkg = await this.prisma.gymPackage.create({
+        data: {
+          title: dto.packageName || 'Gói PT 1:1 VIP',
+          price: 5000000,
+          totalSessions: dto.totalSessions || 12,
+          durationDays: 90,
+        },
+      });
+    }
+
+    const activeMemberPkg = await this.prisma.memberPackage.findFirst({
+      where: { userId: studentId, isActive: true },
+    });
+
+    if (activeMemberPkg) {
+      await this.prisma.memberPackage.update({
+        where: { id: activeMemberPkg.id },
+        data: {
+          totalSessions: dto.totalSessions ?? activeMemberPkg.totalSessions,
+          remainingSessions:
+            dto.remainingSessions ?? activeMemberPkg.remainingSessions,
+        },
+      });
+    } else {
+      await this.prisma.memberPackage.create({
+        data: {
+          userId: studentId,
+          packageId: gymPkg.id,
+          totalSessions: dto.totalSessions || 12,
+          remainingSessions: dto.remainingSessions ?? (dto.totalSessions || 12),
+          endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+        },
+      });
+    }
+
+    return {
       success: true,
       studentId,
       updatedInfo: dto,
-      message: 'Đã cập nhật số buổi & gói tập của học viên thành công!',
-    });
+      message: `Đã gia hạn & cập nhật gói tập ${dto.packageName || 'PT 1:1'} (${dto.remainingSessions ?? 10}/${dto.totalSessions ?? 12} buổi) vào DB thành công!`,
+    };
   }
 }
