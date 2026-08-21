@@ -41,6 +41,12 @@ enum PtApplicationStatus {
   REJECTED
 }
 
+enum StudentBindStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum ExerciseCategory {
   CHEST
   BACK
@@ -119,10 +125,11 @@ model PtApplication {
 }
 
 model StudentProfile {
-  id         String   @id @default(uuid())
+  id         String            @id @default(uuid())
   trainerId  String
   studentId  String
-  assignedAt DateTime @default(now())
+  status     StudentBindStatus @default(PENDING)
+  assignedAt DateTime          @default(now())
 
   trainer User @relation("TrainerRelation", fields: [trainerId], references: [id], onDelete: Cascade)
   student User @relation("StudentRelation", fields: [studentId], references: [id], onDelete: Cascade)
@@ -178,16 +185,17 @@ model AttendanceHistory {
 }
 
 model NutritionTarget {
-  id             String   @id @default(uuid())
-  studentId      String
-  bmr            Float?
-  tdee           Float?
-  caloriesOffset Float?   @default(0)
-  targetCalo     Float
-  targetProtein  Float
-  targetCarbs    Float
-  targetFat      Float
-  effectiveDate  DateTime @default(now())
+  id                 String   @id @default(uuid())
+  studentId          String
+  bmr                Float?
+  tdee               Float?
+  caloriesOffset     Float?   @default(0)
+  targetCalo         Float
+  targetProtein      Float
+  targetCarbs        Float
+  targetFat          Float
+  prescribedMealPlan String?
+  effectiveDate      DateTime @default(now())
 
   student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
 

@@ -1,19 +1,25 @@
-/* eslint-disable @next/next/no-img-element */
-"use client";
+'use client';
 
-import { use, useEffect, useState } from "react";
-import Link from "next/link";
-import Header from "../../../../components/ui/Header";
-import PTBottomNavBar from "../../../../components/navigation/PTBottomNavBar";
-import apiClient from "../../../../api/axios";
-import type { UserDataHome } from "../../../../interface";
+import { use, useEffect, useState } from 'react';
+import Link from 'next/link';
+import Header from '../../../../components/ui/Header';
+import PTBottomNavBar from '../../../../components/navigation/PTBottomNavBar';
+import apiClient from '../../../../api/axios';
+import type { UserDataHome } from '../../../../interface';
 import type {
   AssignedExerciseItem,
   InBodyHistoryPoint,
   PTStudentDetail,
-} from "@repo/types";
-import { toast } from "../../../../utils/toast";
-import TransformationJourneySlider from "../../../profile/components/TransformationJourneySlider";
+} from '@repo/types';
+import type { ExerciseItem } from '../../../../interface/training.interface';
+import { toast } from '../../../../utils/toast';
+
+import StudentHeaderHero from './components/StudentHeaderHero';
+import StudentWorkoutTab from './components/StudentWorkoutTab';
+import StudentNutritionTab from './components/StudentNutritionTab';
+import StudentInbodyTab from './components/StudentInbodyTab';
+import EditSessionModal from './components/EditSessionModal';
+import ExerciseSelectionModal from './components/ExerciseSelectionModal';
 
 export default function PTStudentDetailPage({
   params,
@@ -26,73 +32,74 @@ export default function PTStudentDetailPage({
   const [userData, setUserData] = useState<UserDataHome | null>(null);
   const [studentDetail, setStudentDetail] = useState<PTStudentDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeSubTab, setActiveSubTab] = useState<"workout" | "nutrition" | "inbody">("workout");
+  const [activeSubTab, setActiveSubTab] = useState<'workout' | 'nutrition' | 'inbody'>('workout');
 
   // Workout assignment local state
   const [assignedExercises, setAssignedExercises] = useState<AssignedExerciseItem[]>([]);
-  const [newExName, setNewExName] = useState("Barbell Squat");
-  const [newExCategory, setNewExCategory] = useState("LEGS");
-  const [newExSets, setNewExSets] = useState(4);
-  const [newExReps, setNewExReps] = useState(10);
-  const [newExWeight, setNewExWeight] = useState(60);
-  const [newExDay, setNewExDay] = useState("Thứ 2, Thứ 5");
+  const [isExerciseModalOpen, setIsExerciseModalOpen] = useState(false);
+  const [newExName, setNewExName] = useState('');
+  const [newExCategory, setNewExCategory] = useState('');
+  const [newExSets, setNewExSets] = useState(0);
+  const [newExReps, setNewExReps] = useState(0);
+  const [newExWeight, setNewExWeight] = useState(0);
+  const [newExDay, setNewExDay] = useState('');
 
   // Nutrition assignment local state
-  const [targetCalories, setTargetCalories] = useState(2200);
-  const [targetProtein, setTargetProtein] = useState(150);
-  const [targetCarbs, setTargetCarbs] = useState(220);
-  const [targetFat, setTargetFat] = useState(60);
-  const [breakfastText, setBreakfastText] = useState("");
-  const [lunchText, setLunchText] = useState("");
-  const [dinnerText, setDinnerText] = useState("");
-  const [snackText, setSnackText] = useState("");
+  const [targetCalories, setTargetCalories] = useState(0);
+  const [targetProtein, setTargetProtein] = useState(0);
+  const [targetCarbs, setTargetCarbs] = useState(0);
+  const [targetFat, setTargetFat] = useState(0);
+  const [breakfastText, setBreakfastText] = useState('');
+  const [lunchText, setLunchText] = useState('');
+  const [dinnerText, setDinnerText] = useState('');
+  const [snackText, setSnackText] = useState('');
 
   // InBody Edit local state
   const [isEditingInBody, setIsEditingInBody] = useState(false);
-  const [inbodyWeight, setInbodyWeight] = useState(72.5);
-  const [inbodyHeight, setInbodyHeight] = useState(175);
-  const [inbodyFat, setInbodyFat] = useState(18.2);
-  const [inbodyMuscle, setInbodyMuscle] = useState(34.8);
-  const [chartMetric, setChartMetric] = useState<"weight" | "fat" | "muscle">("weight");
+  const [inbodyWeight, setInbodyWeight] = useState(0);
+  const [inbodyHeight, setInbodyHeight] = useState(0);
+  const [inbodyFat, setInbodyFat] = useState(0);
+  const [inbodyMuscle, setInbodyMuscle] = useState(0);
+  const [chartMetric, setChartMetric] = useState<'weight' | 'fat' | 'muscle'>('weight');
 
   // Session Edit local state
   const [isEditSessionModalOpen, setIsEditSessionModalOpen] = useState(false);
-  const [editTotalSessions, setEditTotalSessions] = useState(12);
-  const [editRemainingSessions, setEditRemainingSessions] = useState(8);
-  const [editPackageName, setEditPackageName] = useState("Gói PT VIP 1-1");
+  const [editTotalSessions, setEditTotalSessions] = useState(0);
+  const [editRemainingSessions, setEditRemainingSessions] = useState(0);
+  const [editPackageName, setEditPackageName] = useState('');
 
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     Promise.all([
-      apiClient.get<UserDataHome>("/users/me"),
+      apiClient.get<UserDataHome>('/users/me'),
       apiClient.get<PTStudentDetail>(`/pt/students/${studentId}`),
     ])
       .then(([userRes, studentRes]) => {
         setUserData(userRes.data);
         setStudentDetail(studentRes.data);
         setAssignedExercises(studentRes.data.assignedExercises || []);
-        setTargetCalories(studentRes.data.targetCalories || 2200);
-        setTargetProtein(studentRes.data.targetProtein || 150);
-        setTargetCarbs(studentRes.data.targetCarbs || 220);
-        setTargetFat(studentRes.data.targetFat || 60);
+        setTargetCalories(studentRes.data.targetCalories ?? 0);
+        setTargetProtein(studentRes.data.targetProtein ?? 0);
+        setTargetCarbs(studentRes.data.targetCarbs ?? 0);
+        setTargetFat(studentRes.data.targetFat ?? 0);
 
-        setEditTotalSessions(studentRes.data.totalSessions || 12);
-        setEditRemainingSessions(studentRes.data.remainingSessions || 8);
-        setEditPackageName(studentRes.data.packageName || "Gói PT VIP 1-1");
+        setEditTotalSessions(studentRes.data.totalSessions ?? 0);
+        setEditRemainingSessions(studentRes.data.remainingSessions ?? 0);
+        setEditPackageName(studentRes.data.packageName || '');
 
         if (studentRes.data.bodyMetrics) {
-          setInbodyWeight(studentRes.data.bodyMetrics.weightKg || 72.5);
-          setInbodyHeight(studentRes.data.bodyMetrics.heightCm || 175);
-          setInbodyFat(studentRes.data.bodyMetrics.bodyFatPercent || 18.2);
-          setInbodyMuscle(studentRes.data.bodyMetrics.muscleMassKg || 34.8);
+          setInbodyWeight(studentRes.data.bodyMetrics.weightKg ?? 0);
+          setInbodyHeight(studentRes.data.bodyMetrics.heightCm ?? 0);
+          setInbodyFat(studentRes.data.bodyMetrics.bodyFatPercent ?? 0);
+          setInbodyMuscle(studentRes.data.bodyMetrics.muscleMassKg ?? 0);
         }
 
         if (studentRes.data.prescribedMealPlan) {
-          setBreakfastText(studentRes.data.prescribedMealPlan.breakfast || "");
-          setLunchText(studentRes.data.prescribedMealPlan.lunch || "");
-          setDinnerText(studentRes.data.prescribedMealPlan.dinner || "");
-          setSnackText(studentRes.data.prescribedMealPlan.snack || "");
+          setBreakfastText(studentRes.data.prescribedMealPlan.breakfast || '');
+          setLunchText(studentRes.data.prescribedMealPlan.lunch || '');
+          setDinnerText(studentRes.data.prescribedMealPlan.dinner || '');
+          setSnackText(studentRes.data.prescribedMealPlan.snack || '');
         }
         setLoading(false);
       })
@@ -103,8 +110,16 @@ export default function PTStudentDetailPage({
   }, [studentId]);
 
   const handleLogout = () => {
-    localStorage.removeItem("jwt_token");
-    window.location.href = "/login";
+    localStorage.removeItem('jwt_token');
+    window.location.href = '/login';
+  };
+
+  const handleSelectExerciseFromModal = (ex: ExerciseItem) => {
+    setNewExName(ex.name);
+    setNewExCategory(ex.category || 'LEGS');
+    setNewExSets(4);
+    setNewExReps(10);
+    toast.success(`Đã chọn bài tập: ${ex.name}`);
   };
 
   const handleAddExerciseToPlan = () => {
@@ -120,7 +135,7 @@ export default function PTStudentDetailPage({
       dayOfWeek: newExDay,
     };
     setAssignedExercises((prev) => [...prev, newItem]);
-    toast.info("Đã thêm bài tập vào danh sách giao!");
+    toast.info('Đã thêm bài tập vào danh sách giao!');
   };
 
   const handleRemoveExerciseFromPlan = (id: string) => {
@@ -136,12 +151,12 @@ export default function PTStudentDetailPage({
       })
       .then(() => {
         setSaving(false);
-        toast.success("Lưu & Giao giáo án tập luyện thành công!");
+        toast.success('Lưu & Giao giáo án tập luyện thành công!');
       })
       .catch((err) => {
         console.error(err);
         setSaving(false);
-        toast.error("Không thể giao giáo án tập luyện!");
+        toast.error('Không thể giao giáo án tập luyện!');
       });
   };
 
@@ -163,18 +178,18 @@ export default function PTStudentDetailPage({
       })
       .then(() => {
         setSaving(false);
-        toast.success("Lưu thực đơn & mục tiêu dinh dưỡng thành công!");
+        toast.success('Lưu thực đơn & mục tiêu dinh dưỡng thành công!');
       })
       .catch((err) => {
         console.error(err);
         setSaving(false);
-        toast.error("Không thể lưu mục tiêu dinh dưỡng!");
+        toast.error('Không thể lưu mục tiêu dinh dưỡng!');
       });
   };
 
   const handleSaveInBody = () => {
     setSaving(true);
-    const updatedDate = new Date().toLocaleDateString("vi-VN");
+    const updatedDate = new Date().toLocaleDateString('vi-VN');
 
     apiClient
       .post(`/pt/students/${studentId}/inbody`, {
@@ -209,12 +224,12 @@ export default function PTStudentDetailPage({
             bodyMetricsHistory: updatedHistory,
           });
         }
-        toast.success("Đã cập nhật chỉ số InBody mới thành công!");
+        toast.success('Đã cập nhật chỉ số InBody mới thành công!');
       })
       .catch((err) => {
         console.error(err);
         setSaving(false);
-        toast.error("Không thể cập nhật chỉ số InBody!");
+        toast.error('Không thể cập nhật chỉ số InBody!');
       });
   };
 
@@ -237,12 +252,12 @@ export default function PTStudentDetailPage({
             packageName: editPackageName,
           });
         }
-        toast.success("Đã cập nhật số buổi & gói tập cho học viên thành công!");
+        toast.success('Đã cập nhật số buổi & gói tập cho học viên thành công!');
       })
       .catch((err) => {
         console.error(err);
         setSaving(false);
-        toast.error("Không thể cập nhật số buổi học viên!");
+        toast.error('Không thể cập nhật số buổi học viên!');
       });
   };
 
@@ -254,19 +269,7 @@ export default function PTStudentDetailPage({
     );
   }
 
-  const sessionPercentage = Math.min(
-    100,
-    Math.round((studentDetail.remainingSessions / studentDetail.totalSessions) * 100)
-  );
-
-  const historyPoints = studentDetail.bodyMetricsHistory || [
-    { date: "T9/2025", weightKg: 78.0, bodyFatPercent: 22.5, muscleMassKg: 32.0 },
-    { date: "T10/2025", weightKg: 76.5, bodyFatPercent: 21.0, muscleMassKg: 33.0 },
-    { date: "T11/2025", weightKg: 75.0, bodyFatPercent: 20.0, muscleMassKg: 33.8 },
-    { date: "T12/2025", weightKg: 74.0, bodyFatPercent: 19.2, muscleMassKg: 34.2 },
-    { date: "T1/2026", weightKg: 73.0, bodyFatPercent: 18.6, muscleMassKg: 34.6 },
-    { date: "T2/2026", weightKg: inbodyWeight, bodyFatPercent: inbodyFat, muscleMassKg: inbodyMuscle },
-  ];
+  const historyPoints = studentDetail.bodyMetricsHistory || [];
 
   return (
     <div className="min-h-screen bg-background pb-32 pt-2 md:pt-0 dark text-on-surface">
@@ -284,752 +287,146 @@ export default function PTStudentDetailPage({
           </Link>
         </div>
 
-        {/* Student Profile Hero Header */}
-        <section className="bento-card rounded-3xl p-6 md:p-8 border border-outline-variant/30 relative overflow-hidden flex flex-col md:flex-row items-center md:items-start gap-6">
-          <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-primary shadow-[0_0_20px_rgba(102,200,28,0.3)] shrink-0">
-            <img
-              src={
-                studentDetail.avatarUrl ||
-                "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80"
-              }
-              alt={studentDetail.fullName}
-              className="w-full h-full object-cover"
-            />
-          </div>
-
-          <div className="flex-1 text-center md:text-left space-y-2">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div>
-                <h1 className="text-2xl md:text-3xl font-extrabold font-headline-md text-on-surface">
-                  {studentDetail.fullName}
-                </h1>
-                <p className="text-xs text-on-surface-variant font-medium mt-0.5">
-                  {studentDetail.email} {studentDetail.phone ? `• ${studentDetail.phone}` : ""}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2 self-center md:self-start">
-                <span className="px-3.5 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-bold uppercase tracking-wider">
-                  {studentDetail.packageName}
-                </span>
-
-                <button
-                  onClick={() => setIsEditSessionModalOpen(true)}
-                  className="p-1.5 rounded-xl bg-surface-bright text-on-surface-variant hover:text-primary hover:bg-surface-bright/80 transition-colors cursor-pointer border border-white/10"
-                  title="Sửa số buổi & gói tập"
-                >
-                  <span className="material-symbols-outlined text-[18px]">settings</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Session Progress */}
-            <div className="pt-2 max-w-md space-y-1.5">
-              <div className="flex justify-between text-xs font-bold">
-                <span className="text-on-surface">Tiến độ gói tập</span>
-                <span className="text-primary">
-                  {studentDetail.remainingSessions} / {studentDetail.totalSessions} Buổi còn lại
-                </span>
-              </div>
-              <div className="w-full h-2.5 bg-surface-bright rounded-full overflow-hidden border border-white/10">
-                <div
-                  className="h-full bg-primary rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(102,200,28,0.5)]"
-                  style={{ width: `${sessionPercentage}%` }}
-                ></div>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* Component 1: Hero Header Profile */}
+        <StudentHeaderHero
+          fullName={studentDetail.fullName}
+          avatarUrl={studentDetail.avatarUrl}
+          email={studentDetail.email}
+          phone={studentDetail.phone}
+          packageName={studentDetail.packageName}
+          remainingSessions={studentDetail.remainingSessions}
+          totalSessions={studentDetail.totalSessions}
+          onOpenEditSessionModal={() => setIsEditSessionModalOpen(true)}
+        />
 
         {/* Sub-Tabs Switcher */}
         <section className="flex items-center gap-2 p-1.5 bg-surface-bright/40 rounded-2xl border border-white/10 overflow-x-auto">
           <button
-            onClick={() => setActiveSubTab("workout")}
+            type="button"
+            onClick={() => setActiveSubTab('workout')}
             className={`flex-1 min-w-[130px] py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
-              activeSubTab === "workout"
-                ? "bg-primary text-dark-slate shadow-[0_0_15px_rgba(102,200,28,0.4)]"
-                : "text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50"
+              activeSubTab === 'workout'
+                ? 'bg-primary text-dark-slate shadow-[0_0_15px_rgba(102,200,28,0.4)]'
+                : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50'
             }`}
           >
-            <span className="material-symbols-outlined text-[18px]">fitness_center</span>
             Giao Bài Tập
           </button>
 
           <button
-            onClick={() => setActiveSubTab("nutrition")}
+            type="button"
+            onClick={() => setActiveSubTab('nutrition')}
             className={`flex-1 min-w-[130px] py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
-              activeSubTab === "nutrition"
-                ? "bg-primary text-dark-slate shadow-[0_0_15px_rgba(102,200,28,0.4)]"
-                : "text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50"
+              activeSubTab === 'nutrition'
+                ? 'bg-primary text-dark-slate shadow-[0_0_15px_rgba(102,200,28,0.4)]'
+                : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50'
             }`}
           >
-            <span className="material-symbols-outlined text-[18px]">restaurant</span>
-            Giao Thực Đơn & Targets
+            Mục Tiêu & Thực Đơn
           </button>
 
           <button
-            onClick={() => setActiveSubTab("inbody")}
+            type="button"
+            onClick={() => setActiveSubTab('inbody')}
             className={`flex-1 min-w-[130px] py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
-              activeSubTab === "inbody"
-                ? "bg-primary text-dark-slate shadow-[0_0_15px_rgba(102,200,28,0.4)]"
-                : "text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50"
+              activeSubTab === 'inbody'
+                ? 'bg-primary text-dark-slate shadow-[0_0_15px_rgba(102,200,28,0.4)]'
+                : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50'
             }`}
           >
-            <span className="material-symbols-outlined text-[18px]">monitor_weight</span>
-            InBody & Biểu Đồ Tiến Độ
+            InBody & Tiến Độ
           </button>
         </section>
 
-        {/* Tab 1: Giao Bài Tập (Workout Assignment) */}
-        {activeSubTab === "workout" && (
-          <section className="space-y-6">
-            {/* Add Exercise Form Card */}
-            <div className="bento-card rounded-3xl p-6 md:p-8 border border-outline-variant/30 space-y-4">
-              <h3 className="text-lg font-bold text-on-surface flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary">add_task</span>
-                Thêm bài tập mới vào giáo án
-              </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs">
-                <div>
-                  <label className="block text-on-surface-variant font-medium mb-1">
-                    Tên bài tập
-                  </label>
-                  <select
-                    value={newExName}
-                    onChange={(e) => {
-                      const name = e.target.value;
-                      setNewExName(name);
-                      if (name.includes("Squat") || name.includes("Leg") || name.includes("Deadlift")) {
-                        setNewExCategory("LEGS");
-                      } else if (name.includes("Bench") || name.includes("Press") || name.includes("Dips")) {
-                        setNewExCategory("CHEST");
-                      } else if (name.includes("Row") || name.includes("Lat") || name.includes("Pull")) {
-                        setNewExCategory("BACK");
-                      } else if (name.includes("Shoulder") || name.includes("Raises") || name.includes("OHP")) {
-                        setNewExCategory("SHOULDERS");
-                      } else if (name.includes("Bicep") || name.includes("Tricep") || name.includes("Curl")) {
-                        setNewExCategory("ARMS");
-                      } else {
-                        setNewExCategory("ABS");
-                      }
-                    }}
-                    className="w-full bg-surface-bright border border-white/10 rounded-xl px-3 py-2.5 text-on-surface font-semibold focus:border-primary outline-none"
-                  >
-                    <optgroup label="🏋️ ĐÙI & MÔNG (LEGS)">
-                      <option value="Barbell Squat">Barbell Squat (Gánh đùi chuẩn)</option>
-                      <option value="Leg Press">Leg Press (Đạp đùi máy)</option>
-                      <option value="Romanian Deadlift">Romanian Deadlift (Kê đùi sau & Mông)</option>
-                      <option value="Bulgarian Split Squat">Bulgarian Split Squat (Squat đơn)</option>
-                      <option value="Leg Extension">Leg Extension (Đá đùi trước)</option>
-                    </optgroup>
-                    <optgroup label="💪 NGỰC (CHEST)">
-                      <option value="Bench Press">Bench Press (Đẩy ngực ngang tạ đòn)</option>
-                      <option value="Incline Dumbbell Press">Incline Press (Đẩy ngực dốc tạ đơn)</option>
-                      <option value="Chest Flyes">Chest Flyes (Ép ngực tạ đơn)</option>
-                      <option value="Dips">Dips (Xà kép ngực)</option>
-                    </optgroup>
-                    <optgroup label="🛡️ LƯNG & XÔ (BACK)">
-                      <option value="Conventional Deadlift">Conventional Deadlift (Kéo lưng tổng hợp)</option>
-                      <option value="Barbell Bent-Over Row">Bent-Over Row (Chèo thuyền tạ đòn)</option>
-                      <option value="Lat Pulldown">Lat Pulldown (Kéo xô rộng tay)</option>
-                      <option value="Seated Cable Row">Cable Row (Kéo xô ngồi máy)</option>
-                    </optgroup>
-                    <optgroup label="⚡ VAI (SHOULDERS)">
-                      <option value="Dumbbell Shoulder Press">Shoulder Press (Đẩy vai tạ đơn)</option>
-                      <option value="Lateral Raises">Lateral Raises (Dang vai ngang)</option>
-                      <option value="Face Pulls">Face Pulls (Kéo dây curoa vai sau)</option>
-                    </optgroup>
-                    <optgroup label="🔥 TAY (ARMS)">
-                      <option value="Barbell Bicep Curls">Bicep Curls (Cuốn tay trước tạ đòn)</option>
-                      <option value="Tricep Rope Pushdown">Tricep Pushdown (Đẩy tay sau dây cáp)</option>
-                    </optgroup>
-                    <optgroup label="🎯 BỤNG & CORE (ABS)">
-                      <option value="Hanging Leg Raise">Hanging Leg Raise (Co gối xà đơn)</option>
-                      <option value="Plank Hold">Plank Hold (Giữ bụng chuẩn y tế)</option>
-                    </optgroup>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-on-surface-variant font-medium mb-1">
-                    Số hiệp (Sets)
-                  </label>
-                  <input
-                    type="number"
-                    value={newExSets}
-                    onChange={(e) => setNewExSets(Number(e.target.value))}
-                    className="w-full bg-surface-bright border border-white/10 rounded-xl px-3 py-2.5 text-on-surface font-semibold focus:border-primary outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-on-surface-variant font-medium mb-1">
-                    Số lần / Hiệp (Reps)
-                  </label>
-                  <input
-                    type="number"
-                    value={newExReps}
-                    onChange={(e) => setNewExReps(Number(e.target.value))}
-                    className="w-full bg-surface-bright border border-white/10 rounded-xl px-3 py-2.5 text-on-surface font-semibold focus:border-primary outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-on-surface-variant font-medium mb-1">
-                    Mức tạ mục tiêu (Kg)
-                  </label>
-                  <input
-                    type="number"
-                    value={newExWeight}
-                    onChange={(e) => setNewExWeight(Number(e.target.value))}
-                    className="w-full bg-surface-bright border border-white/10 rounded-xl px-3 py-2.5 text-on-surface font-semibold focus:border-primary outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-on-surface-variant font-medium mb-1">
-                    Lịch tập trong tuần
-                  </label>
-                  <input
-                    type="text"
-                    value={newExDay}
-                    onChange={(e) => setNewExDay(e.target.value)}
-                    placeholder="Ví dụ: Thứ 2, Thứ 5"
-                    className="w-full bg-surface-bright border border-white/10 rounded-xl px-3 py-2.5 text-on-surface font-semibold focus:border-primary outline-none"
-                  />
-                </div>
-
-                <div className="flex items-end">
-                  <button
-                    onClick={handleAddExerciseToPlan}
-                    className="w-full bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1 cursor-pointer transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">add</span>
-                    Thêm Bài Tập
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Currently Assigned Exercises List */}
-            <div className="bento-card rounded-3xl p-6 md:p-8 border border-outline-variant/30 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-on-surface flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary">format_list_bulleted</span>
-                  Danh sách Giáo án Bài tập đã chỉ định ({assignedExercises.length})
-                </h3>
-
-                <button
-                  onClick={handleSaveWorkoutAssignment}
-                  disabled={saving}
-                  className="px-5 py-2.5 bg-primary text-dark-slate rounded-xl font-extrabold text-xs shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 transition-all flex items-center gap-1.5 cursor-pointer"
-                >
-                  <span className="material-symbols-outlined text-[18px]">save</span>
-                  {saving ? "Đang lưu..." : "Lưu & Giao Giáo Án Tập"}
-                </button>
-              </div>
-
-              {assignedExercises.length === 0 ? (
-                <p className="text-xs text-on-surface-variant italic py-4 text-center">
-                  Chưa có bài tập nào trong giáo án. Hãy dùng form trên để thêm bài tập!
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {assignedExercises.map((ex) => (
-                    <div
-                      key={ex.id}
-                      className="bg-surface-bright/40 rounded-2xl p-4 border border-white/10 flex items-center justify-between gap-4"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0">
-                          <span className="material-symbols-outlined">fitness_center</span>
-                        </div>
-
-                        <div>
-                          <h4 className="font-bold text-on-surface text-sm">{ex.name}</h4>
-                          <div className="flex items-center gap-2 text-xs text-on-surface-variant mt-0.5 font-medium">
-                            <span className="text-primary font-bold">{ex.sets} Hiệp</span> ×{" "}
-                            <span className="text-primary font-bold">{ex.reps} Lần</span> •{" "}
-                            <span>Mức tạ: {ex.weightInKg} kg</span>
-                            {ex.dayOfWeek && (
-                              <span className="bg-surface-bright px-2 py-0.5 rounded text-[10px]">
-                                {ex.dayOfWeek}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      <button
-                        onClick={() => handleRemoveExerciseFromPlan(ex.id)}
-                        className="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-500/10 transition-colors cursor-pointer"
-                        title="Xóa khỏi giáo án"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">delete</span>
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </section>
+        {/* Component 2: Tab 1 Giao Bài Tập */}
+        {activeSubTab === 'workout' && (
+          <StudentWorkoutTab
+            assignedExercises={assignedExercises}
+            newExName={newExName}
+            newExCategory={newExCategory}
+            newExSets={newExSets}
+            newExReps={newExReps}
+            newExWeight={newExWeight}
+            newExDay={newExDay}
+            saving={saving}
+            onOpenExerciseModal={() => setIsExerciseModalOpen(true)}
+            onExSetsChange={setNewExSets}
+            onExRepsChange={setNewExReps}
+            onExWeightChange={setNewExWeight}
+            onExDayChange={setNewExDay}
+            onAddExercise={handleAddExerciseToPlan}
+            onRemoveExercise={handleRemoveExerciseFromPlan}
+            onSaveWorkout={handleSaveWorkoutAssignment}
+          />
         )}
 
-        {/* Tab 2: Giao Thực Đơn & Target Calo (Nutrition Assignment) */}
-        {activeSubTab === "nutrition" && (
-          <section className="bento-card rounded-3xl p-6 md:p-8 border border-outline-variant/30 space-y-6">
-            <div className="flex items-center justify-between border-b border-white/5 pb-4">
-              <div>
-                <h3 className="text-lg font-bold text-on-surface flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary">local_fire_department</span>
-                  Thiết lập Mục tiêu Dinh dưỡng & Thực đơn
-                </h3>
-                <p className="text-xs text-on-surface-variant font-medium mt-0.5">
-                  Đặt mức Calo, Macros đạm/tinh bột/chất béo và mẫu thực đơn theo ngày cho học viên.
-                </p>
-              </div>
-
-              <button
-                onClick={handleSaveNutritionAssignment}
-                disabled={saving}
-                className="px-5 py-2.5 bg-primary text-dark-slate rounded-xl font-extrabold text-xs shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
-              >
-                <span className="material-symbols-outlined text-[18px]">save</span>
-                {saving ? "Đang lưu..." : "Lưu Targets & Thực Đơn"}
-              </button>
-            </div>
-
-            {/* Daily Macro Targets Inputs */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-              <div className="bg-surface-bright/30 p-4 rounded-2xl border border-white/5 space-y-1">
-                <label className="block text-on-surface-variant font-semibold">Target Calo (Kcal)</label>
-                <input
-                  type="number"
-                  value={targetCalories}
-                  onChange={(e) => setTargetCalories(Number(e.target.value))}
-                  className="w-full bg-surface-bright border border-white/10 rounded-xl px-3 py-2 text-on-surface font-extrabold text-lg text-primary focus:border-primary outline-none"
-                />
-              </div>
-
-              <div className="bg-surface-bright/30 p-4 rounded-2xl border border-white/5 space-y-1">
-                <label className="block text-on-surface-variant font-semibold">Protein (Grams)</label>
-                <input
-                  type="number"
-                  value={targetProtein}
-                  onChange={(e) => setTargetProtein(Number(e.target.value))}
-                  className="w-full bg-surface-bright border border-white/10 rounded-xl px-3 py-2 text-on-surface font-bold text-base focus:border-primary outline-none"
-                />
-              </div>
-
-              <div className="bg-surface-bright/30 p-4 rounded-2xl border border-white/5 space-y-1">
-                <label className="block text-on-surface-variant font-semibold">Carbs (Grams)</label>
-                <input
-                  type="number"
-                  value={targetCarbs}
-                  onChange={(e) => setTargetCarbs(Number(e.target.value))}
-                  className="w-full bg-surface-bright border border-white/10 rounded-xl px-3 py-2 text-on-surface font-bold text-base focus:border-primary outline-none"
-                />
-              </div>
-
-              <div className="bg-surface-bright/30 p-4 rounded-2xl border border-white/5 space-y-1">
-                <label className="block text-on-surface-variant font-semibold">Fat (Grams)</label>
-                <input
-                  type="number"
-                  value={targetFat}
-                  onChange={(e) => setTargetFat(Number(e.target.value))}
-                  className="w-full bg-surface-bright border border-white/10 rounded-xl px-3 py-2 text-on-surface font-bold text-base focus:border-primary outline-none"
-                />
-              </div>
-            </div>
-
-            {/* Prescribed Daily Meal Templates */}
-            <div className="space-y-4 pt-2">
-              <h4 className="font-bold text-on-surface text-sm flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-primary text-[18px]">menu_book</span>
-                Mẫu thực đơn các bữa trong ngày
-              </h4>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                <div className="space-y-1">
-                  <label className="block font-semibold text-on-surface-variant">Bữa Sáng</label>
-                  <textarea
-                    rows={3}
-                    value={breakfastText}
-                    onChange={(e) => setBreakfastText(e.target.value)}
-                    placeholder="Gợi ý: 3 Trứng ốp la + 2 lát bánh mì nguyên cám + 1 quả chuối"
-                    className="w-full bg-surface-bright border border-white/10 rounded-xl p-3 text-on-surface font-medium focus:border-primary outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block font-semibold text-on-surface-variant">Bữa Trưa</label>
-                  <textarea
-                    rows={3}
-                    value={lunchText}
-                    onChange={(e) => setLunchText(e.target.value)}
-                    placeholder="Gợi ý: 200g Ức gà áp chảo + 150g Cơm gạo lứt + Bông cải xanh"
-                    className="w-full bg-surface-bright border border-white/10 rounded-xl p-3 text-on-surface font-medium focus:border-primary outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block font-semibold text-on-surface-variant">Bữa Tối</label>
-                  <textarea
-                    rows={3}
-                    value={dinnerText}
-                    onChange={(e) => setDinnerText(e.target.value)}
-                    placeholder="Gợi ý: 200g Thăn bò nướng / Cá hồi + Salad xà lách sốt olive"
-                    className="w-full bg-surface-bright border border-white/10 rounded-xl p-3 text-on-surface font-medium focus:border-primary outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block font-semibold text-on-surface-variant">Bữa Phụ</label>
-                  <textarea
-                    rows={3}
-                    value={snackText}
-                    onChange={(e) => setSnackText(e.target.value)}
-                    placeholder="Gợi ý: 1 Muỗng Whey Protein + 30g Hạnh nhân / Sữa chua"
-                    className="w-full bg-surface-bright border border-white/10 rounded-xl p-3 text-on-surface font-medium focus:border-primary outline-none"
-                  />
-                </div>
-              </div>
-            </div>
-          </section>
+        {/* Component 3: Tab 2 Dinh Dưỡng & Thực Đơn 4 Bữa */}
+        {activeSubTab === 'nutrition' && (
+          <StudentNutritionTab
+            targetCalories={targetCalories}
+            targetProtein={targetProtein}
+            targetCarbs={targetCarbs}
+            targetFat={targetFat}
+            breakfastText={breakfastText}
+            lunchText={lunchText}
+            dinnerText={dinnerText}
+            snackText={snackText}
+            saving={saving}
+            onTargetCaloriesChange={setTargetCalories}
+            onTargetProteinChange={setTargetProtein}
+            onTargetCarbsChange={setTargetCarbs}
+            onTargetFatChange={setTargetFat}
+            onBreakfastTextChange={setBreakfastText}
+            onLunchTextChange={setLunchText}
+            onDinnerTextChange={setDinnerText}
+            onSnackTextChange={setSnackText}
+            onSaveNutrition={handleSaveNutritionAssignment}
+          />
         )}
 
-        {/* Tab 3: Chỉ Số InBody & Biểu Đồ Tiến Độ */}
-        {activeSubTab === "inbody" && (
-          <section className="space-y-6">
-            {/* InBody Summary Cards & Edit Action */}
-            <div className="bento-card rounded-3xl p-6 md:p-8 border border-outline-variant/30 space-y-5">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <h3 className="text-lg font-bold text-on-surface flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary">monitor_weight</span>
-                  Chỉ số thể hình InBody ({studentDetail.bodyMetrics?.updatedAt || 'Vừa cập nhật'})
-                </h3>
-
-                <button
-                  onClick={() => setIsEditingInBody(!isEditingInBody)}
-                  className="px-4 py-2 bg-primary/15 text-primary hover:bg-primary/25 border border-primary/30 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer self-start sm:self-auto"
-                >
-                  <span className="material-symbols-outlined text-[16px]">edit</span>
-                  {isEditingInBody ? "Hủy Sửa" : "Sửa Chỉ Số InBody"}
-                </button>
-              </div>
-
-              {/* Editable InBody Form */}
-              {isEditingInBody && (
-                <div className="bg-surface-bright/50 p-5 rounded-2xl border border-primary/40 space-y-4 animate-fadeIn">
-                  <h4 className="font-bold text-xs uppercase tracking-wider text-primary">
-                    Cập nhật đo lường InBody mới
-                  </h4>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-                    <div>
-                      <label className="block text-on-surface-variant font-medium mb-1">
-                        Cân nặng (kg)
-                      </label>
-                      <input
-                        type="number"
-                        step="0.1"
-                        value={inbodyWeight}
-                        onChange={(e) => setInbodyWeight(Number(e.target.value))}
-                        className="w-full bg-surface-bright border border-white/10 rounded-xl px-3 py-2 text-on-surface font-extrabold focus:border-primary outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-on-surface-variant font-medium mb-1">
-                        Chiều cao (cm)
-                      </label>
-                      <input
-                        type="number"
-                        value={inbodyHeight}
-                        onChange={(e) => setInbodyHeight(Number(e.target.value))}
-                        className="w-full bg-surface-bright border border-white/10 rounded-xl px-3 py-2 text-on-surface font-extrabold focus:border-primary outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-on-surface-variant font-medium mb-1">
-                        Tỷ lệ mỡ (%)
-                      </label>
-                      <input
-                        type="number"
-                        step="0.1"
-                        value={inbodyFat}
-                        onChange={(e) => setInbodyFat(Number(e.target.value))}
-                        className="w-full bg-surface-bright border border-white/10 rounded-xl px-3 py-2 text-on-surface font-extrabold focus:border-primary outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-on-surface-variant font-medium mb-1">
-                        Khối lượng cơ (kg)
-                      </label>
-                      <input
-                        type="number"
-                        step="0.1"
-                        value={inbodyMuscle}
-                        onChange={(e) => setInbodyMuscle(Number(e.target.value))}
-                        className="w-full bg-surface-bright border border-white/10 rounded-xl px-3 py-2 text-on-surface font-extrabold focus:border-primary outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end pt-2">
-                    <button
-                      onClick={handleSaveInBody}
-                      disabled={saving}
-                      className="px-6 py-2.5 bg-primary text-dark-slate rounded-xl font-extrabold text-xs shadow-[0_0_12px_rgba(102,200,28,0.4)] hover:bg-primary/90 cursor-pointer"
-                    >
-                      {saving ? "Đang lưu..." : "Lưu Chỉ Số InBody"}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Metrics Display Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-                <div className="bg-surface-bright/40 p-4 rounded-2xl border border-white/10">
-                  <span className="text-xs text-on-surface-variant block font-medium">Cân nặng</span>
-                  <strong className="text-xl font-extrabold text-primary">
-                    {studentDetail.bodyMetrics?.weightKg ?? 70} kg
-                  </strong>
-                </div>
-
-                <div className="bg-surface-bright/40 p-4 rounded-2xl border border-white/10">
-                  <span className="text-xs text-on-surface-variant block font-medium">Chiều cao</span>
-                  <strong className="text-xl font-extrabold text-on-surface">
-                    {studentDetail.bodyMetrics?.heightCm ?? 175} cm
-                  </strong>
-                </div>
-
-                <div className="bg-surface-bright/40 p-4 rounded-2xl border border-white/10">
-                  <span className="text-xs text-on-surface-variant block font-medium">Tỷ lệ mỡ</span>
-                  <strong className="text-xl font-extrabold text-amber-400">
-                    {studentDetail.bodyMetrics?.bodyFatPercent ?? 18}%
-                  </strong>
-                </div>
-
-                <div className="bg-surface-bright/40 p-4 rounded-2xl border border-white/10">
-                  <span className="text-xs text-on-surface-variant block font-medium">Khối lượng cơ</span>
-                  <strong className="text-xl font-extrabold text-blue-400">
-                    {studentDetail.bodyMetrics?.muscleMassKg ?? 32} kg
-                  </strong>
-                </div>
-              </div>
-            </div>
-
-            {/* Visual Interactive InBody Trend Chart */}
-            <div className="bento-card rounded-3xl p-6 md:p-8 border border-outline-variant/30 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <h3 className="text-lg font-bold text-on-surface flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary">show_chart</span>
-                  Biểu đồ tiến độ thay đổi theo thời gian
-                </h3>
-
-                {/* Metric Selector Buttons */}
-                <div className="flex items-center gap-1.5 bg-surface-bright/40 p-1 rounded-xl border border-white/10 self-start sm:self-auto">
-                  <button
-                    onClick={() => setChartMetric("weight")}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      chartMetric === "weight"
-                        ? "bg-primary text-dark-slate shadow-sm"
-                        : "text-on-surface-variant hover:text-on-surface"
-                    }`}
-                  >
-                    Cân nặng (kg)
-                  </button>
-
-                  <button
-                    onClick={() => setChartMetric("fat")}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      chartMetric === "fat"
-                        ? "bg-amber-400 text-dark-slate shadow-sm"
-                        : "text-on-surface-variant hover:text-on-surface"
-                    }`}
-                  >
-                    % Mỡ
-                  </button>
-
-                  <button
-                    onClick={() => setChartMetric("muscle")}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      chartMetric === "muscle"
-                        ? "bg-blue-400 text-dark-slate shadow-sm"
-                        : "text-on-surface-variant hover:text-on-surface"
-                    }`}
-                  >
-                    Cơ (kg)
-                  </button>
-                </div>
-              </div>
-
-              {/* Chart SVG Visualization */}
-              <div className="bg-surface-bright/20 p-6 rounded-2xl border border-white/10 space-y-4">
-                <div className="relative h-64 w-full flex items-end justify-between px-4 pt-8 pb-6 border-b border-white/10">
-                  {/* Grid Lines */}
-                  <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-20">
-                    <div className="border-b border-dashed border-white"></div>
-                    <div className="border-b border-dashed border-white"></div>
-                    <div className="border-b border-dashed border-white"></div>
-                  </div>
-
-                  {/* Render Columns / Trend Points */}
-                  {historyPoints.map((pt: InBodyHistoryPoint, idx: number) => {
-                    let val = pt.weightKg;
-                    let unit = "kg";
-                    let minVal = 70;
-                    let maxVal = 80;
-
-                    if (chartMetric === "fat") {
-                      val = pt.bodyFatPercent;
-                      unit = "%";
-                      minVal = 15;
-                      maxVal = 25;
-                    } else if (chartMetric === "muscle") {
-                      val = pt.muscleMassKg;
-                      unit = "kg";
-                      minVal = 30;
-                      maxVal = 36;
-                    }
-
-                    const heightPercent = Math.max(
-                      15,
-                      Math.min(95, Math.round(((val - minVal) / (maxVal - minVal)) * 100))
-                    );
-
-                    return (
-                      <div
-                        key={idx}
-                        className="flex flex-col items-center gap-2 z-10 group relative flex-1"
-                      >
-                        {/* Value Badge */}
-                        <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-md bg-surface-bright border border-white/10 shadow-sm opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all">
-                          {val} {unit}
-                        </span>
-
-                        {/* Visual Bar Indicator */}
-                        <div className="w-8 md:w-12 bg-surface-bright/50 rounded-t-xl overflow-hidden h-40 flex items-end justify-center p-1">
-                          <div
-                            className={`w-full rounded-t-lg transition-all duration-700 shadow-lg ${
-                              chartMetric === "weight"
-                                ? "bg-primary shadow-[0_0_12px_rgba(102,200,28,0.5)]"
-                                : chartMetric === "fat"
-                                ? "bg-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.5)]"
-                                : "bg-blue-400 shadow-[0_0_12px_rgba(96,165,250,0.5)]"
-                            }`}
-                            style={{ height: `${heightPercent}%` }}
-                          ></div>
-                        </div>
-
-                        {/* Date Label */}
-                        <span className="text-[11px] font-bold text-on-surface-variant">
-                          {pt.date}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {/* Interactive Before / After Comparison Slider & Photo Manager for PT */}
-            <TransformationJourneySlider
-              goal="LOSE_WEIGHT"
-              weightKg={studentDetail.inBody?.weightKg || 75}
-              targetWeightKg={70}
-              goalTextMap={{ LOSE_WEIGHT: 'Giảm mỡ & Tăng cơ' }}
-              studentId={studentId}
-              isPtView={true}
-            />
-          </section>
+        {/* Component 4: Tab 3 InBody & Tiến Độ */}
+        {activeSubTab === 'inbody' && (
+          <StudentInbodyTab
+            studentId={studentId}
+            inbodyWeight={inbodyWeight}
+            inbodyHeight={inbodyHeight}
+            inbodyFat={inbodyFat}
+            inbodyMuscle={inbodyMuscle}
+            chartMetric={chartMetric}
+            isEditingInBody={isEditingInBody}
+            historyPoints={historyPoints}
+            saving={saving}
+            onChartMetricChange={setChartMetric}
+            onToggleEditInBody={setIsEditingInBody}
+            onInbodyWeightChange={setInbodyWeight}
+            onInbodyHeightChange={setInbodyHeight}
+            onInbodyFatChange={setInbodyFat}
+            onInbodyMuscleChange={setInbodyMuscle}
+            onSaveInBody={handleSaveInBody}
+          />
         )}
 
-        {/* Modal Sửa Số Buổi & Gói Tập */}
-        {isEditSessionModalOpen && (
-          <div className="fixed inset-0 bg-dark-slate/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-            <div className="bento-card rounded-3xl p-6 md:p-8 max-w-md w-full border border-primary/30 space-y-6 shadow-2xl relative animate-fadeIn">
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary text-2xl">
-                    settings
-                  </span>
-                  <h3 className="text-xl font-bold text-on-surface">
-                    Sửa Số Buổi & Gói Tập
-                  </h3>
-                </div>
-                <button
-                  onClick={() => setIsEditSessionModalOpen(false)}
-                  className="text-on-surface-variant hover:text-white p-1 rounded-lg hover:bg-surface-bright"
-                >
-                  <span className="material-symbols-outlined">close</span>
-                </button>
-              </div>
+        {/* Component 5: Modal Sửa Số Buổi & Gói Tập */}
+        <EditSessionModal
+          isOpen={isEditSessionModalOpen}
+          packageName={editPackageName}
+          totalSessions={editTotalSessions}
+          remainingSessions={editRemainingSessions}
+          saving={saving}
+          onClose={() => setIsEditSessionModalOpen(false)}
+          onPackageNameChange={setEditPackageName}
+          onTotalSessionsChange={setEditTotalSessions}
+          onRemainingSessionsChange={setEditRemainingSessions}
+          onSaveSessions={handleSaveStudentSessions}
+        />
 
-              <div className="space-y-4 text-xs">
-                <div>
-                  <label className="block text-on-surface font-semibold mb-1">
-                    Gói tập PT
-                  </label>
-                  <input
-                    type="text"
-                    value={editPackageName}
-                    onChange={(e) => setEditPackageName(e.target.value)}
-                    className="w-full bg-surface-bright border border-white/10 rounded-xl px-4 py-3 text-on-surface font-semibold focus:border-primary outline-none"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-on-surface font-semibold mb-1">
-                      Tổng số buổi đăng ký
-                    </label>
-                    <input
-                      type="number"
-                      value={editTotalSessions}
-                      onChange={(e) => setEditTotalSessions(Number(e.target.value))}
-                      className="w-full bg-surface-bright border border-white/10 rounded-xl px-4 py-3 text-on-surface font-extrabold focus:border-primary outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-on-surface font-semibold mb-1">
-                      Số buổi còn lại
-                    </label>
-                    <input
-                      type="number"
-                      value={editRemainingSessions}
-                      onChange={(e) => setEditRemainingSessions(Number(e.target.value))}
-                      className="w-full bg-surface-bright border border-white/10 rounded-xl px-4 py-3 text-on-surface font-extrabold text-primary focus:border-primary outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="pt-3 flex justify-end gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setIsEditSessionModalOpen(false)}
-                    className="px-4 py-2.5 rounded-xl bg-surface-bright text-on-surface font-bold hover:bg-surface-bright/70"
-                  >
-                    Hủy
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSaveStudentSessions}
-                    disabled={saving}
-                    className="px-6 py-2.5 rounded-xl bg-primary text-dark-slate font-extrabold shadow-[0_0_12px_rgba(102,200,28,0.4)] hover:bg-primary/90 cursor-pointer"
-                  >
-                    {saving ? "Đang lưu..." : "Lưu Thay Đổi"}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Modal Chọn Bài Tập Từ Thư Viện CSDL Chung */}
+        <ExerciseSelectionModal
+          isOpen={isExerciseModalOpen}
+          onClose={() => setIsExerciseModalOpen(false)}
+          onSelectExercise={handleSelectExerciseFromModal}
+          currentSelectedName={newExName}
+        />
       </main>
 
       <PTBottomNavBar activeTab="students" />

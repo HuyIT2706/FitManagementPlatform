@@ -58,6 +58,27 @@ export class PtController {
     return this.ptService.updatePtProfile(req.user.sub, dto);
   }
 
+  @Get('students/requests')
+  async getPendingStudentRequests(@Request() req: RequestWithUser) {
+    return this.ptService.getPendingStudentRequests(req.user.sub);
+  }
+
+  @Post('students/requests/:id/approve')
+  async approveStudentRequest(
+    @Request() req: RequestWithUser,
+    @Param('id') requestId: string,
+  ) {
+    return this.ptService.approveStudentRequest(req.user.sub, requestId);
+  }
+
+  @Post('students/requests/:id/reject')
+  async rejectStudentRequest(
+    @Request() req: RequestWithUser,
+    @Param('id') requestId: string,
+  ) {
+    return this.ptService.rejectStudentRequest(req.user.sub, requestId);
+  }
+
   @Post('students/invite')
   async sendInvite(
     @Request() req: RequestWithUser,

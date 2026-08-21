@@ -35,6 +35,17 @@ export interface PTStudentSummary {
   lastWorkoutDate?: string;
 }
 
+export interface PTPendingStudentRequest {
+  id: string;
+  studentId: string;
+  studentName: string;
+  studentEmail: string;
+  studentPhone?: string;
+  studentAvatar?: string;
+  requestedAt: string;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+}
+
 export interface PTDashboardData {
   coachName: string;
   coachAvatar?: string;
@@ -44,6 +55,8 @@ export interface PTDashboardData {
   totalPackageSessionsCount: number;
   warningsCount: number;
   pendingMealCount: number;
+  pendingStudentRequestsCount?: number;
+  pendingStudentRequests?: PTPendingStudentRequest[];
   todaySessions: PTSessionItem[];
   pendingMeals: PTPendingMeal[];
   students: PTStudentSummary[];

@@ -5,9 +5,11 @@ import Header from '../../components/ui/Header';
 import PTBottomNavBar from '../../components/navigation/PTBottomNavBar';
 import apiClient from '../../api/axios';
 import type { UserDataHome, PTDashboardData } from '../../interface';
+import { toast } from '../../utils/toast';
 
 import PtWelcomeHeader from './home/components/PtWelcomeHeader';
 import PtBentoStats from './home/components/PtBentoStats';
+import PtPendingStudentRequests from './home/components/PtPendingStudentRequests';
 import PtScheduleList from './home/components/PtScheduleList';
 import PtPendingMeals from './home/components/PtPendingMeals';
 import PtStudentRosterQuick from './home/components/PtStudentRosterQuick';
@@ -21,7 +23,7 @@ export default function PTPage() {
   const [checkedSessions, setCheckedSessions] = useState<Record<string, boolean>>({});
   const [approvedMeals, setApprovedMeals] = useState<Record<string, boolean>>({});
 
-  useEffect(() => {
+  const fetchPtDashboard = () => {
     Promise.all([
       apiClient.get<UserDataHome>('/users/me'),
       apiClient.get<PTDashboardData>('/pt/dashboard'),
@@ -35,11 +37,26 @@ export default function PTPage() {
         console.error(err);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchPtDashboard();
   }, []);
 
   const handleCheckInSession = (sessionId: string) => {
     setCheckedSessions((prev) => ({ ...prev, [sessionId]: true }));
-    apiClient.post(`/pt/check-in/${sessionId}`).catch(console.error);
+    apiClient
+      .post<{ success: boolean; message: string; remainingSessions?: number }>(
+        `/pt/check-in/${sessionId}`,
+      )
+      .then((res) => {
+        toast.success(res.data.message || 'Đã check-in điểm danh thành công!');
+        fetchPtDashboard();
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error('Không thể check-in điểm danh!');
+      });
   };
 
   const handleApproveMeal = (mealId: string) => {
@@ -47,6 +64,32 @@ export default function PTPage() {
     apiClient
       .post(`/pt/approve-meal/${mealId}`, { note: feedbackTexts[mealId] || '' })
       .catch(console.error);
+  };
+
+  const handleApproveStudentRequest = (requestId: string) => {
+    apiClient
+      .post(`/pt/students/requests/${requestId}/approve`)
+      .then((res) => {
+        toast.success(res.data.message || 'Đã chấp nhận học viên!');
+        fetchPtDashboard();
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error('Không thể duyệt yêu cầu học viên!');
+      });
+  };
+
+  const handleRejectStudentRequest = (requestId: string) => {
+    apiClient
+      .post(`/pt/students/requests/${requestId}/reject`)
+      .then((res) => {
+        toast.success(res.data.message || 'Đã từ chối yêu cầu học viên!');
+        fetchPtDashboard();
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error('Không thể từ chối yêu cầu học viên!');
+      });
   };
 
   const handleLogout = () => {
@@ -72,31 +115,38 @@ export default function PTPage() {
         {/* Section 1: Welcome Header */}
         <PtWelcomeHeader
           coachName={coachName}
-          todaySessionsCount={ptData?.todaySessionsCount || 4}
-          pendingMealCount={ptData?.pendingMealCount || 2}
+          todaySessionsCount={ptData?.todaySessionsCount ?? 0}
+          pendingMealCount={ptData?.pendingMealCount ?? 0}
         />
 
         {/* Section 2: Bento Stats Bar */}
         <PtBentoStats
-          totalVipStudents={ptData?.totalVipStudents || 10}
-          todaySessionsCount={ptData?.todaySessionsCount || 4}
-          completedSessionsCount={ptData?.completedSessionsCount || 18}
-          totalPackageSessionsCount={ptData?.totalPackageSessionsCount || 24}
-          warningsCount={ptData?.warningsCount || 2}
+          totalVipStudents={ptData?.totalVipStudents ?? 0}
+          todaySessionsCount={ptData?.todaySessionsCount ?? 0}
+          completedSessionsCount={ptData?.completedSessionsCount ?? 0}
+          totalPackageSessionsCount={ptData?.totalPackageSessionsCount ?? 0}
+          warningsCount={ptData?.warningsCount ?? 0}
+        />
+
+        {/* Section 3: Pending Student Bind Requests */}
+        <PtPendingStudentRequests
+          requests={ptData?.pendingStudentRequests}
+          onApproveRequest={handleApproveStudentRequest}
+          onRejectRequest={handleRejectStudentRequest}
         />
 
         {/* Main Content Grid Split */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
           {/* Left Column: Schedule & Nutrition Review */}
           <div className="lg:col-span-8 space-y-gutter">
-            {/* Section 3: Today's PT Schedule */}
+            {/* Section 4: Today's PT Schedule */}
             <PtScheduleList
               sessions={ptData?.todaySessions}
               checkedSessions={checkedSessions}
               onCheckInSession={handleCheckInSession}
             />
 
-            {/* Section 4: Nutrition Review Pending */}
+            {/* Section 5: Nutrition Review Pending */}
             <PtPendingMeals
               meals={ptData?.pendingMeals}
               approvedMeals={approvedMeals}

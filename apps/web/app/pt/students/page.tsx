@@ -89,29 +89,16 @@ export default function PTStudentsPage() {
 
   const rawStudents = ptData?.students || [];
 
-  const studentsList: StudentListItem[] =
-    rawStudents.length > 0
-      ? rawStudents.map((s) => ({
-          id: s.id,
-          name: s.fullName,
-          pkg: s.packageName || 'Gói PT VIP 1-1',
-          remaining: s.remainingSessions,
-          total: s.totalSessions,
-          avatar:
-            s.avatarUrl ||
-            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-        }))
-      : [
-          {
-            id: 'std-101',
-            name: 'Bùi Văn Huy',
-            pkg: 'Gói PT VIP 1-1',
-            remaining: 8,
-            total: 12,
-            avatar:
-              'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-          },
-        ];
+  const studentsList: StudentListItem[] = rawStudents.map((s) => ({
+    id: s.id,
+    name: s.fullName,
+    pkg: s.packageName || 'Gói PT VIP 1-1',
+    remaining: s.remainingSessions,
+    total: s.totalSessions,
+    avatar:
+      s.avatarUrl ||
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+  }));
 
   return (
     <div className="min-h-screen bg-background pb-32 pt-2 md:pt-0 dark text-on-surface">

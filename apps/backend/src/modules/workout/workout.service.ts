@@ -26,8 +26,38 @@ export class WorkoutService {
     }
 
     if (muscle && muscle !== 'ALL') {
+      const lower = muscle.toLowerCase().trim();
+      let matchedMuscles: string[] = [muscle];
+
+      if (lower.includes('lưng') || lower.includes('xô')) {
+        matchedMuscles = [
+          'cơ lưng giữa',
+          'cơ lưng dưới',
+          'cơ xô',
+          'cơ cầu vai',
+          'cơ lưng',
+        ];
+      } else if (lower.includes('đùi') || lower.includes('mông')) {
+        matchedMuscles = [
+          'cơ đùi trước',
+          'cơ đùi sau',
+          'cơ mông',
+          'cơ khép (đùi trong)',
+          'bắp chân',
+          'cơ đùi',
+        ];
+      } else if (lower.includes('tay')) {
+        matchedMuscles = ['cơ tay trước', 'cơ tay sau', 'cẳng tay', 'cơ tay'];
+      } else if (lower.includes('ngực')) {
+        matchedMuscles = ['cơ ngực'];
+      } else if (lower.includes('vai')) {
+        matchedMuscles = ['cơ vai', 'cơ cầu vai'];
+      } else if (lower.includes('bụng') || lower.includes('core')) {
+        matchedMuscles = ['cơ bụng'];
+      }
+
       where.primaryMuscles = {
-        has: muscle,
+        hasSome: matchedMuscles,
       };
     }
 
