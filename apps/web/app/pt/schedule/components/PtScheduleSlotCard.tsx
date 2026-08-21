@@ -14,6 +14,7 @@ export interface ScheduleSlot {
   workoutName?: string;
   exercisesCount?: number;
   status?: 'ONGOING' | 'UPCOMING' | 'COMPLETED';
+  isCheckedIn?: boolean;
   isBusy: boolean;
 }
 
@@ -28,6 +29,7 @@ export default function PtScheduleSlotCard({
   isChecked,
   onCheckIn,
 }: PtScheduleSlotCardProps) {
+  const isSlotChecked = isChecked || slot.isCheckedIn || slot.status === 'COMPLETED';
   const avatar =
     slot.studentAvatar ||
     'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80';
@@ -48,7 +50,7 @@ export default function PtScheduleSlotCard({
         /* Busy Class Session Card */
         <div
           className={`bento-card rounded-2xl p-5 md:p-6 border-l-4 transition-all duration-300 space-y-4 ${
-            isChecked
+            isSlotChecked
               ? 'border-l-green-light border-green-light/40 bg-green-light/10'
               : slot.status === 'ONGOING'
                 ? 'border-l-primary border-primary/50 bg-primary/10 shadow-[0_0_20px_rgba(102,200,28,0.15)]'
@@ -121,15 +123,15 @@ export default function PtScheduleSlotCard({
             <button
               type="button"
               onClick={() => onCheckIn(slot.id)}
-              disabled={isChecked}
+              disabled={isSlotChecked}
               className={`w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                isChecked
+                isSlotChecked
                   ? 'bg-surface-bright text-green-light border border-green-light/40 cursor-default'
                   : 'bg-primary text-dark-slate hover:bg-primary/90 shadow-[0_0_12px_rgba(102,200,28,0.3)] active:scale-95'
               }`}
             >
-              <CheckCircle2 size={16} className={isChecked ? 'stroke-[2.5]' : ''} />
-              {isChecked ? 'Đã điểm danh trừ buổi' : 'Check-in Trừ Buổi'}
+              <CheckCircle2 size={16} className={isSlotChecked ? 'stroke-[2.5]' : ''} />
+              {isSlotChecked ? 'Đã điểm danh trừ buổi' : 'Check-in Trừ Buổi'}
             </button>
           </div>
         </div>

@@ -87,6 +87,22 @@ export class PtService {
       totalPackageSessionsCount - remainingSessionsSum,
     );
 
+    // Check today attendance history from DB
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const todayAttendanceLogs = await this.prisma.attendanceHistory.findMany({
+      where: {
+        checkInTime: { gte: startOfToday },
+        status: 'CHECKED_IN',
+      },
+      select: { studentId: true },
+    });
+
+    const checkedInStudentIds = new Set(
+      todayAttendanceLogs.map((a) => a.studentId),
+    );
+
     // Build today's sessions list from real student profiles
     const timeSlots = [
       '08:00 - 09:00',
@@ -99,6 +115,7 @@ export class PtService {
       .map((sp, idx) => {
         const student = sp.student;
         const pkg = student.userPackages?.[0];
+        const isCheckedIn = checkedInStudentIds.has(student.id);
 
         return {
           id: `session-${sp.id}`,
@@ -109,9 +126,9 @@ export class PtService {
             student.avatarUrl ||
             'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
           workoutName: 'Tập Lưng & Bụng Cá Nhân Hóa',
-          status: 'PENDING',
-          remainingSessions: pkg?.remainingSessions ?? 8,
-          totalSessions: pkg?.totalSessions ?? 12,
+          status: isCheckedIn ? 'CHECKED_IN' : 'PENDING',
+          remainingSessions: pkg?.remainingSessions ?? 0,
+          totalSessions: pkg?.totalSessions ?? 0,
         };
       });
 

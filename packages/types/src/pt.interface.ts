@@ -5,7 +5,7 @@ export interface PTSessionItem {
   studentName: string;
   studentAvatar?: string;
   workoutName: string;
-  status: "PENDING" | "COMPLETED" | "CANCELLED";
+  status: "PENDING" | "CHECKED_IN" | "COMPLETED" | "CANCELLED";
   remainingSessions: number;
   totalSessions: number;
 }

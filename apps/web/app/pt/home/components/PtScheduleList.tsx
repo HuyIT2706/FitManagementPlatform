@@ -17,7 +17,9 @@ export default function PtScheduleList({
 
       <div className="space-y-3">
         {sessionList.map((session: PTSessionItem) => {
-          const isChecked = Boolean(checkedSessions[session.id]);
+          const isChecked =
+            Boolean(checkedSessions[session.id]) ||
+            session.status === 'CHECKED_IN';
 
           return (
             <div

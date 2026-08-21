@@ -1,16 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Calendar, RotateCcw } from 'lucide-react';
+import { Calendar, RotateCcw, PlusCircle, CalendarX } from 'lucide-react';
 import Header from '../../../components/ui/Header';
 import PTBottomNavBar from '../../../components/navigation/PTBottomNavBar';
 import apiClient from '../../../api/axios';
 import type { UserDataHome, PTDashboardData } from '../../../interface';
+import type { PTSessionItem } from '@repo/types';
 import { getMonday, isSameDay } from '../../../utils/date';
 import { toast } from '../../../utils/toast';
 
 import PtScheduleWeekStrip from './components/PtScheduleWeekStrip';
 import PtScheduleSlotCard, { type ScheduleSlot } from './components/PtScheduleSlotCard';
+import AddScheduleModal from './components/AddScheduleModal';
 
 export default function PTSchedulePage() {
   const [userData, setUserData] = useState<UserDataHome | null>(null);
@@ -20,6 +22,9 @@ export default function PTSchedulePage() {
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
   const [currentMonday, setCurrentMonday] = useState<Date>(() => getMonday(new Date()));
   const [checkedSessions, setCheckedSessions] = useState<Record<string, boolean>>({});
+
+  const [customSessions, setCustomSessions] = useState<PTSessionItem[]>([]);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -48,6 +53,7 @@ export default function PTSchedulePage() {
       .post<{ message?: string }>(`/pt/check-in/${sessionId}`)
       .then((res) => {
         toast.success(res.data.message || 'Đã điểm danh học viên & trừ số buổi thành công!');
+        apiClient.get<PTDashboardData>('/pt/dashboard').then((ptRes) => setPtData(ptRes.data));
       })
       .catch((err) => {
         console.error(err);
@@ -61,6 +67,10 @@ export default function PTSchedulePage() {
     setCurrentMonday(getMonday(today));
   };
 
+  const handleAddCustomSession = (newSession: PTSessionItem) => {
+    setCustomSessions((prev) => [...prev, newSession]);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -71,101 +81,33 @@ export default function PTSchedulePage() {
 
   const isSelectedToday = isSameDay(selectedDate, new Date());
 
-  const liveSessions = ptData?.todaySessions || [];
+  const liveSessions = isSelectedToday ? ptData?.todaySessions || [] : [];
+  const allActiveSessions: PTSessionItem[] = [...liveSessions, ...customSessions];
 
-  // Timeline Schedule Data Slots (07:00 -> 20:00)
-  const timelineSlots: ScheduleSlot[] = [
-    {
-      id: 'slot-0700',
-      startTime: '07:00',
-      endTime: '08:00',
-      isBusy: false,
-    },
-    {
-      id: liveSessions[0]?.id || 'slot-0800',
-      startTime: liveSessions[0]?.timeSlot?.split(' - ')?.[0] || '08:00',
-      endTime: liveSessions[0]?.timeSlot?.split(' - ')?.[1] || '09:30',
-      studentName: liveSessions[0]?.studentName || 'Bùi Văn Huy',
-      studentAvatar:
-        liveSessions[0]?.studentAvatar ||
-        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-      packageName: 'Gói PT VIP 1-1',
-      sessionNumber: `Buổi ${liveSessions[0]?.remainingSessions ?? 8} / ${liveSessions[0]?.totalSessions ?? 12}`,
-      workoutName: liveSessions[0]?.workoutName || 'Legs & Glutes Power (Đùi & Mông)',
-      exercisesCount: 5,
-      status: 'ONGOING',
-      isBusy: true,
-    },
-    {
-      id: 'slot-0930',
-      startTime: '09:30',
-      endTime: '10:00',
-      isBusy: false,
-    },
-    {
-      id: liveSessions[1]?.id || 'slot-1000',
-      startTime: liveSessions[1]?.timeSlot?.split(' - ')?.[0] || '10:00',
-      endTime: liveSessions[1]?.timeSlot?.split(' - ')?.[1] || '11:30',
-      studentName: liveSessions[1]?.studentName || 'Nguyễn Văn A',
-      studentAvatar:
-        liveSessions[1]?.studentAvatar ||
-        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-      packageName: 'Gói PT Chuẩn',
-      sessionNumber: `Buổi ${liveSessions[1]?.remainingSessions ?? 5} / ${liveSessions[1]?.totalSessions ?? 10}`,
-      workoutName: liveSessions[1]?.workoutName || 'Chest & Triceps (Ngực & Tay sau)',
-      exercisesCount: 4,
-      status: 'UPCOMING',
-      isBusy: true,
-    },
-    {
-      id: 'slot-1130',
-      startTime: '11:30',
-      endTime: '14:00',
-      isBusy: false,
-    },
-    {
-      id: liveSessions[2]?.id || 'slot-1400',
-      startTime: liveSessions[2]?.timeSlot?.split(' - ')?.[0] || '14:00',
-      endTime: liveSessions[2]?.timeSlot?.split(' - ')?.[1] || '15:30',
-      studentName: liveSessions[2]?.studentName || 'Trần Thị B',
-      studentAvatar:
-        liveSessions[2]?.studentAvatar ||
-        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
-      packageName: 'Gói PT VIP 1-1',
-      sessionNumber: `Buổi ${liveSessions[2]?.remainingSessions ?? 12} / ${liveSessions[2]?.totalSessions ?? 36}`,
-      workoutName: liveSessions[2]?.workoutName || 'Full Body HIIT & Core (Toàn thân)',
-      exercisesCount: 6,
-      status: 'UPCOMING',
-      isBusy: true,
-    },
-    {
-      id: 'slot-1530',
-      startTime: '15:30',
-      endTime: '17:00',
-      isBusy: false,
-    },
-    {
-      id: liveSessions[3]?.id || 'slot-1700',
-      startTime: liveSessions[3]?.timeSlot?.split(' - ')?.[0] || '17:00',
-      endTime: liveSessions[3]?.timeSlot?.split(' - ')?.[1] || '18:30',
-      studentName: liveSessions[3]?.studentName || 'Lê Văn C',
-      studentAvatar:
-        liveSessions[3]?.studentAvatar ||
-        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
-      packageName: 'Gói PT Chuẩn',
-      sessionNumber: `Buổi ${liveSessions[3]?.remainingSessions ?? 2} / ${liveSessions[3]?.totalSessions ?? 12}`,
-      workoutName: liveSessions[3]?.workoutName || 'Back & Core Hypertrophy (Lưng xô)',
-      exercisesCount: 5,
-      status: 'UPCOMING',
-      isBusy: true,
-    },
-    {
-      id: 'slot-1830',
-      startTime: '18:30',
-      endTime: '20:00',
-      isBusy: false,
-    },
-  ];
+  const timelineSlots: ScheduleSlot[] = allActiveSessions
+    .map((session) => {
+      const times = session.timeSlot ? session.timeSlot.split(' - ') : ['08:00', '09:00'];
+      const isCheckedIn =
+        session.status === 'CHECKED_IN' || Boolean(checkedSessions[session.id]);
+
+      const statusVal: 'COMPLETED' | 'UPCOMING' = isCheckedIn ? 'COMPLETED' : 'UPCOMING';
+
+      return {
+        id: session.id,
+        startTime: times[0] || '08:00',
+        endTime: times[1] || '09:00',
+        studentName: session.studentName,
+        studentAvatar: session.studentAvatar,
+        packageName: 'Gói PT 1:1 VIP',
+        sessionNumber: `Buổi ${session.remainingSessions} / ${session.totalSessions}`,
+        workoutName: session.workoutName || 'Giáo Án Tập Luyện 1:1',
+        exercisesCount: 5,
+        status: statusVal,
+        isCheckedIn,
+        isBusy: true,
+      };
+    })
+    .sort((a, b) => a.startTime.localeCompare(b.startTime));
 
   return (
     <div className="min-h-screen bg-background pb-32 pt-2 md:pt-0 dark text-on-surface">
@@ -184,20 +126,31 @@ export default function PTSchedulePage() {
                 Lịch dạy học viên PT
               </h1>
               <p className="text-xs md:text-sm text-on-surface-variant mt-1 font-medium">
-                Theo dõi mốc thời gian các ca dạy, điểm danh trừ buổi và xếp lịch trống.
+                Quản lý các ca dạy thực tế, tự chọn khung giờ và điểm danh trừ buổi cho học viên.
               </p>
             </div>
 
-            {!isSelectedToday && (
+            <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-auto">
               <button
                 type="button"
-                onClick={handleGoToToday}
-                className="px-4 py-2 rounded-xl bg-primary/15 text-primary font-bold text-xs hover:bg-primary/25 transition-colors border border-primary/30 flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
+                onClick={() => setIsAddModalOpen(true)}
+                className="px-4 py-2.5 rounded-xl bg-primary text-dark-slate font-extrabold text-xs shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <RotateCcw size={15} />
-                Về Hôm nay
+                <PlusCircle size={16} />
+                Thêm Ca Dạy Mới
               </button>
-            )}
+
+              {!isSelectedToday && (
+                <button
+                  type="button"
+                  onClick={handleGoToToday}
+                  className="px-3.5 py-2.5 rounded-xl bg-surface-bright text-on-surface border border-white/10 font-bold text-xs hover:border-primary/40 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <RotateCcw size={15} />
+                  Hôm nay
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="absolute -right-12 -top-12 w-44 h-44 bg-primary/10 blur-[60px] rounded-full pointer-events-none"></div>
@@ -210,20 +163,52 @@ export default function PTSchedulePage() {
           onSelectDate={(d) => setSelectedDate(d)}
         />
 
-        {/* Timeline Schedule Axis (07:00 -> 20:00) */}
+        {/* Timeline Schedule Axis */}
         <section className="space-y-6 pt-2">
-          <div className="relative pl-6 md:pl-8 border-l-2 border-outline-variant/30 space-y-6">
-            {timelineSlots.map((slot) => (
-              <PtScheduleSlotCard
-                key={slot.id}
-                slot={slot}
-                isChecked={Boolean(checkedSessions[slot.id])}
-                onCheckIn={handleCheckIn}
-              />
-            ))}
-          </div>
+          {timelineSlots.length > 0 ? (
+            <div className="relative pl-6 md:pl-8 border-l-2 border-outline-variant/30 space-y-6">
+              {timelineSlots.map((slot) => (
+                <PtScheduleSlotCard
+                  key={slot.id}
+                  slot={slot}
+                  isChecked={Boolean(checkedSessions[slot.id])}
+                  onCheckIn={handleCheckIn}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="bento-card rounded-3xl p-8 text-center space-y-4 border border-outline-variant/30 flex flex-col items-center justify-center min-h-[220px]">
+              <div className="w-14 h-14 rounded-2xl bg-surface-bright border border-white/10 flex items-center justify-center text-on-surface-variant">
+                <CalendarX size={28} />
+              </div>
+              <div className="space-y-1 max-w-sm">
+                <h3 className="font-bold text-on-surface text-base">
+                  Chưa có ca dạy nào cho ngày này
+                </h3>
+                <p className="text-xs text-on-surface-variant">
+                  Hiện chưa có lịch xếp ca dạy cho học viên. Bạn có thể tự chọn khung giờ & xếp ca dạy mới ngay bên dưới.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAddModalOpen(true)}
+                className="px-5 py-2.5 rounded-xl bg-primary text-dark-slate font-extrabold text-xs shadow-[0_0_15px_rgba(102,200,28,0.3)] hover:bg-primary/90 transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
+              >
+                <PlusCircle size={16} />
+                Thêm Ca Dạy Cho Học Viên
+              </button>
+            </div>
+          )}
         </section>
       </main>
+
+      {/* Modal Thêm Ca Dạy Tùy Chỉnh Giờ & Chọn Học Viên */}
+      <AddScheduleModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        students={ptData?.students || []}
+        onAddSession={handleAddCustomSession}
+      />
 
       <PTBottomNavBar activeTab="schedule" />
     </div>
