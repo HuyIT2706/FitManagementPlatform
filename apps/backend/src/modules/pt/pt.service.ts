@@ -87,21 +87,21 @@ export class PtService {
       totalPackageSessionsCount - remainingSessionsSum,
     );
 
-    // Check today attendance history from DB
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
-
-    const todayAttendanceLogs = await this.prisma.attendanceHistory.findMany({
+    // Check attendance history from DB for all PT students
+    const studentIds = approvedProfiles.map((sp) => sp.studentId);
+    const attendanceLogs = await this.prisma.attendanceHistory.findMany({
       where: {
-        checkInTime: { gte: startOfToday },
+        studentId: { in: studentIds },
         status: 'CHECKED_IN',
       },
-      select: { studentId: true },
+      include: {
+        student: true,
+        memberPackage: true,
+      },
+      orderBy: { checkInTime: 'desc' },
     });
 
-    const checkedInStudentIds = new Set(
-      todayAttendanceLogs.map((a) => a.studentId),
-    );
+    const checkedInStudentIds = new Set(attendanceLogs.map((a) => a.studentId));
 
     // Build today's sessions list from real student profiles
     const timeSlots = [

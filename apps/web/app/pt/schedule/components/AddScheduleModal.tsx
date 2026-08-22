@@ -1,15 +1,29 @@
 'use client';
 
-import { useState } from 'react';
-import { Clock, Dumbbell, User, PlusCircle, X, ChevronDown, Check } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import {
+  Clock,
+  Dumbbell,
+  User,
+  PlusCircle,
+  X,
+  ChevronDown,
+  Check,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 import type { PTStudentSummary, PTSessionItem } from '@repo/types';
 import { toast } from '../../../../utils/toast';
+import { formatYYYYMMDD, formatDisplayDate, getCalendarMonthInfo } from '../../../../utils/date';
 
 interface AddScheduleModalProps {
   isOpen: boolean;
   onClose: () => void;
   students: PTStudentSummary[];
   onAddSession: (newSession: PTSessionItem) => void;
+  defaultStartTime?: string;
+  defaultDate?: Date;
 }
 
 const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
@@ -25,11 +39,16 @@ export default function AddScheduleModal({
   onClose,
   students,
   onAddSession,
+  defaultStartTime = '08:00',
+  defaultDate = new Date(),
 }: AddScheduleModalProps) {
   const [selectedStudentId, setSelectedStudentId] = useState<string>(
     students[0]?.id || ''
   );
-  const [startTime, setStartTime] = useState<string>('08:00');
+  const [sessionDate, setSessionDate] = useState<string>(() =>
+    formatYYYYMMDD(defaultDate)
+  );
+  const [startTime, setStartTime] = useState<string>(defaultStartTime);
   const [endTime, setEndTime] = useState<string>('09:00');
   const [workoutName, setWorkoutName] = useState<string>(
     'Tập Lưng & Bụng Cá Nhân Hóa'
@@ -38,6 +57,23 @@ export default function AddScheduleModal({
   const [isStudentDropdownOpen, setIsStudentDropdownOpen] = useState(false);
   const [isStartDropdownOpen, setIsStartDropdownOpen] = useState(false);
   const [isEndDropdownOpen, setIsEndDropdownOpen] = useState(false);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+
+  // Calendar navigation state
+  const [viewDate, setViewDate] = useState<Date>(() => defaultDate || new Date());
+
+  // Sync initial startTime and sessionDate when opening modal
+  useEffect(() => {
+    if (isOpen) {
+      const initDate = defaultDate || new Date();
+      setSessionDate(formatYYYYMMDD(initDate));
+      setViewDate(initDate);
+      setStartTime(defaultStartTime);
+      const startHour = parseInt(defaultStartTime.split(':')[0] || '8', 10);
+      const endHourStr = (startHour + 1).toString().padStart(2, '0');
+      setEndTime(`${endHourStr}:00`);
+    }
+  }, [isOpen, defaultStartTime, defaultDate]);
 
   if (!isOpen) return null;
 
@@ -65,15 +101,55 @@ export default function AddScheduleModal({
       status: 'PENDING',
       remainingSessions: studentObj.remainingSessions || 10,
       totalSessions: studentObj.totalSessions || 12,
+      scheduledDate: sessionDate,
     };
 
     onAddSession(newSession);
-    toast.success(`Đã thêm ca dạy thành công cho ${studentObj.fullName}!`);
+    toast.success(`Đã thêm ca dạy ngày ${sessionDate} cho ${studentObj.fullName}!`);
     onClose();
   };
 
   const selectedStudent =
     students.find((s) => s.id === selectedStudentId) || students[0];
+
+  // Calendar calculations from utils/date
+  const {
+    year,
+    month,
+    startDayOfWeek,
+    daysInMonth,
+    daysInPrevMonth,
+    monthName,
+  } = getCalendarMonthInfo(viewDate);
+
+  const displayDateStr = sessionDate
+    ? formatDisplayDate(new Date(sessionDate + 'T00:00:00'))
+    : 'Chọn ngày';
+
+  const todayISO = formatYYYYMMDD(new Date());
+
+  const handlePrevMonth = () => {
+    setViewDate(new Date(year, month - 1, 1));
+  };
+
+  const handleNextMonth = () => {
+    setViewDate(new Date(year, month + 1, 1));
+  };
+
+  const handleSelectDay = (d: number) => {
+    const selectedMonth = (month + 1).toString().padStart(2, '0');
+    const selectedDay = d.toString().padStart(2, '0');
+    setSessionDate(`${year}-${selectedMonth}-${selectedDay}`);
+    setIsDatePickerOpen(false);
+  };
+
+  const handleToday = () => {
+    const today = new Date();
+    const iso = formatYYYYMMDD(today);
+    setSessionDate(iso);
+    setViewDate(today);
+    setIsDatePickerOpen(false);
+  };
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
@@ -103,6 +179,128 @@ export default function AddScheduleModal({
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Custom Date Picker */}
+          <div className="relative space-y-1.5">
+            <label className="text-xs font-bold text-on-surface flex items-center gap-1.5">
+              <Calendar size={14} className="text-primary" />
+              Chọn Ngày Dạy
+            </label>
+
+            <button
+              type="button"
+              onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
+              className="w-full bg-surface-bright/50 border border-white/10 hover:border-primary/50 rounded-xl px-3.5 py-2.5 text-sm font-extrabold text-primary flex items-center justify-between transition-colors cursor-pointer"
+            >
+              <span>{displayDateStr}</span>
+              <ChevronDown
+                size={16}
+                className={`text-on-surface-variant transition-transform duration-200 ${
+                  isDatePickerOpen ? 'rotate-180 text-primary' : ''
+                }`}
+              />
+            </button>
+
+            {isDatePickerOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setIsDatePickerOpen(false)}
+                ></div>
+
+                <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-[#181d26] border border-primary/30 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.9)] p-4 space-y-3 animate-in fade-in zoom-in-95 duration-150">
+                  {/* Calendar Header */}
+                  <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                    <span className="text-xs font-extrabold text-white">
+                      {monthName}, {year}
+                    </span>
+
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={handlePrevMonth}
+                        className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-on-surface-variant hover:text-white transition-colors cursor-pointer"
+                      >
+                        <ChevronLeft size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleNextMonth}
+                        className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-on-surface-variant hover:text-white transition-colors cursor-pointer"
+                      >
+                        <ChevronRight size={16} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Days Grid */}
+                  <div>
+                    <div className="grid grid-cols-7 gap-1 text-center mb-1.5">
+                      {['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].map((dayName) => (
+                        <span key={dayName} className="text-[11px] font-extrabold text-primary/70">
+                          {dayName}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="grid grid-cols-7 gap-1 text-center">
+                      {/* Prev Month Padding */}
+                      {Array.from({ length: startDayOfWeek }).map((_, i) => {
+                        const dayNum = daysInPrevMonth - startDayOfWeek + i + 1;
+                        return (
+                          <span
+                            key={`prev-${i}`}
+                            className="py-1.5 text-xs text-white/20 font-medium select-none"
+                          >
+                            {dayNum}
+                          </span>
+                        );
+                      })}
+
+                      {/* Current Month Days */}
+                      {Array.from({ length: daysInMonth }).map((_, i) => {
+                        const d = i + 1;
+                        const monthStr = (month + 1).toString().padStart(2, '0');
+                        const dayStr = d.toString().padStart(2, '0');
+                        const cellISO = `${year}-${monthStr}-${dayStr}`;
+
+                        const isSelected = cellISO === sessionDate;
+                        const isToday = cellISO === todayISO;
+
+                        return (
+                          <button
+                            key={`day-${d}`}
+                            type="button"
+                            onClick={() => handleSelectDay(d)}
+                            className={`py-1.5 rounded-xl text-xs transition-all cursor-pointer ${
+                              isSelected
+                                ? 'bg-primary text-dark-slate font-extrabold shadow-[0_0_10px_rgba(102,200,28,0.4)]'
+                                : isToday
+                                  ? 'border border-primary text-primary font-bold bg-primary/10'
+                                  : 'text-white font-semibold hover:bg-white/10'
+                            }`}
+                          >
+                            {d}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Today Quick Action */}
+                  <div className="pt-2 border-t border-white/10 flex items-center justify-end">
+                    <button
+                      type="button"
+                      onClick={handleToday}
+                      className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
+                    >
+                      Hôm nay
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
           {/* Custom Select Student */}
           <div className="relative space-y-1.5">
             <label className="text-xs font-bold text-on-surface flex items-center gap-1.5">

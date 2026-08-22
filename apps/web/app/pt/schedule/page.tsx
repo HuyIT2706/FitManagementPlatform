@@ -81,7 +81,7 @@ export default function PTSchedulePage() {
 
   const isSelectedToday = isSameDay(selectedDate, new Date());
 
-  const liveSessions = isSelectedToday ? ptData?.todaySessions || [] : [];
+  const liveSessions = ptData?.todaySessions || [];
   const allActiveSessions: PTSessionItem[] = [...liveSessions, ...customSessions];
 
   const timelineSlots: ScheduleSlot[] = allActiveSessions
@@ -126,7 +126,7 @@ export default function PTSchedulePage() {
                 Lịch dạy học viên PT
               </h1>
               <p className="text-xs md:text-sm text-on-surface-variant mt-1 font-medium">
-                Quản lý các ca dạy thực tế, tự chọn khung giờ và điểm danh trừ buổi cho học viên.
+                Quản lý các ca dạy thực tế, lưu lịch sử ca dạy đã qua và điểm danh trừ buổi cho học viên.
               </p>
             </div>
 
@@ -161,9 +161,10 @@ export default function PTSchedulePage() {
           currentMonday={currentMonday}
           selectedDate={selectedDate}
           onSelectDate={(d) => setSelectedDate(d)}
+          activeSessionsCount={timelineSlots.length}
         />
 
-        {/* Timeline Schedule Axis */}
+        {/* Schedule Timeline Axis */}
         <section className="space-y-6 pt-2">
           {timelineSlots.length > 0 ? (
             <div className="relative pl-6 md:pl-8 border-l-2 border-outline-variant/30 space-y-6">
@@ -208,6 +209,7 @@ export default function PTSchedulePage() {
         onClose={() => setIsAddModalOpen(false)}
         students={ptData?.students || []}
         onAddSession={handleAddCustomSession}
+        defaultDate={selectedDate}
       />
 
       <PTBottomNavBar activeTab="schedule" />

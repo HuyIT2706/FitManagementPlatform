@@ -1,8 +1,8 @@
 // formats Date
 export const formatYYYYMMDD = (d: Date): string => {
   const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
 
@@ -33,4 +33,47 @@ export const getWeekDays = (monday: Date): Date[] => {
     day.setDate(monday.getDate() + i);
     return day;
   });
+};
+
+export const MONTH_NAMES_VI = [
+  'Tháng 1',
+  'Tháng 2',
+  'Tháng 3',
+  'Tháng 4',
+  'Tháng 5',
+  'Tháng 6',
+  'Tháng 7',
+  'Tháng 8',
+  'Tháng 9',
+  'Tháng 10',
+  'Tháng 11',
+  'Tháng 12',
+];
+
+export interface CalendarMonthInfo {
+  year: number;
+  month: number;
+  startDayOfWeek: number;
+  daysInMonth: number;
+  daysInPrevMonth: number;
+  monthName: string;
+}
+
+export const getCalendarMonthInfo = (viewDate: Date): CalendarMonthInfo => {
+  const year = viewDate.getFullYear();
+  const month = viewDate.getMonth();
+  const firstDayOfMonth = new Date(year, month, 1);
+  const startDayOfWeek = (firstDayOfMonth.getDay() + 6) % 7;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const daysInPrevMonth = new Date(year, month, 0).getDate();
+  const monthName = MONTH_NAMES_VI[month] || `Tháng ${month + 1}`;
+
+  return {
+    year,
+    month,
+    startDayOfWeek,
+    daysInMonth,
+    daysInPrevMonth,
+    monthName,
+  };
 };

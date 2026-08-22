@@ -8,6 +8,7 @@ export interface PTSessionItem {
   status: "PENDING" | "CHECKED_IN" | "COMPLETED" | "CANCELLED";
   remainingSessions: number;
   totalSessions: number;
+  scheduledDate?: string;
 }
 
 export interface PTPendingMeal {

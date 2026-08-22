@@ -6,12 +6,14 @@ interface PtScheduleWeekStripProps {
   currentMonday: Date;
   selectedDate: Date;
   onSelectDate: (date: Date) => void;
+  activeSessionsCount?: number;
 }
 
 export default function PtScheduleWeekStrip({
   currentMonday,
   selectedDate,
   onSelectDate,
+  activeSessionsCount = 0,
 }: PtScheduleWeekStripProps) {
   const weekDays = getWeekDays(currentMonday);
   const dayNamesMap = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
@@ -24,7 +26,9 @@ export default function PtScheduleWeekStrip({
           {selectedDayName}, Ngày {selectedDate.getDate()}/{selectedDate.getMonth() + 1}/
           {selectedDate.getFullYear()}
         </h3>
-        <span className="text-xs font-semibold text-primary">4 ca dạy đã đăng ký</span>
+        <span className="text-xs font-semibold text-primary">
+          {activeSessionsCount > 0 ? `${activeSessionsCount} ca dạy đã đăng ký` : 'Chưa có ca dạy'}
+        </span>
       </div>
 
       {/* Weekday Chips */}
