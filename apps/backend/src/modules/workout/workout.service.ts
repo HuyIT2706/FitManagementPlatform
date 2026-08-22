@@ -99,13 +99,48 @@ export class WorkoutService {
         },
         nutritionTargets: {
           orderBy: { effectiveDate: 'desc' },
-          take: 1,
+          take: 5,
         },
       },
     });
 
     const trainer = user?.studentProfiles?.[0]?.trainer;
     const latestTarget = user?.nutritionTargets?.[0];
+    const targetWithPrescribed = user?.nutritionTargets?.find(
+      (t) => t.prescribedMealPlan && t.prescribedMealPlan.trim() !== '',
+    );
+
+    const mealPlanJson =
+      latestTarget?.prescribedMealPlan ||
+      targetWithPrescribed?.prescribedMealPlan;
+
+    if (!mealPlanJson) {
+      return null;
+    }
+
+    let prescribed: {
+      breakfast?: string;
+      lunch?: string;
+      dinner?: string;
+      snack?: string;
+      note?: string;
+    } | null = null;
+
+    try {
+      prescribed = JSON.parse(mealPlanJson) as {
+        breakfast?: string;
+        lunch?: string;
+        dinner?: string;
+        snack?: string;
+        note?: string;
+      };
+    } catch {
+      return null;
+    }
+
+    if (!prescribed) {
+      return null;
+    }
 
     const coachName = trainer
       ? `Coach ${trainer.fullName}`
@@ -126,37 +161,78 @@ export class WorkoutService {
     const dinnerKcal = Math.round(targetKcal * 0.3);
     const snackKcal = Math.round(targetKcal * 0.1);
 
+    const extractKcal = (text: string, defaultKcal: number): number => {
+      if (!text) return defaultKcal;
+      const matches = [...text.matchAll(/(\d+(?:\.\d+)?)\s*kcal/gi)];
+      if (matches.length > 0) {
+        const sum = matches.reduce(
+          (acc, m) => acc + Math.round(Number(m[1])),
+          0,
+        );
+        if (sum > 0) return sum;
+      }
+      return defaultKcal;
+    };
+
+    const meals: Array<{
+      name: string;
+      kcal: number;
+      description: string;
+      icon: string;
+    }> = [];
+
+    if (prescribed.breakfast && prescribed.breakfast.trim() !== '') {
+      meals.push({
+        name: 'Bữa Sáng',
+        kcal: extractKcal(prescribed.breakfast, breakfastKcal),
+        description: prescribed.breakfast.trim(),
+        icon: 'wb_twilight',
+      });
+    }
+
+    if (prescribed.lunch && prescribed.lunch.trim() !== '') {
+      meals.push({
+        name: 'Bữa Trưa',
+        kcal: extractKcal(prescribed.lunch, lunchKcal),
+        description: prescribed.lunch.trim(),
+        icon: 'wb_sunny',
+      });
+    }
+
+    if (prescribed.dinner && prescribed.dinner.trim() !== '') {
+      meals.push({
+        name: 'Bữa Tối',
+        kcal: extractKcal(prescribed.dinner, dinnerKcal),
+        description: prescribed.dinner.trim(),
+        icon: 'nights_stay',
+      });
+    }
+
+    if (prescribed.snack && prescribed.snack.trim() !== '') {
+      meals.push({
+        name: 'Bữa Phụ',
+        kcal: extractKcal(prescribed.snack, snackKcal),
+        description: prescribed.snack.trim(),
+        icon: 'local_cafe',
+      });
+    }
+
+    if (meals.length === 0) {
+      return null;
+    }
+
+    const defaultAdvice = `Mục tiêu hằng ngày: ${targetKcal} kcal (Protein: ${targetProtein}g, Carb: ${targetCarbs}g, Fat: ${targetFat}g). Nhớ ăn đúng khẩu phần và uống đủ 2.5L nước!`;
+    const totalPrescribedKcal = meals.reduce((acc, m) => acc + m.kcal, 0);
+
     return {
       coachName,
       coachAvatar,
-      coachAdvice: `Mục tiêu hằng ngày: ${targetKcal} kcal (Protein: ${targetProtein}g, Carb: ${targetCarbs}g, Fat: ${targetFat}g). Nhớ ăn đúng khẩu phần và uống đủ 2.5L nước!`,
-      meals: [
-        {
-          name: 'Bữa Sáng',
-          kcal: breakfastKcal,
-          description: `Bữa sáng dinh dưỡng (~${breakfastKcal} kcal) • Protein: ${Math.round(targetProtein * 0.25)}g`,
-          icon: 'wb_twilight',
-        },
-        {
-          name: 'Bữa Trưa',
-          kcal: lunchKcal,
-          description: `Bữa trưa chính năng lượng (~${lunchKcal} kcal) • Carb & Protein hợp lý`,
-          icon: 'wb_sunny',
-        },
-        {
-          name: 'Bữa Tối',
-          kcal: dinnerKcal,
-          description: `Bữa tối nhẹ nhàng phục hồi cơ (~${dinnerKcal} kcal) • Tăng cường chất xơ`,
-          icon: 'nights_stay',
-        },
-        {
-          name: 'Bữa Phụ',
-          kcal: snackKcal,
-          description: `Bữa phụ bổ sung Whey/Trái cây (~${snackKcal} kcal)`,
-          icon: 'local_cafe',
-        },
-      ],
-      totalKcal: targetKcal,
+      coachAdvice:
+        prescribed.note && prescribed.note.trim() !== ''
+          ? prescribed.note.trim()
+          : defaultAdvice,
+      meals,
+      totalKcal: totalPrescribedKcal,
       targetKcal,
     };
   }
@@ -172,7 +248,7 @@ export class WorkoutService {
         },
         workoutSchedules: {
           orderBy: { scheduledDate: 'desc' },
-          take: 1,
+          take: 5,
           include: {
             exercises: {
               include: {
@@ -185,42 +261,109 @@ export class WorkoutService {
     });
 
     const trainer = user?.studentProfiles?.[0]?.trainer;
-    const latestSchedule = user?.workoutSchedules?.[0];
+    let targetSchedule = user?.workoutSchedules?.find(
+      (s) =>
+        (s.exercises && s.exercises.length > 0) ||
+        (s.note && s.note.startsWith('[')),
+    );
+
+    if (
+      !targetSchedule &&
+      user?.workoutSchedules &&
+      user.workoutSchedules.length > 0
+    ) {
+      targetSchedule = user.workoutSchedules[0];
+    }
+
+    if (!targetSchedule) {
+      return null;
+    }
 
     const coachName = trainer
       ? `Coach ${trainer.fullName}`
       : 'Coach Bùi Văn Huy';
     const coachAvatar = trainer?.avatarUrl || undefined;
 
-    const exercises = (latestSchedule?.exercises || []).map((se) => {
-      const ex = se.exercise as {
-        name?: string;
-        category?: string;
-        instructions?: string[];
-        setupImageUrl?: string;
-        startImageUrl?: string;
-      } | null;
+    let exercises: Array<{
+      id: string;
+      name: string;
+      category: string;
+      sets: number;
+      reps: number;
+      weightInKg: number;
+      instructions?: string[];
+      setupImageUrl?: string;
+      startImageUrl?: string;
+      dayOfWeek?: string;
+    }> = [];
 
-      return {
-        id: se.id,
-        name: ex?.name || 'Bài tập 1:1',
-        category: ex?.category || 'FULL_BODY',
-        sets: se.sets,
-        reps: se.reps,
-        weightInKg: se.weight || 0,
-        instructions: ex?.instructions || [],
-        setupImageUrl: ex?.setupImageUrl || undefined,
-        startImageUrl: ex?.startImageUrl || undefined,
-      };
-    });
+    if (targetSchedule.exercises && targetSchedule.exercises.length > 0) {
+      exercises = targetSchedule.exercises.map((se) => {
+        const ex = se.exercise as {
+          name?: string;
+          category?: string;
+          instructions?: string[];
+          setupImageUrl?: string;
+          startImageUrl?: string;
+        } | null;
+
+        return {
+          id: se.id,
+          name: ex?.name || 'Bài tập 1:1',
+          category: ex?.category || 'FULL_BODY',
+          sets: se.sets,
+          reps: se.reps,
+          weightInKg: se.weight || 0,
+          instructions: ex?.instructions || [],
+          setupImageUrl: ex?.setupImageUrl || undefined,
+          startImageUrl: ex?.startImageUrl || undefined,
+          dayOfWeek: 'Thứ 2 - 4 - 6',
+        };
+      });
+    } else if (targetSchedule.note) {
+      try {
+        const parsed: unknown = JSON.parse(targetSchedule.note);
+        if (Array.isArray(parsed)) {
+          exercises = parsed.map((item: Record<string, unknown>) => ({
+            id: typeof item.id === 'string' ? item.id : `ex-${Date.now()}`,
+            name: typeof item.name === 'string' ? item.name : 'Bài tập 1:1',
+            category:
+              typeof item.category === 'string' ? item.category : 'FULL_BODY',
+            sets: Number(item.sets) || 3,
+            reps: Number(item.reps) || 12,
+            weightInKg: Number(item.weightInKg) || 0,
+            instructions: [],
+            setupImageUrl:
+              typeof item.setupImageUrl === 'string'
+                ? item.setupImageUrl
+                : typeof item.imageUrl === 'string'
+                  ? item.imageUrl
+                  : undefined,
+            startImageUrl:
+              typeof item.startImageUrl === 'string'
+                ? item.startImageUrl
+                : undefined,
+            dayOfWeek:
+              typeof item.dayOfWeek === 'string' ? item.dayOfWeek : undefined,
+          }));
+        }
+      } catch {
+        // note is regular string
+      }
+    }
+
+    if (exercises.length === 0) {
+      return null;
+    }
 
     return {
       coachName,
       coachAvatar,
-      scheduleTitle: latestSchedule?.title || 'Lịch Tập 1:1 Cá Nhân Hóa',
+      scheduleTitle: targetSchedule.title || 'Lịch Tập 1:1 Cá Nhân Hóa',
       note:
-        latestSchedule?.note ||
-        'Tập trung chuẩn phom dáng và đẩy tạ đúng biên độ.',
+        targetSchedule.note && !targetSchedule.note.startsWith('[')
+          ? targetSchedule.note
+          : '',
       exercisesCount: exercises.length,
       exercises,
     };

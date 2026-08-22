@@ -4,11 +4,11 @@
 import { Dumbbell, CheckCircle2, UserCheck, Flame } from 'lucide-react';
 import type { AssignedWorkoutPlanCardProps } from '../../../interface';
 
-export default function AssignedWorkoutPlanCard({
+const AssignedWorkoutPlanCard = ({
   assignedWorkoutPlan,
   checkedExercises,
   onToggleExerciseCheck,
-}: AssignedWorkoutPlanCardProps) {
+}: AssignedWorkoutPlanCardProps) => {
   if (!assignedWorkoutPlan || assignedWorkoutPlan.exercises.length === 0) {
     return null;
   }
@@ -55,6 +55,7 @@ export default function AssignedWorkoutPlanCard({
         <div className="space-y-3">
           {exercises.map((ex) => {
             const isDone = Boolean(checkedExercises[ex.id]);
+            const imageSrc = ex.setupImageUrl || ex.startImageUrl || (ex as { imageUrl?: string }).imageUrl;
 
             return (
               <div
@@ -66,13 +67,21 @@ export default function AssignedWorkoutPlanCard({
                 }`}
               >
                 <div className="flex items-center gap-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-surface-bright border border-white/10 flex items-center justify-center shrink-0">
-                    <Dumbbell size={18} className="text-primary" />
+                  <div className="w-12 h-12 rounded-2xl overflow-hidden border border-white/15 shrink-0 bg-surface-bright/80 flex items-center justify-center">
+                    {imageSrc ? (
+                      <img
+                        src={imageSrc}
+                        alt={ex.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <Dumbbell size={20} className="text-primary" />
+                    )}
                   </div>
                   <div>
-                    <h5 className="font-bold text-sm">{ex.name}</h5>
+                    <h5 className="font-bold text-sm text-on-surface">{ex.name}</h5>
                     <span className="text-xs text-on-surface-variant font-medium">
-                      {ex.sets} Set × {ex.reps} Reps {ex.weightInKg > 0 ? `• ${ex.weightInKg}kg` : ''}
+                      {ex.sets} Set × {ex.reps} Reps
                     </span>
                   </div>
                 </div>
@@ -95,4 +104,6 @@ export default function AssignedWorkoutPlanCard({
       </div>
     </div>
   );
-}
+};
+
+export default AssignedWorkoutPlanCard;

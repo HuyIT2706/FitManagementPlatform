@@ -4,10 +4,14 @@
 import { Sunrise, Sun, Moon, Cookie, UtensilsCrossed } from 'lucide-react';
 import type { AssignedMealPlanCardProps } from '../../../interface';
 
-export default function AssignedMealPlanCard({
+const AssignedMealPlanCard = ({
   assignedMealPlan,
   ptName,
-}: AssignedMealPlanCardProps) {
+}: AssignedMealPlanCardProps) => {
+  if (!assignedMealPlan || !assignedMealPlan.meals || assignedMealPlan.meals.length === 0) {
+    return null;
+  }
+
   const getMealIcon = (iconName?: string) => {
     switch (iconName) {
       case 'wb_twilight':
@@ -15,27 +19,16 @@ export default function AssignedMealPlanCard({
       case 'wb_sunny':
         return <Sun size={20} className="text-orange-400" />;
       case 'dark_mode':
+      case 'nights_stay':
         return <Moon size={20} className="text-indigo-400" />;
       case 'icecream':
+      case 'local_cafe':
       default:
         return <Cookie size={20} className="text-emerald-400" />;
     }
   };
 
-  const meals = assignedMealPlan?.meals || [
-    {
-      name: 'Bữa Sáng',
-      kcal: 450,
-      description: '3 Trứng ốp la + 100g Yến mạch',
-      icon: 'wb_twilight',
-    },
-    {
-      name: 'Bữa Trưa',
-      kcal: 650,
-      description: '200g Ức gà + 150g Gạo lứt',
-      icon: 'wb_sunny',
-    },
-  ];
+  const meals = assignedMealPlan.meals;
 
   const totalKcal = assignedMealPlan?.totalKcal || 1100;
   const targetKcal = assignedMealPlan?.targetKcal || 1734;
@@ -77,17 +70,19 @@ export default function AssignedMealPlanCard({
           {meals.map((meal, index) => (
             <div
               key={index}
-              className="flex items-center gap-4 bg-surface-bright/30 p-3.5 rounded-2xl border border-white/5"
+              className="flex items-start gap-4 bg-surface-bright/30 p-4 rounded-2xl border border-white/5"
             >
-              <div className="w-11 h-11 rounded-xl bg-orange-400/10 border border-orange-400/20 flex items-center justify-center text-orange-400 shrink-0">
+              <div className="w-11 h-11 rounded-xl bg-orange-400/10 border border-orange-400/20 flex items-center justify-center text-orange-400 shrink-0 mt-0.5">
                 {getMealIcon(meal.icon)}
               </div>
-              <div className="grow">
+              <div className="grow space-y-1">
                 <div className="flex justify-between items-center">
                   <h4 className="font-bold text-on-surface text-base">{meal.name}</h4>
                   <span className="text-green-light font-bold text-xs">{meal.kcal} kcal</span>
                 </div>
-                <p className="text-xs text-on-surface-variant mt-0.5">{meal.description}</p>
+                <p className="text-xs text-on-surface-variant whitespace-pre-line leading-relaxed font-medium">
+                  {meal.description}
+                </p>
               </div>
             </div>
           ))}
@@ -113,4 +108,6 @@ export default function AssignedMealPlanCard({
       </div>
     </div>
   );
-}
+};
+
+export default AssignedMealPlanCard;

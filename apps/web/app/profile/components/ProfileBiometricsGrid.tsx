@@ -11,7 +11,6 @@ export default function ProfileBiometricsGrid({
   bmi,
   bmr,
   tdee,
-  activityLabel,
 }: ProfileBiometricsGridProps) {
   const bmiCategory =
     bmi < 18.5 ? 'Thiếu cân' : bmi < 24.9 ? 'Bình thường' : 'Thừa cân';
@@ -97,14 +96,8 @@ export default function ProfileBiometricsGrid({
             <Flame size={22} className="text-orange-400 fill-orange-400/20" />
           </div>
           <div>
-            <div className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">
-              TDEE 
-            </div>
             <div className="text-xl font-bold text-orange-400">
               {tdee} <span className="text-xs font-normal text-white/70">kcal/ngày</span>
-            </div>
-            <div className="text-[11px] text-on-surface-variant font-medium mt-0.5">
-              {activityLabel}
             </div>
           </div>
         </div>

@@ -37,11 +37,12 @@ export default function PTStudentDetailPage({
   // Workout assignment local state
   const [assignedExercises, setAssignedExercises] = useState<AssignedExerciseItem[]>([]);
   const [isExerciseModalOpen, setIsExerciseModalOpen] = useState(false);
+  const [newExId, setNewExId] = useState('');
   const [newExName, setNewExName] = useState('');
   const [newExCategory, setNewExCategory] = useState('');
+  const [newExImage, setNewExImage] = useState('');
   const [newExSets, setNewExSets] = useState(0);
   const [newExReps, setNewExReps] = useState(0);
-  const [newExWeight, setNewExWeight] = useState(0);
   const [newExDay, setNewExDay] = useState('');
 
   // Nutrition assignment local state
@@ -53,6 +54,7 @@ export default function PTStudentDetailPage({
   const [lunchText, setLunchText] = useState('');
   const [dinnerText, setDinnerText] = useState('');
   const [snackText, setSnackText] = useState('');
+  const [nutritionNote, setNutritionNote] = useState('');
 
   // InBody Edit local state
   const [isEditingInBody, setIsEditingInBody] = useState(false);
@@ -100,6 +102,7 @@ export default function PTStudentDetailPage({
           setLunchText(studentRes.data.prescribedMealPlan.lunch || '');
           setDinnerText(studentRes.data.prescribedMealPlan.dinner || '');
           setSnackText(studentRes.data.prescribedMealPlan.snack || '');
+          setNutritionNote(studentRes.data.prescribedMealPlan.note || '');
         }
         setLoading(false);
       })
@@ -115,8 +118,10 @@ export default function PTStudentDetailPage({
   };
 
   const handleSelectExerciseFromModal = (ex: ExerciseItem) => {
+    setNewExId(ex.id);
     setNewExName(ex.name);
     setNewExCategory(ex.category || 'LEGS');
+    setNewExImage(ex.setupImageUrl || ex.startImageUrl || '');
     setNewExSets(4);
     setNewExReps(10);
     toast.success(`Đã chọn bài tập: ${ex.name}`);
@@ -129,20 +134,23 @@ export default function PTStudentDetailPage({
     }
     const newItem: AssignedExerciseItem = {
       id: `ae-${Date.now()}`,
-      exerciseId: `ex-${Date.now()}`,
+      exerciseId: newExId || `ex-${Date.now()}`,
       name: newExName,
       category: newExCategory,
+      imageUrl: newExImage,
+      setupImageUrl: newExImage,
       sets: Number(newExSets) || 3,
       reps: Number(newExReps) || 12,
-      weightInKg: Number(newExWeight) || 0,
+      weightInKg: 0,
       dayOfWeek: newExDay,
     };
     setAssignedExercises((prev) => [...prev, newItem]);
+    setNewExId('');
     setNewExName('');
     setNewExCategory('');
+    setNewExImage('');
     setNewExSets(0);
     setNewExReps(0);
-    setNewExWeight(0);
     setNewExDay('');
     toast.info('Đã thêm bài tập vào danh sách giáo án!');
   };
@@ -165,7 +173,7 @@ export default function PTStudentDetailPage({
       .catch((err) => {
         console.error(err);
         setSaving(false);
-        toast.error('Không thể giao giáo án tập luyện!');
+        toast.error('Không thể lưu giáo án. Vui lòng thử lại!');
       });
   };
 
@@ -183,6 +191,7 @@ export default function PTStudentDetailPage({
           lunch: lunchText,
           dinner: dinnerText,
           snack: snackText,
+          note: nutritionNote,
         },
       })
       .then(() => {
@@ -355,13 +364,11 @@ export default function PTStudentDetailPage({
             newExCategory={newExCategory}
             newExSets={newExSets}
             newExReps={newExReps}
-            newExWeight={newExWeight}
             newExDay={newExDay}
             saving={saving}
             onOpenExerciseModal={() => setIsExerciseModalOpen(true)}
             onExSetsChange={setNewExSets}
             onExRepsChange={setNewExReps}
-            onExWeightChange={setNewExWeight}
             onExDayChange={setNewExDay}
             onAddExercise={handleAddExerciseToPlan}
             onRemoveExercise={handleRemoveExerciseFromPlan}
@@ -380,6 +387,7 @@ export default function PTStudentDetailPage({
             lunchText={lunchText}
             dinnerText={dinnerText}
             snackText={snackText}
+            nutritionNote={nutritionNote}
             saving={saving}
             onTargetCaloriesChange={setTargetCalories}
             onTargetProteinChange={setTargetProtein}
@@ -389,6 +397,7 @@ export default function PTStudentDetailPage({
             onLunchTextChange={setLunchText}
             onDinnerTextChange={setDinnerText}
             onSnackTextChange={setSnackText}
+            onNutritionNoteChange={setNutritionNote}
             onSaveNutrition={handleSaveNutritionAssignment}
           />
         )}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, StickyNote } from 'lucide-react';
 import type { FoodItem } from '@repo/types';
 import PtFoodSelectionModal from './PtFoodSelectionModal';
 
@@ -14,6 +14,7 @@ interface StudentNutritionTabProps {
   lunchText: string;
   dinnerText: string;
   snackText: string;
+  nutritionNote: string;
   saving: boolean;
   onTargetCaloriesChange: (val: number) => void;
   onTargetProteinChange: (val: number) => void;
@@ -23,6 +24,7 @@ interface StudentNutritionTabProps {
   onLunchTextChange: (val: string) => void;
   onDinnerTextChange: (val: string) => void;
   onSnackTextChange: (val: string) => void;
+  onNutritionNoteChange: (val: string) => void;
   onSaveNutrition: () => void;
 }
 
@@ -35,6 +37,7 @@ const StudentNutritionTab = ({
   lunchText,
   dinnerText,
   snackText,
+  nutritionNote,
   saving,
   onTargetCaloriesChange,
   onTargetProteinChange,
@@ -44,6 +47,7 @@ const StudentNutritionTab = ({
   onLunchTextChange,
   onDinnerTextChange,
   onSnackTextChange,
+  onNutritionNoteChange,
   onSaveNutrition,
 }: StudentNutritionTabProps) => {
   const [isFoodModalOpen, setIsFoodModalOpen] = useState(false);
@@ -85,7 +89,7 @@ const StudentNutritionTab = ({
     <section className="space-y-6">
       {/* Target Macros Settings */}
       <div className="bento-card rounded-3xl p-6 md:p-8 border border-outline-variant/30 space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h3 className="text-lg font-bold text-on-surface flex items-center gap-2">
               <span className="material-symbols-outlined text-primary">restaurant_menu</span>
@@ -100,7 +104,7 @@ const StudentNutritionTab = ({
             type="button"
             onClick={onSaveNutrition}
             disabled={saving}
-            className="px-5 py-2.5 rounded-xl bg-primary text-dark-slate font-extrabold text-xs flex items-center gap-1.5 shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 cursor-pointer transition-all disabled:opacity-50"
+            className="px-5 py-2.5 rounded-xl bg-primary text-dark-slate font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 cursor-pointer transition-all disabled:opacity-50"
           >
             <span className="material-symbols-outlined text-[18px]">save</span>
             {saving ? 'Đang lưu...' : 'Lưu Targets & Thực Đơn'}
@@ -109,7 +113,7 @@ const StudentNutritionTab = ({
 
         {/* Macro Inputs */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-          <div className="p-4 rounded-2xl bg-surface-bright/30 border border-white/10 space-y-1.5">
+          <div className="p-4 rounded-2xl bg-surface-bright/40 border border-white/10 space-y-1.5 hover:border-primary/30 transition-all">
             <span className="font-semibold text-on-surface-variant">Target Calo (Kcal)</span>
             <input
               type="number"
@@ -118,11 +122,11 @@ const StudentNutritionTab = ({
               onChange={(e) =>
                 onTargetCaloriesChange(e.target.value === '' ? 0 : Number(e.target.value))
               }
-              className="w-full bg-black/40 border border-primary/40 rounded-xl px-3 py-2 text-primary font-extrabold text-base outline-none focus:border-primary"
+              className="w-full bg-surface-bright/60 border border-primary/40 rounded-xl px-3 py-2 text-primary font-extrabold text-base outline-none focus:border-primary focus:bg-surface-bright transition-all"
             />
           </div>
 
-          <div className="p-4 rounded-2xl bg-surface-bright/30 border border-white/10 space-y-1.5">
+          <div className="p-4 rounded-2xl bg-surface-bright/40 border border-white/10 space-y-1.5 hover:border-amber-400/30 transition-all">
             <span className="font-semibold text-amber-400">Protein (Grams)</span>
             <input
               type="number"
@@ -131,11 +135,11 @@ const StudentNutritionTab = ({
               onChange={(e) =>
                 onTargetProteinChange(e.target.value === '' ? 0 : Number(e.target.value))
               }
-              className="w-full bg-black/40 border border-amber-400/40 rounded-xl px-3 py-2 text-amber-400 font-extrabold text-base outline-none focus:border-amber-400"
+              className="w-full bg-surface-bright/60 border border-amber-400/40 rounded-xl px-3 py-2 text-amber-400 font-extrabold text-base outline-none focus:border-amber-400 focus:bg-surface-bright transition-all"
             />
           </div>
 
-          <div className="p-4 rounded-2xl bg-surface-bright/30 border border-white/10 space-y-1.5">
+          <div className="p-4 rounded-2xl bg-surface-bright/40 border border-white/10 space-y-1.5 hover:border-blue-400/30 transition-all">
             <span className="font-semibold text-blue-400">Carbs (Grams)</span>
             <input
               type="number"
@@ -144,11 +148,11 @@ const StudentNutritionTab = ({
               onChange={(e) =>
                 onTargetCarbsChange(e.target.value === '' ? 0 : Number(e.target.value))
               }
-              className="w-full bg-black/40 border border-blue-400/40 rounded-xl px-3 py-2 text-blue-400 font-extrabold text-base outline-none focus:border-blue-400"
+              className="w-full bg-surface-bright/60 border border-blue-400/40 rounded-xl px-3 py-2 text-blue-400 font-extrabold text-base outline-none focus:border-blue-400 focus:bg-surface-bright transition-all"
             />
           </div>
 
-          <div className="p-4 rounded-2xl bg-surface-bright/30 border border-white/10 space-y-1.5">
+          <div className="p-4 rounded-2xl bg-surface-bright/40 border border-white/10 space-y-1.5 hover:border-rose-400/30 transition-all">
             <span className="font-semibold text-rose-400">Fat (Grams)</span>
             <input
               type="number"
@@ -157,9 +161,27 @@ const StudentNutritionTab = ({
               onChange={(e) =>
                 onTargetFatChange(e.target.value === '' ? 0 : Number(e.target.value))
               }
-              className="w-full bg-black/40 border border-rose-400/40 rounded-xl px-3 py-2 text-rose-400 font-extrabold text-base outline-none focus:border-rose-400"
+              className="w-full bg-surface-bright/60 border border-rose-400/40 rounded-xl px-3 py-2 text-rose-400 font-extrabold text-base outline-none focus:border-rose-400 focus:bg-surface-bright transition-all"
             />
           </div>
+        </div>
+
+        {/* Coach Advice / Note Section */}
+        <div className="p-4 rounded-2xl bg-surface-bright/30 border border-white/10 space-y-2 hover:border-white/20 transition-all">
+          <div className="flex items-center justify-between">
+            <label className="font-extrabold text-primary flex items-center gap-1.5 text-xs">
+              <StickyNote size={15} />
+              Ghi Chú & Lời Dặn Dò Của HLV (Hiển thị nổi bật cho Học Viên)
+            </label>
+            <span className="text-[11px] text-on-surface-variant">Tùy chọn</span>
+          </div>
+          <textarea
+            rows={2}
+            value={nutritionNote}
+            onChange={(e) => onNutritionNoteChange(e.target.value)}
+            placeholder="Ví dụ: Nhớ uống đủ 2.5L nước mỗi ngày, ăn chậm nhai kỹ và hạn chế nạp tinh bột nhanh sau 20h tối..."
+            className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-primary/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all text-xs"
+          />
         </div>
 
         {/* 4 Meal Slots Prescribed Plan */}
@@ -172,13 +194,13 @@ const StudentNutritionTab = ({
               Phân Chia Thực Đơn Chi Tiết 4 Bữa (Lưu vào CSDL)
             </h4>
             <span className="text-xs text-white/50 hidden sm:inline">
-              Bấm &quot;+ Chọn món từ CSDL&quot; để tính toán Macro tự động
+              Bấm &quot;+ Chọn món CSDL&quot; để tính toán Macro tự động
             </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
             {/* Breakfast */}
-            <div className="p-4 rounded-2xl bg-surface-bright/30 border border-white/10 space-y-2.5">
+            <div className="p-4 rounded-2xl bg-surface-bright/30 border border-white/10 space-y-2.5 hover:border-amber-400/30 transition-all">
               <div className="flex items-center justify-between">
                 <label className="font-extrabold text-amber-400 flex items-center gap-1.5 text-xs">
                   <span className="material-symbols-outlined text-[16px]">wb_twilight</span>
@@ -198,12 +220,12 @@ const StudentNutritionTab = ({
                 value={breakfastText}
                 onChange={(e) => onBreakfastTextChange(e.target.value)}
                 placeholder="Ví dụ: + 100g Yến mạch (389 kcal)&#10;+ 2 Quả trứng luộc..."
-                className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-on-surface placeholder-white/30 focus:border-primary outline-none resize-none font-medium leading-relaxed"
+                className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-amber-400/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all"
               />
             </div>
 
             {/* Lunch */}
-            <div className="p-4 rounded-2xl bg-surface-bright/30 border border-white/10 space-y-2.5">
+            <div className="p-4 rounded-2xl bg-surface-bright/30 border border-white/10 space-y-2.5 hover:border-yellow-400/30 transition-all">
               <div className="flex items-center justify-between">
                 <label className="font-extrabold text-yellow-400 flex items-center gap-1.5 text-xs">
                   <span className="material-symbols-outlined text-[16px]">wb_sunny</span>
@@ -223,12 +245,12 @@ const StudentNutritionTab = ({
                 value={lunchText}
                 onChange={(e) => onLunchTextChange(e.target.value)}
                 placeholder="Ví dụ: + 150g Ức gà áp chảo (248 kcal)&#10;+ 150g Cơm gạo lứt..."
-                className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-on-surface placeholder-white/30 focus:border-primary outline-none resize-none font-medium leading-relaxed"
+                className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-yellow-400/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all"
               />
             </div>
 
             {/* Dinner */}
-            <div className="p-4 rounded-2xl bg-surface-bright/30 border border-white/10 space-y-2.5">
+            <div className="p-4 rounded-2xl bg-surface-bright/30 border border-white/10 space-y-2.5 hover:border-blue-400/30 transition-all">
               <div className="flex items-center justify-between">
                 <label className="font-extrabold text-blue-400 flex items-center gap-1.5 text-xs">
                   <span className="material-symbols-outlined text-[16px]">nights_stay</span>
@@ -248,12 +270,12 @@ const StudentNutritionTab = ({
                 value={dinnerText}
                 onChange={(e) => onDinnerTextChange(e.target.value)}
                 placeholder="Ví dụ: + 150g Thăn bò nướng (375 kcal)&#10;+ 150g Khoai lang..."
-                className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-on-surface placeholder-white/30 focus:border-primary outline-none resize-none font-medium leading-relaxed"
+                className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-blue-400/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all"
               />
             </div>
 
             {/* Snack */}
-            <div className="p-4 rounded-2xl bg-surface-bright/30 border border-white/10 space-y-2.5">
+            <div className="p-4 rounded-2xl bg-surface-bright/30 border border-white/10 space-y-2.5 hover:border-emerald-400/30 transition-all">
               <div className="flex items-center justify-between">
                 <label className="font-extrabold text-emerald-400 flex items-center gap-1.5 text-xs">
                   <span className="material-symbols-outlined text-[16px]">local_cafe</span>
@@ -273,7 +295,7 @@ const StudentNutritionTab = ({
                 value={snackText}
                 onChange={(e) => onSnackTextChange(e.target.value)}
                 placeholder="Ví dụ: + 30g Whey Protein (120 kcal)&#10;+ 1 Quả chuối chín..."
-                className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-on-surface placeholder-white/30 focus:border-primary outline-none resize-none font-medium leading-relaxed"
+                className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-emerald-400/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all"
               />
             </div>
           </div>

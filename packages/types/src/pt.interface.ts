@@ -65,7 +65,7 @@ export interface PTDashboardData {
 
 export interface AssignedExerciseItem {
   id: string;
-  exerciseId: string;
+  exerciseId?: string;
   name: string;
   category: string;
   sets: number;
@@ -73,6 +73,9 @@ export interface AssignedExerciseItem {
   weightInKg: number;
   restSeconds?: number;
   dayOfWeek?: string;
+  imageUrl?: string;
+  setupImageUrl?: string;
+  startImageUrl?: string;
 }
 
 export interface InBodyHistoryPoint {
@@ -110,6 +113,7 @@ export interface PTStudentDetail {
     lunch?: string;
     dinner?: string;
     snack?: string;
+    note?: string;
   };
   beforeAfterPhotos?: {
     beforeUrl?: string;
@@ -140,9 +144,10 @@ export interface AssignWorkoutDto {
   title?: string;
   note?: string;
   exercises?: {
-    exerciseId: string;
+    id?: string;
+    exerciseId?: string;
     name: string;
-    category: string;
+    category?: string;
     sets: number;
     reps: number;
     weightInKg: number;
@@ -165,6 +170,7 @@ export interface AssignNutritionDto {
     lunch: string;
     dinner: string;
     snack?: string;
+    note?: string;
   };
 }
 

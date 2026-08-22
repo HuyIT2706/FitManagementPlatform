@@ -326,11 +326,22 @@ export class PtService {
         },
         nutritionTargets: {
           orderBy: { effectiveDate: 'desc' },
-          take: 1,
+          take: 5,
         },
         userPackages: {
           where: { isActive: true },
           take: 1,
+        },
+        workoutSchedules: {
+          orderBy: { scheduledDate: 'desc' },
+          take: 1,
+          include: {
+            exercises: {
+              include: {
+                exercise: true,
+              },
+            },
+          },
         },
       },
     });
@@ -343,12 +354,87 @@ export class PtService {
 
     const latestMetric = student.bodyMetrics?.[0];
     const latestTarget = student.nutritionTargets?.[0];
+    const targetWithPrescribed = student.nutritionTargets?.find(
+      (t) => t.prescribedMealPlan && t.prescribedMealPlan.trim() !== '',
+    );
+    const mealPlanJson =
+      latestTarget?.prescribedMealPlan ||
+      targetWithPrescribed?.prescribedMealPlan;
     const pkg = student.userPackages?.[0];
+    const latestSchedule = student.workoutSchedules?.[0];
 
     const beforePhoto = student.progressPhotos.find((p) => p.tag === 'BEFORE');
     const afterPhoto = student.progressPhotos.find(
       (p) => p.tag === 'AFTER' || p.tag === 'FRONT',
     );
+
+    let assignedExercises: Array<{
+      id: string;
+      exerciseId?: string;
+      name: string;
+      category: string;
+      sets: number;
+      reps: number;
+      weightInKg: number;
+      dayOfWeek?: string;
+      imageUrl?: string;
+      setupImageUrl?: string;
+      startImageUrl?: string;
+    }> = [];
+
+    if (latestSchedule?.exercises && latestSchedule.exercises.length > 0) {
+      assignedExercises = latestSchedule.exercises.map((se) => ({
+        id: se.id,
+        exerciseId: se.exerciseLibraryId,
+        name: se.exercise?.name || 'Bài tập',
+        category: se.exercise?.category || 'FULL_BODY',
+        sets: se.sets,
+        reps: se.reps,
+        weightInKg: se.weight || 0,
+        dayOfWeek: 'Thứ 2 - 4 - 6',
+        imageUrl:
+          se.exercise?.setupImageUrl || se.exercise?.startImageUrl || undefined,
+        setupImageUrl: se.exercise?.setupImageUrl || undefined,
+        startImageUrl: se.exercise?.startImageUrl || undefined,
+      }));
+    } else if (latestSchedule?.note) {
+      try {
+        const parsed: unknown = JSON.parse(latestSchedule.note);
+        if (Array.isArray(parsed)) {
+          assignedExercises = parsed.map((item: Record<string, unknown>) => ({
+            id: typeof item.id === 'string' ? item.id : `ex-${Date.now()}`,
+            exerciseId:
+              typeof item.exerciseId === 'string' ? item.exerciseId : undefined,
+            name: typeof item.name === 'string' ? item.name : 'Bài tập',
+            category:
+              typeof item.category === 'string' ? item.category : 'FULL_BODY',
+            sets: Number(item.sets) || 3,
+            reps: Number(item.reps) || 12,
+            weightInKg: Number(item.weightInKg) || 0,
+            dayOfWeek:
+              typeof item.dayOfWeek === 'string'
+                ? item.dayOfWeek
+                : 'Thứ 2 - 4 - 6',
+            imageUrl:
+              typeof item.imageUrl === 'string'
+                ? item.imageUrl
+                : typeof item.setupImageUrl === 'string'
+                  ? item.setupImageUrl
+                  : undefined,
+            setupImageUrl:
+              typeof item.setupImageUrl === 'string'
+                ? item.setupImageUrl
+                : undefined,
+            startImageUrl:
+              typeof item.startImageUrl === 'string'
+                ? item.startImageUrl
+                : undefined,
+          }));
+        }
+      } catch {
+        // regular note
+      }
+    }
 
     return {
       id: student.id,
@@ -362,6 +448,7 @@ export class PtService {
       packageName: pkg ? 'Gói PT 1:1 VIP' : 'Gói Tiêu chuẩn',
       remainingSessions: pkg?.remainingSessions ?? 0,
       totalSessions: pkg?.totalSessions ?? 0,
+      assignedExercises,
       inBody: {
         weightKg: latestMetric?.weight ?? student.targetWeight ?? 0,
         heightCm: student.height ?? 0,
@@ -398,15 +485,17 @@ export class PtService {
         carbsGrams: latestTarget?.targetCarbs ?? 0,
         fatGrams: latestTarget?.targetFat ?? 0,
       },
-      prescribedMealPlan: latestTarget?.prescribedMealPlan
-        ? (JSON.parse(latestTarget.prescribedMealPlan) as {
+      prescribedMealPlan: mealPlanJson
+        ? (JSON.parse(mealPlanJson) as {
             breakfast?: string;
             lunch?: string;
             dinner?: string;
             snack?: string;
+            note?: string;
           })
         : undefined,
-      currentWorkoutTitle: 'Lịch Tập Tăng Cơ Cá Nhân Hóa',
+      currentWorkoutTitle:
+        latestSchedule?.title || 'Lịch Tập Tăng Cơ Cá Nhân Hóa',
     };
   }
 
@@ -455,16 +544,40 @@ export class PtService {
 
   async assignWorkoutToStudent(dto: AssignWorkoutDto) {
     if (dto.studentId) {
-      await this.prisma.workoutSchedule.create({
+      const schedule = await this.prisma.workoutSchedule.create({
         data: {
           studentId: dto.studentId,
           title: dto.title ? String(dto.title) : 'Lịch Tập 1:1 Cá Nhân Hóa',
           scheduledDate: new Date(),
-          note: dto.note
-            ? String(dto.note)
-            : 'Tập đúng phom dáng và đảm bảo đủ số reps.',
+          note:
+            dto.exercises && dto.exercises.length > 0
+              ? JSON.stringify(dto.exercises)
+              : dto.note
+                ? String(dto.note)
+                : 'Tập đúng phom dáng và đảm bảo đủ số reps.',
         },
       });
+
+      if (Array.isArray(dto.exercises) && dto.exercises.length > 0) {
+        for (const item of dto.exercises) {
+          const exLib = await this.prisma.exerciseLibrary.findFirst({
+            where: {
+              OR: [{ id: item.exerciseId }, { name: item.name }],
+            },
+          });
+          if (exLib) {
+            await this.prisma.scheduleExercise.create({
+              data: {
+                workoutScheduleId: schedule.id,
+                exerciseLibraryId: exLib.id,
+                sets: Number(item.sets) || 3,
+                reps: Number(item.reps) || 12,
+                weight: Number(item.weightInKg) || 0,
+              },
+            });
+          }
+        }
+      }
     }
 
     return {
