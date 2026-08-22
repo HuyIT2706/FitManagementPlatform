@@ -4,7 +4,7 @@ import { UserPlus, Mail, Copy, Check, X } from 'lucide-react';
 import type { PtInviteModalProps } from '../../../../interface';
 import { useState } from 'react';
 
-export default function PtInviteStudentModal({
+const PtInviteStudentModal = ({
   isOpen,
   studentEmail,
   packageName,
@@ -17,7 +17,7 @@ export default function PtInviteStudentModal({
   onTotalSessionsChange,
   onSendInvite,
   onCopyInviteUrl,
-}: PtInviteModalProps) {
+}: PtInviteModalProps) => {
   const [copied, setCopied] = useState(false);
 
   if (!isOpen) return null;
@@ -103,8 +103,13 @@ export default function PtInviteStudentModal({
                 type="number"
                 min={1}
                 required
-                value={totalSessions}
-                onChange={(e) => onTotalSessionsChange(Number(e.target.value) || 12)}
+                placeholder="12"
+                value={totalSessions === 0 ? '' : totalSessions}
+                onChange={(e) =>
+                  onTotalSessionsChange(
+                    e.target.value === '' ? 0 : Number(e.target.value)
+                  )
+                }
                 className="w-full bg-white/[0.05] border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white focus:border-primary outline-none font-bold text-primary"
               />
             </div>
@@ -155,4 +160,6 @@ export default function PtInviteStudentModal({
       </div>
     </div>
   );
-}
+};
+
+export default PtInviteStudentModal;

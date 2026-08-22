@@ -13,7 +13,7 @@ interface EditSessionModalProps {
   onSaveSessions: () => void;
 }
 
-export default function EditSessionModal({
+const EditSessionModal = ({
   isOpen,
   packageName,
   totalSessions,
@@ -24,7 +24,7 @@ export default function EditSessionModal({
   onTotalSessionsChange,
   onRemainingSessionsChange,
   onSaveSessions,
-}: EditSessionModalProps) {
+}: EditSessionModalProps) => {
   if (!isOpen) return null;
 
   return (
@@ -68,8 +68,11 @@ export default function EditSessionModal({
               </label>
               <input
                 type="number"
-                value={totalSessions}
-                onChange={(e) => onTotalSessionsChange(Number(e.target.value))}
+                placeholder="0"
+                value={totalSessions === 0 ? '' : totalSessions}
+                onChange={(e) =>
+                  onTotalSessionsChange(e.target.value === '' ? 0 : Number(e.target.value))
+                }
                 className="w-full bg-surface-bright border border-white/10 rounded-xl px-4 py-3 text-on-surface font-extrabold focus:border-primary outline-none"
               />
             </div>
@@ -80,8 +83,11 @@ export default function EditSessionModal({
               </label>
               <input
                 type="number"
-                value={remainingSessions}
-                onChange={(e) => onRemainingSessionsChange(Number(e.target.value))}
+                placeholder="0"
+                value={remainingSessions === 0 ? '' : remainingSessions}
+                onChange={(e) =>
+                  onRemainingSessionsChange(e.target.value === '' ? 0 : Number(e.target.value))
+                }
                 className="w-full bg-surface-bright border border-white/10 rounded-xl px-4 py-3 text-on-surface font-extrabold text-primary focus:border-primary outline-none"
               />
             </div>
@@ -108,4 +114,6 @@ export default function EditSessionModal({
       </div>
     </div>
   );
-}
+};
+
+export default EditSessionModal;

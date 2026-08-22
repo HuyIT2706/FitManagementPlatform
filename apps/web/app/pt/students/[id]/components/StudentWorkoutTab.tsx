@@ -21,7 +21,7 @@ interface StudentWorkoutTabProps {
   onSaveWorkout: () => void;
 }
 
-export default function StudentWorkoutTab({
+const StudentWorkoutTab = ({
   assignedExercises,
   newExName,
   newExSets,
@@ -37,7 +37,7 @@ export default function StudentWorkoutTab({
   onAddExercise,
   onRemoveExercise,
   onSaveWorkout,
-}: StudentWorkoutTabProps) {
+}: StudentWorkoutTabProps) => {
   return (
     <section className="space-y-6">
       {/* Add Exercise Form Card */}
@@ -72,20 +72,26 @@ export default function StudentWorkoutTab({
             </label>
             <input
               type="number"
-              value={newExSets}
-              onChange={(e) => onExSetsChange(Number(e.target.value))}
+              placeholder="0"
+              value={newExSets === 0 ? '' : newExSets}
+              onChange={(e) =>
+                onExSetsChange(e.target.value === '' ? 0 : Number(e.target.value))
+              }
               className="w-full bg-surface-bright border border-white/10 rounded-xl px-3 py-2.5 text-on-surface font-semibold focus:border-primary outline-none"
             />
           </div>
 
           <div>
             <label className="block text-on-surface-variant font-medium mb-1">
-              Số lần / Hiệp (Reps)
+              Reps
             </label>
             <input
               type="number"
-              value={newExReps}
-              onChange={(e) => onExRepsChange(Number(e.target.value))}
+              placeholder="0"
+              value={newExReps === 0 ? '' : newExReps}
+              onChange={(e) =>
+                onExRepsChange(e.target.value === '' ? 0 : Number(e.target.value))
+              }
               className="w-full bg-surface-bright border border-white/10 rounded-xl px-3 py-2.5 text-on-surface font-semibold focus:border-primary outline-none"
             />
           </div>
@@ -96,8 +102,11 @@ export default function StudentWorkoutTab({
             </label>
             <input
               type="number"
-              value={newExWeight}
-              onChange={(e) => onExWeightChange(Number(e.target.value))}
+              placeholder="0"
+              value={newExWeight === 0 ? '' : newExWeight}
+              onChange={(e) =>
+                onExWeightChange(e.target.value === '' ? 0 : Number(e.target.value))
+              }
               className="w-full bg-surface-bright border border-white/10 rounded-xl px-3 py-2.5 text-on-surface font-semibold focus:border-primary outline-none"
             />
           </div>
@@ -195,4 +204,6 @@ export default function StudentWorkoutTab({
       </div>
     </section>
   );
-}
+};
+
+export default StudentWorkoutTab;

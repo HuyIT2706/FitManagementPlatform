@@ -22,7 +22,7 @@ interface StudentInbodyTabProps {
   onSaveInBody: () => void;
 }
 
-export default function StudentInbodyTab({
+const StudentInbodyTab = ({
   studentId,
   inbodyWeight,
   inbodyHeight,
@@ -39,7 +39,7 @@ export default function StudentInbodyTab({
   onInbodyFatChange,
   onInbodyMuscleChange,
   onSaveInBody,
-}: StudentInbodyTabProps) {
+}: StudentInbodyTabProps) => {
   return (
     <section className="space-y-6">
       {/* InBody Summary Cards */}
@@ -116,8 +116,11 @@ export default function StudentInbodyTab({
                 <input
                   type="number"
                   step="0.1"
-                  value={inbodyWeight}
-                  onChange={(e) => onInbodyWeightChange(Number(e.target.value))}
+                  placeholder="0"
+                  value={inbodyWeight === 0 ? '' : inbodyWeight}
+                  onChange={(e) =>
+                    onInbodyWeightChange(e.target.value === '' ? 0 : Number(e.target.value))
+                  }
                   className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-on-surface font-extrabold focus:border-primary outline-none"
                 />
               </div>
@@ -128,8 +131,11 @@ export default function StudentInbodyTab({
                 </label>
                 <input
                   type="number"
-                  value={inbodyHeight}
-                  onChange={(e) => onInbodyHeightChange(Number(e.target.value))}
+                  placeholder="0"
+                  value={inbodyHeight === 0 ? '' : inbodyHeight}
+                  onChange={(e) =>
+                    onInbodyHeightChange(e.target.value === '' ? 0 : Number(e.target.value))
+                  }
                   className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-on-surface font-extrabold focus:border-primary outline-none"
                 />
               </div>
@@ -141,8 +147,11 @@ export default function StudentInbodyTab({
                 <input
                   type="number"
                   step="0.1"
-                  value={inbodyFat}
-                  onChange={(e) => onInbodyFatChange(Number(e.target.value))}
+                  placeholder="0"
+                  value={inbodyFat === 0 ? '' : inbodyFat}
+                  onChange={(e) =>
+                    onInbodyFatChange(e.target.value === '' ? 0 : Number(e.target.value))
+                  }
                   className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-amber-400 font-extrabold focus:border-amber-400 outline-none"
                 />
               </div>
@@ -154,8 +163,11 @@ export default function StudentInbodyTab({
                 <input
                   type="number"
                   step="0.1"
-                  value={inbodyMuscle}
-                  onChange={(e) => onInbodyMuscleChange(Number(e.target.value))}
+                  placeholder="0"
+                  value={inbodyMuscle === 0 ? '' : inbodyMuscle}
+                  onChange={(e) =>
+                    onInbodyMuscleChange(e.target.value === '' ? 0 : Number(e.target.value))
+                  }
                   className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-blue-400 font-extrabold focus:border-blue-400 outline-none"
                 />
               </div>
@@ -269,4 +281,6 @@ export default function StudentInbodyTab({
       />
     </section>
   );
-}
+};
+
+export default StudentInbodyTab;

@@ -24,6 +24,14 @@ export interface FoodItem {
   imageUrl?: string | null;
 }
 
+export interface FoodPaginatedResponse {
+  data: FoodItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export interface MealItemData {
   id?: string;
   mealLogId?: string;

@@ -18,8 +18,12 @@ export class NutritionController {
   constructor(private readonly nutritionService: NutritionService) {}
 
   @Get('foods')
-  async searchFoods(@Query('q') query?: string) {
-    return this.nutritionService.searchFoods(query);
+  async searchFoods(
+    @Query('q') query?: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    return this.nutritionService.searchFoods(query, page, limit);
   }
 
   @Post('meals')

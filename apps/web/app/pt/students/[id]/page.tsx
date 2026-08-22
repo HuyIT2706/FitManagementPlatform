@@ -123,19 +123,28 @@ export default function PTStudentDetailPage({
   };
 
   const handleAddExerciseToPlan = () => {
-    if (!newExName) return;
+    if (!newExName) {
+      toast.error('Vui lòng chọn bài tập từ danh sách!');
+      return;
+    }
     const newItem: AssignedExerciseItem = {
       id: `ae-${Date.now()}`,
       exerciseId: `ex-${Date.now()}`,
       name: newExName,
       category: newExCategory,
-      sets: newExSets,
-      reps: newExReps,
-      weightInKg: newExWeight,
+      sets: Number(newExSets) || 3,
+      reps: Number(newExReps) || 12,
+      weightInKg: Number(newExWeight) || 0,
       dayOfWeek: newExDay,
     };
     setAssignedExercises((prev) => [...prev, newItem]);
-    toast.info('Đã thêm bài tập vào danh sách giao!');
+    setNewExName('');
+    setNewExCategory('');
+    setNewExSets(0);
+    setNewExReps(0);
+    setNewExWeight(0);
+    setNewExDay('');
+    toast.info('Đã thêm bài tập vào danh sách giáo án!');
   };
 
   const handleRemoveExerciseFromPlan = (id: string) => {

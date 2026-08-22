@@ -3,6 +3,8 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import type { FoodPaginatedResponse } from '@repo/types';
+import type { Prisma } from '@repo/db';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogMealDto } from './dto/log-meal.dto';
 
@@ -10,21 +12,41 @@ import { LogMealDto } from './dto/log-meal.dto';
 export class NutritionService {
   constructor(private prisma: PrismaService) {}
 
-  async searchFoods(query?: string) {
-    if (!query) {
-      return this.prisma.foodLibrary.findMany({
-        take: 20,
-      });
-    }
-    return this.prisma.foodLibrary.findMany({
-      where: {
-        name: {
-          contains: query,
-          mode: 'insensitive',
-        },
-      },
-      take: 20,
-    });
+  async searchFoods(
+    query?: string,
+    page: number = 1,
+    limit: number = 8,
+  ): Promise<FoodPaginatedResponse> {
+    const pageNum = Math.max(1, Number(page) || 1);
+    const limitNum = Math.max(1, Number(limit) || 8);
+    const skip = (pageNum - 1) * limitNum;
+
+    const where: Prisma.FoodLibraryWhereInput = query
+      ? {
+          name: {
+            contains: query,
+            mode: 'insensitive',
+          },
+        }
+      : {};
+
+    const [data, total] = await Promise.all([
+      this.prisma.foodLibrary.findMany({
+        where,
+        skip,
+        take: limitNum,
+        orderBy: { name: 'asc' },
+      }),
+      this.prisma.foodLibrary.count({ where }),
+    ]);
+
+    return {
+      data,
+      total,
+      page: pageNum,
+      limit: limitNum,
+      totalPages: Math.ceil(total / limitNum) || 1,
+    };
   }
 
   async logMeal(userId: string, dto: LogMealDto) {

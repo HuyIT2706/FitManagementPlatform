@@ -99,8 +99,11 @@ const EditPtProfileModal = ({
               type="number"
               min={0}
               max={50}
-              value={experienceYears}
-              onChange={(e) => setExperienceYears(Number(e.target.value))}
+              placeholder="0"
+              value={experienceYears === 0 ? '' : experienceYears}
+              onChange={(e) =>
+                setExperienceYears(e.target.value === '' ? 0 : Number(e.target.value))
+              }
               className="w-full bg-surface-bright/50 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm font-extrabold text-primary focus:border-primary outline-none transition-colors"
             />
           </div>

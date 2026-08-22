@@ -2,13 +2,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, X, Plus, CheckCircle2 } from 'lucide-react';
+import { Search, X, Plus, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 import apiClient from '../../api/axios';
 import toast from '../../utils/toast';
-import type { FoodItem, FoodSelectorProps } from '../../interface';
+import type { FoodItem, FoodSelectorProps, FoodPaginatedResponse } from '../../interface';
 import { useMealBuilderStore } from '../../services/useMealBuilderStore';
 
-const QUICK_FILTERS = [
+export const QUICK_FILTERS = [
   { id: 'ALL', label: 'Tất cả', query: '' },
   { id: 'MEAT', label: 'Thịt & Cá', query: 'thịt' },
   { id: 'EGG', label: 'Trứng & Sữa', query: 'trứng' },
@@ -17,10 +17,10 @@ const QUICK_FILTERS = [
   { id: 'FRUIT', label: 'Trái cây', query: 'quả' },
 ];
 
-export default function FoodSelector({
+const FoodSelector = ({
   onFoodAdded,
   title = 'Thư viện thực phẩm',
-}: FoodSelectorProps) {
+}: FoodSelectorProps) => {
   const { addItem } = useMealBuilderStore();
 
   const [query, setQuery] = useState('');
@@ -32,23 +32,38 @@ export default function FoodSelector({
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
   const [weight, setWeight] = useState<number | ''>(100);
 
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalCount, setTotalCount] = useState<number>(0);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedQuery(query);
+      setCurrentPage(1);
     }, 400);
 
     return () => clearTimeout(timer);
   }, [query]);
 
   useEffect(() => {
-    fetchFoods(debouncedQuery);
-  }, [debouncedQuery]);
+    fetchFoods(debouncedQuery, currentPage);
+  }, [debouncedQuery, currentPage]);
 
-  const fetchFoods = async (q: string = '') => {
+  const fetchFoods = async (q: string = '', page: number = 1) => {
     setLoading(true);
     try {
-      const res = await apiClient.get<FoodItem[]>(`/nutrition/foods?q=${encodeURIComponent(q)}`);
-      setFoods(res.data);
+      const res = await apiClient.get<FoodPaginatedResponse | FoodItem[]>(
+        `/nutrition/foods?q=${encodeURIComponent(q)}&page=${page}&limit=8`
+      );
+      if (res.data && 'data' in res.data && Array.isArray(res.data.data)) {
+        setFoods(res.data.data);
+        setTotalPages(res.data.totalPages || 1);
+        setTotalCount(res.data.total || 0);
+      } else if (Array.isArray(res.data)) {
+        setFoods(res.data);
+        setTotalPages(1);
+        setTotalCount(res.data.length);
+      }
     } catch (error) {
       console.error('Error fetching foods:', error);
     } finally {
@@ -59,6 +74,7 @@ export default function FoodSelector({
   const handleFilterClick = (filter: (typeof QUICK_FILTERS)[0]) => {
     setSelectedFilter(filter.id);
     setQuery(filter.query);
+    setCurrentPage(1);
   };
 
   const handleConfirmAdd = () => {
@@ -80,7 +96,7 @@ export default function FoodSelector({
         <div className="px-1 flex items-center justify-between">
           <h3 className="font-bold text-lg text-on-surface">{title}</h3>
           <span className="text-xs text-on-surface-variant font-medium">
-            {foods.length} món hiển thị
+            {totalCount} món trong thư viện
           </span>
         </div>
       )}
@@ -201,6 +217,36 @@ export default function FoodSelector({
         )}
       </div>
 
+      {/* Pagination Footer */}
+      {!loading && totalPages > 1 && (
+        <div className="p-4 border border-white/10 rounded-2xl bg-surface-bright/30 flex items-center justify-between gap-3 text-xs">
+          <span className="text-on-surface-variant font-medium">
+            Trang <strong className="text-on-surface">{currentPage}</strong> / {totalPages} ({totalCount} món)
+          </span>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={currentPage <= 1 || loading}
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-on-surface hover:bg-white/15 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 font-bold transition-all cursor-pointer"
+            >
+              <ChevronLeft size={16} />
+              Trước
+            </button>
+            <button
+              type="button"
+              disabled={currentPage >= totalPages || loading}
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              className="px-3 py-1.5 rounded-xl bg-primary/20 border border-primary/30 text-primary hover:bg-primary/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 font-bold transition-all cursor-pointer"
+            >
+              Sau
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Input Portion Weight Modal */}
       {selectedFood && (
         <div
@@ -250,11 +296,11 @@ export default function FoodSelector({
               <div className="relative">
                 <input
                   type="number"
+                  placeholder="0"
                   suppressHydrationWarning
                   className="w-full bg-white/[0.05] border border-white/15 rounded-2xl p-4 text-3xl font-extrabold text-center text-primary focus:outline-none focus:border-primary transition-colors"
-                  placeholder="100"
-                  value={weight}
-                  onChange={(e) => setWeight(Number(e.target.value) || '')}
+                  value={weight === 0 ? '' : weight}
+                  onChange={(e) => setWeight(e.target.value === '' ? '' : Number(e.target.value))}
                   autoFocus
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-white/50">
@@ -307,4 +353,6 @@ export default function FoodSelector({
       )}
     </div>
   );
-}
+};
+
+export default FoodSelector;
