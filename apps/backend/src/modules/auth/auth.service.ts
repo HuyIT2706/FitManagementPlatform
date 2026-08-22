@@ -4,6 +4,7 @@ import {
   UnauthorizedException,
   ForbiddenException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -214,5 +215,26 @@ export class AuthService {
     const tokens = await this.getTokens(user.id, user.email, user.role);
     await this.updateRefreshTokenHash(user.id, tokens.refreshToken);
     return tokens;
+  }
+
+  async changePassword(userId: string, currentPass: string, newPass: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user || !user.passwordHash) {
+      throw new BadRequestException('Tài khoản không hỗ trợ đổi mật khẩu!');
+    }
+
+    const userPass = user.passwordHash;
+    const isMatch = await bcrypt.compare(currentPass, userPass);
+    if (!isMatch) {
+      throw new BadRequestException('Mật khẩu hiện tại không chính xác!');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPass, 10);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash: hashedPassword },
+    });
+
+    return { message: 'Đổi mật khẩu thành công!' };
   }
 }

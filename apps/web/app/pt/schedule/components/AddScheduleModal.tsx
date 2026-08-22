@@ -34,14 +34,14 @@ const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
   return `${hour}:${minute}`;
 });
 
-export default function AddScheduleModal({
+const AddScheduleModal = ({
   isOpen,
   onClose,
   students,
   onAddSession,
   defaultStartTime = '08:00',
   defaultDate = new Date(),
-}: AddScheduleModalProps) {
+}: AddScheduleModalProps) => {
   const [selectedStudentId, setSelectedStudentId] = useState<string>(
     students[0]?.id || ''
   );
@@ -534,4 +534,6 @@ export default function AddScheduleModal({
       </div>
     </div>
   );
-}
+};
+
+export default AddScheduleModal;

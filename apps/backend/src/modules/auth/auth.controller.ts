@@ -101,4 +101,18 @@ export class AuthController {
     res.clearCookie('refresh_token');
     return { message: 'Logged out successfully' };
   }
+
+  @UseGuards(JwtGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('change-password')
+  async changePassword(
+    @Req() req: RequestWithUser,
+    @Body() dto: { currentPassword: string; newPassword: string },
+  ) {
+    return this.authService.changePassword(
+      req.user.sub,
+      dto.currentPassword,
+      dto.newPassword,
+    );
+  }
 }

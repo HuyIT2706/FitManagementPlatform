@@ -17,6 +17,7 @@ export default function PTProfilePage() {
   const [codeQrData, setCodeQrData] = useState<PTCodeQrData | null>(null);
   const [dashboardData, setDashboardData] = useState<PTDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -73,13 +74,18 @@ export default function PTProfilePage() {
           userData={userData}
           totalStudents={totalStudents}
           completedHours={completedHours}
+          isEditOpen={isEditProfileOpen}
+          setIsEditOpen={setIsEditProfileOpen}
         />
 
         {/* PT Unique Code & QR Code Card */}
         <PtQrCodeCard ptCode={ptCode} qrUrl={qrUrl} onCopyPtCode={handleCopyPtCode} />
 
         {/* Account settings */}
-        <PtProfileSettingsList onLogout={handleLogout} />
+        <PtProfileSettingsList
+          onLogout={handleLogout}
+          onOpenEditProfile={() => setIsEditProfileOpen(true)}
+        />
       </main>
 
       <PTBottomNavBar activeTab="profile" />
