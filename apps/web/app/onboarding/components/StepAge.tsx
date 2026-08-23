@@ -7,7 +7,7 @@ interface StepAgeProps {
   store: OnboardingState;
 }
 
-export default function StepAge({ store }: StepAgeProps) {
+const StepAge = ({ store }: StepAgeProps) => {
   const currentYear = new Date().getFullYear();
   const selectedYear = store.birthYear || 2002;
   const calculatedAge = currentYear - selectedYear;
@@ -70,4 +70,6 @@ export default function StepAge({ store }: StepAgeProps) {
       )}
     </div>
   );
-}
+};
+
+export default StepAge;

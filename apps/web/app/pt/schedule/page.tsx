@@ -15,7 +15,7 @@ import PtScheduleWeekStrip from './components/PtScheduleWeekStrip';
 import PtScheduleSlotCard, { type ScheduleSlot } from './components/PtScheduleSlotCard';
 import AddScheduleModal from './components/AddScheduleModal';
 
-export default function PTSchedulePage() {
+const PTSchedulePage = () => {
   const [userData, setUserData] = useState<UserDataHome | null>(null);
   const [ptData, setPtData] = useState<PTDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -76,7 +76,10 @@ export default function PTSchedulePage() {
     return <AppLoading fullScreen size="lg" message="Đang nạp lịch dạy PT..." />;
   }
 
-  const isSelectedToday = isSameDay(selectedDate, new Date());
+  const now = new Date();
+  const isSelectedToday = isSameDay(selectedDate, now);
+  const isSelectedPast = selectedDate < now && !isSelectedToday;
+  const isSelectedFuture = selectedDate > now && !isSelectedToday;
 
   const liveSessions = ptData?.todaySessions || [];
   const allActiveSessions: PTSessionItem[] = [...liveSessions, ...customSessions];
@@ -84,15 +87,44 @@ export default function PTSchedulePage() {
   const timelineSlots: ScheduleSlot[] = allActiveSessions
     .map((session) => {
       const times = session.timeSlot ? session.timeSlot.split(' - ') : ['08:00', '09:00'];
+      const startTimeStr = times[0]?.trim() || '08:00';
+      const endTimeStr = times[1]?.trim() || '09:00';
       const isCheckedIn =
         session.status === 'CHECKED_IN' || Boolean(checkedSessions[session.id]);
 
-      const statusVal: 'COMPLETED' | 'UPCOMING' = isCheckedIn ? 'COMPLETED' : 'UPCOMING';
+      let statusVal: 'COMPLETED' | 'ONGOING' | 'UPCOMING' | 'OVERDUE' = 'UPCOMING';
+
+      if (isCheckedIn) {
+        statusVal = 'COMPLETED';
+      } else if (isSelectedPast) {
+        statusVal = 'OVERDUE';
+      } else if (isSelectedFuture) {
+        statusVal = 'UPCOMING';
+      } else {
+        // Hôm nay: So sánh giờ thực tế hiện tại
+        const [startHour, startMin] = startTimeStr.split(':').map(Number);
+        const [endHour, endMin] = endTimeStr.split(':').map(Number);
+
+        const slotStart = new Date(now);
+        slotStart.setHours(startHour ?? 8, startMin ?? 0, 0, 0);
+
+        const slotEnd = new Date(now);
+        slotEnd.setHours(endHour ?? 9, endMin ?? 0, 0, 0);
+
+        if (now < slotStart) {
+          statusVal = 'UPCOMING';
+        } else if (now >= slotStart && now <= slotEnd) {
+          statusVal = 'ONGOING';
+        } else {
+          // Quá giờ ca dạy nhưng chưa ấn check-in -> OVERDUE (Dạy trễ)
+          statusVal = 'OVERDUE';
+        }
+      }
 
       return {
         id: session.id,
-        startTime: times[0] || '08:00',
-        endTime: times[1] || '09:00',
+        startTime: startTimeStr,
+        endTime: endTimeStr,
         studentName: session.studentName,
         studentAvatar: session.studentAvatar,
         packageName: 'Gói PT 1:1 VIP',
@@ -133,7 +165,6 @@ export default function PTSchedulePage() {
                 onClick={() => setIsAddModalOpen(true)}
                 className="px-4 py-2.5 rounded-xl bg-primary text-dark-slate font-extrabold text-xs shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <PlusCircle size={16} />
                 Thêm Ca Dạy Mới
               </button>
 
@@ -212,4 +243,6 @@ export default function PTSchedulePage() {
       <PTBottomNavBar activeTab="schedule" />
     </div>
   );
-}
+};
+
+export default PTSchedulePage;

@@ -22,11 +22,11 @@ import StudentInbodyTab from './components/StudentInbodyTab';
 import EditSessionModal from './components/EditSessionModal';
 import ExerciseSelectionModal from './components/ExerciseSelectionModal';
 
-export default function PTStudentDetailPage({
+const PTStudentDetailPage = ({
   params,
 }: {
   params: Promise<{ id: string }>;
-}) {
+}) => {
   const resolvedParams = use(params);
   const studentId = resolvedParams.id;
 
@@ -447,4 +447,6 @@ export default function PTStudentDetailPage({
       <PTBottomNavBar activeTab="students" />
     </div>
   );
-}
+};
+
+export default PTStudentDetailPage;

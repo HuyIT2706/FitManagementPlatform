@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Search } from 'lucide-react';
 import type { CoachReviewFilterBarProps, AdminFilterStatus } from '../../../../interface';
+import AppSearchInput from '../../../../components/ui/AppSearchInput';
 
 const CoachReviewFilterBar = ({
   filterStatus,
@@ -47,15 +47,13 @@ const CoachReviewFilterBar = ({
       </div>
 
       {/* Search Box */}
-      <div className="relative w-full sm:w-72">
-        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
-        <input
-          type="text"
-          suppressHydrationWarning
+      <div className="w-full sm:w-72" suppressHydrationWarning>
+        <AppSearchInput
+          size="sm"
           value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
+          onChange={onSearchChange}
           placeholder="Tìm theo tên HLV hoặc email..."
-          className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-white/40 focus:border-[#10b981] outline-none"
+          variant="filled"
         />
       </div>
     </section>

@@ -2,13 +2,13 @@
 import { useEffect, useState } from 'react';
 import { Flame } from 'lucide-react';
 import { type DailyFuelHeroCardProps } from '../../../interface';
-export default function DailyFuelHeroCard({
+const DailyFuelHeroCard = ({
   consumedCalo,
   targetCalo,
   remainingCalories,
   isSelectedDateToday,
   selectedDateFormatted,
-}: DailyFuelHeroCardProps) {
+}: DailyFuelHeroCardProps) => {
   const [animatedCalo, setAnimatedCalo] = useState(0);
   useEffect(() => {
     setAnimatedCalo(0);
@@ -103,4 +103,6 @@ export default function DailyFuelHeroCard({
       </div>
     </div>
   );
-}
+};
+
+export default DailyFuelHeroCard;

@@ -3,7 +3,7 @@
 import { Cake, Ruler, Scale, Target, Activity, Zap, Flame } from 'lucide-react';
 import type { ProfileBiometricsGridProps } from '../../../interface';
 
-export default function ProfileBiometricsGrid({
+const ProfileBiometricsGrid = ({
   ageYears,
   heightCm,
   weightKg,
@@ -11,7 +11,7 @@ export default function ProfileBiometricsGrid({
   bmi,
   bmr,
   tdee,
-}: ProfileBiometricsGridProps) {
+}: ProfileBiometricsGridProps) => {
   const bmiCategory =
     bmi < 18.5 ? 'Thiếu cân' : bmi < 24.9 ? 'Bình thường' : 'Thừa cân';
 
@@ -97,7 +97,7 @@ export default function ProfileBiometricsGrid({
           </div>
           <div>
             <div className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">
-              TDDE
+              TDEE
             </div>
             <div className="text-xl font-bold text-orange-400">
               {tdee} <span className="text-xs font-normal text-white/70">kcal/ngày</span>
@@ -107,4 +107,6 @@ export default function ProfileBiometricsGrid({
       </div>
     </section>
   );
-}
+};
+
+export default ProfileBiometricsGrid;

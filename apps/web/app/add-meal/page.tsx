@@ -11,7 +11,7 @@ import FoodSelector from '../../components/nutrition/FoodSelector';
 import AddMealHeader from './components/AddMealHeader';
 import SelectedFoodSummary from './components/SelectedFoodSummary';
 
-function AddMealContent() {
+const AddMealContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const mealType = searchParams.get('type') || 'BREAKFAST';
@@ -100,9 +100,9 @@ function AddMealContent() {
       </main>
     </div>
   );
-}
+};
 
-export default function AddMealPage() {
+const AddMealPage = () => {
   return (
     <Suspense
       fallback={
@@ -112,4 +112,6 @@ export default function AddMealPage() {
       <AddMealContent />
     </Suspense>
   );
-}
+};
+
+export default AddMealPage;

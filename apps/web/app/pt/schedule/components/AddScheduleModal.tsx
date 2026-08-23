@@ -157,9 +157,6 @@ const AddScheduleModal = ({
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-white/10">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-primary/20 text-primary flex items-center justify-center border border-primary/30">
-              <PlusCircle size={20} />
-            </div>
             <div>
               <h3 className="font-extrabold text-lg text-white">Thêm Ca Dạy Mới</h3>
               <p className="text-xs text-on-surface-variant">
@@ -340,7 +337,7 @@ const AddScheduleModal = ({
                       onClick={() => setIsStudentDropdownOpen(false)}
                     ></div>
 
-                    <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-[#181d26] border border-primary/30 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.9)] max-h-56 overflow-y-auto p-1.5 space-y-1 animate-in fade-in zoom-in-95 duration-150">
+                    <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-[#181d26] border border-primary/30 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.9)] max-h-56 overflow-y-auto no-scrollbar p-1.5 space-y-1 animate-in fade-in zoom-in-95 duration-150">
                       {students.map((st) => {
                         const isSelected = st.id === (selectedStudentId || students[0]?.id);
                         return (
@@ -415,7 +412,7 @@ const AddScheduleModal = ({
                     onClick={() => setIsStartDropdownOpen(false)}
                   ></div>
 
-                  <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-[#181d26] border border-primary/30 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.9)] max-h-52 overflow-y-auto p-1.5 space-y-0.5 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-[#181d26] border border-primary/30 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.9)] max-h-52 overflow-y-auto no-scrollbar p-1.5 space-y-0.5 animate-in fade-in zoom-in-95 duration-150">
                     {TIME_OPTIONS.map((time) => {
                       const isSelected = time === startTime;
                       return (
@@ -470,7 +467,7 @@ const AddScheduleModal = ({
                     onClick={() => setIsEndDropdownOpen(false)}
                   ></div>
 
-                  <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-[#181d26] border border-primary/30 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.9)] max-h-52 overflow-y-auto p-1.5 space-y-0.5 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-[#181d26] border border-primary/30 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.9)] max-h-52 overflow-y-auto no-scrollbar p-1.5 space-y-0.5 animate-in fade-in zoom-in-95 duration-150">
                     {TIME_OPTIONS.map((time) => {
                       const isSelected = time === endTime;
                       return (

@@ -7,14 +7,14 @@ import apiClient from '../../../api/axios';
 import type { TransformationJourneyProps, ProgressPhotoItem } from '../../../interface';
 import { toastStore } from '../../../utils/toast/toastStore';
 
-export default function TransformationJourneySlider({
+const TransformationJourneySlider = ({
   goal,
   weightKg,
   targetWeightKg,
   goalTextMap,
   studentId,
   isPtView = false,
-}: TransformationJourneyProps) {
+}: TransformationJourneyProps) => {
   const [photos, setPhotos] = useState<ProgressPhotoItem[]>([]);
   const [sliderPosition, setSliderPosition] = useState(50); // percentage (0 - 100)
   const [isDragging, setIsDragging] = useState(false);
@@ -414,4 +414,6 @@ export default function TransformationJourneySlider({
       )}
     </section>
   );
-}
+};
+
+export default TransformationJourneySlider;

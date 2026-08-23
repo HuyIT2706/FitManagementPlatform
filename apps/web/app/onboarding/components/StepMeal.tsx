@@ -7,7 +7,7 @@ interface StepMealProps {
   store: OnboardingState;
 }
 
-export default function StepMeal({ store }: StepMealProps) {
+const StepMeal = ({ store }: StepMealProps) => {
   const options = [2, 3, 4, 5];
   return (
     <div className="flex flex-col flex-1 h-full">
@@ -36,4 +36,6 @@ export default function StepMeal({ store }: StepMealProps) {
       </div>
     </div>
   );
-}
+};
+
+export default StepMeal;

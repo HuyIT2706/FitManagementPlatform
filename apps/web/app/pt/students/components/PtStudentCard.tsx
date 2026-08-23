@@ -17,7 +17,7 @@ interface PtStudentCardProps {
   student: StudentListItem;
 }
 
-export default function PtStudentCard({ student }: PtStudentCardProps) {
+const PtStudentCard = ({ student }: PtStudentCardProps) => {
   return (
     <div className="bento-card rounded-2xl p-5 border border-outline-variant/30 space-y-4 relative group hover:border-primary/50 transition-all">
       <div className="flex items-center justify-between">
@@ -59,4 +59,6 @@ export default function PtStudentCard({ student }: PtStudentCardProps) {
       </div>
     </div>
   );
-}
+};
+
+export default PtStudentCard;

@@ -5,13 +5,13 @@ import { CheckCircle2, MessageSquare, Check } from 'lucide-react';
 import type { PTPendingMeal } from '@repo/types';
 import type { PtPendingMealsProps } from '../../../../interface';
 
-export default function PtPendingMeals({
+const PtPendingMeals = ({
   meals,
   approvedMeals,
   feedbackTexts,
   onFeedbackTextChange,
   onApproveMeal,
-}: PtPendingMealsProps) {
+}: PtPendingMealsProps) => {
   const pendingMealList = meals || [];
 
   return (
@@ -119,4 +119,6 @@ export default function PtPendingMeals({
       </div>
     </section>
   );
-}
+};
+
+export default PtPendingMeals;

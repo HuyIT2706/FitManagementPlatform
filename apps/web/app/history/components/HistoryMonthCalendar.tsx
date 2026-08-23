@@ -3,7 +3,7 @@
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
 import type { HistoryMonthCalendarProps } from '../../../interface';
 
-export default function HistoryMonthCalendar({
+const HistoryMonthCalendar = ({
   currentMonth,
   selectedDate,
   monthCells,
@@ -15,7 +15,7 @@ export default function HistoryMonthCalendar({
   onSelectDate,
   onGoToToday,
   isSameDay,
-}: HistoryMonthCalendarProps) {
+}: HistoryMonthCalendarProps) => {
   const isLoggedDate = (cellDate: Date) => {
     const yyyy = cellDate.getFullYear();
     const mm = String(cellDate.getMonth() + 1).padStart(2, '0');
@@ -103,4 +103,6 @@ export default function HistoryMonthCalendar({
       )}
     </section>
   );
-}
+};
+
+export default HistoryMonthCalendar;

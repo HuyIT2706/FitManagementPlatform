@@ -7,7 +7,7 @@ interface StepHeightProps {
   store: OnboardingState;
 }
 
-export default function StepHeight({ store }: StepHeightProps) {
+const StepHeight = ({ store }: StepHeightProps) => {
   const height = store.height || 0;
   const isHeightValid = height >= 100 && height <= 200;
 
@@ -48,4 +48,6 @@ export default function StepHeight({ store }: StepHeightProps) {
       </div>
     </div>
   );
-}
+};
+
+export default StepHeight;

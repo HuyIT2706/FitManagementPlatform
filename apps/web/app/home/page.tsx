@@ -20,7 +20,7 @@ import DailyFuelHeroCard from './components/DailyFuelHeroCard';
 import MacroCards from './components/MacroCards';
 import DailyMealGrid from './components/DailyMealGrid';
 
-export default function Home() {
+const Home = () => {
   const [userData, setUserData] = useState<UserDataHome | null>(null);
   const [dailyData, setDailyData] = useState<DailyNutritionData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -210,4 +210,6 @@ export default function Home() {
       <BottomNavBar activeTab="diary" />
     </div>
   );
-}
+};
+
+export default Home;

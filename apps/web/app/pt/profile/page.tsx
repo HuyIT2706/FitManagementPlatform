@@ -13,7 +13,7 @@ import PtProfileCard from './components/PtProfileCard';
 import PtQrCodeCard from './components/PtQrCodeCard';
 import PtProfileSettingsList from './components/PtProfileSettingsList';
 
-export default function PTProfilePage() {
+const PTProfilePage = () => {
   const [userData, setUserData] = useState<UserDataHome | null>(null);
   const [codeQrData, setCodeQrData] = useState<PTCodeQrData | null>(null);
   const [dashboardData, setDashboardData] = useState<PTDashboardData | null>(null);
@@ -88,4 +88,6 @@ export default function PTProfilePage() {
       <PTBottomNavBar activeTab="profile" />
     </div>
   );
-}
+};
+
+export default PTProfilePage;

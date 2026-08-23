@@ -10,7 +10,7 @@ interface StepCalorieOffsetProps {
   store: OnboardingState;
 }
 
-export default function StepCalorieOffset({ store }: StepCalorieOffsetProps) {
+const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
   const isLosing = (store.weight || 0) > (store.targetWeight || 0);
   const [options, setOptions] = useState<CalorieOffsetOption[]>([]);
   const [loading, setLoading] = useState(true);
@@ -97,4 +97,6 @@ export default function StepCalorieOffset({ store }: StepCalorieOffsetProps) {
       </div>
     </div>
   );
-}
+};
+
+export default StepCalorieOffset;

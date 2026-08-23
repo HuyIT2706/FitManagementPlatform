@@ -16,7 +16,7 @@ import PtScheduleList from './home/components/PtScheduleList';
 import PtPendingMeals from './home/components/PtPendingMeals';
 import PtStudentRosterQuick from './home/components/PtStudentRosterQuick';
 
-export default function PTPage() {
+const PTPage = () => {
   const [userData, setUserData] = useState<UserDataHome | null>(null);
   const [ptData, setPtData] = useState<PTDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -191,4 +191,6 @@ export default function PTPage() {
       <PTBottomNavBar activeTab="home" />
     </div>
   );
-}
+};
+
+export default PTPage;

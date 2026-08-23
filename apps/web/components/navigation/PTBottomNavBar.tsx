@@ -7,7 +7,7 @@ interface PTBottomNavBarProps {
   activeTab: "home" | "schedule" | "students" | "profile";
 }
 
-export default function PTBottomNavBar({ activeTab }: PTBottomNavBarProps) {
+const PTBottomNavBar = ({ activeTab }: PTBottomNavBarProps) => {
   return (
     <>
       <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-[92%] max-w-md z-50 flex items-center justify-center gap-3">
@@ -37,7 +37,7 @@ export default function PTBottomNavBar({ activeTab }: PTBottomNavBarProps) {
               className={`flex items-center gap-2 rounded-full transition-colors ${
                 activeTab === "schedule"
                   ? "bg-green-light/10 text-green-light px-4 py-2 font-bold"
-                  : "w-10 h-10 flex items-center justify-center text-on-surface-variant/40 hover:bg-surface-bright/10"
+                : "w-10 h-10 flex items-center justify-center text-on-surface-variant/40 hover:bg-surface-bright/10"
               }`}
             >
               <span
@@ -104,4 +104,6 @@ export default function PTBottomNavBar({ activeTab }: PTBottomNavBarProps) {
       <div className="h-32 md:hidden"></div>
     </>
   );
-}
+};
+
+export default PTBottomNavBar;

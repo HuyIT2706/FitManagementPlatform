@@ -4,11 +4,11 @@
 import { X } from 'lucide-react';
 import type { ExerciseDetailModalProps } from '../../../interface';
 
-export default function ExerciseDetailModal({
+const ExerciseDetailModal = ({
   activeExercise: propActive,
   exercise,
   onClose,
-}: ExerciseDetailModalProps) {
+}: ExerciseDetailModalProps) => {
   const activeExercise = propActive || exercise;
 
   if (!activeExercise) return null;
@@ -173,4 +173,6 @@ export default function ExerciseDetailModal({
       </div>
     </div>
   );
-}
+};
+
+export default ExerciseDetailModal;

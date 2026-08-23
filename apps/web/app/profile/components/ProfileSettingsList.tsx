@@ -9,10 +9,10 @@ interface ProfileSettingsListProps {
   onEditProfile?: () => void;
 }
 
-export default function ProfileSettingsList({
+const ProfileSettingsList = ({
   onLogout,
   onEditProfile,
-}: ProfileSettingsListProps) {
+}: ProfileSettingsListProps) => {
   const [isParqOpen, setIsParqOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
@@ -203,4 +203,6 @@ export default function ProfileSettingsList({
       />
     </section>
   );
-}
+};
+
+export default ProfileSettingsList;

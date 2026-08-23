@@ -3,13 +3,13 @@
 import { ArrowLeft } from "lucide-react";
 import type { AddMealHeaderProps } from "../../../interface";
 
-export default function AddMealHeader({
+const AddMealHeader = ({
   mealTitle,
   addedItemsCount,
   isSaving,
   onBack,
   onSaveMeal,
-}: AddMealHeaderProps) {
+}: AddMealHeaderProps) => {
   return (
     <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/10 px-4 py-4 flex items-center gap-4">
       <button
@@ -39,4 +39,6 @@ export default function AddMealHeader({
       )}
     </header>
   );
-}
+};
+
+export default AddMealHeader;

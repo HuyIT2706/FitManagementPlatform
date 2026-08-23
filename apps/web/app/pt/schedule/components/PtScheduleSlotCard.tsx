@@ -13,7 +13,7 @@ export interface ScheduleSlot {
   sessionNumber?: string;
   workoutName?: string;
   exercisesCount?: number;
-  status?: 'ONGOING' | 'UPCOMING' | 'COMPLETED';
+  status?: 'ONGOING' | 'UPCOMING' | 'COMPLETED' | 'OVERDUE';
   isCheckedIn?: boolean;
   isBusy: boolean;
 }
@@ -24,12 +24,12 @@ interface PtScheduleSlotCardProps {
   onCheckIn: (slotId: string) => void;
 }
 
-export default function PtScheduleSlotCard({
+const PtScheduleSlotCard = ({
   slot,
   isChecked,
   onCheckIn,
-}: PtScheduleSlotCardProps) {
-  const isSlotChecked = isChecked || slot.isCheckedIn || slot.status === 'COMPLETED';
+}: PtScheduleSlotCardProps) => {
+  const isSlotChecked = Boolean(isChecked || slot.isCheckedIn);
   const avatar =
     slot.studentAvatar ||
     'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80';
@@ -40,7 +40,11 @@ export default function PtScheduleSlotCard({
       <div
         className={`absolute -left-[31px] md:-left-[39px] top-4 w-4 h-4 rounded-full border-2 transition-all ${
           slot.isBusy
-            ? 'border-primary bg-primary shadow-[0_0_10px_rgba(102,200,28,0.8)]'
+            ? isSlotChecked
+              ? 'border-green-light bg-green-light shadow-[0_0_10px_rgba(102,200,28,0.8)]'
+              : slot.status === 'OVERDUE'
+                ? 'border-amber-400 bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.6)]'
+                : 'border-primary bg-primary shadow-[0_0_10px_rgba(102,200,28,0.8)]'
             : 'border-outline-variant bg-background'
         }`}
       ></div>
@@ -54,7 +58,9 @@ export default function PtScheduleSlotCard({
               ? 'border-l-green-light border-green-light/40 bg-green-light/10'
               : slot.status === 'ONGOING'
                 ? 'border-l-primary border-primary/50 bg-primary/10 shadow-[0_0_20px_rgba(102,200,28,0.15)]'
-                : 'border-l-blue-400 border-white/10 bg-surface-bright/30'
+                : slot.status === 'OVERDUE'
+                  ? 'border-l-amber-500 border-amber-500/30 bg-amber-500/5'
+                  : 'border-l-blue-400 border-white/10 bg-surface-bright/30'
           }`}
         >
           {/* Top Header Row */}
@@ -78,13 +84,22 @@ export default function PtScheduleSlotCard({
 
             {/* Status Tag */}
             <div className="flex items-center gap-2">
-              {slot.status === 'ONGOING' && (
+              {isSlotChecked ? (
+                <span className="bg-green-light/20 text-green-light text-xs font-bold px-3 py-1 rounded-full border border-green-light/40 flex items-center gap-1.5">
+                  <CheckCircle2 size={14} className="stroke-[2.5]" />
+                  Đã hoàn thành
+                </span>
+              ) : slot.status === 'ONGOING' ? (
                 <span className="bg-primary/20 text-primary text-xs font-bold px-3 py-1 rounded-full border border-primary/40 flex items-center gap-1.5 animate-pulse">
                   <span className="w-2 h-2 rounded-full bg-primary"></span>
                   Đang diễn ra
                 </span>
-              )}
-              {slot.status === 'UPCOMING' && (
+              ) : slot.status === 'OVERDUE' ? (
+                <span className="bg-amber-500/20 text-amber-400 text-xs font-bold px-3 py-1 rounded-full border border-amber-500/40 flex items-center gap-1.5">
+                  <Clock size={14} />
+                  Quá giờ (Chưa điểm danh)
+                </span>
+              ) : (
                 <span className="bg-blue-500/20 text-blue-400 text-xs font-bold px-3 py-1 rounded-full border border-blue-500/40 flex items-center gap-1.5">
                   <Clock size={14} />
                   Sắp diễn ra
@@ -155,4 +170,6 @@ export default function PtScheduleSlotCard({
       )}
     </div>
   );
-}
+};
+
+export default PtScheduleSlotCard;

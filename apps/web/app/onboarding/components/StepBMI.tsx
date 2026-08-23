@@ -9,7 +9,7 @@ interface StepBMIProps {
   store: OnboardingState;
 }
 
-export default function StepBMI({ store }: StepBMIProps) {
+const StepBMI = ({ store }: StepBMIProps) => {
   const [bmiData, setBmiData] = useState<{
     bmi: number;
     bmiCategory: string;
@@ -89,4 +89,6 @@ export default function StepBMI({ store }: StepBMIProps) {
       </div>
     </div>
   );
-}
+};
+
+export default StepBMI;

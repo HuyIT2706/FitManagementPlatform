@@ -3,11 +3,11 @@
 import { Dumbbell } from 'lucide-react';
 import type { PtWelcomeHeaderProps } from '../../../../interface';
 
-export default function PtWelcomeHeader({
+const PtWelcomeHeader = ({
   coachName,
   todaySessionsCount,
   pendingMealCount,
-}: PtWelcomeHeaderProps) {
+}: PtWelcomeHeaderProps) => {
   return (
     <section className="bento-card rounded-3xl p-6 md:p-8 flex flex-col gap-3 relative overflow-hidden border border-outline-variant/30">
       <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3.5 py-1 rounded-full w-max border border-primary/30">
@@ -29,4 +29,6 @@ export default function PtWelcomeHeader({
       <div className="absolute -right-10 -top-10 w-48 h-48 bg-primary/10 blur-[60px] rounded-full pointer-events-none"></div>
     </section>
   );
-}
+};
+
+export default PtWelcomeHeader;

@@ -2,8 +2,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, X, Plus, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, CheckCircle2, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import AppLoading from '../ui/AppLoading';
+import AppSearchInput from '../ui/AppSearchInput';
 import apiClient from '../../api/axios';
 import toast from '../../utils/toast';
 import type { FoodItem, FoodSelectorProps, FoodPaginatedResponse } from '../../interface';
@@ -103,30 +104,13 @@ const FoodSelector = ({
       )}
 
       {/* Search Bar */}
-      <div className="relative">
-        <Search
-          size={18}
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none"
-        />
-        <input
-          type="text"
-          suppressHydrationWarning
-          placeholder="Tìm kiếm món ăn..."
-          className="w-full bg-surface-bright/30 border border-white/10 rounded-full py-3.5 pl-12 pr-10 text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary transition-colors"
+      <div>
+        <AppSearchInput
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(val) => setQuery(val)}
+          placeholder="Tìm kiếm món ăn theo tên hoặc danh mục..."
+          variant="glass"
         />
-        {query && (
-          <button
-            type="button"
-            suppressHydrationWarning
-            onClick={() => setQuery('')}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface cursor-pointer"
-            aria-label="Xóa từ khóa tìm kiếm"
-          >
-            <X size={16} />
-          </button>
-        )}
       </div>
 
       {/* Quick Filter Chips */}

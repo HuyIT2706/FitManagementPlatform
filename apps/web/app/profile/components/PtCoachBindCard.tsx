@@ -5,7 +5,7 @@ import type { PtCoachBindCardProps } from '../../../interface';
 import apiClient from '../../../api/axios';
 import { toast } from '../../../utils/toast';
 
-export default function PtCoachBindCard({ onBindSuccess }: PtCoachBindCardProps) {
+const PtCoachBindCard = ({ onBindSuccess }: PtCoachBindCardProps) => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
@@ -56,4 +56,6 @@ export default function PtCoachBindCard({ onBindSuccess }: PtCoachBindCardProps)
       </form>
     </section>
   );
-}
+};
+
+export default PtCoachBindCard;

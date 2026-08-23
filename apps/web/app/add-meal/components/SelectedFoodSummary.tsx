@@ -4,11 +4,11 @@
 import { X } from 'lucide-react';
 import type { SelectedFoodSummaryProps } from '../../../interface';
 
-export default function SelectedFoodSummary({
+const SelectedFoodSummary = ({
   addedItems,
   totalAddedCalories,
   onRemoveItem,
-}: SelectedFoodSummaryProps) {
+}: SelectedFoodSummaryProps) => {
   if (addedItems.length === 0) return null;
 
   return (
@@ -68,4 +68,6 @@ export default function SelectedFoodSummary({
       </div>
     </section>
   );
-}
+};
+
+export default SelectedFoodSummary;

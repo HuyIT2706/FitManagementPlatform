@@ -3,13 +3,13 @@
 import { CheckCircle2, ChevronRight } from 'lucide-react';
 import type { DailyMacroTargetMasterProps } from '../../../interface';
 
-export default function DailyMacroTargetMaster({
+const DailyMacroTargetMaster = ({
   targetCalo,
   targetProtein,
   targetCarbs,
   targetFat,
   suggestedOffset,
-}: DailyMacroTargetMasterProps) {
+}: DailyMacroTargetMasterProps) => {
   const offsetLabel =
     suggestedOffset >= 0 ? `+ ${suggestedOffset}` : `- ${Math.abs(suggestedOffset)}`;
 
@@ -85,4 +85,6 @@ export default function DailyMacroTargetMaster({
       </div>
     </section>
   );
-}
+};
+
+export default DailyMacroTargetMaster;

@@ -12,7 +12,7 @@ import { handleRoleRedirect } from '../../utils/authRedirect';
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID';
 
-function LoginContent() {
+const LoginContent = () => {
   const [authMode, setAuthMode] = useState<'LOGIN' | 'REGISTER'>('LOGIN');
   const [role, setRole] = useState<'USER' | 'PT'>('USER');
 
@@ -517,12 +517,14 @@ function LoginContent() {
       </footer>
     </div>
   );
-}
+};
 
-export default function LoginPage() {
+const LoginPage = () => {
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <LoginContent />
     </GoogleOAuthProvider>
   );
-}
+};
+
+export default LoginPage;

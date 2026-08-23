@@ -3,7 +3,7 @@
 import { Dumbbell, Wheat, Droplet } from 'lucide-react';
 import { type MacroCardsProps } from '../../../interface';
 
-export default function MacroCards({
+const MacroCards = ({
   consumedProtein,
   targetProtein,
   proteinPercentage,
@@ -13,7 +13,7 @@ export default function MacroCards({
   consumedFat,
   targetFat,
   fatPercentage,
-}: MacroCardsProps) {
+}: MacroCardsProps) => {
   return (
     <div className="col-span-1 md:col-span-4 flex flex-col gap-gutter">
       {/* Protein Card */}
@@ -86,4 +86,6 @@ export default function MacroCards({
       </div>
     </div>
   );
-}
+};
+
+export default MacroCards;

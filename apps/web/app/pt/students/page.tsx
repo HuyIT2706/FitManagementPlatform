@@ -12,7 +12,7 @@ import { toast } from '../../../utils/toast';
 import PtStudentCard, { type StudentListItem } from './components/PtStudentCard';
 import PtInviteStudentModal from './components/PtInviteStudentModal';
 
-export default function PTStudentsPage() {
+const PTStudentsPage = () => {
   const [userData, setUserData] = useState<UserDataHome | null>(null);
   const [ptData, setPtData] = useState<PTDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -153,4 +153,6 @@ export default function PTStudentsPage() {
       <PTBottomNavBar activeTab="students" />
     </div>
   );
-}
+};
+
+export default PTStudentsPage;

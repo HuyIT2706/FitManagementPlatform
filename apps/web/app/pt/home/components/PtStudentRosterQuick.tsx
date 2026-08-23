@@ -6,7 +6,7 @@ import { Award, Activity } from 'lucide-react';
 import type { PTStudentSummary } from '@repo/types';
 import type { PtStudentRosterQuickProps } from '../../../../interface';
 
-export default function PtStudentRosterQuick({ students }: PtStudentRosterQuickProps) {
+const PtStudentRosterQuick = ({ students }: PtStudentRosterQuickProps) => {
   const studentList = students || [];
 
   return (
@@ -72,4 +72,6 @@ export default function PtStudentRosterQuick({ students }: PtStudentRosterQuickP
       </div>
     </div>
   );
-}
+};
+
+export default PtStudentRosterQuick;

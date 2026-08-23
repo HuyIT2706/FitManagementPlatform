@@ -3,13 +3,13 @@
 import { Star, Dumbbell, CalendarCheck, AlertTriangle } from 'lucide-react';
 import type { PtBentoStatsProps } from '../../../../interface';
 
-export default function PtBentoStats({
+const PtBentoStats = ({
   totalVipStudents,
   todaySessionsCount,
   completedSessionsCount,
   totalPackageSessionsCount,
   warningsCount,
-}: PtBentoStatsProps) {
+}: PtBentoStatsProps) => {
   return (
     <section className="grid grid-cols-2 md:grid-cols-4 gap-gutter">
       <div className="bento-card rounded-2xl p-5 border border-outline-variant/30 flex flex-col justify-between">
@@ -58,4 +58,6 @@ export default function PtBentoStats({
       </div>
     </section>
   );
-}
+};
+
+export default PtBentoStats;

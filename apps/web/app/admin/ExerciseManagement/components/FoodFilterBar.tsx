@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Search, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import type { FoodFilterBarProps } from '../../../../interface';
+import AppSearchInput from '../../../../components/ui/AppSearchInput';
 
 const FoodFilterBar = ({
   search,
@@ -25,16 +26,14 @@ const FoodFilterBar = ({
 
   return (
     <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-[#121a15] p-4 rounded-2xl border border-white/10" suppressHydrationWarning>
-      <div className="relative grow max-w-md">
-        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
-        <input
-          type="text"
-          suppressHydrationWarning
+      <div className="grow max-w-md">
+        <AppSearchInput
+          size="sm"
           value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && onSearchSubmit()}
+          onChange={onSearchChange}
+          onSubmit={onSearchSubmit}
           placeholder="Tìm thực phẩm, món ăn theo tên..."
-          className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-white/40 focus:border-[#10b981] outline-none"
+          variant="filled"
         />
       </div>
 

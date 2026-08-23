@@ -4,7 +4,7 @@ import { Sunrise, Sun, Moon, Cookie, CheckCircle2 } from 'lucide-react';
 import type { HistoryNutritionDetailsProps } from '../../../interface';
 import { formatDisplayDate } from '../../../utils/date';
 
-export default function HistoryNutritionDetails({
+const HistoryNutritionDetails = ({
   selectedDate,
   isSelectedDateToday,
   consumedCalo,
@@ -22,7 +22,7 @@ export default function HistoryNutritionDetails({
   mealSlots,
   getMealDetails,
   dailyLoading,
-}: HistoryNutritionDetailsProps) {
+}: HistoryNutritionDetailsProps) => {
   const getMealIcon = (id: string) => {
     switch (id) {
       case 'BREAKFAST':
@@ -166,4 +166,6 @@ export default function HistoryNutritionDetails({
       </div>
     </section>
   );
-}
+};
+
+export default HistoryNutritionDetails;

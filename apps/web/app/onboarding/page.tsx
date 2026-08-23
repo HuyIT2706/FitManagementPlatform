@@ -21,7 +21,7 @@ import StepNotify from './components/StepNotify';
 
 const steps = 11;
 
-export default function OnboardingPage() {
+const OnboardingPage = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isClient, setIsClient] = useState(false);
   const store = useOnboardingStore();
@@ -250,4 +250,6 @@ export default function OnboardingPage() {
       </footer>
     </div>
   );
-}
+};
+
+export default OnboardingPage;

@@ -9,12 +9,12 @@ interface PtScheduleWeekStripProps {
   activeSessionsCount?: number;
 }
 
-export default function PtScheduleWeekStrip({
+const PtScheduleWeekStrip = ({
   currentMonday,
   selectedDate,
   onSelectDate,
   activeSessionsCount = 0,
-}: PtScheduleWeekStripProps) {
+}: PtScheduleWeekStripProps) => {
   const weekDays = getWeekDays(currentMonday);
   const dayNamesMap = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
   const selectedDayName = dayNamesMap[selectedDate.getDay()];
@@ -61,4 +61,6 @@ export default function PtScheduleWeekStrip({
       </div>
     </section>
   );
-}
+};
+
+export default PtScheduleWeekStrip;

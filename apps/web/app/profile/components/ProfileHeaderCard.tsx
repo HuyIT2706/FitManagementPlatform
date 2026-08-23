@@ -4,7 +4,7 @@
 import { UserCheck, Edit3 } from 'lucide-react';
 import type { ProfileHeaderCardProps } from '../../../interface';
 
-export default function ProfileHeaderCard({ userData, onEditProfile }: ProfileHeaderCardProps) {
+const ProfileHeaderCard = ({ userData, onEditProfile }: ProfileHeaderCardProps) => {
   const ptName = userData?.assignedPt ? `PT Phụ trách: ${userData.assignedPt.fullName}` : '';
 
   return (
@@ -52,4 +52,6 @@ export default function ProfileHeaderCard({ userData, onEditProfile }: ProfileHe
       </button>
     </section>
   );
-}
+};
+
+export default ProfileHeaderCard;

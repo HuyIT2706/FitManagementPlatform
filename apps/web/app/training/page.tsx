@@ -19,7 +19,7 @@ import AssignedMealPlanCard from './components/AssignedMealPlanCard';
 import AssignedWorkoutPlanCard from './components/AssignedWorkoutPlanCard';
 import ExerciseDetailModal from './components/ExerciseDetailModal';
 
-export default function WorkoutPage() {
+const WorkoutPage = () => {
   const [userData, setUserData] = useState<UserDataHome | null>(null);
   const [assignedMealPlan, setAssignedMealPlan] = useState<MealPlanAssigned | null>(null);
   const [assignedWorkoutPlan, setAssignedWorkoutPlan] = useState<AssignedWorkoutPlanData | null>(
@@ -174,4 +174,6 @@ export default function WorkoutPage() {
       <BottomNavBar activeTab="workout" />
     </div>
   );
-}
+};
+
+export default WorkoutPage;

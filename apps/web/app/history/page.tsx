@@ -12,7 +12,7 @@ import HistoryStreakHeroCard from './components/HistoryStreakHeroCard';
 import HistoryMonthCalendar from './components/HistoryMonthCalendar';
 import HistoryNutritionDetails from './components/HistoryNutritionDetails';
 
-export default function HistoryPage() {
+const HistoryPage = () => {
   const [userData, setUserData] = useState<UserDataHome | null>(null);
   const [dailyData, setDailyData] = useState<DailyNutritionData | null>(null);
 
@@ -262,4 +262,6 @@ export default function HistoryPage() {
       <BottomNavBar activeTab="history" />
     </div>
   );
-}
+};
+
+export default HistoryPage;

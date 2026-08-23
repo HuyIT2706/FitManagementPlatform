@@ -10,7 +10,7 @@ interface PtQrCodeCardProps {
   onCopyPtCode: () => void;
 }
 
-export default function PtQrCodeCard({ ptCode, qrUrl, onCopyPtCode }: PtQrCodeCardProps) {
+const PtQrCodeCard = ({ ptCode, qrUrl, onCopyPtCode }: PtQrCodeCardProps) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -63,4 +63,6 @@ export default function PtQrCodeCard({ ptCode, qrUrl, onCopyPtCode }: PtQrCodeCa
       </div>
     </div>
   );
-}
+};
+
+export default PtQrCodeCard;

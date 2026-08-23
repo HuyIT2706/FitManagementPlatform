@@ -7,7 +7,7 @@ interface StepWeightProps {
   store: OnboardingState;
 }
 
-export default function StepWeight({ store }: StepWeightProps) {
+const StepWeight = ({ store }: StepWeightProps) => {
   const weight = store.weight || 0;
   const targetWeight = store.targetWeight || 0;
 
@@ -99,4 +99,6 @@ export default function StepWeight({ store }: StepWeightProps) {
       </div>
     </div>
   );
-}
+};
+
+export default StepWeight;

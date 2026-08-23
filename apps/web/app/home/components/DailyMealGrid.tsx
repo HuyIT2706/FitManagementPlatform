@@ -5,11 +5,11 @@ import { Sunrise, Sun, Moon, Cookie, Plus, ChevronRight } from 'lucide-react';
 import toast from '../../../utils/toast';
 import { type DailyMealGridProps } from '../../../interface';
 
-export default function DailyMealGrid({
+const DailyMealGrid = ({
   mealSlots,
   getMealDetails,
   selectedDateFormattedStr,
-}: DailyMealGridProps) {
+}: DailyMealGridProps) => {
   const todayEnd = new Date();
   todayEnd.setHours(23, 59, 59, 999);
 
@@ -114,4 +114,6 @@ export default function DailyMealGrid({
       </div>
     </div>
   );
-}
+};
+
+export default DailyMealGrid;

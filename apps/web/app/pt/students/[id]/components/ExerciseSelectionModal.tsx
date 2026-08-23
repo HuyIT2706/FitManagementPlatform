@@ -2,8 +2,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Search, X, Dumbbell, ExternalLink, Check, PlayCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, Dumbbell, ExternalLink, Check, PlayCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import AppLoading from '../../../../../components/ui/AppLoading';
+import AppSearchInput from '../../../../../components/ui/AppSearchInput';
 import apiClient from '../../../../../api/axios';
 import type { ExerciseItem, ExercisePaginatedResponse } from '../../../../../interface';
 
@@ -14,12 +15,12 @@ interface ExerciseSelectionModalProps {
   currentSelectedName?: string;
 }
 
-export default function ExerciseSelectionModal({
+const ExerciseSelectionModal = ({
   isOpen,
   onClose,
   onSelectExercise,
   currentSelectedName,
-}: ExerciseSelectionModalProps) {
+}: ExerciseSelectionModalProps) => {
   const [exercises, setExercises] = useState<ExerciseItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedMuscle, setSelectedMuscle] = useState<string>('ALL');
@@ -96,14 +97,12 @@ export default function ExerciseSelectionModal({
         </div>
         <div className="p-5 border-b border-white/10 space-y-4 bg-surface-bright/20">
           {/* Search Input */}
-          <div className="relative">
-            <Search className="absolute left-3.5 top-3 text-white/40" size={18} />
-            <input
-              type="text"
+          <div>
+            <AppSearchInput
               value={searchQuery}
-              onChange={(e) => handleSearchChange(e.target.value)}
+              onChange={(val) => handleSearchChange(val)}
               placeholder="Tìm kiếm bài tập theo tên hoặc nhóm cơ..."
-              className="w-full bg-black/40 border border-white/15 rounded-2xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-white/40 focus:outline-none focus:border-primary transition-all"
+              variant="filled"
             />
           </div>
 
@@ -246,4 +245,6 @@ export default function ExerciseSelectionModal({
       </div>
     </div>
   );
-}
+};
+
+export default ExerciseSelectionModal;

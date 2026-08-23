@@ -12,7 +12,7 @@ interface StudentHeaderHeroProps {
   onOpenEditSessionModal: () => void;
 }
 
-export default function StudentHeaderHero({
+const StudentHeaderHero = ({
   fullName,
   avatarUrl,
   email,
@@ -21,7 +21,7 @@ export default function StudentHeaderHero({
   remainingSessions,
   totalSessions,
   onOpenEditSessionModal,
-}: StudentHeaderHeroProps) {
+}: StudentHeaderHeroProps) => {
   const sessionPercentage = Math.min(
     100,
     Math.round((remainingSessions / Math.max(1, totalSessions)) * 100)
@@ -85,4 +85,6 @@ export default function StudentHeaderHero({
       </div>
     </section>
   );
-}
+};
+
+export default StudentHeaderHero;

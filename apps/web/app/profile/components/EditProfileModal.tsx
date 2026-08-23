@@ -25,12 +25,12 @@ interface EditProfileModalProps {
   onSuccess: () => void;
 }
 
-export default function EditProfileModal({
+const EditProfileModal = ({
   isOpen,
   userData,
   onClose,
   onSuccess,
-}: EditProfileModalProps) {
+}: EditProfileModalProps) => {
   const [fullName, setFullName] = useState(userData?.fullName || '');
   const [avatarUrl, setAvatarUrl] = useState(userData?.avatarUrl || '');
   const [weight, setWeight] = useState<number | ''>(
@@ -406,4 +406,6 @@ export default function EditProfileModal({
       </div>
     </div>
   );
-}
+};
+
+export default EditProfileModal;

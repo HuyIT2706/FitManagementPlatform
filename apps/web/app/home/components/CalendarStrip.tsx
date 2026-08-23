@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-reac
 import toast from '../../../utils/toast';
 import { type CalendarStripProps } from '../../../interface';
 
-export default function CalendarStrip({
+const CalendarStrip = ({
   currentMonday,
   selectedDate,
   weekDays,
@@ -15,7 +15,7 @@ export default function CalendarStrip({
   onNextWeek,
   onGoToToday,
   isSameDay,
-}: CalendarStripProps) {
+}: CalendarStripProps) => {
   const todayEnd = new Date();
   todayEnd.setHours(23, 59, 59, 999);
 
@@ -107,4 +107,6 @@ export default function CalendarStrip({
       </div>
     </section>
   );
-}
+};
+
+export default CalendarStrip;

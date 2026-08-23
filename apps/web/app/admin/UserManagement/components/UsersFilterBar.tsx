@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Search, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import type { AdminUsersFilterBarProps, AdminUserRoleFilter } from '../../../../interface';
+import AppSearchInput from '../../../../components/ui/AppSearchInput';
 
 const AdminUsersFilterBar = ({
   searchTerm,
@@ -22,17 +23,16 @@ const AdminUsersFilterBar = ({
   return (
     <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-[#121a15] p-4 rounded-2xl border border-white/10" suppressHydrationWarning>
       {/* Search Bar */}
-      <form onSubmit={onSearchSubmit} className="relative grow max-w-md" suppressHydrationWarning>
-        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
-        <input
-          type="text"
-          suppressHydrationWarning
+      <div className="grow max-w-md" suppressHydrationWarning>
+        <AppSearchInput
+          size="sm"
           value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
+          onChange={onSearchChange}
+          onSubmit={() => onSearchSubmit({ preventDefault: () => {} } as React.FormEvent)}
           placeholder="Tìm theo tên, email, SĐT..."
-          className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-white/40 focus:border-[#10b981] outline-none"
+          variant="filled"
         />
-      </form>
+      </div>
 
       {/* Role Filters */}
       <div className="flex items-center gap-2 overflow-x-auto" suppressHydrationWarning>

@@ -6,7 +6,7 @@ import { handleRoleRedirect } from '../utils/authRedirect';
 
 import AppLoading from '../components/ui/AppLoading';
 
-export default function RootPage() {
+const RootPage = () => {
   useEffect(() => {
     const token = localStorage.getItem('jwt_token');
     if (!token) {
@@ -26,4 +26,6 @@ export default function RootPage() {
   }, []);
 
   return <AppLoading fullScreen size="lg" message="Đang kết nối hệ thống NutriCore..." />;
-}
+};
+
+export default RootPage;

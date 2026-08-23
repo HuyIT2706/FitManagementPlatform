@@ -3,10 +3,10 @@
 import { UserCheck } from 'lucide-react';
 import type { TrainingVipBannerProps } from '../../../interface';
 
-export default function TrainingVipBanner({
+const TrainingVipBanner = ({
   userData,
   assignedMealPlan,
-}: TrainingVipBannerProps) {
+}: TrainingVipBannerProps) => {
   const hasPt = Boolean(userData?.assignedPt || assignedMealPlan);
   const ptName =
     userData?.assignedPt?.fullName || assignedMealPlan?.coachName || '';
@@ -67,4 +67,6 @@ export default function TrainingVipBanner({
       <div className="absolute -right-10 -top-10 w-48 h-48 bg-green-light/10 blur-[60px] rounded-full pointer-events-none"></div>
     </section>
   );
-}
+};
+
+export default TrainingVipBanner;

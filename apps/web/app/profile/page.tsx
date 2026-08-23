@@ -15,7 +15,7 @@ import DailyMacroTargetMaster from './components/DailyMacroTargetMaster';
 import ProfileSettingsList from './components/ProfileSettingsList';
 import EditProfileModal from './components/EditProfileModal';
 
-export default function ProfilePage() {
+const ProfilePage = () => {
   const [userData, setUserData] = useState<UserDataHome | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
@@ -148,4 +148,6 @@ export default function ProfilePage() {
       <BottomNavBar activeTab="profile" />
     </div>
   );
-}
+};
+
+export default ProfilePage;

@@ -3,7 +3,7 @@
 import { Flame } from 'lucide-react';
 import type { HistoryStreakHeroCardProps } from '../../../interface';
 
-export default function HistoryStreakHeroCard({
+const HistoryStreakHeroCard = ({
   streakDays,
   calorieComplianceDays,
   totalTrackingDays,
@@ -11,7 +11,7 @@ export default function HistoryStreakHeroCard({
   checkedInPtSessions,
   totalPtSessions,
   ptAttendancePercent,
-}: HistoryStreakHeroCardProps) {
+}: HistoryStreakHeroCardProps) => {
   const compliancePercentage = Math.round((calorieComplianceDays / totalTrackingDays) * 100);
 
   return (
@@ -104,4 +104,6 @@ export default function HistoryStreakHeroCard({
       </div>
     </section>
   );
-}
+};
+
+export default HistoryStreakHeroCard;

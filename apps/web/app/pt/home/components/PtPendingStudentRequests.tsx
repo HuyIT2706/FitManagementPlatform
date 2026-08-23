@@ -10,11 +10,11 @@ interface PtPendingStudentRequestsProps {
   onRejectRequest: (requestId: string) => void;
 }
 
-export default function PtPendingStudentRequests({
+const PtPendingStudentRequests = ({
   requests = [],
   onApproveRequest,
   onRejectRequest,
-}: PtPendingStudentRequestsProps) {
+}: PtPendingStudentRequestsProps) => {
   if (!requests || requests.length === 0) return null;
 
   return (
@@ -76,4 +76,6 @@ export default function PtPendingStudentRequests({
       </div>
     </div>
   );
-}
+};
+
+export default PtPendingStudentRequests;

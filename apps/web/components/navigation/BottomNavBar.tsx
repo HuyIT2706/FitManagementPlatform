@@ -5,7 +5,7 @@ interface BottomNavBarProps {
   activeTab: 'diary' | 'workout' | 'history' | 'profile';
 }
 
-export default function BottomNavBar({ activeTab }: BottomNavBarProps) {
+const BottomNavBar = ({ activeTab }: BottomNavBarProps) => {
   return (
     <>
       <div className="md:hidden fixed bottom-10 left-1/2 -translate-x-1/2 w-[92%] max-w-md z-50 flex items-center justify-center gap-3">
@@ -42,4 +42,6 @@ export default function BottomNavBar({ activeTab }: BottomNavBarProps) {
       <div className="h-32 md:hidden"></div>
     </>
   );
-}
+};
+
+export default BottomNavBar;

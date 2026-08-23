@@ -8,7 +8,7 @@ interface StepNotifyProps {
   store: OnboardingState;
 }
 
-export default function StepNotify({ store }: StepNotifyProps) {
+const StepNotify = ({ store }: StepNotifyProps) => {
   return (
     <div className="flex flex-col flex-1 h-full pb-20">
       <div className="flex items-center gap-2 mb-2">
@@ -39,4 +39,6 @@ export default function StepNotify({ store }: StepNotifyProps) {
       </div>
     </div>
   );
-}
+};
+
+export default StepNotify;

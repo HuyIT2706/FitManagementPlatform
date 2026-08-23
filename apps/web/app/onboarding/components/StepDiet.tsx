@@ -7,7 +7,7 @@ interface StepDietProps {
   store: OnboardingState;
 }
 
-export default function StepDiet({ store }: StepDietProps) {
+const StepDiet = ({ store }: StepDietProps) => {
   const options = [
     { id: 'NONE', label: 'Không bị dị ứng' },
     { id: 'SEAFOOD', label: 'Hải sản' },
@@ -66,4 +66,6 @@ export default function StepDiet({ store }: StepDietProps) {
       </div>
     </div>
   );
-}
+};
+
+export default StepDiet;

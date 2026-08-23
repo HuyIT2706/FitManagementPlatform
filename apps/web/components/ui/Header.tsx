@@ -10,7 +10,7 @@ export interface HeaderProps {
   onLogout: () => void;
 }
 
-export default function Header({ userData, onLogout }: HeaderProps) {
+const Header = ({ userData, onLogout }: HeaderProps) => {
   return (
     <>
       {/* TopAppBar (Desktop) */}
@@ -97,4 +97,6 @@ export default function Header({ userData, onLogout }: HeaderProps) {
       </div>
     </>
   );
-}
+};
+
+export default Header;

@@ -7,7 +7,7 @@ interface StepGenderProps {
   store: OnboardingState;
 }
 
-export default function StepGender({ store }: StepGenderProps) {
+const StepGender = ({ store }: StepGenderProps) => {
   const options = [
     {
       id: 'MALE',
@@ -67,4 +67,6 @@ export default function StepGender({ store }: StepGenderProps) {
       </div>
     </div>
   );
-}
+};
+
+export default StepGender;

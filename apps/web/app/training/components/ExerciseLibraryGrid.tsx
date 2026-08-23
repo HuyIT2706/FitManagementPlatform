@@ -1,9 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { Search, X, Check, ChevronLeft, ChevronRight, SearchX } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, SearchX } from 'lucide-react';
 import type { ExerciseLibraryGridProps } from '../../../interface';
 import AppLoading from '../../../components/ui/AppLoading';
+import AppSearchInput from '../../../components/ui/AppSearchInput';
 
 const MUSCLE_FILTERS: Array<{ id: string; label: string }> = [
   { id: 'ALL', label: 'Tất cả' },
@@ -20,7 +21,7 @@ const MUSCLE_FILTERS: Array<{ id: string; label: string }> = [
   { id: 'bắp chân', label: 'Bắp chân' },
 ];
 
-export default function ExerciseLibraryGrid({
+const ExerciseLibraryGrid = ({
   exercises,
   totalExercises,
   selectedMuscle,
@@ -35,7 +36,7 @@ export default function ExerciseLibraryGrid({
   onToggleExercise,
   onSelectExercise,
   onPageChange,
-}: ExerciseLibraryGridProps) {
+}: ExerciseLibraryGridProps) => {
   return (
     <div className="space-y-6">
       {/* Header & Search Bar */}
@@ -51,27 +52,14 @@ export default function ExerciseLibraryGrid({
           </div>
 
           {/* Search Bar */}
-          <div className="relative w-full sm:w-64">
-            <Search
-              size={18}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none"
-            />
-            <input
-              type="text"
+          <div className="w-full sm:w-72">
+            <AppSearchInput
               value={searchQuery}
-              onChange={onSearchChange}
+              onChange={(val, e) => onSearchChange(e || ({ target: { value: val } } as React.ChangeEvent<HTMLInputElement>))}
+              onClear={onClearSearch}
               placeholder="Tìm tên bài tập..."
-              className="w-full bg-surface-bright/60 border border-outline-variant/40 rounded-xl pl-9 pr-8 py-2 text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary transition-all"
+              variant="glass"
             />
-            {searchQuery && (
-              <button
-                onClick={onClearSearch}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface cursor-pointer"
-                aria-label="Xóa từ khóa tìm kiếm"
-              >
-                <X size={16} />
-              </button>
-            )}
           </div>
         </div>
 
@@ -249,4 +237,6 @@ export default function ExerciseLibraryGrid({
       </section>
     </div>
   );
-}
+};
+
+export default ExerciseLibraryGrid;

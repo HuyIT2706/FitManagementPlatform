@@ -50,7 +50,7 @@ const toastConfig: Record<
   },
 };
 
-export function ToastContainer() {
+const ToastContainer = () => {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
   useEffect(() => {
@@ -119,4 +119,7 @@ export function ToastContainer() {
       </AnimatePresence>
     </div>
   );
-}
+};
+
+export { ToastContainer };
+export default ToastContainer;

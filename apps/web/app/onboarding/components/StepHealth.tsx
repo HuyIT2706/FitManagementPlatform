@@ -18,7 +18,7 @@ const parqQuestions = [
   { id: 'otherReason', label: '7. Bạn có biết bất kỳ lý do sức khỏe nào khác khiến bạn không nên tham gia thể thao không?' },
 ];
 
-export default function StepHealth({ store }: StepHealthProps) {
+const StepHealth = ({ store }: StepHealthProps) => {
   const [activeTab, setActiveTab] = useState<'CONDITIONS' | 'PARQ'>('PARQ');
   const [parqAnswers, setParqAnswers] = useState<Record<string, boolean>>({
     heartCondition: false,
@@ -213,4 +213,6 @@ export default function StepHealth({ store }: StepHealthProps) {
       </div>
     </div>
   );
-}
+};
+
+export default StepHealth;

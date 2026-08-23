@@ -87,12 +87,21 @@ export class PtService {
       totalPackageSessionsCount - remainingSessionsSum,
     );
 
-    // Check attendance history from DB for all PT students
+    // Check attendance history from DB for all PT students (ONLY for today's sessions)
     const studentIds = approvedProfiles.map((sp) => sp.studentId);
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
+
     const attendanceLogs = await this.prisma.attendanceHistory.findMany({
       where: {
         studentId: { in: studentIds },
         status: 'CHECKED_IN',
+        checkInTime: {
+          gte: startOfToday,
+          lte: endOfToday,
+        },
       },
       include: {
         student: true,
@@ -732,9 +741,31 @@ export class PtService {
       where: { id: ptUserId },
     });
 
-    const ptCode = ptUser
-      ? `PT-${ptUser.fullName.toUpperCase().slice(0, 3)}${ptUser.id.slice(0, 3).toUpperCase()}`
-      : 'PT-HUY066';
+    const removeVietnameseTones = (str: string): string => {
+      return str
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/Đ/g, 'D')
+        .replace(/[^a-zA-Z0-9]/g, '')
+        .toUpperCase();
+    };
+
+    let ptCode = 'PT-HUY066';
+    if (ptUser) {
+      const nameParts = ptUser.fullName.trim().split(/\s+/);
+      const lastName = nameParts[nameParts.length - 1] || 'PT';
+      const cleanName =
+        removeVietnameseTones(lastName).slice(0, 4) ||
+        removeVietnameseTones(ptUser.fullName).slice(0, 4) ||
+        'COACH';
+      const idPart = ptUser.id
+        .replace(/[^a-zA-Z0-9]/g, '')
+        .slice(0, 3)
+        .toUpperCase();
+      ptCode = `PT-${cleanName}${idPart}`;
+    }
+
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://fitmanagement.app/bind?ptCode=${ptCode}&user=${ptUserId}`;
 
     return {
@@ -827,12 +858,22 @@ export class PtService {
         where: { role: 'PT' },
       });
 
+      const removeVietnameseTones = (str: string): string => {
+        return str
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/đ/g, 'd')
+          .replace(/Đ/g, 'D')
+          .replace(/[^a-zA-Z0-9]/g, '')
+          .toUpperCase();
+      };
+
       if (allPts.length > 0) {
-        const cleanCode = rawCode.toUpperCase().replace('PT-', '');
+        const cleanCode = removeVietnameseTones(rawCode.replace(/PT-/i, ''));
         ptUser =
           allPts.find(
             (p) =>
-              p.fullName.toUpperCase().includes(cleanCode) ||
+              removeVietnameseTones(p.fullName).includes(cleanCode) ||
               p.id.toUpperCase().includes(cleanCode) ||
               p.email.toUpperCase().includes(cleanCode),
           ) || allPts[0];

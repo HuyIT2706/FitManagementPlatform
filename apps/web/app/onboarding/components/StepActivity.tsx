@@ -7,7 +7,7 @@ interface StepActivityProps {
   store: OnboardingState;
 }
 
-export default function StepActivity({ store }: StepActivityProps) {
+const StepActivity = ({ store }: StepActivityProps) => {
   const options = [
     { id: 'SEDENTARY', label: 'Ít vận động', desc: 'Làm việc văn phòng, ít đi lại, không tập thể dục thường xuyên' },
     { id: 'LIGHTLY_ACTIVE', label: 'Vận động nhẹ', desc: 'Tập thể dục nhẹ nhàng 1-3 ngày/tuần hoặc công việc đi lại nhiều' },
@@ -39,4 +39,6 @@ export default function StepActivity({ store }: StepActivityProps) {
       </div>
     </div>
   );
-}
+};
+
+export default StepActivity;
