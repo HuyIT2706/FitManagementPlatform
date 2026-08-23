@@ -50,34 +50,71 @@ export default function EditProfileModal({
   const [goal, setGoal] = useState<string>(userData?.goal || 'LOSE_WEIGHT');
   const [saving, setSaving] = useState(false);
 
+  const numWeight = weight !== '' ? Number(weight) : 0;
+  const numHeight = height !== '' ? Number(height) : 0;
+  const numTargetWeight = targetWeight !== '' ? Number(targetWeight) : 0;
+  const numBodyFat = bodyFat !== '' ? Number(bodyFat) : undefined;
+  const numMuscleMass = muscleMass !== '' ? Number(muscleMass) : undefined;
+
+  const isHeightValid = height === '' || (numHeight >= 100 && numHeight <= 220);
+  const isWeightValid = weight === '' || (numWeight >= 30 && numWeight <= 200);
+  const isTargetWeightValid = targetWeight === '' || (numTargetWeight >= 30 && numTargetWeight <= 200);
+  const isBodyFatValid = bodyFat === '' || (numBodyFat !== undefined && numBodyFat >= 3 && numBodyFat <= 60);
+  const isMuscleMassValid = muscleMass === '' || (numMuscleMass !== undefined && numMuscleMass >= 10 && numMuscleMass <= 120);
+
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isHeightValid || height === '') {
+      toast.error('Chiều cao không hợp lệ! Vui lòng nhập từ 100cm đến 220cm.');
+      return;
+    }
+    if (!isWeightValid || weight === '') {
+      toast.error('Cân nặng không hợp lệ! Vui lòng nhập từ 30kg đến 200kg.');
+      return;
+    }
+    if (!isTargetWeightValid || targetWeight === '') {
+      toast.error('Cân nặng mục tiêu không hợp lệ! Vui lòng nhập từ 30kg đến 200kg.');
+      return;
+    }
+    if (!isBodyFatValid) {
+      toast.error('Tỷ lệ mỡ không hợp lệ! Vui lòng nhập từ 3% đến 60%.');
+      return;
+    }
+    if (!isMuscleMassValid) {
+      toast.error('Khối lượng cơ không hợp lệ! Vui lòng nhập từ 10kg đến 120kg.');
+      return;
+    }
+
     setSaving(true);
 
     apiClient
       .patch('/users/me', {
         fullName,
         avatarUrl,
-        weight: weight !== '' ? Number(weight) : undefined,
-        targetWeight: targetWeight !== '' ? Number(targetWeight) : undefined,
-        height: height !== '' ? Number(height) : undefined,
-        bodyFat: bodyFat !== '' ? Number(bodyFat) : undefined,
-        muscleMass: muscleMass !== '' ? Number(muscleMass) : undefined,
+        weight: numWeight,
+        targetWeight: numTargetWeight,
+        height: numHeight,
+        bodyFat: numBodyFat,
+        muscleMass: numMuscleMass,
         activityLevel,
         goal,
       })
       .then(() => {
         setSaving(false);
-        toast.success('Đã cập nhật chỉ số hồ sơ cá nhân thành công!');
+        toast.success('Đã cập nhật và tính toán lại BMR, TDEE thành công!');
         onSuccess();
         onClose();
       })
-      .catch((err) => {
+      .catch((err: unknown) => {
         console.error(err);
         setSaving(false);
-        toast.error('Không thể cập nhật hồ sơ cá nhân!');
+        const errMsg =
+          (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+          'Không thể cập nhật hồ sơ cá nhân!';
+        toast.error(errMsg);
       });
   };
 
@@ -181,7 +218,7 @@ export default function EditProfileModal({
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               <div className="space-y-1">
                 <label className="block text-[11px] font-semibold text-white/80">
-                  Chiều cao (cm):
+                  Chiều cao (100 - 220cm):
                 </label>
                 <div className="relative">
                   <Ruler
@@ -190,16 +227,21 @@ export default function EditProfileModal({
                   />
                   <input
                     type="number"
+                    min="100"
+                    max="220"
+                    placeholder="170"
                     value={height}
                     onChange={(e) => setHeight(e.target.value ? Number(e.target.value) : '')}
-                    className="w-full bg-white/[0.05] border border-white/15 rounded-xl pl-8 pr-2 py-2 text-xs text-white focus:border-primary outline-none font-bold"
+                    className={`w-full bg-white/[0.05] border rounded-xl pl-8 pr-2 py-2 text-xs text-white focus:border-primary outline-none font-bold ${
+                      !isHeightValid ? 'border-rose-500 text-rose-400' : 'border-white/15'
+                    }`}
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
                 <label className="block text-[11px] font-semibold text-white/80">
-                  Cân nặng (kg):
+                  Cân nặng (30 - 200kg):
                 </label>
                 <div className="relative">
                   <Scale
@@ -208,17 +250,22 @@ export default function EditProfileModal({
                   />
                   <input
                     type="number"
+                    min="30"
+                    max="200"
                     step="0.5"
+                    placeholder="70"
                     value={weight}
                     onChange={(e) => setWeight(e.target.value ? Number(e.target.value) : '')}
-                    className="w-full bg-white/[0.05] border border-white/15 rounded-xl pl-8 pr-2 py-2 text-xs text-primary focus:border-primary outline-none font-bold"
+                    className={`w-full bg-white/[0.05] border rounded-xl pl-8 pr-2 py-2 text-xs focus:border-primary outline-none font-bold ${
+                      !isWeightValid ? 'border-rose-500 text-rose-400' : 'border-white/15 text-primary'
+                    }`}
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
                 <label className="block text-[11px] font-semibold text-white/80">
-                  Mục tiêu (kg):
+                  Mục tiêu (30 - 200kg):
                 </label>
                 <div className="relative">
                   <Scale
@@ -227,17 +274,22 @@ export default function EditProfileModal({
                   />
                   <input
                     type="number"
+                    min="30"
+                    max="200"
                     step="0.5"
+                    placeholder="65"
                     value={targetWeight}
                     onChange={(e) => setTargetWeight(e.target.value ? Number(e.target.value) : '')}
-                    className="w-full bg-white/[0.05] border border-white/15 rounded-xl pl-8 pr-2 py-2 text-xs text-green-light focus:border-primary outline-none font-bold"
+                    className={`w-full bg-white/[0.05] border rounded-xl pl-8 pr-2 py-2 text-xs focus:border-primary outline-none font-bold ${
+                      !isTargetWeightValid ? 'border-rose-500 text-rose-400' : 'border-white/15 text-green-light'
+                    }`}
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
                 <label className="block text-[11px] font-semibold text-white/80">
-                  Tỷ lệ Mỡ (%):
+                  Tỷ lệ Mỡ (3 - 60%):
                 </label>
                 <div className="relative">
                   <Flame
@@ -246,17 +298,22 @@ export default function EditProfileModal({
                   />
                   <input
                     type="number"
+                    min="3"
+                    max="60"
                     step="0.1"
+                    placeholder="18.5"
                     value={bodyFat}
                     onChange={(e) => setBodyFat(e.target.value ? Number(e.target.value) : '')}
-                    className="w-full bg-white/[0.05] border border-white/15 rounded-xl pl-8 pr-2 py-2 text-xs text-orange-400 focus:border-primary outline-none font-bold"
+                    className={`w-full bg-white/[0.05] border rounded-xl pl-8 pr-2 py-2 text-xs focus:border-primary outline-none font-bold ${
+                      !isBodyFatValid ? 'border-rose-500 text-rose-400' : 'border-white/15 text-orange-400'
+                    }`}
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
                 <label className="block text-[11px] font-semibold text-white/80">
-                  Cơ bắp (kg):
+                  Cơ bắp (10 - 120kg):
                 </label>
                 <div className="relative">
                   <Dumbbell
@@ -265,10 +322,15 @@ export default function EditProfileModal({
                   />
                   <input
                     type="number"
+                    min="10"
+                    max="120"
                     step="0.1"
+                    placeholder="32.5"
                     value={muscleMass}
                     onChange={(e) => setMuscleMass(e.target.value ? Number(e.target.value) : '')}
-                    className="w-full bg-white/[0.05] border border-white/15 rounded-xl pl-8 pr-2 py-2 text-xs text-blue-400 focus:border-primary outline-none font-bold"
+                    className={`w-full bg-white/[0.05] border rounded-xl pl-8 pr-2 py-2 text-xs focus:border-primary outline-none font-bold ${
+                      !isMuscleMassValid ? 'border-rose-500 text-rose-400' : 'border-white/15 text-blue-400'
+                    }`}
                   />
                 </div>
               </div>
@@ -319,6 +381,16 @@ export default function EditProfileModal({
                   <option value="EXTRA_ACTIVE">Vận động rất cao (Lao động nặng/VĐV)</option>
                 </select>
               </div>
+            </div>
+          </div>
+
+          {/* Automatic Recalculation Badge */}
+          <div className="p-3.5 rounded-2xl bg-primary/10 border border-primary/20 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-primary/20 text-primary flex items-center justify-center shrink-0">
+              <Flame size={18} />
+            </div>
+            <div className="text-xs text-white/70">
+              Chỉ số <strong className="text-primary font-bold">BMR, TDEE và Calo mục tiêu</strong> sẽ được hệ thống tự động tính toán lại ngay khi bạn bấm Lưu.
             </div>
           </div>
 

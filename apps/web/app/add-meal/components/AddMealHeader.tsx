@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { ArrowLeft, Check } from 'lucide-react';
-import type { AddMealHeaderProps } from '../../../interface';
+import { ArrowLeft } from "lucide-react";
+import type { AddMealHeaderProps } from "../../../interface";
 
 export default function AddMealHeader({
   mealTitle,
@@ -34,8 +34,7 @@ export default function AddMealHeader({
           disabled={isSaving}
           className="px-5 py-2 bg-primary text-black rounded-full font-bold text-sm hover:opacity-90 transition-opacity shadow-[0_0_12px_rgba(102,200,28,0.4)] cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
         >
-          <Check size={16} className="stroke-[3]" />
-          {isSaving ? 'Đang lưu...' : 'Lưu lại'}
+          {isSaving ? "Đang lưu..." : "Lưu lại"}
         </button>
       )}
     </header>

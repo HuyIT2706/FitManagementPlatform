@@ -96,6 +96,9 @@ export default function ProfileBiometricsGrid({
             <Flame size={22} className="text-orange-400 fill-orange-400/20" />
           </div>
           <div>
+            <div className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">
+              TDDE
+            </div>
             <div className="text-xl font-bold text-orange-400">
               {tdee} <span className="text-xs font-normal text-white/70">kcal/ngày</span>
             </div>

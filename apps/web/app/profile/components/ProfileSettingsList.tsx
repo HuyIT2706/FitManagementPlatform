@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Dumbbell, Bell, LogOut, ChevronRight, User, HeartPulse, X, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { KeyRound, Bell, LogOut, ChevronRight, User, HeartPulse, X, CheckCircle2, ShieldCheck } from 'lucide-react';
+import ChangePasswordModal from './ChangePasswordModal';
 
 interface ProfileSettingsListProps {
   onLogout: () => void;
@@ -13,6 +14,7 @@ export default function ProfileSettingsList({
   onEditProfile,
 }: ProfileSettingsListProps) {
   const [isParqOpen, setIsParqOpen] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
   const parqQuestions = [
     '1. Bác sĩ từng chẩn đoán bạn mắc bệnh tim và khuyên chỉ vận động theo chỉ định?',
@@ -83,23 +85,24 @@ export default function ProfileSettingsList({
 
       <div className="w-full h-px bg-white/5"></div>
 
-      {/* Package Management */}
+      {/* Change Password */}
       <button
         type="button"
         suppressHydrationWarning
+        onClick={() => setIsChangePasswordOpen(true)}
         className="flex items-center justify-between p-4 hover:bg-surface-bright/40 rounded-xl transition-colors cursor-pointer group text-left"
       >
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 rounded-full bg-surface-bright/50 flex items-center justify-center border border-white/5 group-hover:bg-green-light/10 transition-colors shrink-0">
-            <Dumbbell
+            <KeyRound
               size={20}
               className="text-on-surface group-hover:text-green-light transition-colors"
             />
           </div>
           <div>
-            <div className="text-sm font-bold text-on-surface">Quản lý Gói tập</div>
+            <div className="text-sm font-bold text-on-surface">Đổi mật khẩu tài khoản</div>
             <div className="text-xs font-medium text-on-surface-variant mt-0.5">
-              Gói PT 1:1 - Đã kích hoạt
+              Cập nhật mật khẩu bảo vệ tài khoản
             </div>
           </div>
         </div>
@@ -192,6 +195,12 @@ export default function ProfileSettingsList({
           </div>
         </div>
       )}
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={isChangePasswordOpen}
+        onClose={() => setIsChangePasswordOpen(false)}
+      />
     </section>
   );
 }

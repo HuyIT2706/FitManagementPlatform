@@ -3,9 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import {
-  ShieldAlert,
   Home,
-  KeyRound,
   LogOut,
   Dumbbell,
   UserCheck,

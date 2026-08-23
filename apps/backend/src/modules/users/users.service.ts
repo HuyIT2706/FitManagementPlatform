@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import type { Gender, ActivityLevel } from '@repo/db';
 import { PrismaService } from '../../prisma/prisma.service';
 import { OnboardingDto } from './dto/onboarding.dto';
@@ -215,8 +215,13 @@ export class UsersService {
   }
 
   previewTDEE(dto: OnboardingDto) {
-    const w = dto.weight || 70;
-    const h = dto.height || 170;
+    const rawW = Number(dto.weight) || 70;
+    const rawH = Number(dto.height) || 170;
+    const rawTargetW = Number(dto.targetWeight) || 70;
+
+    const w = Math.min(200, Math.max(30, rawW));
+    const h = Math.min(220, Math.max(100, rawH));
+    const targetW = Math.min(200, Math.max(30, rawTargetW));
     const gender = dto.gender || 'MALE';
     let age = 25;
 
@@ -244,8 +249,7 @@ export class UsersService {
     const tdee = Math.round(bmr * multiplier);
 
     const goal = String(
-      dto.goal ||
-        (w > (dto.targetWeight || 70) ? 'LOSE_WEIGHT' : 'GAIN_WEIGHT'),
+      dto.goal || (w > targetW ? 'LOSE_WEIGHT' : 'GAIN_WEIGHT'),
     );
     const isLosing = goal === 'LOSE_WEIGHT';
     const suggestedOffset = isLosing ? -400 : 300;
@@ -340,30 +344,128 @@ export class UsersService {
   }
 
   async updateProfile(userId: string, dto: UpdateProfileDto) {
-    const updateData: Record<string, unknown> = {};
+    if (
+      dto.height !== undefined &&
+      (Number(dto.height) < 100 || Number(dto.height) > 220)
+    ) {
+      throw new BadRequestException(
+        'Chiều cao không hợp lệ! Vui lòng nhập từ 100cm đến 220cm.',
+      );
+    }
+    if (
+      dto.weight !== undefined &&
+      (Number(dto.weight) < 30 || Number(dto.weight) > 200)
+    ) {
+      throw new BadRequestException(
+        'Cân nặng không hợp lệ! Vui lòng nhập từ 30kg đến 200kg.',
+      );
+    }
+    if (
+      dto.targetWeight !== undefined &&
+      (Number(dto.targetWeight) < 30 || Number(dto.targetWeight) > 200)
+    ) {
+      throw new BadRequestException(
+        'Cân nặng mục tiêu không hợp lệ! Vui lòng nhập từ 30kg đến 200kg.',
+      );
+    }
+    if (
+      dto.bodyFat !== undefined &&
+      (Number(dto.bodyFat) < 3 || Number(dto.bodyFat) > 60)
+    ) {
+      throw new BadRequestException(
+        'Tỷ lệ mỡ không hợp lệ! Vui lòng nhập từ 3% đến 60%.',
+      );
+    }
+    if (
+      dto.muscleMass !== undefined &&
+      (Number(dto.muscleMass) < 10 || Number(dto.muscleMass) > 120)
+    ) {
+      throw new BadRequestException(
+        'Khối lượng cơ không hợp lệ! Vui lòng nhập từ 10kg đến 120kg.',
+      );
+    }
+    const existingUser = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        bodyMetrics: { orderBy: { recordedAt: 'desc' }, take: 1 },
+      },
+    });
+
+    const effectiveWeight = dto.weight
+      ? Number(dto.weight)
+      : existingUser?.bodyMetrics?.[0]?.weight || 70;
+    const effectiveHeight = dto.height
+      ? Number(dto.height)
+      : existingUser?.height || 170;
+    const effectiveTargetWeight = dto.targetWeight
+      ? Number(dto.targetWeight)
+      : existingUser?.targetWeight || 70;
+    const effectiveGender = dto.gender || existingUser?.gender || 'MALE';
+    const effectiveActivityLevel =
+      dto.activityLevel || existingUser?.activityLevel || 'VERY_ACTIVE';
+    const effectiveGoal =
+      dto.goal ||
+      existingUser?.goal ||
+      (effectiveWeight > effectiveTargetWeight ? 'LOSE_WEIGHT' : 'GAIN_WEIGHT');
+
+    // Recalculate BMR, TDEE, BMI, targets
+    const calc = this.previewTDEE({
+      weight: effectiveWeight,
+      height: effectiveHeight,
+      targetWeight: effectiveTargetWeight,
+      gender: effectiveGender,
+      activityLevel: effectiveActivityLevel,
+      goal: effectiveGoal,
+      dateOfBirth: existingUser?.dateOfBirth
+        ? existingUser.dateOfBirth.toISOString()
+        : undefined,
+      caloriesOffset: existingUser?.caloriesOffset ?? undefined,
+    });
+
+    const updateData: Record<string, unknown> = {
+      bmr: calc.bmr,
+      tdee: calc.tdee,
+      bmi: calc.bmi,
+      goal: String(calc.goal),
+      height: effectiveHeight,
+      targetWeight: effectiveTargetWeight,
+      gender: effectiveGender,
+      activityLevel: effectiveActivityLevel,
+    };
 
     if (dto.fullName) updateData.fullName = dto.fullName;
     if (dto.phone !== undefined) updateData.phone = dto.phone;
     if (dto.avatarUrl !== undefined) updateData.avatarUrl = dto.avatarUrl;
-    if (dto.gender) updateData.gender = dto.gender;
-    if (dto.height) updateData.height = Number(dto.height);
-    if (dto.targetWeight) updateData.targetWeight = Number(dto.targetWeight);
-    if (dto.activityLevel) updateData.activityLevel = dto.activityLevel;
-    if (dto.goal) updateData.goal = dto.goal;
 
     return this.prisma.$transaction(async (tx) => {
       if (dto.weight || dto.bodyFat || dto.muscleMass) {
-        const user = await tx.user.findUnique({ where: { id: userId } });
         await tx.bodyMetric.create({
           data: {
             userId,
-            weight: dto.weight ? Number(dto.weight) : user?.targetWeight || 70,
-            height: dto.height ? Number(dto.height) : user?.height || undefined,
+            weight: effectiveWeight,
+            height: effectiveHeight,
             bodyFat: dto.bodyFat ? Number(dto.bodyFat) : undefined,
             muscleMass: dto.muscleMass ? Number(dto.muscleMass) : undefined,
           },
         });
       }
+
+      // Automatically update/create NutritionTarget with newly calculated BMR, TDEE & macros
+      await tx.nutritionTarget.create({
+        data: {
+          studentId: userId,
+          bmr: calc.bmr,
+          tdee: calc.tdee,
+          caloriesOffset:
+            existingUser?.caloriesOffset !== undefined
+              ? existingUser.caloriesOffset
+              : calc.suggestedOffset,
+          targetCalo: calc.targetCalo,
+          targetProtein: calc.targetProtein,
+          targetCarbs: calc.targetCarbs,
+          targetFat: calc.targetFat,
+        },
+      });
 
       return tx.user.update({
         where: { id: userId },
