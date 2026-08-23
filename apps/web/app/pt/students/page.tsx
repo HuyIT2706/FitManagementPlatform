@@ -12,6 +12,9 @@ import { toast } from '../../../utils/toast';
 import PtStudentCard, { type StudentListItem } from './components/PtStudentCard';
 import PtInviteStudentModal from './components/PtInviteStudentModal';
 
+import AccessDenied from '../../../components/ui/AccessDenied';
+import PtPendingApproval from '../../../components/ui/PtPendingApproval';
+
 const PTStudentsPage = () => {
   const [userData, setUserData] = useState<UserDataHome | null>(null);
   const [ptData, setPtData] = useState<PTDashboardData | null>(null);
@@ -20,19 +23,21 @@ const PTStudentsPage = () => {
   // Invite Student Modal State
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [studentEmail, setStudentEmail] = useState('');
-  const [packageName, setPackageName] = useState('Gói PT VIP 1-1');
-  const [totalSessions, setTotalSessions] = useState(12);
+  const [packageName, setPackageName] = useState('Gói PT 1:1 VIP (3 Tháng)');
+  const [totalSessions, setTotalSessions] = useState<number | ''>(12);
   const [sendingInvite, setSendingInvite] = useState(false);
   const [generatedInviteUrl, setGeneratedInviteUrl] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
       apiClient.get<UserDataHome>('/users/me'),
-      apiClient.get<PTDashboardData>('/pt/dashboard'),
+      apiClient.get<PTDashboardData>('/pt/dashboard').catch(() => ({ data: null })),
     ])
       .then(([userRes, ptRes]) => {
         setUserData(userRes.data);
-        setPtData(ptRes.data);
+        if (userRes.data?.role === 'PT' && userRes.data?.isApprovedPt !== false) {
+          setPtData(ptRes.data);
+        }
         setLoading(false);
       })
       .catch((err) => {
@@ -82,6 +87,22 @@ const PTStudentsPage = () => {
 
   if (loading) {
     return <AppLoading fullScreen size="lg" message="Đang tải danh sách học viên..." />;
+  }
+
+  if (userData && userData.role !== 'PT') {
+    return (
+      <AccessDenied
+        requiredRole="PT"
+        currentUser={userData}
+        onLogout={handleLogout}
+        title="Không Có Quyền Huấn Luyện Viên"
+        message="Khu vực này dành riêng cho Huấn luyện viên (PT) quản lý học viên và giáo án. Tài khoản của bạn không có quyền truy cập."
+      />
+    );
+  }
+
+  if (userData && userData.role === 'PT' && userData.isApprovedPt === false) {
+    return <PtPendingApproval currentUser={userData} onLogout={handleLogout} />;
   }
 
   const rawStudents = ptData?.students || [];

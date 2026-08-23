@@ -36,13 +36,13 @@ export interface PtInviteModalProps {
   isOpen: boolean;
   studentEmail: string;
   packageName: string;
-  totalSessions: number;
+  totalSessions: number | '';
   sendingInvite: boolean;
   generatedInviteUrl: string | null;
   onClose: () => void;
   onStudentEmailChange: (email: string) => void;
   onPackageNameChange: (pkg: string) => void;
-  onTotalSessionsChange: (sessions: number) => void;
+  onTotalSessionsChange: (sessions: number | '') => void;
   onSendInvite: (e: React.FormEvent) => void;
   onCopyInviteUrl: () => void;
 }

@@ -13,6 +13,9 @@ export interface UserData {
   role?: string;
   phone?: string | null;
   onboardingCompleted?: boolean;
+  isApprovedPt?: boolean;
+  ptApplicationStatus?: 'PENDING' | 'APPROVED' | 'REJECTED';
+  isPendingPtApproval?: boolean;
 }
 
 export interface OnboardingData {

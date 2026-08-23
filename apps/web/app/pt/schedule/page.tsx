@@ -11,6 +11,8 @@ import type { PTSessionItem } from '@repo/types';
 import { getMonday, isSameDay } from '../../../utils/date';
 import { toast } from '../../../utils/toast';
 
+import AccessDenied from '../../../components/ui/AccessDenied';
+import PtPendingApproval from '../../../components/ui/PtPendingApproval';
 import PtScheduleWeekStrip from './components/PtScheduleWeekStrip';
 import PtScheduleSlotCard, { type ScheduleSlot } from './components/PtScheduleSlotCard';
 import AddScheduleModal from './components/AddScheduleModal';
@@ -30,11 +32,13 @@ const PTSchedulePage = () => {
   useEffect(() => {
     Promise.all([
       apiClient.get<UserDataHome>('/users/me'),
-      apiClient.get<PTDashboardData>('/pt/dashboard'),
+      apiClient.get<PTDashboardData>('/pt/dashboard').catch(() => ({ data: null })),
     ])
       .then(([userRes, ptRes]) => {
         setUserData(userRes.data);
-        setPtData(ptRes.data);
+        if (userRes.data?.role === 'PT' && userRes.data?.isApprovedPt !== false) {
+          setPtData(ptRes.data);
+        }
         setLoading(false);
       })
       .catch((err) => {
@@ -74,6 +78,22 @@ const PTSchedulePage = () => {
 
   if (loading) {
     return <AppLoading fullScreen size="lg" message="Đang nạp lịch dạy PT..." />;
+  }
+
+  if (userData && userData.role !== 'PT') {
+    return (
+      <AccessDenied
+        requiredRole="PT"
+        currentUser={userData}
+        onLogout={handleLogout}
+        title="Không Có Quyền Huấn Luyện Viên"
+        message="Khu vực này dành riêng cho Huấn luyện viên (PT) quản lý học viên và giáo án. Tài khoản của bạn không có quyền truy cập."
+      />
+    );
+  }
+
+  if (userData && userData.role === 'PT' && userData.isApprovedPt === false) {
+    return <PtPendingApproval currentUser={userData} onLogout={handleLogout} />;
   }
 
   const now = new Date();

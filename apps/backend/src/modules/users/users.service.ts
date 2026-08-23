@@ -92,6 +92,7 @@ export class UsersService {
           include: { gymPackage: true },
           take: 1,
         },
+        ptApplication: true,
       },
     });
 
@@ -99,6 +100,14 @@ export class UsersService {
 
     const assignedPt = user.studentProfiles?.[0]?.trainer || null;
     const activePackage = user.userPackages?.[0] || null;
+
+    const isApprovedPt =
+      user.role === 'PT' ? user.ptApplication?.status === 'APPROVED' : true;
+    const ptApplicationStatus =
+      user.ptApplication?.status ||
+      (user.role === 'PT' ? 'PENDING' : 'APPROVED');
+    const isPendingPtApproval =
+      user.role === 'PT' && user.ptApplication?.status === 'PENDING';
 
     // Calculate BMR, TDEE, and BMI on Backend
     const weight = user.bodyMetrics?.[0]?.weight ?? 70;
@@ -139,6 +148,9 @@ export class UsersService {
 
     return {
       ...user,
+      isApprovedPt,
+      ptApplicationStatus,
+      isPendingPtApproval,
       bmr: Math.round(bmr),
       tdee,
       bmi,

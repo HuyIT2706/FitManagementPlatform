@@ -5,7 +5,6 @@ import {
   Clock,
   Dumbbell,
   User,
-  PlusCircle,
   X,
   ChevronDown,
   Check,

@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 import LogoApp from '../../assets/imgs/logoApp.jpg';
 import apiClient from '../../api/axios';
-
+import type { UserDataHome } from '../../interface';
 import { handleRoleRedirect } from '../../utils/authRedirect';
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID';
@@ -23,7 +23,7 @@ const LoginContent = () => {
 
   // PT specific fields
   const [avatarUrl, setAvatarUrl] = useState('');
-  const [experienceYears, setExperienceYears] = useState<number>(2);
+  const [experienceYears, setExperienceYears] = useState<number | ''>(2);
   const [specialties, setSpecialties] = useState('Tăng cơ, Giảm mỡ, Calisthenics');
   const [bio, setBio] = useState('');
 
@@ -35,8 +35,16 @@ const LoginContent = () => {
     const token = localStorage.getItem('jwt_token');
     if (token) {
       apiClient
-        .get<{ role: string; onboardingCompleted: boolean }>('/users/me')
+        .get<UserDataHome>('/users/me')
         .then((res) => {
+          if (res.data?.role === 'PT' && res.data?.isApprovedPt === false) {
+            setPendingPtNotice(
+              res.data?.ptApplicationStatus === 'REJECTED'
+                ? 'Hồ sơ Huấn luyện viên của bạn đã bị từ chối. Vui lòng liên hệ ban quản trị.'
+                : 'Tài khoản PT của bạn đã đăng ký thành công và đang chờ Admin kiểm duyệt trước khi truy cập!'
+            );
+            return;
+          }
           handleRoleRedirect(res.data);
         })
         .catch(() => {
@@ -110,7 +118,7 @@ const LoginContent = () => {
           avatarUrl: avatarUrl.trim() || undefined,
           role,
           ...(role === 'PT' && {
-            experienceYears,
+            experienceYears: Number(experienceYears) || 0,
             specialties: specialties.split(',').map((s) => s.trim()),
             bio,
           }),
@@ -168,7 +176,7 @@ const LoginContent = () => {
           </div>
           <div className="space-y-1">
             <h1 className="text-2xl font-bold font-heading text-on-surface">
-              NutriCore Platform
+              NutriCore 
             </h1>
             <p className="text-xs text-on-surface-variant px-4">
               Nền tảng quản lý tập luyện & dinh dưỡng thông minh dành cho Học viên và PT.
@@ -415,11 +423,17 @@ const LoginContent = () => {
                     />
                     <input
                       type="number"
-                      min="1"
+                      min="0"
+                      max="50"
+                      placeholder="0"
                       suppressHydrationWarning
-                      value={experienceYears}
-                      onChange={(e) => setExperienceYears(Number(e.target.value))}
-                      className="w-full h-9 pl-9 pr-3 rounded-lg bg-black/40 border border-white/10 text-xs text-white outline-none"
+                      value={experienceYears === 0 || experienceYears === '' ? '' : experienceYears}
+                      onChange={(e) =>
+                        setExperienceYears(
+                          e.target.value === '' ? '' : Math.max(0, Number(e.target.value))
+                        )
+                      }
+                      className="w-full h-9 pl-9 pr-3 rounded-lg bg-black/40 border border-white/10 text-xs text-white outline-none focus:border-primary"
                     />
                   </div>
                 </div>

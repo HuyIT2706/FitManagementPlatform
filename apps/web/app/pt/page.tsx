@@ -9,6 +9,7 @@ import apiClient from '../../api/axios';
 import type { UserDataHome, PTDashboardData } from '../../interface';
 import { toast } from '../../utils/toast';
 
+import PtPendingApproval from '../../components/ui/PtPendingApproval';
 import PtWelcomeHeader from './home/components/PtWelcomeHeader';
 import PtBentoStats from './home/components/PtBentoStats';
 import PtPendingStudentRequests from './home/components/PtPendingStudentRequests';
@@ -32,7 +33,7 @@ const PTPage = () => {
     ])
       .then(([userRes, ptRes]) => {
         setUserData(userRes.data);
-        if (userRes.data?.role === 'PT') {
+        if (userRes.data?.role === 'PT' && userRes.data?.isApprovedPt !== false) {
           setPtData(ptRes.data);
         }
         setLoading(false);
@@ -126,6 +127,10 @@ const PTPage = () => {
         message="Khu vực này dành riêng cho Huấn luyện viên (PT) quản lý học viên và giáo án. Tài khoản của bạn không có quyền truy cập."
       />
     );
+  }
+
+  if (userData && userData.role === 'PT' && userData.isApprovedPt === false) {
+    return <PtPendingApproval currentUser={userData} onLogout={handleLogout} />;
   }
 
   const coachName = ptData?.coachName || userData?.fullName || '';

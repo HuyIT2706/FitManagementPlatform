@@ -9,6 +9,8 @@ import type { UserDataHome } from '../../../interface';
 import type { PTCodeQrData, PTDashboardData } from '@repo/types';
 import { toast } from '../../../utils/toast';
 
+import AccessDenied from '../../../components/ui/AccessDenied';
+import PtPendingApproval from '../../../components/ui/PtPendingApproval';
 import PtProfileCard from './components/PtProfileCard';
 import PtQrCodeCard from './components/PtQrCodeCard';
 import PtProfileSettingsList from './components/PtProfileSettingsList';
@@ -23,13 +25,15 @@ const PTProfilePage = () => {
   useEffect(() => {
     Promise.all([
       apiClient.get<UserDataHome>('/users/me'),
-      apiClient.get<PTCodeQrData>('/pt/code-qr'),
-      apiClient.get<PTDashboardData>('/pt/dashboard'),
+      apiClient.get<PTCodeQrData>('/pt/code-qr').catch(() => ({ data: null })),
+      apiClient.get<PTDashboardData>('/pt/dashboard').catch(() => ({ data: null })),
     ])
       .then(([userRes, qrRes, dashRes]) => {
         setUserData(userRes.data);
-        setCodeQrData(qrRes.data);
-        setDashboardData(dashRes.data);
+        if (userRes.data?.role === 'PT' && userRes.data?.isApprovedPt !== false) {
+          setCodeQrData(qrRes.data);
+          setDashboardData(dashRes.data);
+        }
         setLoading(false);
       })
       .catch((err: unknown) => {
@@ -51,6 +55,22 @@ const PTProfilePage = () => {
 
   if (loading) {
     return <AppLoading fullScreen size="lg" message="Đang nạp hồ sơ cá nhân HLV..." />;
+  }
+
+  if (userData && userData.role !== 'PT') {
+    return (
+      <AccessDenied
+        requiredRole="PT"
+        currentUser={userData}
+        onLogout={handleLogout}
+        title="Không Có Quyền Huấn Luyện Viên"
+        message="Khu vực này dành riêng cho Huấn luyện viên (PT) quản lý học viên và giáo án. Tài khoản của bạn không có quyền truy cập."
+      />
+    );
+  }
+
+  if (userData && userData.role === 'PT' && userData.isApprovedPt === false) {
+    return <PtPendingApproval currentUser={userData} onLogout={handleLogout} />;
   }
 
   const ptCode = codeQrData?.ptCode || 'PT-HUY066';

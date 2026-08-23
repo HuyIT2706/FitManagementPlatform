@@ -71,8 +71,24 @@ export class PtController {
     return this.ptService.approveStudentRequest(req.user.sub, requestId);
   }
 
+  @Post('students/accept/:id')
+  async acceptStudentRequest(
+    @Request() req: RequestWithUser,
+    @Param('id') requestId: string,
+  ) {
+    return this.ptService.approveStudentRequest(req.user.sub, requestId);
+  }
+
   @Post('students/requests/:id/reject')
   async rejectStudentRequest(
+    @Request() req: RequestWithUser,
+    @Param('id') requestId: string,
+  ) {
+    return this.ptService.rejectStudentRequest(req.user.sub, requestId);
+  }
+
+  @Post('students/reject/:id')
+  async rejectStudentRequestAlias(
     @Request() req: RequestWithUser,
     @Param('id') requestId: string,
   ) {

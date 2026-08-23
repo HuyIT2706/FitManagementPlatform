@@ -15,6 +15,8 @@ import type {
 import type { ExerciseItem } from '../../../../interface';
 import { toast } from '../../../../utils/toast';
 
+import AccessDenied from '../../../../components/ui/AccessDenied';
+import PtPendingApproval from '../../../../components/ui/PtPendingApproval';
 import StudentHeaderHero from './components/StudentHeaderHero';
 import StudentWorkoutTab from './components/StudentWorkoutTab';
 import StudentNutritionTab from './components/StudentNutritionTab';
@@ -280,7 +282,27 @@ const PTStudentDetailPage = ({
       });
   };
 
-  if (loading || !studentDetail) {
+  if (loading) {
+    return <AppLoading fullScreen size="lg" message="Đang nạp hồ sơ học viên..." />;
+  }
+
+  if (userData && userData.role !== 'PT') {
+    return (
+      <AccessDenied
+        requiredRole="PT"
+        currentUser={userData}
+        onLogout={handleLogout}
+        title="Không Có Quyền Huấn Luyện Viên"
+        message="Khu vực này dành riêng cho Huấn luyện viên (PT) quản lý học viên và giáo án. Tài khoản của bạn không có quyền truy cập."
+      />
+    );
+  }
+
+  if (userData && userData.role === 'PT' && userData.isApprovedPt === false) {
+    return <PtPendingApproval currentUser={userData} onLogout={handleLogout} />;
+  }
+
+  if (!studentDetail) {
     return <AppLoading fullScreen size="lg" message="Đang nạp hồ sơ học viên..." />;
   }
 
