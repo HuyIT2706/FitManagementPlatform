@@ -1,0 +1,67 @@
+'use client';
+
+import React from 'react';
+import { Search, RefreshCw } from 'lucide-react';
+import type { ExerciseFilterBarProps } from '../../../../interface';
+
+export default function ExerciseFilterBar({
+  search,
+  category,
+  onSearchChange,
+  onCategoryChange,
+  onSearchSubmit,
+  onRefresh,
+}: ExerciseFilterBarProps) {
+  const categories = [
+    { id: 'ALL', label: 'Tất cả' },
+    { id: 'CHEST', label: 'Ngực' },
+    { id: 'BACK', label: 'Lưng' },
+    { id: 'LEGS', label: 'Chân' },
+    { id: 'SHOULDERS', label: 'Vai' },
+    { id: 'ARMS', label: 'Tay' },
+    { id: 'ABS', label: 'Bụng' },
+    { id: 'CARDIO', label: 'Cardio' },
+  ];
+
+  return (
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-[#121a15] p-4 rounded-2xl border border-white/10">
+      <div className="relative grow max-w-md">
+        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => onSearchChange(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && onSearchSubmit()}
+          placeholder="Tìm bài tập theo tên hoặc thiết bị..."
+          className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-white/40 focus:border-[#10b981] outline-none"
+        />
+      </div>
+
+      <div className="flex items-center gap-2 overflow-x-auto">
+        {categories.map((cat) => (
+          <button
+            key={cat.id}
+            type="button"
+            onClick={() => onCategoryChange(cat.id)}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+              category === cat.id
+                ? 'bg-[#10b981] text-[#003824] shadow-md shadow-[#10b981]/20'
+                : 'bg-white/5 border border-white/10 text-white/60 hover:text-white'
+            }`}
+          >
+            {cat.label}
+          </button>
+        ))}
+
+        <button
+          type="button"
+          onClick={onRefresh}
+          className="p-2 rounded-xl bg-white/5 border border-white/10 text-white/60 hover:text-white cursor-pointer ml-auto shrink-0"
+          title="Làm mới danh sách"
+        >
+          <RefreshCw size={16} />
+        </button>
+      </div>
+    </div>
+  );
+}
