@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { Users } from 'lucide-react';
-import type { AdminRecentUsersCardProps } from '../../../../interface';
+import type { AdminRecentUsersCardProps } from '../../../interface';
 
 export default function AdminRecentUsersCard({
   recentUsers,

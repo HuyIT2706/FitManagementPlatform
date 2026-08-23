@@ -9,11 +9,11 @@ import type {
   AdminUserRole,
   AdminUserRoleFilter,
 } from '../../../interface';
-import AdminUsersFilterBar from './components/AdminUsersFilterBar';
-import AdminUsersTable from './components/AdminUsersTable';
-import AdminChangeRoleModal from './components/AdminChangeRoleModal';
-import AdminDeleteUserModal from './components/AdminDeleteUserModal';
-import AdminUsersPagination from './components/AdminUsersPagination';
+import AdminUsersFilterBar from './components/UsersFilterBar';
+import AdminUsersTable from './components/UsersTable';
+import AdminChangeRoleModal from './components/ChangeRoleModal';
+import AdminDeleteUserModal from './components/DeleteUserModal';
+import AdminUsersPagination from './components/UsersPagination';
 
 export default function AdminUsersManagement() {
   const [users, setUsers] = useState<AdminUserItem[]>([]);

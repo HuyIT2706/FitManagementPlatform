@@ -11,7 +11,7 @@ import {
   CalendarCheck,
   Activity,
 } from 'lucide-react';
-import type { AdminAnalyticsHeroMetricsProps } from '../../../../interface';
+import type { AdminAnalyticsHeroMetricsProps } from '../../../interface';
 
 export default function AdminAnalyticsHeroMetrics({ overview }: AdminAnalyticsHeroMetricsProps) {
   const {

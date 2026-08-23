@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { RefreshCw } from 'lucide-react';
-import type { AdminAnalyticsHeaderProps } from '../../../../interface';
+import type { AdminAnalyticsHeaderProps } from '../../../interface';
 
 export default function AdminAnalyticsHeader({ onRefresh }: AdminAnalyticsHeaderProps) {
   return (

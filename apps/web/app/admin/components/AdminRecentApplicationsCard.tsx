@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Clock } from 'lucide-react';
-import type { AdminRecentApplicationsCardProps } from '../../../../interface';
+import type { AdminRecentApplicationsCardProps } from '../../../interface';
 
 export default function AdminRecentApplicationsCard({
   recentApplications,

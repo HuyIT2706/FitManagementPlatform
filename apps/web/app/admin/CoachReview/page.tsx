@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ShieldCheck, LogOut, RefreshCw } from 'lucide-react';
 import apiClient from '../../../api/axios';
 import { toast } from '../../../utils/toast';
 import type {
@@ -48,11 +47,6 @@ export default function CoachReviewPage() {
   useEffect(() => {
     fetchData();
   }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem('jwt_token');
-    window.location.href = '/login';
-  };
 
   const handleOpenApproveModal = (app: AdminPtApplication) => {
     setSelectedApp(app);
@@ -104,61 +98,26 @@ export default function CoachReviewPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#090d0b] text-[#dde4dd] font-sans pb-24">
-      {/* Top Header */}
-      <header className="sticky top-0 z-30 bg-[#0e1511]/90 backdrop-blur-md border-b border-white/10 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#10b981]/20 border border-[#10b981]/40 flex items-center justify-center text-[#10b981]">
-            <ShieldCheck size={24} />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-white tracking-wide">FitManagement Admin</h1>
-            <p className="text-xs text-white/60">Xét Duyệt Đơn Đăng Ký Huấn Luyện Viên PT</p>
-          </div>
-        </div>
+    <div className="space-y-8">
+      {/* Component 1: Hero Stats Overview */}
+      <CoachReviewHeroStats stats={stats} />
 
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={fetchData}
-            className="p-2 rounded-xl bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-            title="Làm mới dữ liệu"
-          >
-            <RefreshCw size={18} />
-          </button>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-bold hover:bg-rose-500/20 transition-colors cursor-pointer"
-          >
-            <LogOut size={16} />
-            Đăng xuất
-          </button>
-        </div>
-      </header>
+      {/* Component 2: Filters & Search */}
+      <CoachReviewFilterBar
+        filterStatus={filterStatus}
+        pendingCount={stats?.pendingApps ?? 0}
+        searchTerm={searchTerm}
+        onFilterChange={setFilterStatus}
+        onSearchChange={setSearchTerm}
+      />
 
-      {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-6 mt-8 space-y-8">
-        {/* Component 1: Hero Stats Overview */}
-        <CoachReviewHeroStats stats={stats} />
-
-        {/* Component 2: Filters & Search */}
-        <CoachReviewFilterBar
-          filterStatus={filterStatus}
-          pendingCount={stats?.pendingApps ?? 0}
-          searchTerm={searchTerm}
-          onFilterChange={setFilterStatus}
-          onSearchChange={setSearchTerm}
-        />
-
-        {/* Component 3: Applications List */}
-        <CoachReviewList
-          applications={filteredApps}
-          loading={loading}
-          onApprove={handleOpenApproveModal}
-          onReject={handleOpenRejectModal}
-        />
-      </main>
+      {/* Component 3: Applications List */}
+      <CoachReviewList
+        applications={filteredApps}
+        loading={loading}
+        onApprove={handleOpenApproveModal}
+        onReject={handleOpenRejectModal}
+      />
 
       {/* Component 4: Action Modal (Approve / Reject) */}
       <CoachReviewActionModal

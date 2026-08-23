@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Activity } from 'lucide-react';
-import apiClient from '../../../api/axios';
-import { toast } from '../../../utils/toast';
-import type { AdminAnalyticsData } from '../../../interface';
+import apiClient from '../../api/axios';
+import { toast } from '../../utils/toast';
+import type { AdminAnalyticsData } from '../../interface';
 import AdminAnalyticsHeader from './components/AdminAnalyticsHeader';
 import AdminAnalyticsHeroMetrics from './components/AdminAnalyticsHeroMetrics';
 import AdminGoalDistributionCard from './components/AdminGoalDistributionCard';

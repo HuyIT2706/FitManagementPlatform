@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Target } from 'lucide-react';
-import type { AdminGoalDistributionCardProps } from '../../../../interface';
+import type { AdminGoalDistributionCardProps } from '../../../interface';
 
 export default function AdminGoalDistributionCard({
   goalDistribution,
