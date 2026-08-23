@@ -1,4 +1,4 @@
-import type { MealSlotConfig } from './home.interface';
+import type { MealSlotConfig } from './IHome';
 
 export interface MonthCell {
   date: Date;

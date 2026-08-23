@@ -115,4 +115,3 @@ export interface ParQAnswers {
   otherReason: boolean;
   notes?: string;
 }
-

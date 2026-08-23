@@ -23,4 +23,3 @@ export interface LoginResponse {
 export interface RequestWithUser {
   user: JwtPayloadUser;
 }
-

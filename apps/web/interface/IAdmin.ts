@@ -62,3 +62,67 @@ export interface CoachReviewActionModalProps {
   onClose: () => void;
   onSubmit: () => void;
 }
+
+// ----------------------------------------------------
+// Dashboard & Analytics Interfaces
+// ----------------------------------------------------
+
+export interface AnalyticsOverviewData {
+  totalUsers: number;
+  totalPts: number;
+  totalAdmins: number;
+  totalAccounts: number;
+  totalExercises: number;
+  totalFoods: number;
+  totalMealLogs: number;
+  totalWorkouts: number;
+}
+
+export interface AnalyticsGoalDistributionItem {
+  goal: string;
+  count: number;
+}
+
+export interface AnalyticsRecentUser {
+  id: string;
+  fullName: string;
+  email: string;
+  role: string;
+  avatarUrl?: string;
+  createdAt: string;
+}
+
+export interface AnalyticsRecentApplication {
+  id: string;
+  fullName: string;
+  email: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface AdminAnalyticsData {
+  overview: AnalyticsOverviewData;
+  goalDistribution: AnalyticsGoalDistributionItem[];
+  recentUsers: AnalyticsRecentUser[];
+  recentApplications: AnalyticsRecentApplication[];
+}
+
+export interface AdminAnalyticsHeaderProps {
+  onRefresh: () => void;
+}
+
+export interface AdminAnalyticsHeroMetricsProps {
+  overview: AnalyticsOverviewData;
+}
+
+export interface AdminGoalDistributionCardProps {
+  goalDistribution: AnalyticsGoalDistributionItem[];
+}
+
+export interface AdminRecentUsersCardProps {
+  recentUsers: AnalyticsRecentUser[];
+}
+
+export interface AdminRecentApplicationsCardProps {
+  recentApplications: AnalyticsRecentApplication[];
+}

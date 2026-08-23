@@ -1,16 +1,16 @@
 export * from "@repo/types";
-export * from "./toast.interface";
-export * from "./onboarding.interface";
-export * from "./training.interface";
-export * from "./history.interface";
-export * from "./profile.interface";
-export * from "./add-meal.interface";
-export * from "./pt.interface";
-export * from "./admin.interface";
+export * from "./IToast";
+export * from "./IOnboarding";
+export * from "./ITraining";
+export * from "./IHistory";
+export * from "./IProfile";
+export * from "./IAddMeal";
+export * from "./IPt";
+export * from "./IAdmin";
 export type {
   MealItem,
   CalendarStripProps,
   DailyFuelHeroCardProps,
   MacroCardsProps,
   DailyMealGridProps,
-} from "./home.interface";
+} from "./IHome";

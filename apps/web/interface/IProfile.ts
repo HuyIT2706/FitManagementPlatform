@@ -1,4 +1,4 @@
-import type { UserDataHome } from './home.interface';
+import type { UserDataHome } from './IHome';
 
 export interface ProfileHeaderCardProps {
   userData: UserDataHome | null;
@@ -17,7 +17,7 @@ export interface ProfileBiometricsGridProps {
   bmi: number;
   bmr: number;
   tdee: number;
-  activityLabel: string;
+  activityLabel?: string;
 }
 
 export interface TransformationJourneyProps {

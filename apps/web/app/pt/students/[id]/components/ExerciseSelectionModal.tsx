@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { Search, X, Dumbbell, ExternalLink, Check, PlayCircle, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import apiClient from '../../../../../api/axios';
-import type { ExerciseItem, ExercisePaginatedResponse } from '../../../../../interface/training.interface';
+import type { ExerciseItem, ExercisePaginatedResponse } from '../../../../../interface';
 
 interface ExerciseSelectionModalProps {
   isOpen: boolean;

@@ -1,5 +1,5 @@
 import type { ExerciseItem, MealPlanAssigned } from '@repo/types';
-import type { UserDataHome } from './home.interface';
+import type { UserDataHome } from './IHome';
 
 export type {
   ExerciseCategoryType,
@@ -51,6 +51,7 @@ export interface AssignedWorkoutPlanData {
     instructions?: string[];
     setupImageUrl?: string;
     startImageUrl?: string;
+    imageUrl?: string;
   }>;
 }
 

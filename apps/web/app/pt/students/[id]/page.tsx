@@ -11,7 +11,7 @@ import type {
   InBodyHistoryPoint,
   PTStudentDetail,
 } from '@repo/types';
-import type { ExerciseItem } from '../../../../interface/training.interface';
+import type { ExerciseItem } from '../../../../interface';
 import { toast } from '../../../../utils/toast';
 
 import StudentHeaderHero from './components/StudentHeaderHero';
