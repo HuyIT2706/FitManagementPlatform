@@ -9,7 +9,6 @@ export default function AdminAnalyticsHeader({ onRefresh }: AdminAnalyticsHeader
     <div className="flex items-center justify-between">
       <div>
         <h2 className="text-xl font-bold text-white tracking-wide">Tổng Quan Hoạt Động Hệ Thống</h2>
-        <p className="text-xs text-white/60">Dữ liệu thời gian thực được tổng hợp từ toàn bộ nền tảng FitManagement</p>
       </div>
 
       <button

@@ -27,7 +27,7 @@ export default function Header({ userData, onLogout }: HeaderProps) {
           </div>
           <div className="flex flex-col">
             <span className="font-headline-md text-xl font-bold text-on-surface tracking-tight">
-              FitManagementPlatform
+              NutriCore
             </span>
             <span className="text-xs text-primary font-semibold">Member Badge</span>
           </div>

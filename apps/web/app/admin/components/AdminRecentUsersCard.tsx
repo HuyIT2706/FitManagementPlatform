@@ -12,7 +12,7 @@ export default function AdminRecentUsersCard({
     <div className="p-6 rounded-2xl bg-[#121a15] border border-white/10 space-y-4 shadow-xl">
       <h3 className="font-bold text-base text-white flex items-center gap-2">
         <Users className="text-blue-400" size={18} />
-        Học Viên Mới Đăng Ký
+        Người dùng mới Đăng Ký
       </h3>
 
       <div className="divide-y divide-white/5">

@@ -134,7 +134,7 @@ export default function AdminUsersTable({
                       <button
                         type="button"
                         onClick={() => onChangeRole(u)}
-                        className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 text-[11px] font-bold transition-colors cursor-pointer"
+                        className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 text-[11px] font-bold transition-all cursor-pointer hover:scale-105 active:scale-95"
                       >
                         Đổi Quyền
                       </button>
@@ -143,10 +143,10 @@ export default function AdminUsersTable({
                       <button
                         type="button"
                         onClick={() => onDeleteUser(u)}
-                        className="p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 transition-colors cursor-pointer"
+                        className="w-8 h-8 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/25 hover:border-rose-500/40 hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
                         title="Xóa người dùng"
                       >
-                        <Trash2 size={15} />
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </td>

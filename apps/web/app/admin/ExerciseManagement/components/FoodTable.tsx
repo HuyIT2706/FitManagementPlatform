@@ -17,10 +17,10 @@ export default function FoodTable({
         <table className="w-full text-left text-xs text-white">
           <thead className="bg-white/5 text-white/60 uppercase font-semibold text-[10px] tracking-wider border-b border-white/10">
             <tr>
-              <th className="px-6 py-4">Món Ăn & Hình Ảnh</th>
+              <th className="px-6 py-4">Món Ăn</th>
               <th className="px-6 py-4">Danh Mục</th>
               <th className="px-6 py-4">Năng Lượng (100g)</th>
-              <th className="px-6 py-4">Thành Phần Dinh Dưỡng (Macro/100g)</th>
+              <th className="px-6 py-4">Thành Phần Dinh Dưỡng</th>
               <th className="px-6 py-4 text-right">Thao Tác</th>
             </tr>
           </thead>
@@ -53,7 +53,6 @@ export default function FoodTable({
                       </div>
                       <div className="max-w-[200px]">
                         <strong className="block text-white font-bold truncate">{f.name}</strong>
-                        <span className="text-[10px] text-white/40 font-mono">ID: {f.id.slice(0, 8)}...</span>
                       </div>
                     </div>
                   </td>
@@ -99,7 +98,7 @@ export default function FoodTable({
                       <button
                         type="button"
                         onClick={() => onEdit(f)}
-                        className="p-1.5 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors cursor-pointer"
+                        className="w-8 h-8 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/25 hover:border-blue-500/40 hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
                         title="Chỉnh sửa món ăn"
                       >
                         <Edit2 size={14} />
@@ -107,7 +106,7 @@ export default function FoodTable({
                       <button
                         type="button"
                         onClick={() => onDelete(f)}
-                        className="p-1.5 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-colors cursor-pointer"
+                        className="w-8 h-8 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/25 hover:border-rose-500/40 hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
                         title="Xóa món ăn"
                       >
                         <Trash2 size={14} />

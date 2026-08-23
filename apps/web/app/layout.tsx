@@ -4,8 +4,8 @@ import "../assets/css/globals.css";
 import { ToastContainer } from "../utils/toast";
 
 export const metadata: Metadata = {
-  title: "FitManagementPlatform",
-  description: "FitManagementPlatform Application",
+  title: "NutriCore",
+  description: "NutriCore - Nền tảng Quản lý Dinh dưỡng & Thể hình",
   icons: {
     icon: [
       { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },

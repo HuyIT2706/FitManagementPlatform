@@ -22,7 +22,16 @@ export default function AdminUsersManagement() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<AdminUserRoleFilter>('ALL');
+
+  // Debounce search
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 350);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
 
   // Change Role Modal
   const [userToChangeRole, setUserToChangeRole] = useState<AdminUserItem | null>(null);
@@ -32,13 +41,13 @@ export default function AdminUsersManagement() {
   const [userToDelete, setUserToDelete] = useState<AdminUserItem | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchUsers = (pageNumber = page) => {
+  const fetchUsers = (pageNumber = page, searchVal = debouncedSearchTerm) => {
     setLoading(true);
     const params = new URLSearchParams();
     params.set('page', String(pageNumber));
     params.set('limit', '10');
     if (roleFilter !== 'ALL') params.set('role', roleFilter);
-    if (searchTerm.trim()) params.set('search', searchTerm.trim());
+    if (searchVal.trim()) params.set('search', searchVal.trim());
 
     apiClient
       .get<AdminUsersResponse>(`/admin/users?${params.toString()}`)
@@ -57,9 +66,9 @@ export default function AdminUsersManagement() {
   };
 
   useEffect(() => {
-    fetchUsers(1);
+    fetchUsers(1, debouncedSearchTerm);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roleFilter]);
+  }, [roleFilter, debouncedSearchTerm]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

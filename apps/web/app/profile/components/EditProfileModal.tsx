@@ -128,7 +128,7 @@ export default function EditProfileModal({
               <input
                 type="email"
                 disabled
-                value={userData?.email || 'user@fitmanagement.com'}
+                value={userData?.email || 'user@nutricore.com'}
                 className="w-full bg-white/[0.03] border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white/60 outline-none cursor-not-allowed font-mono"
               />
             </div>

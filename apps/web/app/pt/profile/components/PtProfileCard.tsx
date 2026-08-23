@@ -101,7 +101,7 @@ const PtProfileCard = ({
             {fullName || userData?.fullName || 'Coach Huấn Luyện Viên'}
           </h1>
           <p className="text-xs text-on-surface-variant font-medium">
-            {userData?.email || 'pt@fitmanagement.com'}
+            {userData?.email || 'pt@nutricore.com'}
           </p>
 
           <p className="text-xs text-on-surface/80 italic max-w-lg mx-auto leading-relaxed pt-1">

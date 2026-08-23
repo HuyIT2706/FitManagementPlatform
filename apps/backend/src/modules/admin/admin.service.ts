@@ -441,34 +441,66 @@ export class AdminService {
     const page = Math.max(1, Number(params?.page) || 1);
     const limit = Math.min(50, Math.max(1, Number(params?.limit) || 10));
     const skip = (page - 1) * limit;
+    const category = params?.category;
+    const search = params?.search?.trim();
 
-    const where: Record<string, unknown> = {};
+    let whereClause = 'WHERE 1=1';
+    const queryParams: (string | number)[] = [];
+    let paramIdx = 1;
 
-    if (params?.category && params.category !== 'ALL') {
-      where.category = params.category;
+    if (category && category !== 'ALL') {
+      whereClause += ` AND category = $${paramIdx++}`;
+      queryParams.push(category);
     }
 
-    if (params?.search && params.search.trim()) {
-      const search = params.search.trim();
-      where.name = { contains: search, mode: 'insensitive' };
+    if (search) {
+      whereClause += ` AND unaccent(name) ILIKE unaccent($${paramIdx++})`;
+      queryParams.push(`%${search}%`);
     }
 
-    const [foods, total] = await Promise.all([
-      this.prisma.foodLibrary.findMany({
-        where,
-        orderBy: { name: 'asc' },
-        skip,
-        take: limit,
-      }),
-      this.prisma.foodLibrary.count({ where }),
+    const countParams = [...queryParams];
+
+    const dataSql = `
+      SELECT 
+        id, 
+        name, 
+        "caloriesPer100g", 
+        "proteinPer100g", 
+        "carbsPer100g", 
+        "fatPer100g", 
+        "fiberPer100g", 
+        category, 
+        "imageUrl", 
+        "createdAt"
+      FROM food_libraries
+      ${whereClause}
+      ORDER BY name ASC
+      LIMIT $${paramIdx++} OFFSET $${paramIdx++}
+    `;
+    queryParams.push(limit, skip);
+
+    const countSql = `
+      SELECT count(*)::int as total
+      FROM food_libraries
+      ${whereClause}
+    `;
+
+    const [foods, countRes] = await Promise.all([
+      this.prisma.$queryRawUnsafe<any[]>(dataSql, ...queryParams),
+      this.prisma.$queryRawUnsafe<{ total: number }[]>(
+        countSql,
+        ...countParams,
+      ),
     ]);
+
+    const total = Number(countRes[0]?.total || 0);
 
     return {
       data: foods,
       total,
       page,
       limit,
-      totalPages: Math.ceil(total / limit),
+      totalPages: Math.ceil(total / limit) || 1,
     };
   }
 

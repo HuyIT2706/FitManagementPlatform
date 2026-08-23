@@ -59,7 +59,7 @@ export default function PTProfilePage() {
   const ptCode = codeQrData?.ptCode || 'PT-HUY066';
   const qrUrl =
     codeQrData?.qrCodeUrl ||
-    `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://fitmanagement.app/bind?ptCode=${ptCode}`;
+    `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://nutricore.app/bind?ptCode=${ptCode}`;
 
   const totalStudents = dashboardData?.totalVipStudents ?? dashboardData?.students?.length ?? 0;
   const completedHours = dashboardData?.completedSessionsCount ?? 0;

@@ -17,8 +17,8 @@ export default function ExerciseTable({
         <table className="w-full text-left text-xs text-white">
           <thead className="bg-white/5 text-white/60 uppercase font-semibold text-[10px] tracking-wider border-b border-white/10">
             <tr>
-              <th className="px-6 py-4">Bài Tập & Hình Ảnh</th>
-              <th className="px-6 py-4">Nhóm Cơ / Danh Mục</th>
+              <th className="px-6 py-4">Bài Tập</th>
+              <th className="px-6 py-4">Nhóm Cơ</th>
               <th className="px-6 py-4">Thiết Bị</th>
               <th className="px-6 py-4">Hướng Dẫn Thực Hiện</th>
               <th className="px-6 py-4 text-right">Thao Tác</th>
@@ -57,26 +57,21 @@ export default function ExerciseTable({
                       </div>
                       <div className="max-w-[220px]">
                         <strong className="block text-white font-bold truncate">{ex.name}</strong>
-                        <span className="text-[10px] text-white/40 font-mono">ID: {ex.id}</span>
                       </div>
                     </div>
                   </td>
 
-                  {/* Column 2: Muscles & Category */}
                   <td className="px-6 py-4">
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/30">
-                      {ex.category || 'Toàn thân'}
-                    </span>
                     {ex.primaryMuscles && ex.primaryMuscles.length > 0 && (
-                      <span className="block text-[10px] text-white/50 mt-1">
-                        Cơ chính: {ex.primaryMuscles.join(', ')}
+                      <span className="px-2.5 py-0.5 rounded-full min-w-[100px] text-ms font-bold bg-[#10b981]/15 text-[#10b981] border capitalize border-[#10b981]/30">
+                        {ex.primaryMuscles.join(', ')}
                       </span>
                     )}
                   </td>
 
                   {/* Column 3: Equipment */}
                   <td className="px-6 py-4">
-                    <span className="text-white/80 font-medium">{ex.equipment || 'Bodyweight'}</span>
+                    <span className="text-white/80 font-medium capitalize">{ex.equipment || 'Bodyweight'}</span>
                   </td>
 
                   {/* Column 4: Instructions */}
@@ -94,7 +89,7 @@ export default function ExerciseTable({
                       <button
                         type="button"
                         onClick={() => onEdit(ex)}
-                        className="p-1.5 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors cursor-pointer"
+                        className="w-8 h-8 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/25 hover:border-blue-500/40 hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
                         title="Chỉnh sửa bài tập"
                       >
                         <Edit2 size={14} />
@@ -102,7 +97,7 @@ export default function ExerciseTable({
                       <button
                         type="button"
                         onClick={() => onDelete(ex)}
-                        className="p-1.5 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-colors cursor-pointer"
+                        className="w-8 h-8 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/25 hover:border-rose-500/40 hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
                         title="Xóa bài tập"
                       >
                         <Trash2 size={14} />

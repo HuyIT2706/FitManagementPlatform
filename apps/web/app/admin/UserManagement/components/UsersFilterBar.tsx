@@ -20,12 +20,13 @@ export default function AdminUsersFilterBar({
   ];
 
   return (
-    <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-[#121a15] p-4 rounded-2xl border border-white/10">
+    <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-[#121a15] p-4 rounded-2xl border border-white/10" suppressHydrationWarning>
       {/* Search Bar */}
-      <form onSubmit={onSearchSubmit} className="relative grow max-w-md">
+      <form onSubmit={onSearchSubmit} className="relative grow max-w-md" suppressHydrationWarning>
         <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
         <input
           type="text"
+          suppressHydrationWarning
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Tìm theo tên, email, SĐT..."
@@ -34,11 +35,12 @@ export default function AdminUsersFilterBar({
       </form>
 
       {/* Role Filters */}
-      <div className="flex items-center gap-2 overflow-x-auto">
+      <div className="flex items-center gap-2 overflow-x-auto" suppressHydrationWarning>
         {roles.map((r) => (
           <button
             key={r.id}
             type="button"
+            suppressHydrationWarning
             onClick={() => onRoleFilterChange(r.id)}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
               roleFilter === r.id
@@ -52,6 +54,7 @@ export default function AdminUsersFilterBar({
 
         <button
           type="button"
+          suppressHydrationWarning
           onClick={onRefresh}
           className="p-2 rounded-xl bg-white/5 border border-white/10 text-white/60 hover:text-white cursor-pointer ml-auto shrink-0"
           title="Làm mới"

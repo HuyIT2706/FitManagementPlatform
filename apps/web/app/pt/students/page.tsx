@@ -62,7 +62,7 @@ export default function PTStudentsPage() {
       })
       .then((res) => {
         setSendingInvite(false);
-        const url = res.data.inviteUrl || 'https://fitmanagement.app/invite?code=INV-9921';
+        const url = res.data.inviteUrl || 'https://nutricore.app/invite?code=INV-9921';
         setGeneratedInviteUrl(url);
         toast.success('Đã khởi tạo Link mời liên kết học viên thành công!');
       })

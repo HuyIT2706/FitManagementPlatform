@@ -16,7 +16,7 @@ export default function StepNotify({ store }: StepNotifyProps) {
         <h2 className="text-3xl font-bold">Không bỏ lỡ nhịp độ</h2>
       </div>
       <p className="text-white/60 text-base mb-10 leading-relaxed">
-        Cho phép FitManagement gửi thông báo nhắc nhở uống nước, theo dõi lịch tập và dinh dưỡng mỗi ngày.
+        Cho phép NutriCore gửi thông báo nhắc nhở uống nước, theo dõi lịch tập và dinh dưỡng mỗi ngày.
       </p>
 
       <div className="w-full bg-white/5 p-6 rounded-3xl border border-white/10 flex items-center justify-between">

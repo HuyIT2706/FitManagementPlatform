@@ -194,7 +194,7 @@ export default function OnboardingPage() {
         >
           <ArrowLeft size={24} />
         </button>
-        <span className="font-semibold text-lg">FitManagement</span>
+        <span className="font-semibold text-lg">NutriCore</span>
         <div className="w-10"></div>
       </header>
 

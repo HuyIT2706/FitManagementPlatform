@@ -71,16 +71,36 @@ export default function AdminContentLibraryManagement() {
 
   const [submitting, setSubmitting] = useState(false);
 
+  const [debouncedExSearch, setDebouncedExSearch] = useState('');
+  const [debouncedFoodSearch, setDebouncedFoodSearch] = useState('');
+
+  // =====================
+  // DEBOUNCE SEARCH INPUTS
+  // =====================
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedExSearch(exSearch);
+    }, 350);
+    return () => clearTimeout(handler);
+  }, [exSearch]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedFoodSearch(foodSearch);
+    }, 350);
+    return () => clearTimeout(handler);
+  }, [foodSearch]);
+
   // =====================
   // FETCH EXERCISES
   // =====================
-  const fetchExercises = (pageNumber = exPage) => {
+  const fetchExercises = (pageNumber = exPage, searchVal = debouncedExSearch) => {
     setExLoading(true);
     const params = new URLSearchParams();
     params.set('page', String(pageNumber));
     params.set('limit', '10');
     if (exCategory !== 'ALL') params.set('category', exCategory);
-    if (exSearch.trim()) params.set('search', exSearch.trim());
+    if (searchVal.trim()) params.set('search', searchVal.trim());
 
     apiClient
       .get<{ data: AdminExerciseItem[]; total: number; totalPages: number }>(
@@ -103,13 +123,13 @@ export default function AdminContentLibraryManagement() {
   // =====================
   // FETCH FOODS
   // =====================
-  const fetchFoods = (pageNumber = foodPage) => {
+  const fetchFoods = (pageNumber = foodPage, searchVal = debouncedFoodSearch) => {
     setFoodLoading(true);
     const params = new URLSearchParams();
     params.set('page', String(pageNumber));
     params.set('limit', '10');
     if (foodCategory !== 'ALL') params.set('category', foodCategory);
-    if (foodSearch.trim()) params.set('search', foodSearch.trim());
+    if (searchVal.trim()) params.set('search', searchVal.trim());
 
     apiClient
       .get<{ data: AdminFoodItem[]; total: number; totalPages: number }>(
@@ -130,10 +150,14 @@ export default function AdminContentLibraryManagement() {
   };
 
   useEffect(() => {
-    fetchExercises(1);
-    fetchFoods(1);
+    fetchExercises(1, debouncedExSearch);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [exCategory, foodCategory]);
+  }, [exCategory, debouncedExSearch]);
+
+  useEffect(() => {
+    fetchFoods(1, debouncedFoodSearch);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [foodCategory, debouncedFoodSearch]);
 
   // =====================
   // EXERCISE HANDLERS

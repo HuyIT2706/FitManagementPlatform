@@ -157,14 +157,14 @@ function LoginContent() {
         <section className="flex flex-col items-center text-center space-y-3">
           <div className="w-16 h-16 rounded-2xl bg-surface-container-high border border-primary p-2 shadow-[0_0_24px_rgba(78,222,163,0.15)] relative overflow-hidden flex items-center justify-center">
             <Image
-              alt="FitManagement Logo"
+              alt="NutriCore Logo"
               className="w-full h-full object-cover rounded-xl"
               src={LogoApp}
             />
           </div>
           <div className="space-y-1">
             <h1 className="text-2xl font-bold font-heading text-on-surface">
-              FitManagement Platform
+              NutriCore Platform
             </h1>
             <p className="text-xs text-on-surface-variant px-4">
               Nền tảng quản lý tập luyện & dinh dưỡng thông minh dành cho Học viên và PT.
@@ -508,7 +508,7 @@ function LoginContent() {
 
       <footer className="w-full px-4 py-3 text-center space-y-1.5 z-10 pb-6">
         <p className="text-xs font-medium text-on-surface-variant max-w-xs mx-auto leading-relaxed opacity-75">
-          Tự động đồng bộ hệ thống Dinh dưỡng & Thể hình FitManagement
+          Tự động đồng bộ hệ thống Dinh dưỡng & Thể hình NutriCore
         </p>
       </footer>
     </div>

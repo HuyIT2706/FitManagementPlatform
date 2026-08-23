@@ -24,11 +24,12 @@ export default function ExerciseFilterBar({
   ];
 
   return (
-    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-[#121a15] p-4 rounded-2xl border border-white/10">
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-[#121a15] p-4 rounded-2xl border border-white/10" suppressHydrationWarning>
       <div className="relative grow max-w-md">
         <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
         <input
           type="text"
+          suppressHydrationWarning
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && onSearchSubmit()}
@@ -37,11 +38,12 @@ export default function ExerciseFilterBar({
         />
       </div>
 
-      <div className="flex items-center gap-2 overflow-x-auto">
+      <div className="flex items-center gap-2 overflow-x-auto" suppressHydrationWarning>
         {categories.map((cat) => (
           <button
             key={cat.id}
             type="button"
+            suppressHydrationWarning
             onClick={() => onCategoryChange(cat.id)}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
               category === cat.id
@@ -55,6 +57,7 @@ export default function ExerciseFilterBar({
 
         <button
           type="button"
+          suppressHydrationWarning
           onClick={onRefresh}
           className="p-2 rounded-xl bg-white/5 border border-white/10 text-white/60 hover:text-white cursor-pointer ml-auto shrink-0"
           title="Làm mới danh sách"
