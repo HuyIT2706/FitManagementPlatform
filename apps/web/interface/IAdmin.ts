@@ -1,5 +1,7 @@
 export type PtApplicationStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 export type AdminFilterStatus = 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED';
+export type AdminUserRole = 'USER' | 'PT' | 'ADMIN';
+export type AdminUserRoleFilter = 'ALL' | 'USER' | 'PT' | 'ADMIN';
 
 export interface AdminPtApplication {
   id: string;
@@ -259,6 +261,78 @@ export interface FoodDeleteModalProps {
 
 export interface LibraryPaginationProps {
   currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}
+
+// ----------------------------------------------------
+// User Management Interfaces
+// ----------------------------------------------------
+
+export interface AdminUserItem {
+  id: string;
+  fullName: string;
+  email: string;
+  phone?: string;
+  avatarUrl?: string;
+  role: AdminUserRole;
+  goal?: string;
+  gender?: string;
+  createdAt: string;
+  coachName?: string;
+  activePackage?: {
+    title: string;
+    remainingSessions: number;
+    totalSessions: number;
+  };
+}
+
+export interface AdminUsersResponse {
+  data: AdminUserItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface AdminUsersFilterBarProps {
+  searchTerm: string;
+  roleFilter: AdminUserRoleFilter;
+  onSearchChange: (search: string) => void;
+  onSearchSubmit: (e: React.FormEvent) => void;
+  onRoleFilterChange: (role: AdminUserRoleFilter) => void;
+  onRefresh: () => void;
+}
+
+export interface AdminUsersTableProps {
+  users: AdminUserItem[];
+  loading: boolean;
+  onChangeRole: (user: AdminUserItem) => void;
+  onDeleteUser: (user: AdminUserItem) => void;
+}
+
+export interface AdminChangeRoleModalProps {
+  isOpen: boolean;
+  user: AdminUserItem | null;
+  targetRole: AdminUserRole;
+  submitting: boolean;
+  onRoleSelect: (role: AdminUserRole) => void;
+  onClose: () => void;
+  onSubmit: () => void;
+}
+
+export interface AdminDeleteUserModalProps {
+  isOpen: boolean;
+  user: AdminUserItem | null;
+  submitting: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}
+
+export interface AdminUsersPaginationProps {
+  total: number;
+  currentCount: number;
+  page: number;
   totalPages: number;
   onPageChange: (page: number) => void;
 }
