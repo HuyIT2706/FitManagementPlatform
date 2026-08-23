@@ -56,12 +56,10 @@ const AssignedMealPlanCard = ({
           </div>
           <p className="text-sm text-primary leading-relaxed">
             <strong className="text-on-surface block mb-1">
-              {assignedMealPlan?.coachName || `Coach ${ptName}`}:
+              {assignedMealPlan?.coachName || `${ptName}`}:
             </strong>
-            &quot;
             {assignedMealPlan?.coachAdvice ||
               'Ăn đúng lượng Carbs trước tập 1 tiếng để có sức nâng tạ nhé!'}
-            &quot;
           </p>
         </div>
 

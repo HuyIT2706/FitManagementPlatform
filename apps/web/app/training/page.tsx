@@ -147,7 +147,7 @@ export default function WorkoutPage() {
         {/* Assigned 1:1 Meal Plan Section from Backend */}
         <AssignedMealPlanCard
           assignedMealPlan={assignedMealPlan}
-          ptName={userData?.assignedPt?.fullName || 'Coach Bùi Văn Huy'}
+          ptName={userData?.assignedPt?.fullName || ''}
         />
 
         {/* Exercise Library Grid with Muscle Filters & Search */}

@@ -86,7 +86,7 @@ const EditPtProfileModal = ({
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               className="w-full bg-surface-bright/50 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm font-bold text-white focus:border-primary outline-none transition-colors"
-              placeholder={userData?.fullName || 'Ví dụ: Coach Bùi Văn Huy'}
+              placeholder={userData?.fullName || ''}
             />
           </div>
 

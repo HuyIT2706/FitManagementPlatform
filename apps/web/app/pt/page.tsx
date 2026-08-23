@@ -105,7 +105,7 @@ export default function PTPage() {
     );
   }
 
-  const coachName = ptData?.coachName || userData?.fullName || 'Coach Bùi Văn Huy';
+  const coachName = ptData?.coachName || userData?.fullName || '';
 
   return (
     <div className="min-h-screen bg-background pb-32 pt-2 md:pt-0 dark text-on-surface">
