@@ -10,8 +10,7 @@ import AdminAnalyticsHeroMetrics from './components/AdminAnalyticsHeroMetrics';
 import AdminGoalDistributionCard from './components/AdminGoalDistributionCard';
 import AdminRecentUsersCard from './components/AdminRecentUsersCard';
 import AdminRecentApplicationsCard from './components/AdminRecentApplicationsCard';
-
-import AdminLoading from './components/AdminLoading';
+import AppLoading from '../../components/ui/AppLoading';
 
 const AdminAnalyticsOverview = () => {
   const [data, setData] = useState<AdminAnalyticsData | null>(null);
@@ -37,7 +36,7 @@ const AdminAnalyticsOverview = () => {
   }, []);
 
   if (loading) {
-    return <AdminLoading message="Đang tổng hợp dữ liệu báo cáo hệ thống..." />;
+    return <AppLoading message="Đang tổng hợp dữ liệu báo cáo hệ thống..." />;
   }
 
   if (!data) {

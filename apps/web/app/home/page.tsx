@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Header from '../../components/ui/Header';
 import BottomNavBar from '../../components/navigation/BottomNavBar';
 import AppLoading from '../../components/ui/AppLoading';
+import AccessDenied from '../../components/ui/AccessDenied';
 import apiClient from '../../api/axios';
 import type { UserDataHome, DailyNutritionData, MealSlotConfig } from '../../interface';
 import {
@@ -13,8 +14,6 @@ import {
   formatDisplayDate,
   getWeekDays,
 } from '../../utils/date';
-
-import { guardRoleAccess } from '../../utils/authRedirect';
 
 import CalendarStrip from './components/CalendarStrip';
 import DailyFuelHeroCard from './components/DailyFuelHeroCard';
@@ -34,14 +33,17 @@ export default function Home() {
     const todayStr = formatYYYYMMDD(new Date());
     Promise.all([
       apiClient.get<UserDataHome>('/users/me'),
-      apiClient.get<DailyNutritionData>(`/nutrition/daily?date=${todayStr}`),
+      apiClient.get<DailyNutritionData>(`/nutrition/daily?date=${todayStr}`).catch(() => ({ data: null })),
     ])
       .then(([userRes, dailyRes]) => {
-        if (!guardRoleAccess(userRes.data, ['USER'])) {
-          return;
-        }
         setUserData(userRes.data);
-        setDailyData(dailyRes.data);
+        if (userRes.data?.role === 'USER') {
+          if (userRes.data?.onboardingCompleted === false) {
+            window.location.href = '/onboarding';
+            return;
+          }
+          setDailyData(dailyRes.data);
+        }
         setLoading(false);
       })
       .catch((err) => {
@@ -60,7 +62,7 @@ export default function Home() {
         setDailyLoading(false);
       })
       .catch((err) => {
-        console.error(err);
+        console.error('Lỗi tải nhật ký dinh dưỡng ngày:', err);
         setDailyLoading(false);
       });
   };
@@ -96,6 +98,18 @@ export default function Home() {
 
   if (loading) {
     return <AppLoading fullScreen size="lg" message="Đang nạp dữ liệu dinh dưỡng hôm nay..." />;
+  }
+
+  if (userData && userData.role !== 'USER') {
+    return (
+      <AccessDenied
+        requiredRole="USER"
+        currentUser={userData}
+        onLogout={handleLogout}
+        title="Không Phải Tài Khoản Học Viên"
+        message="Khu vực này dành riêng cho Học viên (Member) theo dõi chế độ dinh dưỡng & tập luyện cá nhân. Huấn luyện viên (PT) vui lòng sử dụng Không gian PT."
+      />
+    );
   }
 
   const weekDays = getWeekDays(currentMonday);

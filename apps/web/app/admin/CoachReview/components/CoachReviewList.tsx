@@ -3,7 +3,7 @@
 import React from 'react';
 import { FileText, Clock } from 'lucide-react';
 import type { CoachReviewListProps } from '../../../../interface';
-import AdminLoading from '../../components/AdminLoading';
+import AppLoading from '../../../../components/ui/AppLoading';
 import CoachReviewCard from './CoachReviewCard';
 
 const CoachReviewList = ({
@@ -20,7 +20,7 @@ const CoachReviewList = ({
       </h2>
 
       {loading ? (
-        <AdminLoading message="Đang tải danh sách đơn đăng ký HLV..." />
+        <AppLoading message="Đang tải danh sách đơn đăng ký HLV..." />
       ) : applications.length === 0 ? (
         <div className="py-16 text-center bg-[#121a15] rounded-2xl border border-white/10" suppressHydrationWarning>
           <Clock size={40} className="mx-auto text-white/30 mb-3" />

@@ -4,11 +4,10 @@ import { useEffect, useState } from 'react';
 import Header from '../../components/ui/Header';
 import PTBottomNavBar from '../../components/navigation/PTBottomNavBar';
 import AppLoading from '../../components/ui/AppLoading';
+import AccessDenied from '../../components/ui/AccessDenied';
 import apiClient from '../../api/axios';
 import type { UserDataHome, PTDashboardData } from '../../interface';
 import { toast } from '../../utils/toast';
-
-import { guardRoleAccess } from '../../utils/authRedirect';
 
 import PtWelcomeHeader from './home/components/PtWelcomeHeader';
 import PtBentoStats from './home/components/PtBentoStats';
@@ -29,14 +28,13 @@ export default function PTPage() {
   const fetchPtDashboard = () => {
     Promise.all([
       apiClient.get<UserDataHome>('/users/me'),
-      apiClient.get<PTDashboardData>('/pt/dashboard'),
+      apiClient.get<PTDashboardData>('/pt/dashboard').catch(() => ({ data: null })),
     ])
       .then(([userRes, ptRes]) => {
-        if (!guardRoleAccess(userRes.data, ['PT'])) {
-          return;
-        }
         setUserData(userRes.data);
-        setPtData(ptRes.data);
+        if (userRes.data?.role === 'PT') {
+          setPtData(ptRes.data);
+        }
         setLoading(false);
       })
       .catch((err) => {
@@ -61,33 +59,44 @@ export default function PTPage() {
       })
       .catch((err) => {
         console.error(err);
-        toast.error('Không thể check-in điểm danh!');
+        toast.error('Check-in thất bại!');
       });
   };
 
   const handleApproveMeal = (mealId: string) => {
+    const feedback = feedbackTexts[mealId] || '';
     setApprovedMeals((prev) => ({ ...prev, [mealId]: true }));
     apiClient
-      .post(`/pt/approve-meal/${mealId}`, { note: feedbackTexts[mealId] || '' })
-      .catch(console.error);
-  };
-
-  const handleApproveStudentRequest = (requestId: string) => {
-    apiClient
-      .post(`/pt/students/requests/${requestId}/approve`)
+      .post<{ success: boolean; message: string }>(`/pt/review-meal/${mealId}`, {
+        approved: true,
+        feedback,
+      })
       .then((res) => {
-        toast.success(res.data.message || 'Đã chấp nhận học viên!');
+        toast.success(res.data.message || 'Đã duyệt bữa ăn thành công!');
         fetchPtDashboard();
       })
       .catch((err) => {
         console.error(err);
-        toast.error('Không thể duyệt yêu cầu học viên!');
+        toast.error('Duyệt bữa ăn thất bại!');
+      });
+  };
+
+  const handleApproveStudentRequest = (requestId: string) => {
+    apiClient
+      .post<{ success: boolean; message: string }>(`/pt/students/accept/${requestId}`)
+      .then((res) => {
+        toast.success(res.data.message || 'Đã chấp nhận học viên thành công!');
+        fetchPtDashboard();
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error('Không thể chấp nhận yêu cầu học viên!');
       });
   };
 
   const handleRejectStudentRequest = (requestId: string) => {
     apiClient
-      .post(`/pt/students/requests/${requestId}/reject`)
+      .post<{ success: boolean; message: string }>(`/pt/students/reject/${requestId}`)
       .then((res) => {
         toast.success(res.data.message || 'Đã từ chối yêu cầu học viên!');
         fetchPtDashboard();
@@ -105,6 +114,18 @@ export default function PTPage() {
 
   if (loading) {
     return <AppLoading fullScreen size="lg" message="Đang nạp dữ liệu Huấn luyện viên..." />;
+  }
+
+  if (userData && userData.role !== 'PT') {
+    return (
+      <AccessDenied
+        requiredRole="PT"
+        currentUser={userData}
+        onLogout={handleLogout}
+        title="Không Có Quyền Huấn Luyện Viên"
+        message="Khu vực này dành riêng cho Huấn luyện viên (PT) quản lý học viên và giáo án. Tài khoản của bạn không có quyền truy cập."
+      />
+    );
   }
 
   const coachName = ptData?.coachName || userData?.fullName || '';

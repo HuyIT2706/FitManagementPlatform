@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import type { AdminUsersTableProps } from '../../../../interface';
 
-import AdminLoading from '../../components/AdminLoading';
+import AppLoading from '../../../../components/ui/AppLoading';
 
 const AdminUsersTable = ({
   users,
@@ -38,7 +38,7 @@ const AdminUsersTable = ({
             {loading ? (
               <tr>
                 <td colSpan={6} className="px-6 py-8 text-center text-white/50">
-                  <AdminLoading size="sm" message="Đang tải danh sách người dùng..." />
+                  <AppLoading size="sm" message="Đang tải danh sách người dùng..." />
                 </td>
               </tr>
             ) : users.length === 0 ? (

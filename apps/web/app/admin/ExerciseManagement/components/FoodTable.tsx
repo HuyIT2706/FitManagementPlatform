@@ -5,7 +5,7 @@ import React from 'react';
 import { Utensils, Flame, Edit2, Trash2 } from 'lucide-react';
 import type { FoodTableProps } from '../../../../interface';
 
-import AdminLoading from '../../components/AdminLoading';
+import AppLoading from '../../../../components/ui/AppLoading';
 
 const FoodTable = ({
   foods,
@@ -30,7 +30,7 @@ const FoodTable = ({
             {loading ? (
               <tr>
                 <td colSpan={5} className="px-6 py-8 text-center text-white/50">
-                  <AdminLoading size="sm" message="Đang tải danh sách món ăn..." />
+                  <AppLoading size="sm" message="Đang tải danh sách món ăn..." />
                 </td>
               </tr>
             ) : foods.length === 0 ? (

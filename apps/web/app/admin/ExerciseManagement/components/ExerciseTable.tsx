@@ -5,7 +5,7 @@ import React from 'react';
 import { Dumbbell, Edit2, Trash2 } from 'lucide-react';
 import type { ExerciseTableProps } from '../../../../interface';
 
-import AdminLoading from '../../components/AdminLoading';
+import AppLoading from '../../../../components/ui/AppLoading';
 
 const ExerciseTable = ({
   exercises,
@@ -30,7 +30,7 @@ const ExerciseTable = ({
             {loading ? (
               <tr>
                 <td colSpan={5} className="px-6 py-8 text-center text-white/50">
-                  <AdminLoading size="sm" message="Đang tải danh sách bài tập..." />
+                  <AppLoading size="sm" message="Đang tải danh sách bài tập..." />
                 </td>
               </tr>
             ) : exercises.length === 0 ? (

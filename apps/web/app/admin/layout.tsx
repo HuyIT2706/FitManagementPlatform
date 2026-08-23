@@ -14,8 +14,8 @@ import {
 } from 'lucide-react';
 
 import { useState, useEffect } from 'react';
-import AdminLoading from './components/AdminLoading';
-import AdminAccessDenied from './components/AdminAccessDenied';
+import AppLoading from '../../components/ui/AppLoading';
+import AccessDenied from '../../components/ui/AccessDenied';
 import apiClient from '../../api/axios';
 import type { UserData } from '../../interface';
 
@@ -77,11 +77,19 @@ const AdminLayout = ({
   ];
 
   if (isAuthorized === null) {
-    return <AdminLoading fullScreen size="lg" message="Đang xác thực quyền Quản trị viên..." />;
+    return <AppLoading fullScreen size="lg" message="Đang xác thực quyền Quản trị viên..." />;
   }
 
   if (isAuthorized === false) {
-    return <AdminAccessDenied user={currentUser} onLogout={handleLogout} />;
+    return (
+      <AccessDenied
+        requiredRole="ADMIN"
+        currentUser={currentUser}
+        onLogout={handleLogout}
+        title="Không Đủ Quyền Quản Trị Viên"
+        message="Khu vực Quản trị hệ thống (Admin Portal) chỉ dành riêng cho tài khoản Quản trị viên cấp cao của NutriCore."
+      />
+    );
   }
 
   return (
