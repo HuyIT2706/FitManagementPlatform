@@ -31,9 +31,6 @@ export default function ProfileHeaderCard({ userData, onEditProfile }: ProfileHe
           <h2 className="text-2xl font-headline-md font-bold text-on-surface">
             {userData?.fullName || 'Học Viên VIP'}
           </h2>
-          <span className="px-2.5 py-0.5 rounded-full bg-green-light/10 border border-green-light/30 text-green-light text-[10px] font-bold shadow-[0_0_10px_rgba(102,200,28,0.2)] uppercase">
-            VIP MEMBER
-          </span>
         </div>
         <p className="text-sm font-body-md text-on-surface-variant mb-3">
           {userData?.email || 'user@example.com'}

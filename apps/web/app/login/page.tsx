@@ -3,10 +3,12 @@
 import { ArrowLeft, Eye, EyeOff, User, Dumbbell, Award, Briefcase, Info, Upload } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 import LogoApp from '../../assets/imgs/logoApp.jpg';
 import apiClient from '../../api/axios';
+
+import { handleRoleRedirect } from '../../utils/authRedirect';
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID';
 
@@ -29,6 +31,20 @@ function LoginContent() {
   const [error, setError] = useState('');
   const [pendingPtNotice, setPendingPtNotice] = useState<string | null>(null);
 
+  useEffect(() => {
+    const token = localStorage.getItem('jwt_token');
+    if (token) {
+      apiClient
+        .get<{ role: string; onboardingCompleted: boolean }>('/users/me')
+        .then((res) => {
+          handleRoleRedirect(res.data);
+        })
+        .catch(() => {
+          localStorage.removeItem('jwt_token');
+        });
+    }
+  }, []);
+
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
@@ -49,13 +65,7 @@ function LoginContent() {
         const data = response.data;
         localStorage.setItem('jwt_token', data.access_token);
 
-        if (data.user?.role === 'PT') {
-          window.location.href = '/pt';
-        } else if (data.user?.onboardingCompleted === false) {
-          window.location.href = '/onboarding';
-        } else {
-          window.location.href = '/';
-        }
+        handleRoleRedirect(data.user);
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Đã có lỗi xảy ra';
         setError(msg);
@@ -90,13 +100,7 @@ function LoginContent() {
           return;
         }
 
-        if (data.user?.role === 'PT') {
-          window.location.href = '/pt';
-        } else if (data.user?.onboardingCompleted === false) {
-          window.location.href = '/onboarding';
-        } else {
-          window.location.href = '/';
-        }
+        handleRoleRedirect(data.user);
       } else {
         // Register Mode
         const payload = {

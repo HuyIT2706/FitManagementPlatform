@@ -1,6 +1,6 @@
 'use client';
 
-import { ShieldCheck, UserCheck } from 'lucide-react';
+import { UserCheck } from 'lucide-react';
 import type { TrainingVipBannerProps } from '../../../interface';
 
 export default function TrainingVipBanner({
@@ -29,11 +29,10 @@ export default function TrainingVipBanner({
                 border: '1px solid rgba(102, 200, 28, 0.5)',
               }}
             >
-              <ShieldCheck size={14} />
-              VIP MEMBER
+              Xin chào 
             </span>
             <h1 className="font-headline-md text-xl md:text-2xl text-on-surface font-bold">
-              Xin chào, {userData?.fullName || 'Thành viên'}
+              {userData?.fullName || 'Thành viên'}
             </h1>
           </div>
 

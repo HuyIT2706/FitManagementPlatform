@@ -13,12 +13,36 @@ import {
   Dumbbell,
 } from 'lucide-react';
 
+import { useState, useEffect } from 'react';
+import AdminLoading from './components/AdminLoading';
+import AdminAccessDenied from './components/AdminAccessDenied';
+import apiClient from '../../api/axios';
+import type { UserData } from '../../interface';
+
 const AdminLayout = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
   const pathname = usePathname();
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const [currentUser, setCurrentUser] = useState<UserData | null>(null);
+
+  useEffect(() => {
+    apiClient
+      .get<UserData>('/users/me')
+      .then((res) => {
+        setCurrentUser(res.data);
+        if (res.data?.role === 'ADMIN') {
+          setIsAuthorized(true);
+        } else {
+          setIsAuthorized(false);
+        }
+      })
+      .catch(() => {
+        setIsAuthorized(false);
+      });
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('jwt_token');
@@ -51,6 +75,14 @@ const AdminLayout = ({
       isActive: pathname.startsWith('/admin/ExerciseManagement'),
     },
   ];
+
+  if (isAuthorized === null) {
+    return <AdminLoading fullScreen size="lg" message="Đang xác thực quyền Quản trị viên..." />;
+  }
+
+  if (isAuthorized === false) {
+    return <AdminAccessDenied user={currentUser} onLogout={handleLogout} />;
+  }
 
   return (
     <div className="min-h-screen bg-[#090d0b] text-[#dde4dd] font-sans pb-24" suppressHydrationWarning>

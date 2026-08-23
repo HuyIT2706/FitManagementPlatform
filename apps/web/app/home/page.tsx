@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Header from '../../components/ui/Header';
 import BottomNavBar from '../../components/navigation/BottomNavBar';
+import AppLoading from '../../components/ui/AppLoading';
 import apiClient from '../../api/axios';
 import type { UserDataHome, DailyNutritionData, MealSlotConfig } from '../../interface';
 import {
@@ -12,6 +13,8 @@ import {
   formatDisplayDate,
   getWeekDays,
 } from '../../utils/date';
+
+import { guardRoleAccess } from '../../utils/authRedirect';
 
 import CalendarStrip from './components/CalendarStrip';
 import DailyFuelHeroCard from './components/DailyFuelHeroCard';
@@ -34,6 +37,9 @@ export default function Home() {
       apiClient.get<DailyNutritionData>(`/nutrition/daily?date=${todayStr}`),
     ])
       .then(([userRes, dailyRes]) => {
+        if (!guardRoleAccess(userRes.data, ['USER'])) {
+          return;
+        }
         setUserData(userRes.data);
         setDailyData(dailyRes.data);
         setLoading(false);
@@ -89,11 +95,7 @@ export default function Home() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
+    return <AppLoading fullScreen size="lg" message="Đang nạp dữ liệu dinh dưỡng hôm nay..." />;
   }
 
   const weekDays = getWeekDays(currentMonday);

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { UserPlus } from 'lucide-react';
 import Header from '../../../components/ui/Header';
 import PTBottomNavBar from '../../../components/navigation/PTBottomNavBar';
+import AppLoading from '../../../components/ui/AppLoading';
 import apiClient from '../../../api/axios';
 import type { UserDataHome, PTDashboardData } from '../../../interface';
 import { toast } from '../../../utils/toast';
@@ -80,11 +81,7 @@ export default function PTStudentsPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
+    return <AppLoading fullScreen size="lg" message="Đang tải danh sách học viên..." />;
   }
 
   const rawStudents = ptData?.students || [];

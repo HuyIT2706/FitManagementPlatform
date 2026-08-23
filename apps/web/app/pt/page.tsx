@@ -3,9 +3,12 @@
 import { useEffect, useState } from 'react';
 import Header from '../../components/ui/Header';
 import PTBottomNavBar from '../../components/navigation/PTBottomNavBar';
+import AppLoading from '../../components/ui/AppLoading';
 import apiClient from '../../api/axios';
 import type { UserDataHome, PTDashboardData } from '../../interface';
 import { toast } from '../../utils/toast';
+
+import { guardRoleAccess } from '../../utils/authRedirect';
 
 import PtWelcomeHeader from './home/components/PtWelcomeHeader';
 import PtBentoStats from './home/components/PtBentoStats';
@@ -29,6 +32,9 @@ export default function PTPage() {
       apiClient.get<PTDashboardData>('/pt/dashboard'),
     ])
       .then(([userRes, ptRes]) => {
+        if (!guardRoleAccess(userRes.data, ['PT'])) {
+          return;
+        }
         setUserData(userRes.data);
         setPtData(ptRes.data);
         setLoading(false);
@@ -98,11 +104,7 @@ export default function PTPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
+    return <AppLoading fullScreen size="lg" message="Đang nạp dữ liệu Huấn luyện viên..." />;
   }
 
   const coachName = ptData?.coachName || userData?.fullName || '';

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Header from '../../components/ui/Header';
 import BottomNavBar from '../../components/navigation/BottomNavBar';
+import AppLoading from '../../components/ui/AppLoading';
 import apiClient from '../../api/axios';
 import type { UserDataHome, DailyNutritionData, MonthCell } from '../../interface';
 import { formatYYYYMMDD, isSameDay } from '../../utils/date';
@@ -79,11 +80,7 @@ export default function HistoryPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
+    return <AppLoading fullScreen size="lg" message="Đang tải lịch sử & báo cáo..." />;
   }
 
   // Generate Month Calendar Grid

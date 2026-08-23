@@ -2,7 +2,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Search, X, Dumbbell, ExternalLink, Check, PlayCircle, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, X, Dumbbell, ExternalLink, Check, PlayCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import AppLoading from '../../../../../components/ui/AppLoading';
 import apiClient from '../../../../../api/axios';
 import type { ExerciseItem, ExercisePaginatedResponse } from '../../../../../interface';
 
@@ -128,10 +129,7 @@ export default function ExerciseSelectionModal({
         {/* Exercise List */}
         <div className="p-5 overflow-y-auto flex-1 space-y-3 [&&::-webkit-scrollbar]:w-1.5 [&&::-webkit-scrollbar-thumb]:bg-primary/40 [&&::-webkit-scrollbar-thumb]:rounded-full [&&::-webkit-scrollbar-track]:bg-black/20">
           {loading ? (
-            <div className="text-center py-16 text-primary flex flex-col items-center justify-center gap-3">
-              <Loader2 size={32} className="animate-spin" />
-              <span className="text-xs font-semibold text-white/70">Đang lấy danh sách bài tập...</span>
-            </div>
+            <AppLoading size="sm" message="Đang lấy danh sách bài tập..." />
           ) : exercises.length === 0 ? (
             <div className="text-center py-12 text-white/50 space-y-2">
               <Dumbbell size={36} className="mx-auto text-white/20" />

@@ -4,6 +4,7 @@ import { use, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Header from '../../../../components/ui/Header';
 import PTBottomNavBar from '../../../../components/navigation/PTBottomNavBar';
+import AppLoading from '../../../../components/ui/AppLoading';
 import apiClient from '../../../../api/axios';
 import type { UserDataHome } from '../../../../interface';
 import type {
@@ -280,11 +281,7 @@ export default function PTStudentDetailPage({
   };
 
   if (loading || !studentDetail) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
+    return <AppLoading fullScreen size="lg" message="Đang nạp hồ sơ học viên..." />;
   }
 
   const historyPoints = studentDetail.bodyMetricsHistory || [];

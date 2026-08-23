@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Calendar, RotateCcw, PlusCircle, CalendarX } from 'lucide-react';
 import Header from '../../../components/ui/Header';
 import PTBottomNavBar from '../../../components/navigation/PTBottomNavBar';
+import AppLoading from '../../../components/ui/AppLoading';
 import apiClient from '../../../api/axios';
 import type { UserDataHome, PTDashboardData } from '../../../interface';
 import type { PTSessionItem } from '@repo/types';
@@ -72,11 +73,7 @@ export default function PTSchedulePage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
+    return <AppLoading fullScreen size="lg" message="Đang nạp lịch dạy PT..." />;
   }
 
   const isSelectedToday = isSameDay(selectedDate, new Date());

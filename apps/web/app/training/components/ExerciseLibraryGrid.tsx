@@ -3,6 +3,7 @@
 
 import { Search, X, Check, ChevronLeft, ChevronRight, SearchX } from 'lucide-react';
 import type { ExerciseLibraryGridProps } from '../../../interface';
+import AppLoading from '../../../components/ui/AppLoading';
 
 const MUSCLE_FILTERS: Array<{ id: string; label: string }> = [
   { id: 'ALL', label: 'Tất cả' },
@@ -103,9 +104,7 @@ export default function ExerciseLibraryGrid({
       {/* Exercise Grid (Hover Effect: setupImageUrl -> startImageUrl) */}
       <section className="space-y-4">
         {exerciseLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          </div>
+          <AppLoading size="md" message="Đang tải thư viện bài tập..." />
         ) : exercises.length === 0 ? (
           <div className="bento-card p-12 text-center rounded-2xl flex flex-col items-center justify-center">
             <SearchX size={44} className="text-on-surface-variant mb-2 opacity-60" />

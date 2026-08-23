@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Header from '../../components/ui/Header';
 import BottomNavBar from '../../components/navigation/BottomNavBar';
+import AppLoading from '../../components/ui/AppLoading';
 import apiClient from '../../api/axios';
 import type {
   UserDataHome,
@@ -10,7 +12,6 @@ import type {
   MealPlanAssigned,
   AssignedWorkoutPlanData,
 } from '../../interface';
-import Header from '../../components/ui/Header';
 
 import TrainingVipBanner from './components/TrainingVipBanner';
 import ExerciseLibraryGrid from './components/ExerciseLibraryGrid';
@@ -122,11 +123,7 @@ export default function WorkoutPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
+    return <AppLoading fullScreen size="lg" message="Đang nạp dữ liệu tập luyện..." />;
   }
 
   return (
@@ -134,7 +131,6 @@ export default function WorkoutPage() {
       <Header userData={userData} onLogout={handleLogout} />
 
       <main className="max-w-7xl mx-auto px-container-padding mt-4 md:mt-8 space-y-gutter">
-        {/* VIP Member Status Banner */}
         <TrainingVipBanner userData={userData} assignedMealPlan={assignedMealPlan} />
 
         {/* Assigned 1:1 Workout Plan Section from Backend */}

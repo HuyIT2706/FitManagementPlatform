@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Header from '../../../components/ui/Header';
 import PTBottomNavBar from '../../../components/navigation/PTBottomNavBar';
+import AppLoading from '../../../components/ui/AppLoading';
 import apiClient from '../../../api/axios';
 import type { UserDataHome } from '../../../interface';
 import type { PTCodeQrData, PTDashboardData } from '@repo/types';
@@ -49,11 +50,7 @@ export default function PTProfilePage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
+    return <AppLoading fullScreen size="lg" message="Đang nạp hồ sơ cá nhân HLV..." />;
   }
 
   const ptCode = codeQrData?.ptCode || 'PT-HUY066';

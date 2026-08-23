@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import AppLoading from '../../components/ui/AppLoading';
 import apiClient from '../../api/axios';
 import toast from '../../utils/toast';
 import { useMealBuilderStore } from '../../services/useMealBuilderStore';
@@ -105,9 +106,7 @@ export default function AddMealPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-background text-on-surface">
-          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-        </div>
+        <AppLoading fullScreen size="lg" message="Đang nạp công cụ ghi nhận bữa ăn..." />
       }
     >
       <AddMealContent />

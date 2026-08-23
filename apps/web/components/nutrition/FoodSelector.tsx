@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { Search, X, Plus, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
+import AppLoading from '../ui/AppLoading';
 import apiClient from '../../api/axios';
 import toast from '../../utils/toast';
 import type { FoodItem, FoodSelectorProps, FoodPaginatedResponse } from '../../interface';
@@ -153,9 +154,7 @@ const FoodSelector = ({
       {/* Food Cards List */}
       <div className="space-y-2.5 pt-1">
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin"></div>
-          </div>
+          <AppLoading size="sm" message="Đang tìm kiếm thực phẩm..." />
         ) : foods.length === 0 ? (
           <div className="text-center py-12 text-on-surface-variant text-sm">
             Không tìm thấy món ăn phù hợp.

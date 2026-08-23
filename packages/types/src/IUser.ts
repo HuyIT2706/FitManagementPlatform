@@ -11,6 +11,8 @@ export interface UserData {
   avatarUrl?: string | null;
   email?: string;
   role?: string;
+  phone?: string | null;
+  onboardingCompleted?: boolean;
 }
 
 export interface OnboardingData {

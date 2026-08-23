@@ -2,7 +2,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, X, UtensilsCrossed, Plus, CheckCircle2, Loader2, Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, X, UtensilsCrossed, Plus, CheckCircle2, Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import AppLoading from '../../../../../components/ui/AppLoading';
 import apiClient from '../../../../../api/axios';
 import toast from '../../../../../utils/toast';
 import type { FoodItem, FoodPaginatedResponse } from '@repo/types';
@@ -162,10 +163,7 @@ const PtFoodSelectionModal = ({
         {/* Food List */}
         <div className="p-5 overflow-y-auto flex-1 space-y-3 [&&::-webkit-scrollbar]:w-1.5 [&&::-webkit-scrollbar-thumb]:bg-primary/40 [&&::-webkit-scrollbar-thumb]:rounded-full [&&::-webkit-scrollbar-track]:bg-black/20">
           {loading ? (
-            <div className="text-center py-16 text-primary flex flex-col items-center justify-center gap-3">
-              <Loader2 size={32} className="animate-spin" />
-              <span className="text-xs font-semibold text-white/70">Đang tìm món ăn...</span>
-            </div>
+            <AppLoading size="sm" message="Đang tìm món ăn..." />
           ) : foods.length === 0 ? (
             <div className="text-center py-12 text-white/50 space-y-2">
               <UtensilsCrossed size={36} className="mx-auto text-white/20" />
