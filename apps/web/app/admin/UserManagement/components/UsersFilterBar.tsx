@@ -4,14 +4,14 @@ import React from 'react';
 import { Search, RefreshCw } from 'lucide-react';
 import type { AdminUsersFilterBarProps, AdminUserRoleFilter } from '../../../../interface';
 
-export default function AdminUsersFilterBar({
+const AdminUsersFilterBar = ({
   searchTerm,
   roleFilter,
   onSearchChange,
   onSearchSubmit,
   onRoleFilterChange,
   onRefresh,
-}: AdminUsersFilterBarProps) {
+}: AdminUsersFilterBarProps) => {
   const roles: Array<{ id: AdminUserRoleFilter; label: string }> = [
     { id: 'ALL', label: 'Tất cả' },
     { id: 'USER', label: 'Học Viên' },
@@ -64,4 +64,6 @@ export default function AdminUsersFilterBar({
       </div>
     </div>
   );
-}
+};
+
+export default AdminUsersFilterBar;

@@ -3,9 +3,9 @@
 import React from 'react';
 import type { CoachReviewHeroStatsProps } from '../../../../interface';
 
-export default function CoachReviewHeroStats({ stats }: CoachReviewHeroStatsProps) {
+const CoachReviewHeroStats = ({ stats }: CoachReviewHeroStatsProps) => {
   return (
-    <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <section className="grid grid-cols-2 md:grid-cols-4 gap-4" suppressHydrationWarning>
       {/* 1. Total Users */}
       <div className="p-5 rounded-2xl bg-[#121a15] border border-white/10 space-y-1">
         <span className="text-xs font-semibold text-white/60">Tổng Học Viên / User</span>
@@ -38,4 +38,6 @@ export default function CoachReviewHeroStats({ stats }: CoachReviewHeroStatsProp
       </div>
     </section>
   );
-}
+};
+
+export default CoachReviewHeroStats;

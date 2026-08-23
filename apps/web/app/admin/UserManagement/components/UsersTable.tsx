@@ -12,14 +12,16 @@ import {
 } from 'lucide-react';
 import type { AdminUsersTableProps } from '../../../../interface';
 
-export default function AdminUsersTable({
+import AdminLoading from '../../components/AdminLoading';
+
+const AdminUsersTable = ({
   users,
   loading,
   onChangeRole,
   onDeleteUser,
-}: AdminUsersTableProps) {
+}: AdminUsersTableProps) => {
   return (
-    <div className="bg-[#121a15] rounded-2xl border border-white/10 overflow-hidden shadow-xl">
+    <div className="bg-[#121a15] rounded-2xl border border-white/10 overflow-hidden shadow-xl" suppressHydrationWarning>
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs text-white">
           <thead className="bg-white/5 text-white/60 uppercase font-semibold text-[10px] tracking-wider border-b border-white/10">
@@ -35,9 +37,8 @@ export default function AdminUsersTable({
           <tbody className="divide-y divide-white/5">
             {loading ? (
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center text-white/50">
-                  <div className="w-6 h-6 border-2 border-[#10b981] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                  Đang tải danh sách người dùng...
+                <td colSpan={6} className="px-6 py-8 text-center text-white/50">
+                  <AdminLoading size="sm" message="Đang tải danh sách người dùng..." />
                 </td>
               </tr>
             ) : users.length === 0 ? (
@@ -133,6 +134,7 @@ export default function AdminUsersTable({
                       {/* Change Role Button */}
                       <button
                         type="button"
+                        suppressHydrationWarning
                         onClick={() => onChangeRole(u)}
                         className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 text-[11px] font-bold transition-all cursor-pointer hover:scale-105 active:scale-95"
                       >
@@ -142,6 +144,7 @@ export default function AdminUsersTable({
                       {/* Delete Button */}
                       <button
                         type="button"
+                        suppressHydrationWarning
                         onClick={() => onDeleteUser(u)}
                         className="w-8 h-8 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/25 hover:border-rose-500/40 hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
                         title="Xóa người dùng"
@@ -158,4 +161,6 @@ export default function AdminUsersTable({
       </div>
     </div>
   );
-}
+};
+
+export default AdminUsersTable;

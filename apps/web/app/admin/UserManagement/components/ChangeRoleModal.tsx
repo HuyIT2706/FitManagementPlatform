@@ -4,7 +4,7 @@ import React from 'react';
 import { Shield } from 'lucide-react';
 import type { AdminChangeRoleModalProps, AdminUserRole } from '../../../../interface';
 
-export default function AdminChangeRoleModal({
+const AdminChangeRoleModal = ({
   isOpen,
   user,
   targetRole,
@@ -12,13 +12,13 @@ export default function AdminChangeRoleModal({
   onRoleSelect,
   onClose,
   onSubmit,
-}: AdminChangeRoleModalProps) {
+}: AdminChangeRoleModalProps) => {
   if (!isOpen || !user) return null;
 
   const roles: AdminUserRole[] = ['USER', 'PT', 'ADMIN'];
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4" suppressHydrationWarning>
       <div className="bg-[#121a15] border border-white/10 rounded-2xl w-full max-w-md p-6 space-y-4 text-white shadow-2xl animate-in fade-in zoom-in duration-200">
         <h3 className="text-lg font-bold flex items-center gap-2">
           <Shield className="text-[#10b981]" size={20} />
@@ -36,6 +36,7 @@ export default function AdminChangeRoleModal({
               <button
                 key={r}
                 type="button"
+                suppressHydrationWarning
                 onClick={() => onRoleSelect(r)}
                 className={`py-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                   targetRole === r
@@ -52,6 +53,7 @@ export default function AdminChangeRoleModal({
         <div className="flex gap-3 pt-4 border-t border-white/10">
           <button
             type="button"
+            suppressHydrationWarning
             onClick={onClose}
             className="flex-1 py-2.5 rounded-xl border border-white/10 text-white/70 text-xs font-bold hover:bg-white/5 cursor-pointer"
           >
@@ -59,6 +61,7 @@ export default function AdminChangeRoleModal({
           </button>
           <button
             type="button"
+            suppressHydrationWarning
             onClick={onSubmit}
             disabled={submitting}
             className="flex-1 py-2.5 rounded-xl bg-[#10b981] text-[#003824] text-xs font-extrabold shadow-[0_0_12px_rgba(16,185,129,0.4)] hover:opacity-90 transition-opacity cursor-pointer"
@@ -69,4 +72,6 @@ export default function AdminChangeRoleModal({
       </div>
     </div>
   );
-}
+};
+
+export default AdminChangeRoleModal;

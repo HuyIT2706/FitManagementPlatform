@@ -4,17 +4,17 @@ import React from 'react';
 import { AlertTriangle } from 'lucide-react';
 import type { AdminDeleteUserModalProps } from '../../../../interface';
 
-export default function AdminDeleteUserModal({
+const AdminDeleteUserModal = ({
   isOpen,
   user,
   submitting,
   onClose,
   onConfirm,
-}: AdminDeleteUserModalProps) {
+}: AdminDeleteUserModalProps) => {
   if (!isOpen || !user) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4" suppressHydrationWarning>
       <div className="bg-[#121a15] border border-rose-500/30 rounded-2xl w-full max-w-md p-6 space-y-4 text-white shadow-2xl animate-in fade-in zoom-in duration-200">
         <h3 className="text-lg font-bold text-rose-400 flex items-center gap-2">
           <AlertTriangle size={22} />
@@ -28,6 +28,7 @@ export default function AdminDeleteUserModal({
         <div className="flex gap-3 pt-4 border-t border-white/10">
           <button
             type="button"
+            suppressHydrationWarning
             onClick={onClose}
             className="flex-1 py-2.5 rounded-xl border border-white/10 text-white/70 text-xs font-bold hover:bg-white/5 cursor-pointer"
           >
@@ -35,6 +36,7 @@ export default function AdminDeleteUserModal({
           </button>
           <button
             type="button"
+            suppressHydrationWarning
             onClick={onConfirm}
             disabled={submitting}
             className="flex-1 py-2.5 rounded-xl bg-rose-500 text-white text-xs font-bold shadow-[0_0_12px_rgba(244,63,94,0.4)] hover:opacity-90 transition-opacity cursor-pointer"
@@ -45,4 +47,6 @@ export default function AdminDeleteUserModal({
       </div>
     </div>
   );
-}
+};
+
+export default AdminDeleteUserModal;

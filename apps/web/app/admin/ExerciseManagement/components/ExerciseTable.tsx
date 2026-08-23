@@ -5,14 +5,16 @@ import React from 'react';
 import { Dumbbell, Edit2, Trash2 } from 'lucide-react';
 import type { ExerciseTableProps } from '../../../../interface';
 
-export default function ExerciseTable({
+import AdminLoading from '../../components/AdminLoading';
+
+const ExerciseTable = ({
   exercises,
   loading,
   onEdit,
   onDelete,
-}: ExerciseTableProps) {
+}: ExerciseTableProps) => {
   return (
-    <div className="bg-[#121a15] rounded-2xl border border-white/10 overflow-hidden shadow-xl">
+    <div className="bg-[#121a15] rounded-2xl border border-white/10 overflow-hidden shadow-xl" suppressHydrationWarning>
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs text-white">
           <thead className="bg-white/5 text-white/60 uppercase font-semibold text-[10px] tracking-wider border-b border-white/10">
@@ -27,9 +29,8 @@ export default function ExerciseTable({
           <tbody className="divide-y divide-white/5">
             {loading ? (
               <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-white/50">
-                  <div className="w-6 h-6 border-2 border-[#10b981] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                  Đang tải danh sách bài tập...
+                <td colSpan={5} className="px-6 py-8 text-center text-white/50">
+                  <AdminLoading size="sm" message="Đang tải danh sách bài tập..." />
                 </td>
               </tr>
             ) : exercises.length === 0 ? (
@@ -88,6 +89,7 @@ export default function ExerciseTable({
                     <div className="flex items-center justify-end gap-2">
                       <button
                         type="button"
+                        suppressHydrationWarning
                         onClick={() => onEdit(ex)}
                         className="w-8 h-8 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/25 hover:border-blue-500/40 hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
                         title="Chỉnh sửa bài tập"
@@ -96,6 +98,7 @@ export default function ExerciseTable({
                       </button>
                       <button
                         type="button"
+                        suppressHydrationWarning
                         onClick={() => onDelete(ex)}
                         className="w-8 h-8 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/25 hover:border-rose-500/40 hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-sm"
                         title="Xóa bài tập"
@@ -112,4 +115,6 @@ export default function ExerciseTable({
       </div>
     </div>
   );
-}
+};
+
+export default ExerciseTable;

@@ -5,11 +5,11 @@ import React from 'react';
 import { Users } from 'lucide-react';
 import type { AdminRecentUsersCardProps } from '../../../interface';
 
-export default function AdminRecentUsersCard({
+const AdminRecentUsersCard = ({
   recentUsers,
-}: AdminRecentUsersCardProps) {
+}: AdminRecentUsersCardProps) => {
   return (
-    <div className="p-6 rounded-2xl bg-[#121a15] border border-white/10 space-y-4 shadow-xl">
+    <div className="p-6 rounded-2xl bg-[#121a15] border border-white/10 space-y-4 shadow-xl" suppressHydrationWarning>
       <h3 className="font-bold text-base text-white flex items-center gap-2">
         <Users className="text-blue-400" size={18} />
         Người dùng mới Đăng Ký
@@ -53,4 +53,6 @@ export default function AdminRecentUsersCard({
       </div>
     </div>
   );
-}
+};
+
+export default AdminRecentUsersCard;

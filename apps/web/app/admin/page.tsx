@@ -11,7 +11,9 @@ import AdminGoalDistributionCard from './components/AdminGoalDistributionCard';
 import AdminRecentUsersCard from './components/AdminRecentUsersCard';
 import AdminRecentApplicationsCard from './components/AdminRecentApplicationsCard';
 
-export default function AdminAnalyticsOverview() {
+import AdminLoading from './components/AdminLoading';
+
+const AdminAnalyticsOverview = () => {
   const [data, setData] = useState<AdminAnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -35,17 +37,12 @@ export default function AdminAnalyticsOverview() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="py-20 text-center">
-        <div className="w-10 h-10 border-4 border-[#10b981] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-        <p className="text-xs text-white/60 font-medium">Đang tổng hợp dữ liệu báo cáo hệ thống...</p>
-      </div>
-    );
+    return <AdminLoading message="Đang tổng hợp dữ liệu báo cáo hệ thống..." />;
   }
 
   if (!data) {
     return (
-      <div className="py-16 text-center bg-[#121a15] rounded-2xl border border-white/10">
+      <div className="py-16 text-center bg-[#121a15] rounded-2xl border border-white/10" suppressHydrationWarning>
         <Activity size={40} className="mx-auto text-white/30 mb-3" />
         <p className="text-sm font-bold text-white/80">Không có dữ liệu báo cáo</p>
       </div>
@@ -55,7 +52,7 @@ export default function AdminAnalyticsOverview() {
   const { overview, goalDistribution, recentUsers, recentApplications } = data;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" suppressHydrationWarning>
       {/* Component 1: Header & Refresh Action */}
       <AdminAnalyticsHeader onRefresh={fetchAnalytics} />
 
@@ -72,4 +69,6 @@ export default function AdminAnalyticsOverview() {
       </div>
     </div>
   );
-}
+};
+
+export default AdminAnalyticsOverview;

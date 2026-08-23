@@ -13,11 +13,11 @@ import {
   Dumbbell,
 } from 'lucide-react';
 
-export default function AdminLayout({
+const AdminLayout = ({
   children,
 }: {
   children: React.ReactNode;
-}) {
+}) => {
   const pathname = usePathname();
 
   const handleLogout = () => {
@@ -111,4 +111,6 @@ export default function AdminLayout({
       </div>
     </div>
   );
-}
+};
+
+export default AdminLayout;

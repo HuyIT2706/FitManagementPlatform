@@ -4,7 +4,7 @@ import React from 'react';
 import { Dumbbell } from 'lucide-react';
 import type { ExerciseFormModalProps } from '../../../../interface';
 
-export default function ExerciseFormModal({
+const ExerciseFormModal = ({
   isOpen,
   isEditing,
   submitting,
@@ -24,11 +24,11 @@ export default function ExerciseFormModal({
   onStartUrlChange,
   onClose,
   onSubmit,
-}: ExerciseFormModalProps) {
+}: ExerciseFormModalProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4" suppressHydrationWarning>
       <div className="bg-[#121a15] border border-white/10 rounded-2xl w-full max-w-lg p-6 space-y-4 text-white shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
         <h3 className="text-lg font-bold flex items-center gap-2">
           <Dumbbell className="text-[#10b981]" size={20} />
@@ -40,6 +40,7 @@ export default function ExerciseFormModal({
             <label className="block text-white/80 font-bold mb-1">Tên bài tập (*)</label>
             <input
               type="text"
+              suppressHydrationWarning
               value={name}
               onChange={(e) => onNameChange(e.target.value)}
               placeholder="Ví dụ: Barbell Bench Press"
@@ -51,6 +52,7 @@ export default function ExerciseFormModal({
             <div>
               <label className="block text-white/80 font-bold mb-1">Nhóm cơ chính</label>
               <select
+                suppressHydrationWarning
                 value={category}
                 onChange={(e) => onCategoryChange(e.target.value)}
                 className="w-full bg-[#1c2720] border border-white/10 rounded-xl p-2.5 text-xs text-white focus:border-[#10b981] outline-none"
@@ -70,6 +72,7 @@ export default function ExerciseFormModal({
               <label className="block text-white/80 font-bold mb-1">Thiết bị</label>
               <input
                 type="text"
+                suppressHydrationWarning
                 value={equipment}
                 onChange={(e) => onEquipmentChange(e.target.value)}
                 placeholder="Barbell, Dumbbell, Machine..."
@@ -82,6 +85,7 @@ export default function ExerciseFormModal({
             <label className="block text-white/80 font-bold mb-1">Cơ tác động (phân tách dấu phẩy)</label>
             <input
               type="text"
+              suppressHydrationWarning
               value={primaryMuscles}
               onChange={(e) => onPrimaryMusclesChange(e.target.value)}
               placeholder="Ví dụ: Ngực trên, Tay sau, Vai trước"
@@ -93,6 +97,7 @@ export default function ExerciseFormModal({
             <label className="block text-white/80 font-bold mb-1">URL Ảnh Setup / Bắt Đầu</label>
             <input
               type="text"
+              suppressHydrationWarning
               value={setupUrl}
               onChange={(e) => onSetupUrlChange(e.target.value)}
               placeholder="https://..."
@@ -104,6 +109,7 @@ export default function ExerciseFormModal({
             <label className="block text-white/80 font-bold mb-1">URL Ảnh Động Tác / Kết Thúc</label>
             <input
               type="text"
+              suppressHydrationWarning
               value={startUrl}
               onChange={(e) => onStartUrlChange(e.target.value)}
               placeholder="https://..."
@@ -115,6 +121,7 @@ export default function ExerciseFormModal({
             <label className="block text-white/80 font-bold mb-1">Hướng dẫn thực hiện (mỗi dòng 1 bước)</label>
             <textarea
               rows={3}
+              suppressHydrationWarning
               value={instructions}
               onChange={(e) => onInstructionsChange(e.target.value)}
               placeholder="Bước 1: Nằm trên ghế..."
@@ -126,6 +133,7 @@ export default function ExerciseFormModal({
         <div className="flex gap-3 pt-4 border-t border-white/10">
           <button
             type="button"
+            suppressHydrationWarning
             onClick={onClose}
             className="flex-1 py-2.5 rounded-xl border border-white/10 text-white/70 text-xs font-bold hover:bg-white/5 cursor-pointer"
           >
@@ -133,6 +141,7 @@ export default function ExerciseFormModal({
           </button>
           <button
             type="button"
+            suppressHydrationWarning
             onClick={onSubmit}
             disabled={submitting}
             className="flex-1 py-2.5 rounded-xl bg-[#10b981] text-[#003824] text-xs font-extrabold shadow-[0_0_12px_rgba(16,185,129,0.4)] hover:opacity-90 transition-opacity cursor-pointer"
@@ -143,4 +152,6 @@ export default function ExerciseFormModal({
       </div>
     </div>
   );
-}
+};
+
+export default ExerciseFormModal;

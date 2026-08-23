@@ -13,11 +13,11 @@ import {
 } from 'lucide-react';
 import type { CoachReviewCardProps } from '../../../../interface';
 
-export default function CoachReviewCard({
+const CoachReviewCard = ({
   application,
   onApprove,
   onReject,
-}: CoachReviewCardProps) {
+}: CoachReviewCardProps) => {
   const {
     fullName,
     email,
@@ -33,6 +33,7 @@ export default function CoachReviewCard({
 
   return (
     <div
+      suppressHydrationWarning
       className={`p-6 rounded-2xl border transition-all bg-[#121a15] flex flex-col md:flex-row md:items-center justify-between gap-6 ${
         status === 'PENDING'
           ? 'border-amber-500/40 shadow-[0_0_15px_rgba(245,158,11,0.08)]'
@@ -124,6 +125,7 @@ export default function CoachReviewCard({
           {status !== 'APPROVED' && (
             <button
               type="button"
+              suppressHydrationWarning
               onClick={() => onApprove(application)}
               className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-[#10b981] text-[#003824] text-xs font-extrabold hover:opacity-90 transition-opacity flex items-center justify-center gap-1 shadow-[0_0_12px_rgba(16,185,129,0.3)] cursor-pointer"
             >
@@ -135,6 +137,7 @@ export default function CoachReviewCard({
           {status !== 'REJECTED' && (
             <button
               type="button"
+              suppressHydrationWarning
               onClick={() => onReject(application)}
               className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/40 text-xs font-bold hover:bg-rose-500/30 transition-colors flex items-center justify-center gap-1 cursor-pointer"
             >
@@ -146,4 +149,6 @@ export default function CoachReviewCard({
       </div>
     </div>
   );
-}
+};
+
+export default CoachReviewCard;

@@ -15,7 +15,7 @@ import AdminChangeRoleModal from './components/ChangeRoleModal';
 import AdminDeleteUserModal from './components/DeleteUserModal';
 import AdminUsersPagination from './components/UsersPagination';
 
-export default function AdminUsersManagement() {
+const AdminUsersManagement = () => {
   const [users, setUsers] = useState<AdminUserItem[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -115,7 +115,7 @@ export default function AdminUsersManagement() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" suppressHydrationWarning>
       {/* Component 1: Search & Role Filter Bar */}
       <AdminUsersFilterBar
         searchTerm={searchTerm}
@@ -164,4 +164,6 @@ export default function AdminUsersManagement() {
       />
     </div>
   );
-}
+};
+
+export default AdminUsersManagement;

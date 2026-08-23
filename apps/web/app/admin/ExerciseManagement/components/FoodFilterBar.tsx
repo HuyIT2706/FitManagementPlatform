@@ -4,14 +4,14 @@ import React from 'react';
 import { Search, RefreshCw } from 'lucide-react';
 import type { FoodFilterBarProps } from '../../../../interface';
 
-export default function FoodFilterBar({
+const FoodFilterBar = ({
   search,
   category,
   onSearchChange,
   onCategoryChange,
   onSearchSubmit,
   onRefresh,
-}: FoodFilterBarProps) {
+}: FoodFilterBarProps) => {
   const categories = [
     { id: 'ALL', label: 'Tất cả' },
     { id: 'Thịt & Cá', label: 'Thịt & Cá' },
@@ -67,4 +67,6 @@ export default function FoodFilterBar({
       </div>
     </div>
   );
-}
+};
+
+export default FoodFilterBar;

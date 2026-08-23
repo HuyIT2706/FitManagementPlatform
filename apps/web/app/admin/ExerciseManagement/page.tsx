@@ -15,7 +15,7 @@ import FoodFormModal from './components/FoodFormModal';
 import FoodDeleteModal from './components/FoodDeleteModal';
 import LibraryPagination from './components/LibraryPagination';
 
-export default function AdminContentLibraryManagement() {
+const AdminContentLibraryManagement = () => {
   const [activeTab, setActiveTab] = useState<'EXERCISES' | 'FOODS'>('EXERCISES');
 
   // =====================
@@ -456,4 +456,6 @@ export default function AdminContentLibraryManagement() {
       />
     </div>
   );
-}
+};
+
+export default AdminContentLibraryManagement;

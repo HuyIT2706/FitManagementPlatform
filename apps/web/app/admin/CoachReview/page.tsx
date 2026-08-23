@@ -1,5 +1,4 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import apiClient from '../../../api/axios';
 import { toast } from '../../../utils/toast';
@@ -12,8 +11,7 @@ import CoachReviewHeroStats from './components/CoachReviewHeroStats';
 import CoachReviewFilterBar from './components/CoachReviewFilterBar';
 import CoachReviewList from './components/CoachReviewList';
 import CoachReviewActionModal from './components/CoachReviewActionModal';
-
-export default function CoachReviewPage() {
+const CoachReviewPage = () => {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [applications, setApplications] = useState<AdminPtApplication[]>([]);
   const [loading, setLoading] = useState(true);
@@ -133,3 +131,4 @@ export default function CoachReviewPage() {
     </div>
   );
 }
+export default CoachReviewPage;

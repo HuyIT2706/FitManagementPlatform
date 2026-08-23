@@ -4,11 +4,11 @@ import React from 'react';
 import { Clock } from 'lucide-react';
 import type { AdminRecentApplicationsCardProps } from '../../../interface';
 
-export default function AdminRecentApplicationsCard({
+const AdminRecentApplicationsCard = ({
   recentApplications,
-}: AdminRecentApplicationsCardProps) {
+}: AdminRecentApplicationsCardProps) => {
   return (
-    <div className="p-6 rounded-2xl bg-[#121a15] border border-white/10 space-y-4 shadow-xl">
+    <div className="p-6 rounded-2xl bg-[#121a15] border border-white/10 space-y-4 shadow-xl" suppressHydrationWarning>
       <h3 className="font-bold text-base text-white flex items-center gap-2">
         <Clock className="text-amber-400" size={18} />
         Đơn Đăng Ký HLV Gần Đây
@@ -54,4 +54,6 @@ export default function AdminRecentApplicationsCard({
       </div>
     </div>
   );
-}
+};
+
+export default AdminRecentApplicationsCard;

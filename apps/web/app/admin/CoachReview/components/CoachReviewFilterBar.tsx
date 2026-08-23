@@ -4,13 +4,13 @@ import React from 'react';
 import { Search } from 'lucide-react';
 import type { CoachReviewFilterBarProps, AdminFilterStatus } from '../../../../interface';
 
-export default function CoachReviewFilterBar({
+const CoachReviewFilterBar = ({
   filterStatus,
   pendingCount,
   searchTerm,
   onFilterChange,
   onSearchChange,
-}: CoachReviewFilterBarProps) {
+}: CoachReviewFilterBarProps) => {
   const statusList: AdminFilterStatus[] = ['PENDING', 'APPROVED', 'REJECTED', 'ALL'];
 
   return (
@@ -60,4 +60,6 @@ export default function CoachReviewFilterBar({
       </div>
     </section>
   );
-}
+};
+
+export default CoachReviewFilterBar;

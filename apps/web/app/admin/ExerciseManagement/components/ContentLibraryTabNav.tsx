@@ -4,11 +4,11 @@ import React from "react";
 import { Plus } from "lucide-react";
 import type { ContentLibraryTabNavProps } from "../../../../interface";
 
-export default function ContentLibraryTabNav({
+const ContentLibraryTabNav = ({
   activeTab,
   onTabChange,
   onOpenAddModal,
-}: ContentLibraryTabNavProps) {
+}: ContentLibraryTabNavProps) => {
   return (
     <div className="flex items-center justify-between gap-4 bg-[#121a15] p-3 rounded-2xl border border-white/10" suppressHydrationWarning>
       <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
@@ -50,4 +50,6 @@ export default function ContentLibraryTabNav({
       </button>
     </div>
   );
-}
+};
+
+export default ContentLibraryTabNav;

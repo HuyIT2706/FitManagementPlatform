@@ -4,31 +4,23 @@ import React from "react";
 import {
   Users,
   UserCheck,
-  Shield,
   Dumbbell,
   Utensils,
-  Flame,
-  CalendarCheck,
-  Activity,
 } from "lucide-react";
 import type { AdminAnalyticsHeroMetricsProps } from "../../../interface";
 
-export default function AdminAnalyticsHeroMetrics({
+const AdminAnalyticsHeroMetrics = ({
   overview,
-}: AdminAnalyticsHeroMetricsProps) {
+}: AdminAnalyticsHeroMetricsProps) => {
   const {
-    totalUsers,
     totalPts,
     totalExercises,
     totalFoods,
-    totalMealLogs,
-    totalWorkouts,
-    totalAdmins,
     totalAccounts,
   } = overview;
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4" suppressHydrationWarning>
       {/* Card 1: Total Users */}
       <div className="p-5 rounded-2xl bg-[#121a15] border border-white/10 space-y-3 relative overflow-hidden">
         <div className="flex items-center justify-between">
@@ -102,4 +94,6 @@ export default function AdminAnalyticsHeroMetrics({
       </div>
     </div>
   );
-}
+};
+
+export default AdminAnalyticsHeroMetrics;

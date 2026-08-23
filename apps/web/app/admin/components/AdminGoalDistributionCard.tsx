@@ -4,14 +4,14 @@ import React from 'react';
 import { Target } from 'lucide-react';
 import type { AdminGoalDistributionCardProps } from '../../../interface';
 
-export default function AdminGoalDistributionCard({
+const AdminGoalDistributionCard = ({
   goalDistribution,
-}: AdminGoalDistributionCardProps) {
+}: AdminGoalDistributionCardProps) => {
   const totalGoalUsers =
     goalDistribution.reduce((acc, g) => acc + g.count, 0) || 1;
 
   return (
-    <div className="p-6 rounded-2xl bg-[#121a15] border border-white/10 space-y-4 shadow-xl">
+    <div className="p-6 rounded-2xl bg-[#121a15] border border-white/10 space-y-4 shadow-xl" suppressHydrationWarning>
       <div className="flex items-center gap-2 text-white">
         <Target className="text-[#10b981]" size={20} />
         <h3 className="font-bold text-base">Phân Bổ Mục Tiêu Thể Hình Học Viên</h3>
@@ -53,4 +53,6 @@ export default function AdminGoalDistributionCard({
       </div>
     </div>
   );
-}
+};
+
+export default AdminGoalDistributionCard;

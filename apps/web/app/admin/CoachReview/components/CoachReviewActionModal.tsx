@@ -4,7 +4,7 @@ import React from 'react';
 import { UserCheck, UserX } from 'lucide-react';
 import type { CoachReviewActionModalProps } from '../../../../interface';
 
-export default function CoachReviewActionModal({
+const CoachReviewActionModal = ({
   isOpen,
   application,
   action,
@@ -13,13 +13,13 @@ export default function CoachReviewActionModal({
   onNoteChange,
   onClose,
   onSubmit,
-}: CoachReviewActionModalProps) {
+}: CoachReviewActionModalProps) => {
   if (!isOpen || !application || !action) {
     return null;
   }
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4" suppressHydrationWarning>
       <div className="bg-[#121a15] border border-white/10 rounded-2xl w-full max-w-md p-6 space-y-4 text-white shadow-2xl animate-in fade-in zoom-in duration-200">
         <h3 className="text-lg font-bold flex items-center gap-2">
           {action === 'APPROVE' ? (
@@ -47,6 +47,7 @@ export default function CoachReviewActionModal({
           </label>
           <textarea
             rows={3}
+            suppressHydrationWarning
             value={actionNote}
             onChange={(e) => onNoteChange(e.target.value)}
             className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-white focus:border-[#10b981] outline-none"
@@ -57,6 +58,7 @@ export default function CoachReviewActionModal({
         <div className="flex gap-3 pt-2 border-t border-white/10">
           <button
             type="button"
+            suppressHydrationWarning
             onClick={onClose}
             className="flex-1 py-2.5 rounded-xl border border-white/10 text-white/70 text-xs font-bold hover:bg-white/5 cursor-pointer"
           >
@@ -64,6 +66,7 @@ export default function CoachReviewActionModal({
           </button>
           <button
             type="button"
+            suppressHydrationWarning
             onClick={onSubmit}
             disabled={submitting}
             className={`flex-1 py-2.5 rounded-xl text-xs font-extrabold transition-opacity flex items-center justify-center gap-1 cursor-pointer ${
@@ -78,4 +81,6 @@ export default function CoachReviewActionModal({
       </div>
     </div>
   );
-}
+};
+
+export default CoachReviewActionModal;

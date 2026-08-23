@@ -4,14 +4,14 @@ import React from 'react';
 import { Search, RefreshCw } from 'lucide-react';
 import type { ExerciseFilterBarProps } from '../../../../interface';
 
-export default function ExerciseFilterBar({
+const ExerciseFilterBar = ({
   search,
   category,
   onSearchChange,
   onCategoryChange,
   onSearchSubmit,
   onRefresh,
-}: ExerciseFilterBarProps) {
+}: ExerciseFilterBarProps) => {
   const categories = [
     { id: 'ALL', label: 'Tất cả' },
     { id: 'CHEST', label: 'Ngực' },
@@ -67,4 +67,6 @@ export default function ExerciseFilterBar({
       </div>
     </div>
   );
-}
+};
+
+export default ExerciseFilterBar;
