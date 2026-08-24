@@ -21,33 +21,59 @@ export class PtService {
   async getDashboardData(ptUserId: string): Promise<PTDashboardData> {
     const ptUser = await this.prisma.user.findUnique({
       where: { id: ptUserId },
+      select: { fullName: true, avatarUrl: true },
     });
 
     const coachName = ptUser ? `Coach ${ptUser.fullName}` : 'Coach PT';
     const coachAvatar = ptUser?.avatarUrl || undefined;
 
-    // Find all students assigned to this PT
     // Find official approved students assigned to this PT
     const approvedProfiles = await this.prisma.studentProfile.findMany({
       where: { trainerId: ptUserId, status: 'APPROVED' },
-      include: {
+      select: {
+        id: true,
+        studentId: true,
         student: {
-          include: {
+          select: {
+            id: true,
+            fullName: true,
+            avatarUrl: true,
             userPackages: {
               where: { isActive: true },
               take: 1,
+              select: {
+                totalSessions: true,
+                remainingSessions: true,
+              },
             },
             mealLogs: {
               take: 5,
               orderBy: { logDate: 'desc' },
-              include: {
-                reviews: true,
-                items: true,
+              select: {
+                id: true,
+                mealName: true,
+                logDate: true,
+                totalCalories: true,
+                totalProtein: true,
+                totalCarbs: true,
+                totalFat: true,
+                reviews: {
+                  select: { id: true, ptId: true, comment: true },
+                },
+                items: {
+                  select: {
+                    id: true,
+                    foodName: true,
+                    weightInGram: true,
+                    calories: true,
+                  },
+                },
               },
             },
             bodyMetrics: {
               take: 1,
               orderBy: { recordedAt: 'desc' },
+              select: { weight: true, recordedAt: true },
             },
           },
         },
@@ -103,43 +129,74 @@ export class PtService {
           lte: endOfToday,
         },
       },
-      include: {
-        student: true,
-        memberPackage: true,
+      select: {
+        studentId: true,
+        checkInTime: true,
       },
       orderBy: { checkInTime: 'desc' },
     });
 
     const checkedInStudentIds = new Set(attendanceLogs.map((a) => a.studentId));
 
-    // Build today's sessions list from real student profiles
+    // Query actual workout schedules created for today
+    const todaySchedules = await this.prisma.workoutSchedule.findMany({
+      where: {
+        studentId: { in: studentIds },
+        scheduledDate: {
+          gte: startOfToday,
+          lte: endOfToday,
+        },
+      },
+      select: {
+        id: true,
+        title: true,
+        studentId: true,
+        isCompleted: true,
+        student: {
+          select: {
+            fullName: true,
+            avatarUrl: true,
+            userPackages: {
+              where: { isActive: true },
+              take: 1,
+              select: {
+                totalSessions: true,
+                remainingSessions: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { scheduledDate: 'asc' },
+    });
+
     const timeSlots = [
       '08:00 - 09:00',
       '10:00 - 11:00',
       '14:00 - 15:00',
       '16:30 - 17:30',
     ];
-    const todaySessions: PTSessionItem[] = approvedProfiles
-      .slice(0, 4)
-      .map((sp, idx) => {
-        const student = sp.student;
-        const pkg = student.userPackages?.[0];
-        const isCheckedIn = checkedInStudentIds.has(student.id);
 
-        return {
-          id: `session-${sp.id}`,
-          timeSlot: timeSlots[idx % timeSlots.length],
-          studentId: student.id,
-          studentName: student.fullName,
-          studentAvatar:
-            student.avatarUrl ||
-            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-          workoutName: 'Tập Lưng & Bụng Cá Nhân Hóa',
-          status: isCheckedIn ? 'CHECKED_IN' : 'PENDING',
-          remainingSessions: pkg?.remainingSessions ?? 0,
-          totalSessions: pkg?.totalSessions ?? 0,
-        };
-      });
+    const todaySessions: PTSessionItem[] = todaySchedules.map((ws, idx) => {
+      const student = ws.student;
+      const pkg = student?.userPackages?.[0];
+      const isCheckedIn =
+        ws.isCompleted || checkedInStudentIds.has(ws.studentId);
+
+      return {
+        id: ws.id,
+        timeSlot: timeSlots[idx % timeSlots.length] || '08:00 - 09:00',
+        studentId: ws.studentId,
+        studentName: student?.fullName || 'Học viên',
+        studentAvatar:
+          student?.avatarUrl ||
+          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+        workoutName: ws.title || 'Giáo Án Tập Luyện 1:1',
+        status: isCheckedIn ? 'CHECKED_IN' : 'PENDING',
+        remainingSessions: pkg?.remainingSessions ?? 0,
+        totalSessions: pkg?.totalSessions ?? 0,
+      };
+    });
 
     // Extract pending meals awaiting PT review
     const pendingMeals: PTDashboardData['pendingMeals'] = [];
@@ -221,8 +278,20 @@ export class PtService {
         trainerId: ptUserId,
         status: 'PENDING',
       },
-      include: {
-        student: true,
+      select: {
+        id: true,
+        studentId: true,
+        assignedAt: true,
+        status: true,
+        student: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            phone: true,
+            avatarUrl: true,
+          },
+        },
       },
       orderBy: { assignedAt: 'desc' },
     });
@@ -248,7 +317,14 @@ export class PtService {
   async approveStudentRequest(ptUserId: string, requestId: string) {
     const profile = await this.prisma.studentProfile.findUnique({
       where: { id: requestId },
-      include: { student: true },
+      select: {
+        id: true,
+        studentId: true,
+        trainerId: true,
+        student: {
+          select: { fullName: true },
+        },
+      },
     });
 
     if (!profile || profile.trainerId !== ptUserId) {
@@ -301,7 +377,14 @@ export class PtService {
   async rejectStudentRequest(ptUserId: string, requestId: string) {
     const profile = await this.prisma.studentProfile.findUnique({
       where: { id: requestId },
-      include: { student: true },
+      select: {
+        id: true,
+        studentId: true,
+        trainerId: true,
+        student: {
+          select: { fullName: true },
+        },
+      },
     });
 
     if (!profile || profile.trainerId !== ptUserId) {
@@ -324,30 +407,94 @@ export class PtService {
   async getStudentDetail(studentId: string): Promise<PTStudentDetail> {
     const student = await this.prisma.user.findUnique({
       where: { id: studentId },
-      include: {
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        avatarUrl: true,
+        phone: true,
+        gender: true,
+        height: true,
+        dateOfBirth: true,
+        activityLevel: true,
+        goal: true,
+        targetWeight: true,
         bodyMetrics: {
           orderBy: { recordedAt: 'desc' },
           take: 10,
+          select: {
+            weight: true,
+            height: true,
+            bodyFat: true,
+            muscleMass: true,
+            recordedAt: true,
+          },
         },
         progressPhotos: {
           orderBy: { takenAt: 'desc' },
           take: 10,
+          select: {
+            id: true,
+            photoUrl: true,
+            tag: true,
+            takenAt: true,
+          },
         },
         nutritionTargets: {
           orderBy: { effectiveDate: 'desc' },
           take: 5,
+          select: {
+            id: true,
+            targetCalo: true,
+            targetProtein: true,
+            targetCarbs: true,
+            targetFat: true,
+            prescribedMealPlan: true,
+            effectiveDate: true,
+          },
         },
         userPackages: {
           where: { isActive: true },
           take: 1,
+          select: {
+            id: true,
+            totalSessions: true,
+            remainingSessions: true,
+            startDate: true,
+            endDate: true,
+            gymPackage: {
+              select: {
+                id: true,
+                title: true,
+                price: true,
+              },
+            },
+          },
         },
         workoutSchedules: {
           orderBy: { scheduledDate: 'desc' },
           take: 1,
-          include: {
+          select: {
+            id: true,
+            title: true,
+            note: true,
+            scheduledDate: true,
             exercises: {
-              include: {
-                exercise: true,
+              select: {
+                id: true,
+                exerciseLibraryId: true,
+                sets: true,
+                reps: true,
+                weight: true,
+                exercise: {
+                  select: {
+                    id: true,
+                    name: true,
+                    category: true,
+                    setupImageUrl: true,
+                    startImageUrl: true,
+                  },
+                },
               },
             },
           },

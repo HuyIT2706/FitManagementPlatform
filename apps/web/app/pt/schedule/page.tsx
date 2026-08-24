@@ -1,26 +1,30 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Calendar, RotateCcw, PlusCircle, CalendarX } from 'lucide-react';
 import Header from '../../../components/ui/Header';
 import PTBottomNavBar from '../../../components/navigation/PTBottomNavBar';
 import AppLoading from '../../../components/ui/AppLoading';
 import apiClient from '../../../api/axios';
-import type { UserDataHome, PTDashboardData } from '../../../interface';
 import type { PTSessionItem } from '@repo/types';
 import { getMonday, isSameDay } from '../../../utils/date';
 import { toast } from '../../../utils/toast';
 
+import dynamic from 'next/dynamic';
 import AccessDenied from '../../../components/ui/AccessDenied';
 import PtPendingApproval from '../../../components/ui/PtPendingApproval';
 import PtScheduleWeekStrip from './components/PtScheduleWeekStrip';
 import PtScheduleSlotCard, { type ScheduleSlot } from './components/PtScheduleSlotCard';
-import AddScheduleModal from './components/AddScheduleModal';
+
+import { useCurrentUser, usePtDashboard } from '../../../api/swr';
+
+const AddScheduleModal = dynamic(() => import('./components/AddScheduleModal'), {
+  ssr: false,
+});
 
 const PTSchedulePage = () => {
-  const [userData, setUserData] = useState<UserDataHome | null>(null);
-  const [ptData, setPtData] = useState<PTDashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: userData, isLoading: userLoading } = useCurrentUser();
+  const { data: ptData, isLoading: ptLoading, mutate: mutatePt } = usePtDashboard();
 
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
   const [currentMonday, setCurrentMonday] = useState<Date>(() => getMonday(new Date()));
@@ -28,24 +32,6 @@ const PTSchedulePage = () => {
 
   const [customSessions, setCustomSessions] = useState<PTSessionItem[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-
-  useEffect(() => {
-    Promise.all([
-      apiClient.get<UserDataHome>('/users/me'),
-      apiClient.get<PTDashboardData>('/pt/dashboard').catch(() => ({ data: null })),
-    ])
-      .then(([userRes, ptRes]) => {
-        setUserData(userRes.data);
-        if (userRes.data?.role === 'PT' && userRes.data?.isApprovedPt !== false) {
-          setPtData(ptRes.data);
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
-  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('jwt_token');
@@ -58,7 +44,7 @@ const PTSchedulePage = () => {
       .post<{ message?: string }>(`/pt/check-in/${sessionId}`)
       .then((res) => {
         toast.success(res.data.message || 'Đã điểm danh học viên & trừ số buổi thành công!');
-        apiClient.get<PTDashboardData>('/pt/dashboard').then((ptRes) => setPtData(ptRes.data));
+        mutatePt();
       })
       .catch((err) => {
         console.error(err);
@@ -75,6 +61,8 @@ const PTSchedulePage = () => {
   const handleAddCustomSession = (newSession: PTSessionItem) => {
     setCustomSessions((prev) => [...prev, newSession]);
   };
+
+  const loading = userLoading || (userData?.role === 'PT' && userData?.isApprovedPt !== false && ptLoading && !ptData);
 
   if (loading) {
     return <AppLoading fullScreen size="lg" message="Đang nạp lịch dạy PT..." />;

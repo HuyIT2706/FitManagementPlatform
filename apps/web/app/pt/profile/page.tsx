@@ -1,14 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Header from '../../../components/ui/Header';
 import PTBottomNavBar from '../../../components/navigation/PTBottomNavBar';
 import AppLoading from '../../../components/ui/AppLoading';
-import apiClient from '../../../api/axios';
-import type { UserDataHome } from '../../../interface';
-import type { PTCodeQrData, PTDashboardData } from '@repo/types';
 import { toast } from '../../../utils/toast';
 
+import { useCurrentUser, usePtDashboard, usePtCodeQr } from '../../../api/swr';
 import AccessDenied from '../../../components/ui/AccessDenied';
 import PtPendingApproval from '../../../components/ui/PtPendingApproval';
 import PtProfileCard from './components/PtProfileCard';
@@ -16,31 +14,11 @@ import PtQrCodeCard from './components/PtQrCodeCard';
 import PtProfileSettingsList from './components/PtProfileSettingsList';
 
 const PTProfilePage = () => {
-  const [userData, setUserData] = useState<UserDataHome | null>(null);
-  const [codeQrData, setCodeQrData] = useState<PTCodeQrData | null>(null);
-  const [dashboardData, setDashboardData] = useState<PTDashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const { data: userData, isLoading: userLoading } = useCurrentUser();
+  const { data: codeQrData, isLoading: qrLoading } = usePtCodeQr();
+  const { data: dashboardData, isLoading: dashLoading } = usePtDashboard();
 
-  useEffect(() => {
-    Promise.all([
-      apiClient.get<UserDataHome>('/users/me'),
-      apiClient.get<PTCodeQrData>('/pt/code-qr').catch(() => ({ data: null })),
-      apiClient.get<PTDashboardData>('/pt/dashboard').catch(() => ({ data: null })),
-    ])
-      .then(([userRes, qrRes, dashRes]) => {
-        setUserData(userRes.data);
-        if (userRes.data?.role === 'PT' && userRes.data?.isApprovedPt !== false) {
-          setCodeQrData(qrRes.data);
-          setDashboardData(dashRes.data);
-        }
-        setLoading(false);
-      })
-      .catch((err: unknown) => {
-        console.error('Error fetching PT profile data:', err);
-        setLoading(false);
-      });
-  }, []);
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
   const handleLogout = (): void => {
     localStorage.removeItem('jwt_token');
@@ -52,6 +30,8 @@ const PTProfilePage = () => {
     navigator.clipboard.writeText(code);
     toast.success(`Đã sao chép Mã PT (${code}) vào bộ nhớ tạm!`);
   };
+
+  const loading = userLoading || (userData?.role === 'PT' && userData?.isApprovedPt !== false && (qrLoading || dashLoading) && (!codeQrData || !dashboardData));
 
   if (loading) {
     return <AppLoading fullScreen size="lg" message="Đang nạp hồ sơ cá nhân HLV..." />;
@@ -88,7 +68,7 @@ const PTProfilePage = () => {
       <main className="max-w-4xl mx-auto px-container-padding mt-4 md:mt-8 space-y-6">
         {/* PT Profile Hero Card */}
         <PtProfileCard
-          userData={userData}
+          userData={userData || null}
           totalStudents={totalStudents}
           completedHours={completedHours}
           isEditOpen={isEditProfileOpen}

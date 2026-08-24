@@ -6,7 +6,7 @@ import BottomNavBar from '../../components/navigation/BottomNavBar';
 import AppLoading from '../../components/ui/AppLoading';
 import AccessDenied from '../../components/ui/AccessDenied';
 import apiClient from '../../api/axios';
-import type { UserDataHome, DailyNutritionData, MealSlotConfig } from '../../interface';
+import type { DailyNutritionData, MealSlotConfig } from '../../interface';
 import {
   formatYYYYMMDD,
   getMonday,
@@ -15,15 +15,15 @@ import {
   getWeekDays,
 } from '../../utils/date';
 
+import { useCurrentUser } from '../../api/swr';
 import CalendarStrip from './components/CalendarStrip';
 import DailyFuelHeroCard from './components/DailyFuelHeroCard';
 import MacroCards from './components/MacroCards';
 import DailyMealGrid from './components/DailyMealGrid';
 
 const Home = () => {
-  const [userData, setUserData] = useState<UserDataHome | null>(null);
+  const { data: userData, isLoading: userLoading } = useCurrentUser();
   const [dailyData, setDailyData] = useState<DailyNutritionData | null>(null);
-  const [loading, setLoading] = useState(true);
   const [dailyLoading, setDailyLoading] = useState(false);
 
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
@@ -31,26 +31,21 @@ const Home = () => {
 
   useEffect(() => {
     const todayStr = formatYYYYMMDD(new Date());
-    Promise.all([
-      apiClient.get<UserDataHome>('/users/me'),
-      apiClient.get<DailyNutritionData>(`/nutrition/daily?date=${todayStr}`).catch(() => ({ data: null })),
-    ])
-      .then(([userRes, dailyRes]) => {
-        setUserData(userRes.data);
-        if (userRes.data?.role === 'USER') {
-          if (userRes.data?.onboardingCompleted === false) {
-            window.location.href = '/onboarding';
-            return;
-          }
-          setDailyData(dailyRes.data);
-        }
-        setLoading(false);
+    apiClient
+      .get<DailyNutritionData>(`/nutrition/daily?date=${todayStr}`)
+      .then((res) => {
+        setDailyData(res.data);
       })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
+      .catch(() => {
+        setDailyData(null);
       });
   }, []);
+
+  useEffect(() => {
+    if (userData && userData.role === 'USER' && userData.onboardingCompleted === false) {
+      window.location.href = '/onboarding';
+    }
+  }, [userData]);
 
   const fetchDailyDataForDate = (targetDate: Date) => {
     setDailyLoading(true);
@@ -95,6 +90,8 @@ const Home = () => {
     localStorage.removeItem('jwt_token');
     window.location.href = '/login';
   };
+
+  const loading = userLoading || (userData?.role === 'USER' && !dailyData && !dailyLoading);
 
   if (loading) {
     return <AppLoading fullScreen size="lg" message="Đang nạp dữ liệu dinh dưỡng hôm nay..." />;

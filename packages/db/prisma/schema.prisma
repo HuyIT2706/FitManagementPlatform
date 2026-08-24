@@ -23,11 +23,11 @@ enum Gender {
 }
 
 enum ActivityLevel {
-  SEDENTARY         // Ít hoặc không vận động (VP, ngồi nhiều)
-  LIGHTLY_ACTIVE    // Vận động nhẹ (Tập 1-3 buổi/tuần)
+  SEDENTARY // Ít hoặc không vận động (VP, ngồi nhiều)
+  LIGHTLY_ACTIVE // Vận động nhẹ (Tập 1-3 buổi/tuần)
   MODERATELY_ACTIVE // Vận động vừa (Tập 3-5 buổi/tuần)
-  VERY_ACTIVE       // Vận động nhiều (Tập 6-7 buổi/tuần)
-  EXTRA_ACTIVE      // Vận động rất nặng (VĐV, lao động chân tay nặng)
+  VERY_ACTIVE // Vận động nhiều (Tập 6-7 buổi/tuần)
+  EXTRA_ACTIVE // Vận động rất nặng (VĐV, lao động chân tay nặng)
 }
 
 enum AttendanceStatus {
@@ -59,50 +59,42 @@ enum ExerciseCategory {
 }
 
 model User {
-  id            String         @id @default(uuid())
-  email         String         @unique
-  passwordHash  String
-  fullName      String
-  phone         String?
-  avatarUrl     String?
-  gender        Gender?        // Giới tính
-  dateOfBirth   DateTime?      // Ngày sinh (dùng để tính Tuổi chuẩn xác)
-  activityLevel ActivityLevel? // Mức độ vận động
-  role          Role           @default(USER)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-
-  refreshTokenHash String?
-
-  onboardingCompleted Boolean  @default(false)
+  id                  String              @id @default(uuid())
+  email               String              @unique
+  passwordHash        String
+  fullName            String
+  phone               String?
+  avatarUrl           String?
+  gender              Gender?
+  dateOfBirth         DateTime?
+  activityLevel       ActivityLevel?
+  role                Role                @default(USER)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  refreshTokenHash    String?
+  onboardingCompleted Boolean             @default(false)
   targetWeight        Float?
   height              Float?
   mealFrequency       Int?
-  caloriesOffset      Float?   @default(0)
+  caloriesOffset      Float?              @default(0)
   bmr                 Float?
   tdee                Float?
   bmi                 Float?
   goal                String?
   dietaryPreferences  String[]
   healthConditions    String[]
-  pushNotifications   Boolean  @default(true)
-
-  trainerProfiles StudentProfile[] @relation("TrainerRelation")
-  studentProfiles StudentProfile[] @relation("StudentRelation")
-
-  userPackages MemberPackage[]
-  attendances  AttendanceHistory[] @relation("StudentAttendance")
-
-  nutritionTargets NutritionTarget[]
-  workoutSchedules WorkoutSchedule[]
-
-  mealLogs       MealLog[]
-  trainerReviews MealReview[]    @relation("TrainerReviews")
-
-  bodyMetrics    BodyMetric[]
-  progressPhotos ProgressPhoto[]
-
-  ptApplication PtApplication?
+  pushNotifications   Boolean             @default(true)
+  trainerProfiles     StudentProfile[]    @relation("TrainerRelation")
+  studentProfiles     StudentProfile[]    @relation("StudentRelation")
+  userPackages        MemberPackage[]
+  attendances         AttendanceHistory[] @relation("StudentAttendance")
+  nutritionTargets    NutritionTarget[]
+  workoutSchedules    WorkoutSchedule[]
+  mealLogs            MealLog[]
+  trainerReviews      MealReview[]        @relation("TrainerReviews")
+  bodyMetrics         BodyMetric[]
+  progressPhotos      ProgressPhoto[]
+  ptApplication       PtApplication?
 
   @@map("users")
 }
@@ -118,8 +110,7 @@ model PtApplication {
   adminNote       String?
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("pt_applications")
 }
@@ -130,43 +121,43 @@ model StudentProfile {
   studentId  String
   status     StudentBindStatus @default(PENDING)
   assignedAt DateTime          @default(now())
-
-  trainer User @relation("TrainerRelation", fields: [trainerId], references: [id], onDelete: Cascade)
-  student User @relation("StudentRelation", fields: [studentId], references: [id], onDelete: Cascade)
+  trainer    User              @relation("TrainerRelation", fields: [trainerId], references: [id], onDelete: Cascade)
+  student    User              @relation("StudentRelation", fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([trainerId, studentId])
+  @@index([trainerId, status])
+  @@index([studentId, status])
   @@map("student_profiles")
 }
 
 model GymPackage {
-  id            String   @id @default(uuid())
-  title         String
-  description   String?
-  price         Float
-  totalSessions Int
-  durationDays  Int
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-
+  id             String          @id @default(uuid())
+  title          String
+  description    String?
+  price          Float
+  totalSessions  Int
+  durationDays   Int
+  isActive       Boolean         @default(true)
+  createdAt      DateTime        @default(now())
   memberPackages MemberPackage[]
 
   @@map("gym_packages")
 }
 
 model MemberPackage {
-  id                String   @id @default(uuid())
+  id                String              @id @default(uuid())
   userId            String
   packageId         String
   totalSessions     Int
   remainingSessions Int
-  startDate         DateTime @default(now())
+  startDate         DateTime            @default(now())
   endDate           DateTime
-  isActive          Boolean  @default(true)
+  isActive          Boolean             @default(true)
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gymPackage        GymPackage          @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  attendances       AttendanceHistory[]
 
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  gymPackage  GymPackage  @relation(fields: [packageId], references: [id], onDelete: Cascade)
-  attendances AttendanceHistory[]
-
+  @@index([userId, isActive])
   @@map("member_packages")
 }
 
@@ -177,10 +168,11 @@ model AttendanceHistory {
   checkInTime     DateTime         @default(now())
   status          AttendanceStatus @default(CHECKED_IN)
   note            String?
+  memberPackage   MemberPackage    @relation(fields: [memberPackageId], references: [id], onDelete: Cascade)
+  student         User             @relation("StudentAttendance", fields: [studentId], references: [id], onDelete: Cascade)
 
-  memberPackage MemberPackage @relation(fields: [memberPackageId], references: [id], onDelete: Cascade)
-  student       User          @relation("StudentAttendance", fields: [studentId], references: [id], onDelete: Cascade)
-
+  @@index([studentId, checkInTime])
+  @@index([memberPackageId])
   @@map("attendance_histories")
 }
 
@@ -196,60 +188,59 @@ model NutritionTarget {
   targetFat          Float
   prescribedMealPlan String?
   effectiveDate      DateTime @default(now())
+  student            User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
+  @@index([studentId, effectiveDate])
   @@map("nutrition_targets")
 }
 
 model WorkoutSchedule {
-  id            String   @id @default(uuid())
+  id            String             @id @default(uuid())
   studentId     String
   title         String
   scheduledDate DateTime
-  isCompleted   Boolean  @default(false)
+  isCompleted   Boolean            @default(false)
   note          String?
+  student       User               @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  exercises     ScheduleExercise[]
 
-  student   User               @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  exercises ScheduleExercise[]
-
+  @@index([studentId, scheduledDate])
   @@map("workout_schedules")
 }
 
 model ScheduleExercise {
-  id                String  @id @default(uuid())
+  id                String          @id @default(uuid())
   workoutScheduleId String
   exerciseLibraryId String
   sets              Int
   reps              Int
   weight            Float?
+  schedule          WorkoutSchedule @relation(fields: [workoutScheduleId], references: [id], onDelete: Cascade)
+  exercise          ExerciseLibrary @relation(fields: [exerciseLibraryId], references: [id], onDelete: Cascade)
 
-  schedule WorkoutSchedule @relation(fields: [workoutScheduleId], references: [id], onDelete: Cascade)
-  exercise ExerciseLibrary @relation(fields: [exerciseLibraryId], references: [id], onDelete: Cascade)
-
+  @@index([workoutScheduleId])
   @@map("schedule_exercises")
 }
 
 model MealLog {
-  id        String   @id @default(uuid())
-  userId    String
-  logDate   DateTime @default(now())
-  mealName  String
-  
-  totalCalories Float @default(0)
-  totalProtein  Float @default(0)
-  totalCarbs    Float @default(0)
-  totalFat      Float @default(0)
+  id            String       @id @default(uuid())
+  userId        String
+  logDate       DateTime     @default(now())
+  mealName      String
+  totalCalories Float        @default(0)
+  totalProtein  Float        @default(0)
+  totalCarbs    Float        @default(0)
+  totalFat      Float        @default(0)
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items         MealItem[]
+  reviews       MealReview[]
 
-  user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items   MealItem[]
-  reviews MealReview[]
-
+  @@index([userId, logDate])
   @@map("meal_logs")
 }
 
 model MealItem {
-  id            String  @id @default(uuid())
+  id            String       @id @default(uuid())
   mealLogId     String
   foodLibraryId String?
   foodName      String
@@ -258,10 +249,10 @@ model MealItem {
   protein       Float
   carbs         Float
   fat           Float
+  mealLog       MealLog      @relation(fields: [mealLogId], references: [id], onDelete: Cascade)
+  food          FoodLibrary? @relation(fields: [foodLibraryId], references: [id], onDelete: SetNull)
 
-  mealLog MealLog      @relation(fields: [mealLogId], references: [id], onDelete: Cascade)
-  food    FoodLibrary? @relation(fields: [foodLibraryId], references: [id], onDelete: SetNull)
-
+  @@index([mealLogId])
   @@map("meal_items")
 }
 
@@ -271,10 +262,11 @@ model MealReview {
   ptId      String
   comment   String
   createdAt DateTime @default(now())
+  mealLog   MealLog  @relation(fields: [mealLogId], references: [id], onDelete: Cascade)
+  pt        User     @relation("TrainerReviews", fields: [ptId], references: [id], onDelete: Cascade)
 
-  mealLog MealLog @relation(fields: [mealLogId], references: [id], onDelete: Cascade)
-  pt      User    @relation("TrainerReviews", fields: [ptId], references: [id], onDelete: Cascade)
-
+  @@index([mealLogId])
+  @@index([ptId])
   @@map("meal_reviews")
 }
 
@@ -286,9 +278,9 @@ model BodyMetric {
   bodyFat    Float?
   muscleMass Float?
   recordedAt DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  @@index([userId, recordedAt])
   @@map("body_metrics")
 }
 
@@ -298,44 +290,46 @@ model ProgressPhoto {
   photoUrl String
   tag      String?
   takenAt  DateTime @default(now())
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  @@index([userId, takenAt])
   @@map("progress_photos")
 }
 
 model ExerciseLibrary {
-  id               String   @id
-  name             String
-  category         String?
-  force            String?
-  level            String?
-  mechanic         String?
-  equipment        String?
-  primaryMuscles   String[] @default([])
-  secondaryMuscles String[] @default([])
-  instructions     String[] @default([])
-  setupImageUrl    String?
-  startImageUrl    String?
-
+  id                String             @id
+  name              String
+  category          String?
+  force             String?
+  level             String?
+  mechanic          String?
+  equipment         String?
+  primaryMuscles    String[]           @default([])
+  secondaryMuscles  String[]           @default([])
+  instructions      String[]           @default([])
+  setupImageUrl     String?
+  startImageUrl     String?
   scheduleExercises ScheduleExercise[]
 
+  @@index([name])
+  @@index([category])
   @@map("exercise_libraries")
 }
 
 model FoodLibrary {
-  id                  String  @id @default(uuid())
-  name                String
-  caloriesPer100g     Float
-  proteinPer100g      Float
-  carbsPer100g        Float
-  fatPer100g          Float
-  fiberPer100g        Float?
-  category            String?
-  imageUrl            String?
-  createdAt           DateTime @default(now())
+  id              String     @id @default(uuid())
+  name            String
+  caloriesPer100g Float
+  proteinPer100g  Float
+  carbsPer100g    Float
+  fatPer100g      Float
+  fiberPer100g    Float?
+  category        String?
+  imageUrl        String?
+  createdAt       DateTime   @default(now())
+  mealItems       MealItem[]
 
-  mealItems MealItem[]
-
+  @@index([name])
+  @@index([category])
   @@map("food_libraries")
 }

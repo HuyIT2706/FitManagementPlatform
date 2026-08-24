@@ -2,11 +2,15 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { Award, Edit3 } from 'lucide-react';
 import type { UserDataHome } from '../../../../interface';
 import apiClient from '../../../../api/axios';
 import { toast } from '../../../../utils/toast';
-import EditPtProfileModal from './EditPtProfileModal';
+
+const EditPtProfileModal = dynamic(() => import('./EditPtProfileModal'), {
+  ssr: false,
+});
 
 interface PtProfileCardProps {
   userData: UserDataHome | null;

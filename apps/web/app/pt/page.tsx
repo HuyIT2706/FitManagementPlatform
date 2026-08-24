@@ -1,14 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Header from '../../components/ui/Header';
 import PTBottomNavBar from '../../components/navigation/PTBottomNavBar';
 import AppLoading from '../../components/ui/AppLoading';
 import AccessDenied from '../../components/ui/AccessDenied';
 import apiClient from '../../api/axios';
-import type { UserDataHome, PTDashboardData } from '../../interface';
 import { toast } from '../../utils/toast';
 
+import { useCurrentUser, usePtDashboard } from '../../api/swr';
 import PtPendingApproval from '../../components/ui/PtPendingApproval';
 import PtWelcomeHeader from './home/components/PtWelcomeHeader';
 import PtBentoStats from './home/components/PtBentoStats';
@@ -18,35 +18,12 @@ import PtPendingMeals from './home/components/PtPendingMeals';
 import PtStudentRosterQuick from './home/components/PtStudentRosterQuick';
 
 const PTPage = () => {
-  const [userData, setUserData] = useState<UserDataHome | null>(null);
-  const [ptData, setPtData] = useState<PTDashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: userData, isLoading: userLoading } = useCurrentUser();
+  const { data: ptData, isLoading: ptLoading, mutate: mutatePt } = usePtDashboard();
 
   const [feedbackTexts, setFeedbackTexts] = useState<Record<string, string>>({});
   const [checkedSessions, setCheckedSessions] = useState<Record<string, boolean>>({});
   const [approvedMeals, setApprovedMeals] = useState<Record<string, boolean>>({});
-
-  const fetchPtDashboard = () => {
-    Promise.all([
-      apiClient.get<UserDataHome>('/users/me'),
-      apiClient.get<PTDashboardData>('/pt/dashboard').catch(() => ({ data: null })),
-    ])
-      .then(([userRes, ptRes]) => {
-        setUserData(userRes.data);
-        if (userRes.data?.role === 'PT' && userRes.data?.isApprovedPt !== false) {
-          setPtData(ptRes.data);
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
-  };
-
-  useEffect(() => {
-    fetchPtDashboard();
-  }, []);
 
   const handleCheckInSession = (sessionId: string) => {
     setCheckedSessions((prev) => ({ ...prev, [sessionId]: true }));
@@ -56,7 +33,7 @@ const PTPage = () => {
       )
       .then((res) => {
         toast.success(res.data.message || 'Đã check-in điểm danh thành công!');
-        fetchPtDashboard();
+        mutatePt();
       })
       .catch((err) => {
         console.error(err);
@@ -74,7 +51,7 @@ const PTPage = () => {
       })
       .then((res) => {
         toast.success(res.data.message || 'Đã duyệt bữa ăn thành công!');
-        fetchPtDashboard();
+        mutatePt();
       })
       .catch((err) => {
         console.error(err);
@@ -87,7 +64,7 @@ const PTPage = () => {
       .post<{ success: boolean; message: string }>(`/pt/students/accept/${requestId}`)
       .then((res) => {
         toast.success(res.data.message || 'Đã chấp nhận học viên thành công!');
-        fetchPtDashboard();
+        mutatePt();
       })
       .catch((err) => {
         console.error(err);
@@ -100,7 +77,7 @@ const PTPage = () => {
       .post<{ success: boolean; message: string }>(`/pt/students/reject/${requestId}`)
       .then((res) => {
         toast.success(res.data.message || 'Đã từ chối yêu cầu học viên!');
-        fetchPtDashboard();
+        mutatePt();
       })
       .catch((err) => {
         console.error(err);
@@ -112,6 +89,8 @@ const PTPage = () => {
     localStorage.removeItem('jwt_token');
     window.location.href = '/login';
   };
+
+  const loading = userLoading || (userData?.role === 'PT' && userData?.isApprovedPt !== false && ptLoading && !ptData);
 
   if (loading) {
     return <AppLoading fullScreen size="lg" message="Đang nạp dữ liệu Huấn luyện viên..." />;

@@ -1,24 +1,26 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { UserPlus } from 'lucide-react';
 import Header from '../../../components/ui/Header';
 import PTBottomNavBar from '../../../components/navigation/PTBottomNavBar';
 import AppLoading from '../../../components/ui/AppLoading';
 import apiClient from '../../../api/axios';
-import type { UserDataHome, PTDashboardData } from '../../../interface';
 import { toast } from '../../../utils/toast';
 
+import dynamic from 'next/dynamic';
 import PtStudentCard, { type StudentListItem } from './components/PtStudentCard';
-import PtInviteStudentModal from './components/PtInviteStudentModal';
-
 import AccessDenied from '../../../components/ui/AccessDenied';
+import { useCurrentUser, usePtDashboard } from '../../../api/swr';
 import PtPendingApproval from '../../../components/ui/PtPendingApproval';
 
+const PtInviteStudentModal = dynamic(() => import('./components/PtInviteStudentModal'), {
+  ssr: false,
+});
+
 const PTStudentsPage = () => {
-  const [userData, setUserData] = useState<UserDataHome | null>(null);
-  const [ptData, setPtData] = useState<PTDashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: userData, isLoading: userLoading } = useCurrentUser();
+  const { data: ptData, isLoading: ptLoading } = usePtDashboard();
 
   // Invite Student Modal State
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
@@ -27,24 +29,6 @@ const PTStudentsPage = () => {
   const [totalSessions, setTotalSessions] = useState<number | ''>(12);
   const [sendingInvite, setSendingInvite] = useState(false);
   const [generatedInviteUrl, setGeneratedInviteUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    Promise.all([
-      apiClient.get<UserDataHome>('/users/me'),
-      apiClient.get<PTDashboardData>('/pt/dashboard').catch(() => ({ data: null })),
-    ])
-      .then(([userRes, ptRes]) => {
-        setUserData(userRes.data);
-        if (userRes.data?.role === 'PT' && userRes.data?.isApprovedPt !== false) {
-          setPtData(ptRes.data);
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
-  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('jwt_token');
@@ -84,6 +68,8 @@ const PTStudentsPage = () => {
     navigator.clipboard.writeText(generatedInviteUrl);
     toast.success('Đã sao chép Link Mời vào bộ nhớ tạm!');
   };
+
+  const loading = userLoading || (userData?.role === 'PT' && userData?.isApprovedPt !== false && ptLoading && !ptData);
 
   if (loading) {
     return <AppLoading fullScreen size="lg" message="Đang tải danh sách học viên..." />;

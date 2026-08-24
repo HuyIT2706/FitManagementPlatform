@@ -65,17 +65,46 @@ export class UsersService {
   async getMe(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      include: {
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        avatarUrl: true,
+        phone: true,
+        role: true,
+        gender: true,
+        height: true,
+        dateOfBirth: true,
+        activityLevel: true,
+        goal: true,
+        targetWeight: true,
+        onboardingCompleted: true,
+        createdAt: true,
         nutritionTargets: {
           orderBy: { effectiveDate: 'desc' },
           take: 1,
+          select: {
+            id: true,
+            targetCalo: true,
+            targetProtein: true,
+            targetCarbs: true,
+            targetFat: true,
+            prescribedMealPlan: true,
+          },
         },
         bodyMetrics: {
           orderBy: { recordedAt: 'desc' },
           take: 1,
+          select: {
+            weight: true,
+            height: true,
+            bodyFat: true,
+            muscleMass: true,
+            recordedAt: true,
+          },
         },
         studentProfiles: {
-          include: {
+          select: {
             trainer: {
               select: {
                 id: true,
@@ -89,10 +118,28 @@ export class UsersService {
         },
         userPackages: {
           where: { isActive: true },
-          include: { gymPackage: true },
           take: 1,
+          select: {
+            id: true,
+            totalSessions: true,
+            remainingSessions: true,
+            startDate: true,
+            endDate: true,
+            gymPackage: {
+              select: {
+                id: true,
+                title: true,
+                price: true,
+              },
+            },
+          },
         },
-        ptApplication: true,
+        ptApplication: {
+          select: {
+            status: true,
+            adminNote: true,
+          },
+        },
       },
     });
 

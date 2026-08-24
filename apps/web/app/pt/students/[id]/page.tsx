@@ -15,14 +15,21 @@ import type {
 import type { ExerciseItem } from '../../../../interface';
 import { toast } from '../../../../utils/toast';
 
+import dynamic from 'next/dynamic';
 import AccessDenied from '../../../../components/ui/AccessDenied';
 import PtPendingApproval from '../../../../components/ui/PtPendingApproval';
 import StudentHeaderHero from './components/StudentHeaderHero';
 import StudentWorkoutTab from './components/StudentWorkoutTab';
 import StudentNutritionTab from './components/StudentNutritionTab';
 import StudentInbodyTab from './components/StudentInbodyTab';
-import EditSessionModal from './components/EditSessionModal';
-import ExerciseSelectionModal from './components/ExerciseSelectionModal';
+
+const EditSessionModal = dynamic(() => import('./components/EditSessionModal'), {
+  ssr: false,
+});
+const ExerciseSelectionModal = dynamic(
+  () => import('./components/ExerciseSelectionModal'),
+  { ssr: false }
+);
 
 const PTStudentDetailPage = ({
   params,

@@ -70,7 +70,7 @@ const ProfileSettingsList = ({
           </div>
           <div>
             <div className="text-sm font-bold text-on-surface flex items-center gap-2">
-              Hồ sơ Tầm soát Sức khỏe (PAR-Q+)
+              Hồ sơ Tầm soát Sức khỏe
               <span className="px-2 py-0.5 rounded-full bg-green-light/10 text-green-light text-[10px] font-bold border border-green-light/30">
                 Đã kiểm tra
               </span>
