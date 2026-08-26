@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { KeyRound, Bell, LogOut, ChevronRight, User, HeartPulse, X, CheckCircle2, ShieldCheck } from 'lucide-react';
 import ChangePasswordModal from './ChangePasswordModal';
+import NotificationSettingsModal from './NotificationSettingsModal';
 
 interface ProfileSettingsListProps {
   onLogout: () => void;
@@ -15,6 +16,7 @@ const ProfileSettingsList = ({
 }: ProfileSettingsListProps) => {
   const [isParqOpen, setIsParqOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [isNotificationSettingsOpen, setIsNotificationSettingsOpen] = useState(false);
 
   const parqQuestions = [
     '1. Bác sĩ từng chẩn đoán bạn mắc bệnh tim và khuyên chỉ vận động theo chỉ định?',
@@ -27,7 +29,8 @@ const ProfileSettingsList = ({
   ];
 
   return (
-    <section className="bento-card rounded-2xl flex flex-col p-2 border border-outline-variant/30 mt-4">
+    <>
+      <section className="bento-card rounded-2xl flex flex-col p-2 border border-outline-variant/30 mt-4">
       {/* Edit Profile */}
       <button
         type="button"
@@ -115,6 +118,7 @@ const ProfileSettingsList = ({
       <button
         type="button"
         suppressHydrationWarning
+        onClick={() => setIsNotificationSettingsOpen(true)}
         className="flex items-center justify-between p-4 hover:bg-surface-bright/40 rounded-xl transition-colors cursor-pointer group text-left"
       >
         <div className="flex items-center gap-4">
@@ -124,7 +128,12 @@ const ProfileSettingsList = ({
               className="text-on-surface group-hover:text-green-light transition-colors"
             />
           </div>
-          <div className="text-sm font-bold text-on-surface">Cài đặt thông báo</div>
+          <div>
+            <div className="text-sm font-bold text-on-surface">Cài đặt thông báo</div>
+            <div className="text-xs font-medium text-on-surface-variant mt-0.5">
+              Tùy chỉnh lịch nhắc nhở bữa ăn, uống nước, ca tập cùng PT
+            </div>
+          </div>
         </div>
         <ChevronRight size={18} className="text-on-surface-variant" />
       </button>
@@ -146,63 +155,103 @@ const ProfileSettingsList = ({
         </div>
         <ChevronRight size={18} className="text-red-400" />
       </button>
-
-      {/* PAR-Q+ Modal */}
-      {isParqOpen && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#121815] border border-white/10 rounded-2xl w-full max-w-lg p-6 flex flex-col gap-4 text-white shadow-2xl animate-in fade-in zoom-in duration-200">
-            <div className="flex justify-between items-center pb-2 border-b border-white/10">
-              <h4 className="text-lg font-bold flex items-center gap-2">
-                <ShieldCheck className="text-green-light" size={20} />
-                Kết quả Tầm soát Sức khỏe PAR-Q+
-              </h4>
-              <button
-                type="button"
-                onClick={() => setIsParqOpen(false)}
-                className="text-white/60 hover:text-white"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="p-3 bg-green-light/10 border border-green-light/30 rounded-xl flex items-center gap-3">
-              <CheckCircle2 size={24} className="text-green-light shrink-0" />
-              <div className="text-xs">
-                <p className="font-bold text-green-light text-sm">PAR-Q Cleared (An toàn tập luyện)</p>
-                <p className="text-white/70">
-                  Hồ sơ sức khỏe của bạn hoàn toàn không có chống chỉ định y tế nào.
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-2 max-h-60 overflow-y-auto pr-1 no-scrollbar">
-              <p className="text-xs font-semibold text-white/60">Chi tiết 7 tiêu chí đánh giá PAR-Q+:</p>
-              {parqQuestions.map((q, idx) => (
-                <div key={idx} className="p-2.5 rounded-lg bg-white/5 border border-white/10 text-xs flex justify-between items-center">
-                  <span className="text-white/80 pr-2">{q}</span>
-                  <span className="px-2 py-0.5 rounded bg-green-light/20 text-green-light font-bold shrink-0">Không</span>
-                </div>
-              ))}
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setIsParqOpen(false)}
-              className="w-full py-2.5 rounded-lg bg-green-light text-[#003824] text-xs font-bold hover:opacity-90 transition-opacity"
-            >
-              Đóng
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Change Password Modal */}
-      <ChangePasswordModal
-        isOpen={isChangePasswordOpen}
-        onClose={() => setIsChangePasswordOpen(false)}
-      />
     </section>
-  );
+
+    {/* PAR-Q+ Modal */}
+    {isParqOpen && (
+      <div
+        onClick={() => setIsParqOpen(false)}
+        className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200 cursor-pointer"
+      >
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="bg-[#121620] border border-white/15 rounded-[32px] max-w-xl w-full max-h-[90vh] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-6 md:p-8 space-y-6 text-white shadow-2xl relative cursor-default animate-in zoom-in-95 duration-200"
+          suppressHydrationWarning
+        >
+          {/* Header Close Button */}
+          <button
+            type="button"
+            onClick={() => setIsParqOpen(false)}
+            aria-label="Đóng modal"
+            className="absolute top-5 right-5 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white border border-white/15 flex items-center justify-center transition-all cursor-pointer z-20"
+          >
+            <X size={18} />
+          </button>
+
+          {/* Modal Header */}
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-primary/20 text-primary border border-primary/40 flex items-center justify-center shrink-0">
+              <ShieldCheck size={24} />
+            </div>
+            <div>
+              <h3 className="font-extrabold text-xl text-white font-headline-md">
+                Kết Quả Tầm Soát Sức Khỏe PAR-Q+
+              </h3>
+              <p className="text-xs text-white/60 mt-0.5">
+                Đánh giá mức độ an toàn thể lực trước khi tham gia các bài tập cường độ cao.
+              </p>
+            </div>
+          </div>
+
+          {/* Cleared Status Banner */}
+          <div className="p-4 rounded-2xl bg-primary/10 border border-primary/25 flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-primary/20 text-primary flex items-center justify-center shrink-0">
+              <CheckCircle2 size={22} className="text-primary" />
+            </div>
+            <div>
+              <p className="font-extrabold text-primary text-sm">PAR-Q Cleared (Đạt tiêu chuẩn an toàn)</p>
+              <p className="text-xs text-white/70 mt-0.5 leading-relaxed">
+                Hồ sơ sức khỏe của bạn hoàn toàn không có bất kỳ chống chỉ định y tế nào. Bạn đủ điều kiện tập luyện cùng PT.
+              </p>
+            </div>
+          </div>
+
+          {/* Criteria List */}
+          <div className="space-y-2.5 max-h-[45vh] overflow-y-auto pr-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <div className="flex items-center justify-between pb-1">
+              <span className="text-xs font-bold text-primary uppercase tracking-wider">
+                📋 Chi tiết 7 tiêu chí đánh giá y tế:
+              </span>
+              <span className="text-[11px] text-white/50 font-medium">7/7 Đạt</span>
+            </div>
+            {parqQuestions.map((q, idx) => (
+              <div
+                key={idx}
+                className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 text-xs flex justify-between items-center gap-3 hover:border-white/15 transition-all"
+              >
+                <span className="text-white/80 leading-relaxed">{q}</span>
+                <span className="px-3 py-1 rounded-lg bg-primary/15 text-primary text-xs font-extrabold border border-primary/30 shrink-0">
+                  Không
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Bottom Button */}
+          <button
+            type="button"
+            onClick={() => setIsParqOpen(false)}
+            className="w-full py-3.5 rounded-xl bg-primary text-dark-slate font-extrabold text-sm shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 transition-all cursor-pointer flex items-center justify-center"
+          >
+            Đã Hiểu & Đóng
+          </button>
+        </div>
+      </div>
+    )}
+
+    {/* Change Password Modal */}
+    <ChangePasswordModal
+      isOpen={isChangePasswordOpen}
+      onClose={() => setIsChangePasswordOpen(false)}
+    />
+
+    {/* Notification Settings Modal */}
+    <NotificationSettingsModal
+      isOpen={isNotificationSettingsOpen}
+      onClose={() => setIsNotificationSettingsOpen(false)}
+    />
+  </>
+);
 };
 
 export default ProfileSettingsList;

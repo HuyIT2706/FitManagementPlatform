@@ -271,7 +271,7 @@ const TransformationJourneySlider = ({
         </div>
       </div>
 
-      <div className="flex items-center justify-between text-xs text-on-surface-variant opacity-80">
+      <div className="flex items-center justify-between text-xs text-on-surface-variant opacity-80 gap-2.5">
         <div className="flex items-center gap-2">
           <Lock size={14} className="shrink-0" />
           <p>
