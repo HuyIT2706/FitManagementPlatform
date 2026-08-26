@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import type {
   AssignNutritionDto,
@@ -89,8 +93,8 @@ export class PtService {
     const students = approvedProfiles.map((sp) => {
       const student = sp.student;
       const pkg = student.userPackages?.[0];
-      const totalSessions = pkg?.totalSessions ?? 12;
-      const remainingSessions = pkg?.remainingSessions ?? 10;
+      const totalSessions = pkg?.totalSessions ?? 0;
+      const remainingSessions = pkg?.remainingSessions ?? 0;
 
       totalPackageSessionsCount += totalSessions;
       remainingSessionsSum += remainingSessions;
@@ -119,24 +123,6 @@ export class PtService {
     startOfToday.setHours(0, 0, 0, 0);
     const endOfToday = new Date();
     endOfToday.setHours(23, 59, 59, 999);
-
-    const attendanceLogs = await this.prisma.attendanceHistory.findMany({
-      where: {
-        studentId: { in: studentIds },
-        status: 'CHECKED_IN',
-        checkInTime: {
-          gte: startOfToday,
-          lte: endOfToday,
-        },
-      },
-      select: {
-        studentId: true,
-        checkInTime: true,
-      },
-      orderBy: { checkInTime: 'desc' },
-    });
-
-    const checkedInStudentIds = new Set(attendanceLogs.map((a) => a.studentId));
 
     // Query actual workout schedules created for today
     const todaySchedules = await this.prisma.workoutSchedule.findMany({
@@ -180,8 +166,7 @@ export class PtService {
     const todaySessions: PTSessionItem[] = todaySchedules.map((ws, idx) => {
       const student = ws.student;
       const pkg = student?.userPackages?.[0];
-      const isCheckedIn =
-        ws.isCompleted || checkedInStudentIds.has(ws.studentId);
+      const isCheckedIn = Boolean(ws.isCompleted);
 
       return {
         id: ws.id,
@@ -346,7 +331,7 @@ export class PtService {
       if (!gymPkg) {
         gymPkg = await this.prisma.gymPackage.create({
           data: {
-            title: 'Gói PT VIP 1-1 (12 Buổi)',
+            title: 'Gói PT 1-1 (12 Buổi)',
             description: 'Gói tập huấn luyện viên 1:1 cá nhân hóa',
             price: 3600000,
             durationDays: 90,
@@ -473,7 +458,7 @@ export class PtService {
         },
         workoutSchedules: {
           orderBy: { scheduledDate: 'desc' },
-          take: 1,
+          take: 10,
           select: {
             id: true,
             title: true,
@@ -517,7 +502,12 @@ export class PtService {
       latestTarget?.prescribedMealPlan ||
       targetWithPrescribed?.prescribedMealPlan;
     const pkg = student.userPackages?.[0];
-    const latestSchedule = student.workoutSchedules?.[0];
+    const latestSchedule =
+      student.workoutSchedules?.find(
+        (s) =>
+          (s.exercises && s.exercises.length > 0) ||
+          (s.note && s.note.trim().startsWith('[')),
+      ) || student.workoutSchedules?.[0];
 
     const beforePhoto = student.progressPhotos.find((p) => p.tag === 'BEFORE');
     const afterPhoto = student.progressPhotos.find(
@@ -558,7 +548,7 @@ export class PtService {
         const parsed: unknown = JSON.parse(latestSchedule.note);
         if (Array.isArray(parsed)) {
           assignedExercises = parsed.map((item: Record<string, unknown>) => ({
-            id: typeof item.id === 'string' ? item.id : `ex-${Date.now()}`,
+            id: typeof item.id === 'string' ? item.id : `ae-${Date.now()}`,
             exerciseId:
               typeof item.exerciseId === 'string' ? item.exerciseId : undefined,
             name: typeof item.name === 'string' ? item.name : 'Bài tập',
@@ -601,7 +591,7 @@ export class PtService {
       email: student.email,
       phone: student.phone || undefined,
       gender: student.gender || 'MALE',
-      packageName: pkg ? 'Gói PT 1:1 VIP' : 'Gói Tiêu chuẩn',
+      packageName: pkg ? 'Gói PT 1:1' : 'Gói Tiêu chuẩn',
       remainingSessions: pkg?.remainingSessions ?? 0,
       totalSessions: pkg?.totalSessions ?? 0,
       assignedExercises,
@@ -689,10 +679,38 @@ export class PtService {
     return this.prisma.mealLog.findMany({
       where: { userId: studentId },
       orderBy: { logDate: 'desc' },
-      include: {
-        items: true,
+      select: {
+        id: true,
+        mealName: true,
+        logDate: true,
+        totalCalories: true,
+        totalProtein: true,
+        totalCarbs: true,
+        totalFat: true,
+        items: {
+          select: {
+            id: true,
+            foodName: true,
+            weightInGram: true,
+            calories: true,
+            protein: true,
+            carbs: true,
+            fat: true,
+          },
+        },
         reviews: {
           orderBy: { createdAt: 'desc' },
+          select: {
+            id: true,
+            comment: true,
+            createdAt: true,
+            pt: {
+              select: {
+                fullName: true,
+                avatarUrl: true,
+              },
+            },
+          },
         },
       },
     });
@@ -703,8 +721,10 @@ export class PtService {
       const schedule = await this.prisma.workoutSchedule.create({
         data: {
           studentId: dto.studentId,
-          title: dto.title ? String(dto.title) : 'Lịch Tập 1:1 Cá Nhân Hóa',
-          scheduledDate: new Date(),
+          title: dto.title ? String(dto.title) : 'Giáo Án Tập Luyện 1:1',
+          scheduledDate: dto.scheduledDate
+            ? new Date(dto.scheduledDate)
+            : new Date(),
           note:
             dto.exercises && dto.exercises.length > 0
               ? JSON.stringify(dto.exercises)
@@ -715,12 +735,44 @@ export class PtService {
       });
 
       if (Array.isArray(dto.exercises) && dto.exercises.length > 0) {
-        for (const item of dto.exercises) {
-          const exLib = await this.prisma.exerciseLibrary.findFirst({
+        for (const rawItem of dto.exercises) {
+          const item = rawItem as {
+            exerciseId?: string;
+            name?: string;
+            setupImageUrl?: string;
+            imageUrl?: string;
+            sets?: number;
+            reps?: number;
+            weightInKg?: number;
+          };
+
+          let exLib = await this.prisma.exerciseLibrary.findFirst({
             where: {
-              OR: [{ id: item.exerciseId }, { name: item.name }],
+              OR: [
+                ...(item.exerciseId ? [{ id: item.exerciseId }] : []),
+                ...(item.name ? [{ name: item.name }] : []),
+              ],
             },
+            select: { id: true },
           });
+
+          if (!exLib && item.name) {
+            const img = item.setupImageUrl || item.imageUrl || undefined;
+            const exId =
+              item.exerciseId ||
+              `ex-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+            exLib = await this.prisma.exerciseLibrary.create({
+              data: {
+                id: exId,
+                name: item.name,
+                category: 'FULL_BODY',
+                setupImageUrl: img,
+                startImageUrl: img,
+              },
+              select: { id: true },
+            });
+          }
+
           if (exLib) {
             await this.prisma.scheduleExercise.create({
               data: {
@@ -811,57 +863,133 @@ export class PtService {
   }
 
   async checkInSession(sessionId: string) {
-    const rawId = sessionId.replace('session-', '').trim();
-    let studentId = rawId;
+    let studentId: string | null = null;
+    let workoutScheduleTitle = 'Ca tập 1:1';
 
-    const profile = await this.prisma.studentProfile.findFirst({
-      where: {
-        OR: [{ id: rawId }, { studentId: rawId }],
+    // 1. Kiểm tra xem sessionId có phải là WorkoutSchedule ID không
+    const schedule = await this.prisma.workoutSchedule.findUnique({
+      where: { id: sessionId },
+      select: {
+        id: true,
+        studentId: true,
+        title: true,
       },
     });
 
-    if (profile) {
-      studentId = profile.studentId;
+    if (schedule) {
+      studentId = schedule.studentId;
+      workoutScheduleTitle = schedule.title;
+      // Đánh dấu ca tập đã hoàn thành
+      await this.prisma.workoutSchedule.update({
+        where: { id: schedule.id },
+        data: { isCompleted: true },
+      });
+    } else {
+      // 2. Fallback nếu sessionId là dạng 'session-custom-...' hoặc Profile/User ID
+      const cleanId = sessionId.replace(/^session-(custom-)?/, '').trim();
+      const profile = await this.prisma.studentProfile.findFirst({
+        where: {
+          OR: [
+            { id: cleanId },
+            { studentId: cleanId },
+            { id: sessionId },
+            { studentId: sessionId },
+          ],
+        },
+      });
+
+      if (profile) {
+        studentId = profile.studentId;
+      } else {
+        const user = await this.prisma.user.findFirst({
+          where: { OR: [{ id: cleanId }, { id: sessionId }] },
+        });
+        if (user) {
+          studentId = user.id;
+        }
+      }
     }
 
-    const activePkg = await this.prisma.memberPackage.findFirst({
+    if (!studentId) {
+      // Tìm học viên đầu tiên nếu không thể parse ID
+      const firstStudent = await this.prisma.studentProfile.findFirst({
+        where: { status: 'APPROVED' },
+      });
+      if (firstStudent) {
+        studentId = firstStudent.studentId;
+      } else {
+        throw new NotFoundException(
+          'Không tìm thấy học viên hoặc ca dạy để điểm danh',
+        );
+      }
+    }
+
+    // 3. Tìm hoặc tạo gói tập active của học viên
+    let activePkg = await this.prisma.memberPackage.findFirst({
       where: {
         userId: studentId,
         isActive: true,
       },
+      orderBy: { startDate: 'desc' },
     });
 
-    if (activePkg && activePkg.remainingSessions > 0) {
-      const updatedPkg = await this.prisma.memberPackage.update({
-        where: { id: activePkg.id },
+    if (!activePkg) {
+      let gymPkg = await this.prisma.gymPackage.findFirst();
+      if (!gymPkg) {
+        gymPkg = await this.prisma.gymPackage.create({
+          data: {
+            title: 'Gói PT 1-1 (12 Buổi)',
+            description: 'Gói tập huấn luyện viên 1:1 cá nhân hóa',
+            price: 3600000,
+            durationDays: 90,
+            totalSessions: 12,
+          },
+        });
+      }
+
+      activePkg = await this.prisma.memberPackage.create({
         data: {
-          remainingSessions: activePkg.remainingSessions - 1,
+          userId: studentId,
+          packageId: gymPkg.id,
+          totalSessions: 12,
+          remainingSessions: 12,
+          endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         },
       });
-
-      await this.prisma.attendanceHistory.create({
-        data: {
-          memberPackageId: activePkg.id,
-          studentId: activePkg.userId,
-          status: 'CHECKED_IN',
-          note: 'PT Check-in hoàn thành ca tập 1:1',
-        },
-      });
-
-      return {
-        success: true,
-        sessionId,
-        remainingSessions: updatedPkg.remainingSessions,
-        totalSessions: activePkg.totalSessions,
-        message: `Đã check-in điểm danh thành công! Số buổi còn lại: ${updatedPkg.remainingSessions}/${activePkg.totalSessions}`,
-      };
     }
+
+    // 4. Trừ 1 buổi và ghi vào cơ sở dữ liệu
+    const newRemainingSessions = Math.max(0, activePkg.remainingSessions - 1);
+    const updatedPkg = await this.prisma.memberPackage.update({
+      where: { id: activePkg.id },
+      data: {
+        remainingSessions: newRemainingSessions,
+      },
+    });
+
+    // 5. Tạo lịch sử điểm danh trong attendance_histories
+    await this.prisma.attendanceHistory.create({
+      data: {
+        memberPackageId: activePkg.id,
+        studentId: studentId,
+        checkInTime: new Date(),
+        status: 'CHECKED_IN',
+        note: `Điểm danh thành công: ${workoutScheduleTitle}`,
+      },
+    });
+
+    const studentUser = await this.prisma.user.findUnique({
+      where: { id: studentId },
+      select: { fullName: true },
+    });
 
     return {
       success: true,
       sessionId,
-      status: 'CHECKED_IN',
-      message: 'Đã ghi nhận hoàn thành ca tập!',
+      studentName: studentUser?.fullName || 'Học viên',
+      remainingSessions: updatedPkg.remainingSessions,
+      totalSessions: activePkg.totalSessions,
+      message: `Đã điểm danh & trừ 1 buổi thành công! Còn lại: ${updatedPkg.remainingSessions}/${activePkg.totalSessions} buổi.`,
     };
   }
 
@@ -952,7 +1080,7 @@ export class PtService {
       if (!gymPkg) {
         gymPkg = await this.prisma.gymPackage.create({
           data: {
-            title: dto.packageName || 'Gói PT VIP 1-1',
+            title: dto.packageName || 'Gói PT 1-1',
             description: 'Gói tập huấn luyện viên 1:1 cá nhân hóa',
             price: 3600000,
             durationDays: 90,
@@ -1056,7 +1184,7 @@ export class PtService {
         if (!gymPkg) {
           gymPkg = await this.prisma.gymPackage.create({
             data: {
-              title: 'Gói PT VIP 1-1 (12 Buổi)',
+              title: 'Gói PT 1-1 (12 Buổi)',
               description: 'Gói tập huấn luyện viên 1:1 cá nhân hóa',
               price: 3600000,
               durationDays: 90,
@@ -1107,7 +1235,7 @@ export class PtService {
     if (!gymPkg) {
       gymPkg = await this.prisma.gymPackage.create({
         data: {
-          title: dto.packageName || 'Gói PT VIP 1-1',
+          title: dto.packageName || 'Gói PT 1-1',
           description: 'Gói tập huấn luyện viên 1:1 cá nhân hóa',
           price: 3600000,
           durationDays: 90,
@@ -1134,27 +1262,44 @@ export class PtService {
         data: {
           userId: studentId,
           packageId: gymPkg.id,
-          totalSessions: dto.totalSessions || 12,
-          remainingSessions: dto.remainingSessions ?? (dto.totalSessions || 12),
+          totalSessions: dto.totalSessions ?? 0,
+          remainingSessions: dto.remainingSessions ?? dto.totalSessions ?? 0,
           endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         },
       });
     }
 
+    const remaining = dto.remainingSessions ?? 0;
+    const total = dto.totalSessions ?? 0;
+
     return {
       success: true,
       studentId,
       updatedInfo: dto,
-      message: `Đã gia hạn & cập nhật gói tập ${dto.packageName || 'PT 1:1'} (${dto.remainingSessions ?? 10}/${dto.totalSessions ?? 12} buổi) vào DB thành công!`,
+      message: `Đã cập nhật gói tập ${dto.packageName || 'PT 1:1'} (${remaining}/${total} buổi)`,
     };
   }
 
   async getPtProfile(ptUserId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: ptUserId },
-      include: {
-        ptApplication: true,
-        studentProfiles: true,
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        phone: true,
+        avatarUrl: true,
+        ptApplication: {
+          select: {
+            bio: true,
+            experienceYears: true,
+            specialties: true,
+            certificateUrl: true,
+          },
+        },
+        studentProfiles: {
+          select: { id: true },
+        },
       },
     });
 
@@ -1224,6 +1369,194 @@ export class PtService {
       success: true,
       ptUserId,
       message: 'Cập nhật hồ sơ cá nhân HLV thành công!',
+    };
+  }
+
+  async getPtScheduleRange(
+    ptUserId: string,
+    startDateStr?: string,
+    endDateStr?: string,
+  ): Promise<PTSessionItem[]> {
+    const approvedProfiles = await this.prisma.studentProfile.findMany({
+      where: { trainerId: ptUserId, status: 'APPROVED' },
+      select: { studentId: true },
+    });
+
+    const studentIds = approvedProfiles.map((sp) => sp.studentId);
+    if (studentIds.length === 0) return [];
+
+    let startDate: Date;
+    let endDate: Date;
+
+    if (startDateStr) {
+      startDate = new Date(startDateStr);
+      startDate.setHours(0, 0, 0, 0);
+    } else {
+      startDate = new Date();
+      startDate.setDate(startDate.getDate() - 7);
+      startDate.setHours(0, 0, 0, 0);
+    }
+
+    if (endDateStr) {
+      endDate = new Date(endDateStr);
+      endDate.setHours(23, 59, 59, 999);
+    } else {
+      endDate = new Date();
+      endDate.setDate(endDate.getDate() + 14);
+      endDate.setHours(23, 59, 59, 999);
+    }
+
+    const schedules = await this.prisma.workoutSchedule.findMany({
+      where: {
+        studentId: { in: studentIds },
+        scheduledDate: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      select: {
+        id: true,
+        title: true,
+        note: true,
+        scheduledDate: true,
+        studentId: true,
+        isCompleted: true,
+        student: {
+          select: {
+            fullName: true,
+            avatarUrl: true,
+            userPackages: {
+              where: { isActive: true },
+              take: 1,
+              select: {
+                totalSessions: true,
+                remainingSessions: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { scheduledDate: 'asc' },
+    });
+
+    const timeSlots = [
+      '08:00 - 09:00',
+      '10:00 - 11:00',
+      '14:00 - 15:00',
+      '16:30 - 17:30',
+      '18:00 - 19:00',
+      '19:30 - 20:30',
+    ];
+
+    return schedules.map((ws, idx) => {
+      const student = ws.student;
+      const pkg = student?.userPackages?.[0];
+      const isCheckedIn = Boolean(ws.isCompleted);
+
+      let timeSlot = timeSlots[idx % timeSlots.length] || '08:00 - 09:00';
+      if (ws.note && ws.note.includes(' - ')) {
+        const match = ws.note.match(/\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}/);
+        if (match) timeSlot = match[0];
+      }
+
+      const dateObj = new Date(ws.scheduledDate);
+      const year = dateObj.getFullYear();
+      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const day = String(dateObj.getDate()).padStart(2, '0');
+      const scheduledDateFormatted = `${year}-${month}-${day}`;
+
+      return {
+        id: ws.id,
+        timeSlot,
+        studentId: ws.studentId,
+        studentName: student?.fullName || 'Học viên',
+        studentAvatar:
+          student?.avatarUrl ||
+          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+        workoutName: ws.title || 'Giáo Án Tập Luyện 1:1',
+        status: isCheckedIn ? 'CHECKED_IN' : 'PENDING',
+        remainingSessions: pkg?.remainingSessions ?? 0,
+        totalSessions: pkg?.totalSessions ?? 0,
+        scheduledDate: scheduledDateFormatted,
+      };
+    });
+  }
+
+  async createPtScheduleSession(
+    ptUserId: string,
+    dto: {
+      studentId: string;
+      title: string;
+      scheduledDate: string;
+      timeSlot?: string;
+      note?: string;
+    },
+  ) {
+    if (!dto.studentId) {
+      throw new BadRequestException('Vui lòng chọn học viên');
+    }
+
+    const scheduledDate = dto.scheduledDate
+      ? new Date(
+          dto.scheduledDate +
+            (dto.scheduledDate.includes('T') ? '' : 'T08:00:00'),
+        )
+      : new Date();
+
+    const note = dto.timeSlot
+      ? `Khung giờ: ${dto.timeSlot}${dto.note ? ` | ${dto.note}` : ''}`
+      : dto.note || 'Lịch tập được xếp bởi HLV';
+
+    const schedule = await this.prisma.workoutSchedule.create({
+      data: {
+        studentId: dto.studentId,
+        title: dto.title || 'Giáo Án Tập Luyện 1:1',
+        scheduledDate,
+        note,
+      },
+      select: {
+        id: true,
+        title: true,
+        scheduledDate: true,
+        studentId: true,
+        student: {
+          select: {
+            fullName: true,
+            avatarUrl: true,
+            userPackages: {
+              where: { isActive: true },
+              take: 1,
+              select: {
+                totalSessions: true,
+                remainingSessions: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const dateObj = new Date(schedule.scheduledDate);
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const scheduledDateFormatted = `${year}-${month}-${day}`;
+
+    const pkg = schedule.student?.userPackages?.[0];
+
+    return {
+      id: schedule.id,
+      timeSlot: dto.timeSlot || '08:00 - 09:00',
+      studentId: schedule.studentId,
+      studentName: schedule.student?.fullName || 'Học viên',
+      studentAvatar:
+        schedule.student?.avatarUrl ||
+        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+      workoutName: schedule.title,
+      status: 'PENDING' as const,
+      remainingSessions: pkg?.remainingSessions ?? 0,
+      totalSessions: pkg?.totalSessions ?? 0,
+      scheduledDate: scheduledDateFormatted,
     };
   }
 }

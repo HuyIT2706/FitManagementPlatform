@@ -3,7 +3,8 @@ import type { PTDashboardData } from '@repo/types';
 export interface PtWelcomeHeaderProps {
   coachName: string;
   todaySessionsCount: number;
-  pendingMealCount: number;
+  totalVipStudents?: number;
+  pendingMealCount?: number;
 }
 
 export interface PtBentoStatsProps {

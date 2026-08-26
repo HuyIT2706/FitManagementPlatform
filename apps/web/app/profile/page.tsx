@@ -99,7 +99,10 @@ const ProfilePage = () => {
         />
 
         {/* 2. PT Coach Code & QR Binding Card */}
-        <PtCoachBindCard onBindSuccess={fetchUserData} />
+        <PtCoachBindCard
+          assignedPt={userData?.assignedPt}
+          onBindSuccess={fetchUserData}
+        />
 
         {/* 3. Biometrics Grid */}
         <ProfileBiometricsGrid

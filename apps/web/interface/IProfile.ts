@@ -6,6 +6,13 @@ export interface ProfileHeaderCardProps {
 }
 
 export interface PtCoachBindCardProps {
+  assignedPt?: {
+    id?: string;
+    fullName?: string;
+    avatarUrl?: string | null;
+    phone?: string | null;
+    email?: string;
+  } | null;
   onBindSuccess?: () => void;
 }
 

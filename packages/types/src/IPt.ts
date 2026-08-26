@@ -142,6 +142,7 @@ export interface PTStudentDetail {
 export interface AssignWorkoutDto {
   studentId: string;
   title?: string;
+  scheduledDate?: string;
   note?: string;
   exercises?: {
     id?: string;

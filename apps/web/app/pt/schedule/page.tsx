@@ -7,7 +7,7 @@ import PTBottomNavBar from '../../../components/navigation/PTBottomNavBar';
 import AppLoading from '../../../components/ui/AppLoading';
 import apiClient from '../../../api/axios';
 import type { PTSessionItem } from '@repo/types';
-import { getMonday, isSameDay } from '../../../utils/date';
+import { formatYYYYMMDD, getMonday, isSameDay } from '../../../utils/date';
 import { toast } from '../../../utils/toast';
 
 import dynamic from 'next/dynamic';
@@ -16,7 +16,7 @@ import PtPendingApproval from '../../../components/ui/PtPendingApproval';
 import PtScheduleWeekStrip from './components/PtScheduleWeekStrip';
 import PtScheduleSlotCard, { type ScheduleSlot } from './components/PtScheduleSlotCard';
 
-import { useCurrentUser, usePtDashboard } from '../../../api/swr';
+import { useCurrentUser, usePtDashboard, usePtSchedule } from '../../../api/swr';
 
 const AddScheduleModal = dynamic(() => import('./components/AddScheduleModal'), {
   ssr: false,
@@ -29,9 +29,17 @@ const PTSchedulePage = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
   const [currentMonday, setCurrentMonday] = useState<Date>(() => getMonday(new Date()));
   const [checkedSessions, setCheckedSessions] = useState<Record<string, boolean>>({});
-
-  const [customSessions, setCustomSessions] = useState<PTSessionItem[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  const currentSunday = new Date(currentMonday);
+  currentSunday.setDate(currentSunday.getDate() + 6);
+  const weekStartStr = formatYYYYMMDD(currentMonday);
+  const weekEndStr = formatYYYYMMDD(currentSunday);
+
+  const { data: dbWeekSchedules, mutate: mutateSchedule } = usePtSchedule(
+    weekStartStr,
+    weekEndStr,
+  );
 
   const handleLogout = () => {
     localStorage.removeItem('jwt_token');
@@ -44,6 +52,7 @@ const PTSchedulePage = () => {
       .post<{ message?: string }>(`/pt/check-in/${sessionId}`)
       .then((res) => {
         toast.success(res.data.message || 'Đã điểm danh học viên & trừ số buổi thành công!');
+        mutateSchedule();
         mutatePt();
       })
       .catch((err) => {
@@ -58,8 +67,21 @@ const PTSchedulePage = () => {
     setCurrentMonday(getMonday(today));
   };
 
-  const handleAddCustomSession = (newSession: PTSessionItem) => {
-    setCustomSessions((prev) => [...prev, newSession]);
+  const handleAddCustomSession = async (newSession: PTSessionItem) => {
+    if (!newSession.studentId) return;
+    try {
+      await apiClient.post('/pt/schedule', {
+        studentId: newSession.studentId,
+        title: newSession.workoutName || 'Giáo Án Tập Luyện 1:1',
+        scheduledDate: newSession.scheduledDate || formatYYYYMMDD(selectedDate),
+        timeSlot: newSession.timeSlot || '08:00 - 09:00',
+      });
+      mutateSchedule();
+      mutatePt();
+    } catch (err) {
+      console.error('Lỗi khi lưu ca dạy:', err);
+      toast.error('Không thể lưu ca dạy vào hệ thống!');
+    }
   };
 
   const loading = userLoading || (userData?.role === 'PT' && userData?.isApprovedPt !== false && ptLoading && !ptData);
@@ -85,12 +107,23 @@ const PTSchedulePage = () => {
   }
 
   const now = new Date();
+  const selectedDateStr = formatYYYYMMDD(selectedDate);
   const isSelectedToday = isSameDay(selectedDate, now);
   const isSelectedPast = selectedDate < now && !isSelectedToday;
   const isSelectedFuture = selectedDate > now && !isSelectedToday;
 
-  const liveSessions = ptData?.todaySessions || [];
-  const allActiveSessions: PTSessionItem[] = [...liveSessions, ...customSessions];
+  // Lấy các ca dạy khớp đúng ngày được chọn từ PostgreSQL
+  const allActiveSessions: PTSessionItem[] = (dbWeekSchedules || []).filter(
+    (s) => s.scheduledDate === selectedDateStr,
+  );
+
+  // Map đếm số lượng ca dạy cho từng ngày trong tuần
+  const sessionDatesMap: Record<string, number> = {};
+  (dbWeekSchedules || []).forEach((s) => {
+    if (s.scheduledDate) {
+      sessionDatesMap[s.scheduledDate] = (sessionDatesMap[s.scheduledDate] || 0) + 1;
+    }
+  });
 
   const timelineSlots: ScheduleSlot[] = allActiveSessions
     .map((session) => {
@@ -198,6 +231,7 @@ const PTSchedulePage = () => {
           selectedDate={selectedDate}
           onSelectDate={(d) => setSelectedDate(d)}
           activeSessionsCount={timelineSlots.length}
+          sessionDatesMap={sessionDatesMap}
         />
 
         {/* Schedule Timeline Axis */}

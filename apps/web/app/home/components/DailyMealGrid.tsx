@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Sunrise, Sun, Moon, Cookie, Plus, ChevronRight } from 'lucide-react';
+import { EggFried, UtensilsCrossed, MoonStar, Apple, Plus, ChevronRight } from 'lucide-react';
 import toast from '../../../utils/toast';
 import { type DailyMealGridProps } from '../../../interface';
 
@@ -23,17 +23,61 @@ const DailyMealGrid = ({
     }
   };
 
-  const getMealIcon = (id: string) => {
+  const getMealConfig = (id: string) => {
     switch (id) {
       case 'BREAKFAST':
-        return <Sunrise size={20} className="text-amber-400" />;
+        return {
+          icon: (
+            <EggFried
+              size={24}
+              className="text-amber-300 drop-shadow-[0_2px_10px_rgba(245,158,11,0.5)] stroke-[2.2]"
+            />
+          ),
+          badgeBg:
+            'bg-gradient-to-br from-amber-500/25 via-orange-500/15 to-transparent border-amber-400/40 text-amber-300 shadow-[0_0_18px_rgba(245,158,11,0.25)]',
+          cardHover:
+            'hover:border-amber-400/50 hover:shadow-[0_0_24px_rgba(245,158,11,0.12)]',
+        };
       case 'LUNCH':
-        return <Sun size={20} className="text-orange-400" />;
+        return {
+          icon: (
+            <UtensilsCrossed
+              size={24}
+              className="text-orange-300 drop-shadow-[0_2px_10px_rgba(249,115,22,0.5)] stroke-[2.2]"
+            />
+          ),
+          badgeBg:
+            'bg-gradient-to-br from-orange-500/25 via-rose-500/15 to-transparent border-orange-400/40 text-orange-300 shadow-[0_0_18px_rgba(249,115,22,0.25)]',
+          cardHover:
+            'hover:border-orange-400/50 hover:shadow-[0_0_24px_rgba(249,115,22,0.12)]',
+        };
       case 'DINNER':
-        return <Moon size={20} className="text-indigo-400" />;
+        return {
+          icon: (
+            <MoonStar
+              size={24}
+              className="text-indigo-300 drop-shadow-[0_2px_10px_rgba(99,102,241,0.5)] stroke-[2.2]"
+            />
+          ),
+          badgeBg:
+            'bg-gradient-to-br from-indigo-500/25 via-purple-500/15 to-transparent border-indigo-400/40 text-indigo-300 shadow-[0_0_18px_rgba(99,102,241,0.25)]',
+          cardHover:
+            'hover:border-indigo-400/50 hover:shadow-[0_0_24px_rgba(99,102,241,0.12)]',
+        };
       case 'SNACK':
       default:
-        return <Cookie size={20} className="text-emerald-400" />;
+        return {
+          icon: (
+            <Apple
+              size={24}
+              className="text-emerald-300 drop-shadow-[0_2px_10px_rgba(16,185,129,0.5)] stroke-[2.2]"
+            />
+          ),
+          badgeBg:
+            'bg-gradient-to-br from-emerald-500/25 via-teal-500/15 to-transparent border-emerald-400/40 text-emerald-300 shadow-[0_0_18px_rgba(16,185,129,0.25)]',
+          cardHover:
+            'hover:border-emerald-400/50 hover:shadow-[0_0_24px_rgba(16,185,129,0.12)]',
+        };
     }
   };
 
@@ -50,23 +94,30 @@ const DailyMealGrid = ({
         {mealSlots.map((mealConfig) => {
           const mealDetails = getMealDetails(mealConfig.id);
           const hasItems = mealDetails.items.length > 0;
+          const config = getMealConfig(mealConfig.id);
 
           return (
             <div
               key={mealConfig.id}
-              className="bento-card p-5 flex flex-col justify-between group hover:bg-surface-bright/30 transition-colors border border-bento-border/50 rounded-2xl"
+              className={`bento-card p-5 flex flex-col justify-between group transition-all duration-300 border border-bento-border/50 rounded-2xl ${config.cardHover}`}
             >
               {/* Header: Icon, Meal Name, Total Calories & Add Button */}
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-surface-bright/40 border border-white/10 flex items-center justify-center shrink-0">
-                    {getMealIcon(mealConfig.id)}
+                <div className="flex items-center gap-3.5">
+                  <div
+                    className={`w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${config.badgeBg}`}
+                  >
+                    {config.icon}
                   </div>
                   <div>
                     <h4 className="font-headline-md text-base font-bold text-on-surface">
                       {mealConfig.name}
                     </h4>
-                    <span className="font-body-md text-xs text-green-light font-bold">
+                    <span
+                      className={`font-body-md text-xs font-bold ${
+                        hasItems ? 'text-green-light' : 'text-on-surface-variant/70'
+                      }`}
+                    >
                       {mealDetails.totalCalories} kcal
                     </span>
                   </div>
@@ -75,7 +126,7 @@ const DailyMealGrid = ({
                 <Link
                   href={`/add-meal?type=${mealConfig.id}&date=${selectedDateFormattedStr}`}
                   onClick={(e) => handleAddMealClick(e)}
-                  className={`w-8 h-8 rounded-full border border-outline-variant/40 flex items-center justify-center transition-all ${
+                  className={`w-9 h-9 rounded-xl border border-outline-variant/40 flex items-center justify-center transition-all ${
                     isFutureDate
                       ? 'opacity-40 cursor-not-allowed text-on-surface-variant'
                       : 'text-on-surface-variant hover:bg-green-light/20 hover:text-green-light hover:border-green-light cursor-pointer'
@@ -93,10 +144,10 @@ const DailyMealGrid = ({
                     {mealDetails.items.map((item, idx) => (
                       <span
                         key={idx}
-                        className="text-xs bg-surface-bright/20 border border-white/10 text-on-surface-variant px-2.5 py-1 rounded-lg font-medium capitalize"
+                        className="text-xs bg-surface-bright/40 border border-white/10 text-on-surface px-2.5 py-1 rounded-lg font-medium capitalize"
                       >
                         {item.foodName}{' '}
-                        <span className="text-on-surface-variant/60">
+                        <span className="text-on-surface-variant/70 text-[11px]">
                           ({item.weightInGram}g)
                         </span>
                       </span>

@@ -29,7 +29,6 @@ const Header = ({ userData, onLogout }: HeaderProps) => {
             <span className="font-headline-md text-xl font-bold text-on-surface tracking-tight">
               NutriCore
             </span>
-            <span className="text-xs text-primary font-semibold">Member Badge</span>
           </div>
         </div>
 

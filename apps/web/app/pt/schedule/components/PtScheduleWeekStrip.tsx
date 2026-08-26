@@ -1,12 +1,13 @@
 'use client';
 
-import { getWeekDays, isSameDay } from '../../../../utils/date';
+import { formatYYYYMMDD, getWeekDays, isSameDay } from '../../../../utils/date';
 
 interface PtScheduleWeekStripProps {
   currentMonday: Date;
   selectedDate: Date;
   onSelectDate: (date: Date) => void;
   activeSessionsCount?: number;
+  sessionDatesMap?: Record<string, number>;
 }
 
 const PtScheduleWeekStrip = ({
@@ -14,6 +15,7 @@ const PtScheduleWeekStrip = ({
   selectedDate,
   onSelectDate,
   activeSessionsCount = 0,
+  sessionDatesMap = {},
 }: PtScheduleWeekStripProps) => {
   const weekDays = getWeekDays(currentMonday);
   const dayNamesMap = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
@@ -36,6 +38,8 @@ const PtScheduleWeekStrip = ({
         {weekDays.map((day) => {
           const isSelected = isSameDay(day, selectedDate);
           const isToday = isSameDay(day, new Date());
+          const dateStr = formatYYYYMMDD(day);
+          const daySessionsCount = sessionDatesMap[dateStr] || 0;
           const label = (dayNamesMap[day.getDay()] || '')
             .replace('Thứ ', 'T')
             .replace('Chủ Nhật', 'CN');
@@ -45,7 +49,7 @@ const PtScheduleWeekStrip = ({
               key={day.toISOString()}
               type="button"
               onClick={() => onSelectDate(day)}
-              className={`flex flex-col items-center justify-center py-3 rounded-2xl transition-all cursor-pointer ${
+              className={`flex flex-col items-center justify-center py-3 rounded-2xl transition-all cursor-pointer relative ${
                 isSelected
                   ? 'bg-primary text-dark-slate font-extrabold shadow-[0_0_12px_rgba(102,200,28,0.4)] scale-105'
                   : isToday
@@ -55,6 +59,13 @@ const PtScheduleWeekStrip = ({
             >
               <span className="text-[11px] font-semibold">{label}</span>
               <span className="text-sm font-extrabold mt-0.5">{day.getDate()}</span>
+              {daySessionsCount > 0 && (
+                <span
+                  className={`w-1.5 h-1.5 rounded-full mt-1 ${
+                    isSelected ? 'bg-dark-slate' : 'bg-primary shadow-[0_0_6px_rgba(102,200,28,0.8)]'
+                  }`}
+                />
+              )}
             </button>
           );
         })}

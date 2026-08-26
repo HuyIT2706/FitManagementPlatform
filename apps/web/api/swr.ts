@@ -3,7 +3,7 @@
 import useSWR, { type SWRConfiguration } from 'swr';
 import apiClient from './axios';
 import type { UserDataHome, PTDashboardData } from '../interface';
-import type { PTCodeQrData } from '@repo/types';
+import type { PTCodeQrData, PTSessionItem } from '@repo/types';
 
 export const swrFetcher = async <T>(url: string): Promise<T> => {
   const res = await apiClient.get<T>(url);
@@ -35,6 +35,15 @@ export const usePtDashboard = (options?: SWRConfiguration) => {
 export const usePtCodeQr = (options?: SWRConfiguration) => {
   return useSWR<PTCodeQrData>(
     '/pt/code-qr',
+    swrFetcher,
+    { ...DEFAULT_SWR_OPTIONS, ...options }
+  );
+};
+
+export const usePtSchedule = (startDate?: string, endDate?: string, options?: SWRConfiguration) => {
+  const query = startDate && endDate ? `?startDate=${startDate}&endDate=${endDate}` : '';
+  return useSWR<PTSessionItem[]>(
+    `/pt/schedule${query}`,
     swrFetcher,
     { ...DEFAULT_SWR_OPTIONS, ...options }
   );

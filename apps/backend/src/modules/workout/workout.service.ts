@@ -151,9 +151,6 @@ export class WorkoutService {
     const targetKcal = Math.round(
       latestTarget?.targetCalo || user?.tdee || 2000,
     );
-    const targetProtein = Math.round(latestTarget?.targetProtein || 150);
-    const targetCarbs = Math.round(latestTarget?.targetCarbs || 200);
-    const targetFat = Math.round(latestTarget?.targetFat || 60);
 
     // Calculate calories per meal based on targets
     const breakfastKcal = Math.round(targetKcal * 0.25);
@@ -221,7 +218,7 @@ export class WorkoutService {
       return null;
     }
 
-    const defaultAdvice = `Mục tiêu hằng ngày: ${targetKcal} kcal (Protein: ${targetProtein}g, Carb: ${targetCarbs}g, Fat: ${targetFat}g). Nhớ ăn đúng khẩu phần và uống đủ 2.5L nước!`;
+    const defaultAdvice = ``;
     const totalPrescribedKcal = meals.reduce((acc, m) => acc + m.kcal, 0);
 
     return {

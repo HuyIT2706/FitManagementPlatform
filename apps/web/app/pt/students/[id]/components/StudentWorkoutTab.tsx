@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
-'use client';
+"use client";
 
-import type { AssignedExerciseItem } from '@repo/types';
+import type { AssignedExerciseItem } from "@repo/types";
 
 interface StudentWorkoutTabProps {
   assignedExercises: AssignedExerciseItem[];
@@ -40,7 +40,9 @@ const StudentWorkoutTab = ({
       {/* Add Exercise Form Card */}
       <div className="bento-card rounded-3xl p-6 md:p-8 border border-outline-variant/30 space-y-4">
         <h3 className="text-lg font-bold text-on-surface flex items-center gap-2">
-          <span className="material-symbols-outlined text-primary">add_task</span>
+          <span className="material-symbols-outlined text-primary">
+            add_task
+          </span>
           Thêm bài tập mới vào giáo án
         </h3>
 
@@ -55,7 +57,7 @@ const StudentWorkoutTab = ({
               className="w-full bg-surface-bright border border-primary/40 rounded-xl px-3 py-2.5 text-on-surface font-extrabold text-xs flex items-center justify-between cursor-pointer hover:border-primary transition-all hover:bg-surface-bright/80 shadow-[0_0_12px_rgba(102,200,28,0.1)]"
             >
               <span className="text-primary truncate font-bold">
-                {newExName || 'Bấm để chọn bài tập từ CSDL...'}
+                {newExName || "Chọn bài tập"}
               </span>
               <span className="material-symbols-outlined text-primary text-[18px] shrink-0">
                 expand_more
@@ -70,9 +72,11 @@ const StudentWorkoutTab = ({
             <input
               type="number"
               placeholder="0"
-              value={newExSets === 0 ? '' : newExSets}
+              value={newExSets === 0 ? "" : newExSets}
               onChange={(e) =>
-                onExSetsChange(e.target.value === '' ? 0 : Number(e.target.value))
+                onExSetsChange(
+                  e.target.value === "" ? 0 : Number(e.target.value),
+                )
               }
               className="w-full bg-surface-bright border border-white/10 rounded-xl px-3 py-2.5 text-on-surface font-semibold focus:border-primary outline-none"
             />
@@ -85,9 +89,11 @@ const StudentWorkoutTab = ({
             <input
               type="number"
               placeholder="0"
-              value={newExReps === 0 ? '' : newExReps}
+              value={newExReps === 0 ? "" : newExReps}
               onChange={(e) =>
-                onExRepsChange(e.target.value === '' ? 0 : Number(e.target.value))
+                onExRepsChange(
+                  e.target.value === "" ? 0 : Number(e.target.value),
+                )
               }
               className="w-full bg-surface-bright border border-white/10 rounded-xl px-3 py-2.5 text-on-surface font-semibold focus:border-primary outline-none"
             />
@@ -123,8 +129,7 @@ const StudentWorkoutTab = ({
       <div className="bento-card rounded-3xl p-6 md:p-8 border border-outline-variant/30 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-bold text-on-surface flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary">format_list_bulleted</span>
-            Danh sách Giáo án Bài tập đã chỉ định ({assignedExercises.length})
+            Danh sách các bài tập ({assignedExercises.length})
           </h3>
 
           <button
@@ -133,21 +138,18 @@ const StudentWorkoutTab = ({
             disabled={saving}
             className="px-5 py-2.5 rounded-xl bg-primary text-dark-slate font-extrabold text-xs flex items-center gap-1.5 shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 cursor-pointer transition-all disabled:opacity-50"
           >
-            <span className="material-symbols-outlined text-[18px]">save</span>
-            {saving ? 'Đang lưu...' : 'Lưu Giáo Án Tập Luyện'}
+            {saving ? "Đang lưu..." : "Lưu"}
           </button>
         </div>
 
         {assignedExercises.length === 0 ? (
           <div className="p-8 text-center border border-dashed border-white/10 rounded-2xl space-y-2">
-            <span className="material-symbols-outlined text-4xl text-on-surface-variant/40">
-              fitness_center
-            </span>
             <p className="text-sm font-medium text-on-surface-variant">
               Chưa có bài tập nào trong giáo án cá nhân hóa.
             </p>
             <p className="text-xs text-on-surface-variant/70">
-              Chọn bài tập từ Thư viện và bấm nút &quot;Thêm Bài Tập&quot; phía trên.
+              Chọn bài tập từ Thư viện và bấm nút &quot;Thêm Bài Tập&quot; phía
+              trên.
             </p>
           </div>
         ) : (
@@ -161,7 +163,9 @@ const StudentWorkoutTab = ({
                   <div className="w-12 h-12 rounded-2xl overflow-hidden border border-white/15 shrink-0 bg-surface-bright/80 flex items-center justify-center">
                     {ex.imageUrl || ex.setupImageUrl || ex.startImageUrl ? (
                       <img
-                        src={ex.imageUrl || ex.setupImageUrl || ex.startImageUrl}
+                        src={
+                          ex.imageUrl || ex.setupImageUrl || ex.startImageUrl
+                        }
                         alt={ex.name}
                         className="w-full h-full object-cover"
                       />
@@ -172,10 +176,13 @@ const StudentWorkoutTab = ({
                     )}
                   </div>
                   <div>
-                    <h4 className="font-extrabold text-on-surface text-sm">{ex.name}</h4>
+                    <h4 className="font-extrabold text-on-surface text-sm">
+                      {ex.name}
+                    </h4>
                     <p className="text-xs text-on-surface-variant font-medium mt-0.5">
-                      {ex.category ? `${ex.category} • ` : ''}
-                      {ex.sets} Hiệp x {ex.reps} Lần {ex.dayOfWeek ? `(${ex.dayOfWeek})` : ''}
+                      {ex.category ? `${ex.category} • ` : ""}
+                      {ex.sets} Hiệp x {ex.reps} Lần{" "}
+                      {ex.dayOfWeek ? `(${ex.dayOfWeek})` : ""}
                     </p>
                   </div>
                 </div>
@@ -186,7 +193,9 @@ const StudentWorkoutTab = ({
                   className="w-10 h-10 rounded-full bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30 flex items-center justify-center shrink-0 self-end sm:self-center transition-all cursor-pointer shadow-sm hover:scale-105"
                   title="Xóa bài tập này"
                 >
-                  <span className="material-symbols-outlined text-[18px]">delete</span>
+                  <span className="material-symbols-outlined text-[18px]">
+                    delete
+                  </span>
                 </button>
               </div>
             ))}

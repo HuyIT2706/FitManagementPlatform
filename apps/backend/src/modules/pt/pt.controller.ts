@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -30,6 +31,30 @@ export class PtController {
   @Get('dashboard')
   async getDashboardData(@Request() req: RequestWithUser) {
     return this.ptService.getDashboardData(req.user.sub);
+  }
+
+  @Get('schedule')
+  async getPtSchedule(
+    @Request() req: RequestWithUser,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.ptService.getPtScheduleRange(req.user.sub, startDate, endDate);
+  }
+
+  @Post('schedule')
+  async createPtSchedule(
+    @Request() req: RequestWithUser,
+    @Body()
+    dto: {
+      studentId: string;
+      title: string;
+      scheduledDate: string;
+      timeSlot?: string;
+      note?: string;
+    },
+  ) {
+    return this.ptService.createPtScheduleSession(req.user.sub, dto);
   }
 
   @Get('code-qr')

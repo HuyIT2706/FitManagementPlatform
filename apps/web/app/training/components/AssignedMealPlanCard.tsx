@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { Sunrise, Sun, Moon, Cookie, UtensilsCrossed } from 'lucide-react';
+import { EggFried, UtensilsCrossed, MoonStar, Apple } from 'lucide-react';
 import type { AssignedMealPlanCardProps } from '../../../interface';
 
 const AssignedMealPlanCard = ({
@@ -12,20 +12,54 @@ const AssignedMealPlanCard = ({
     return null;
   }
 
-  const getMealIcon = (iconName?: string) => {
-    switch (iconName) {
-      case 'wb_twilight':
-        return <Sunrise size={20} className="text-amber-400" />;
-      case 'wb_sunny':
-        return <Sun size={20} className="text-orange-400" />;
-      case 'dark_mode':
-      case 'nights_stay':
-        return <Moon size={20} className="text-indigo-400" />;
-      case 'icecream':
-      case 'local_cafe':
-      default:
-        return <Cookie size={20} className="text-emerald-400" />;
+  const getMealConfig = (iconName?: string, mealName?: string) => {
+    const key = (iconName || mealName || '').toLowerCase();
+    if (key.includes('twilight') || key.includes('sáng') || key.includes('breakfast')) {
+      return {
+        icon: (
+          <EggFried
+            size={24}
+            className="text-amber-300 drop-shadow-[0_2px_10px_rgba(245,158,11,0.5)] stroke-[2.2]"
+          />
+        ),
+        badgeBg:
+          'bg-gradient-to-br from-amber-500/25 via-orange-500/15 to-transparent border-amber-400/40 text-amber-300 shadow-[0_0_18px_rgba(245,158,11,0.25)]',
+      };
     }
+    if (key.includes('sunny') || key.includes('trưa') || key.includes('lunch')) {
+      return {
+        icon: (
+          <UtensilsCrossed
+            size={24}
+            className="text-orange-300 drop-shadow-[0_2px_10px_rgba(249,115,22,0.5)] stroke-[2.2]"
+          />
+        ),
+        badgeBg:
+          'bg-gradient-to-br from-orange-500/25 via-rose-500/15 to-transparent border-orange-400/40 text-orange-300 shadow-[0_0_18px_rgba(249,115,22,0.25)]',
+      };
+    }
+    if (key.includes('dark') || key.includes('tối') || key.includes('dinner')) {
+      return {
+        icon: (
+          <MoonStar
+            size={24}
+            className="text-indigo-300 drop-shadow-[0_2px_10px_rgba(99,102,241,0.5)] stroke-[2.2]"
+          />
+        ),
+        badgeBg:
+          'bg-gradient-to-br from-indigo-500/25 via-purple-500/15 to-transparent border-indigo-400/40 text-indigo-300 shadow-[0_0_18px_rgba(99,102,241,0.25)]',
+      };
+    }
+    return {
+      icon: (
+        <Apple
+          size={24}
+          className="text-emerald-300 drop-shadow-[0_2px_10px_rgba(16,185,129,0.5)] stroke-[2.2]"
+        />
+      ),
+      badgeBg:
+        'bg-gradient-to-br from-emerald-500/25 via-teal-500/15 to-transparent border-emerald-400/40 text-emerald-300 shadow-[0_0_18px_rgba(16,185,129,0.25)]',
+    };
   };
 
   const meals = assignedMealPlan.meals;
@@ -65,25 +99,30 @@ const AssignedMealPlanCard = ({
 
         {/* Meal Slots List */}
         <div className="grid grid-cols-1 gap-3">
-          {meals.map((meal, index) => (
-            <div
-              key={index}
-              className="flex items-start gap-4 bg-surface-bright/30 p-4 rounded-2xl border border-white/5"
-            >
-              <div className="w-11 h-11 rounded-xl bg-orange-400/10 border border-orange-400/20 flex items-center justify-center text-orange-400 shrink-0 mt-0.5">
-                {getMealIcon(meal.icon)}
-              </div>
-              <div className="grow space-y-1">
-                <div className="flex justify-between items-center">
-                  <h4 className="font-bold text-on-surface text-base">{meal.name}</h4>
-                  <span className="text-green-light font-bold text-xs">{meal.kcal} kcal</span>
+          {meals.map((meal, index) => {
+            const config = getMealConfig(meal.icon, meal.name);
+            return (
+              <div
+                key={index}
+                className="flex items-start gap-4 bg-surface-bright/30 p-4 rounded-2xl border border-white/5 hover:border-white/10 transition-all"
+              >
+                <div
+                  className={`w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 mt-0.5 ${config.badgeBg}`}
+                >
+                  {config.icon}
                 </div>
-                <p className="text-xs text-on-surface-variant whitespace-pre-line leading-relaxed font-medium">
-                  {meal.description}
-                </p>
+                <div className="grow space-y-1">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-bold text-on-surface text-base">{meal.name}</h4>
+                    <span className="text-green-light font-bold text-xs">{meal.kcal} kcal</span>
+                  </div>
+                  <p className="text-xs text-on-surface-variant whitespace-pre-line leading-relaxed font-medium">
+                    {meal.description}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Total Calories Progress Bar */}

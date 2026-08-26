@@ -14,16 +14,13 @@ import PtWelcomeHeader from './home/components/PtWelcomeHeader';
 import PtBentoStats from './home/components/PtBentoStats';
 import PtPendingStudentRequests from './home/components/PtPendingStudentRequests';
 import PtScheduleList from './home/components/PtScheduleList';
-import PtPendingMeals from './home/components/PtPendingMeals';
 import PtStudentRosterQuick from './home/components/PtStudentRosterQuick';
 
 const PTPage = () => {
   const { data: userData, isLoading: userLoading } = useCurrentUser();
   const { data: ptData, isLoading: ptLoading, mutate: mutatePt } = usePtDashboard();
 
-  const [feedbackTexts, setFeedbackTexts] = useState<Record<string, string>>({});
   const [checkedSessions, setCheckedSessions] = useState<Record<string, boolean>>({});
-  const [approvedMeals, setApprovedMeals] = useState<Record<string, boolean>>({});
 
   const handleCheckInSession = (sessionId: string) => {
     setCheckedSessions((prev) => ({ ...prev, [sessionId]: true }));
@@ -38,24 +35,6 @@ const PTPage = () => {
       .catch((err) => {
         console.error(err);
         toast.error('Check-in thất bại!');
-      });
-  };
-
-  const handleApproveMeal = (mealId: string) => {
-    const feedback = feedbackTexts[mealId] || '';
-    setApprovedMeals((prev) => ({ ...prev, [mealId]: true }));
-    apiClient
-      .post<{ success: boolean; message: string }>(`/pt/review-meal/${mealId}`, {
-        approved: true,
-        feedback,
-      })
-      .then((res) => {
-        toast.success(res.data.message || 'Đã duyệt bữa ăn thành công!');
-        mutatePt();
-      })
-      .catch((err) => {
-        console.error(err);
-        toast.error('Duyệt bữa ăn thất bại!');
       });
   };
 
@@ -123,7 +102,7 @@ const PTPage = () => {
         <PtWelcomeHeader
           coachName={coachName}
           todaySessionsCount={ptData?.todaySessionsCount ?? 0}
-          pendingMealCount={ptData?.pendingMealCount ?? 0}
+          totalVipStudents={ptData?.totalVipStudents ?? 0}
         />
 
         {/* Section 2: Bento Stats Bar */}
@@ -144,24 +123,13 @@ const PTPage = () => {
 
         {/* Main Content Grid Split */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
-          {/* Left Column: Schedule & Nutrition Review */}
+          {/* Left Column: Schedule List */}
           <div className="lg:col-span-8 space-y-gutter">
             {/* Section 4: Today's PT Schedule */}
             <PtScheduleList
               sessions={ptData?.todaySessions}
               checkedSessions={checkedSessions}
               onCheckInSession={handleCheckInSession}
-            />
-
-            {/* Section 5: Nutrition Review Pending */}
-            <PtPendingMeals
-              meals={ptData?.pendingMeals}
-              approvedMeals={approvedMeals}
-              feedbackTexts={feedbackTexts}
-              onFeedbackTextChange={(mealId, text) =>
-                setFeedbackTexts((prev) => ({ ...prev, [mealId]: text }))
-              }
-              onApproveMeal={handleApproveMeal}
             />
           </div>
 

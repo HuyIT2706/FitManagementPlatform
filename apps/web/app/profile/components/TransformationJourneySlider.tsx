@@ -1,11 +1,23 @@
 /* eslint-disable @next/next/no-img-element */
-'use client';
+"use client";
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { Camera, History, Lock, ChevronsLeftRight, Trash2, Calendar, X, Check } from 'lucide-react';
-import apiClient from '../../../api/axios';
-import type { TransformationJourneyProps, ProgressPhotoItem } from '../../../interface';
-import { toastStore } from '../../../utils/toast/toastStore';
+import { useState, useEffect, useRef, useCallback } from "react";
+import {
+  Camera,
+  History,
+  Lock,
+  ChevronsLeftRight,
+  Trash2,
+  Calendar,
+  X,
+  Check,
+} from "lucide-react";
+import apiClient from "../../../api/axios";
+import type {
+  TransformationJourneyProps,
+  ProgressPhotoItem,
+} from "../../../interface";
+import { toastStore } from "../../../utils/toast/toastStore";
 
 const TransformationJourneySlider = ({
   goal,
@@ -24,14 +36,21 @@ const TransformationJourneySlider = ({
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
   // New photo form
-  const [newPhotoUrl, setNewPhotoUrl] = useState('');
-  const [newTag, setNewTag] = useState<'BEFORE' | 'AFTER' | 'FRONT' | 'SIDE'>('AFTER');
-  const [newWeight, setNewWeight] = useState<string>(weightKg ? String(weightKg) : '75');
+  const [newPhotoUrl, setNewPhotoUrl] = useState("");
+  const [newTag, setNewTag] = useState<"BEFORE" | "AFTER" | "FRONT" | "SIDE">(
+    "AFTER",
+  );
+  const [newWeight, setNewWeight] = useState<string>(
+    weightKg ? String(weightKg) : "75",
+  );
   const [submitting, setSubmitting] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const apiEndpoint = isPtView && studentId ? `/pt/students/${studentId}/photos` : '/progress/photos';
+  const apiEndpoint =
+    isPtView && studentId
+      ? `/pt/students/${studentId}/photos`
+      : "/progress/photos";
 
   const fetchPhotos = useCallback(() => {
     if (isPtView && !studentId) return;
@@ -41,7 +60,7 @@ const TransformationJourneySlider = ({
         setPhotos(Array.isArray(res.data) ? res.data : []);
       })
       .catch((err) => {
-        console.error('Error fetching progress photos:', err);
+        console.error("Error fetching progress photos:", err);
         setPhotos([]);
       });
   }, [apiEndpoint, isPtView, studentId]);
@@ -73,45 +92,64 @@ const TransformationJourneySlider = ({
     const handleGlobalUp = () => setIsDragging(false);
 
     if (isDragging) {
-      window.addEventListener('mousemove', handleGlobalMouseMove);
-      window.addEventListener('touchmove', handleGlobalTouchMove);
-      window.addEventListener('mouseup', handleGlobalUp);
-      window.addEventListener('touchend', handleGlobalUp);
+      window.addEventListener("mousemove", handleGlobalMouseMove);
+      window.addEventListener("touchmove", handleGlobalTouchMove);
+      window.addEventListener("mouseup", handleGlobalUp);
+      window.addEventListener("touchend", handleGlobalUp);
     }
     return () => {
-      window.removeEventListener('mousemove', handleGlobalMouseMove);
-      window.removeEventListener('touchmove', handleGlobalTouchMove);
-      window.removeEventListener('mouseup', handleGlobalUp);
-      window.removeEventListener('touchend', handleGlobalUp);
+      window.removeEventListener("mousemove", handleGlobalMouseMove);
+      window.removeEventListener("touchmove", handleGlobalTouchMove);
+      window.removeEventListener("mouseup", handleGlobalUp);
+      window.removeEventListener("touchend", handleGlobalUp);
     };
   }, [isDragging, handleMove]);
 
   // Determine Before & After photos (fallback to stock images if none uploaded)
-  const beforePhoto = photos.find((p) => p.tag === 'BEFORE') || {
-    id: 'default-before',
-    photoUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1000&q=80',
-    takenAt: 'Ban đầu',
+  const beforePhoto = photos.find((p) => p.tag === "BEFORE") || {
+    id: "default-before",
+    photoUrl:
+      "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1000&q=80",
+    takenAt: "Ban đầu",
     weightAtTime: weightKg ? weightKg + 5 : 85,
   };
 
-  const afterPhoto = photos.find((p) => p.tag === 'AFTER' || p.tag === 'FRONT') || {
-    id: 'default-after',
-    photoUrl: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1000&q=80',
-    takenAt: 'Hôm nay',
+  const afterPhoto = photos.find(
+    (p) => p.tag === "AFTER" || p.tag === "FRONT",
+  ) || {
+    id: "default-after",
+    photoUrl:
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1000&q=80",
+    takenAt: "Hôm nay",
     weightAtTime: weightKg ?? 80,
   };
 
   // Preset sample body photos for quick selection in upload modal
   const samplePhotoPresets = [
-    { label: 'Nam thể thao 1', url: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80' },
-    { label: 'Nam thể thao 2', url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=80' },
-    { label: 'Nữ thể thao 1', url: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80' },
-    { label: 'Nữ thể thao 2', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80' },
+    {
+      label: "Nam thể thao 1",
+      url: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      label: "Nam thể thao 2",
+      url: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      label: "Nữ thể thao 1",
+      url: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      label: "Nữ thể thao 2",
+      url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80",
+    },
   ];
 
   const handleAddPhoto = () => {
     if (!newPhotoUrl.trim()) {
-      toastStore.addToast('Vui lòng nhập đường dẫn ảnh hoặc chọn ảnh mẫu', 'error');
+      toastStore.addToast(
+        "Vui lòng nhập đường dẫn ảnh hoặc chọn ảnh mẫu",
+        "error",
+      );
       return;
     }
 
@@ -123,33 +161,39 @@ const TransformationJourneySlider = ({
         weightAtTime: parseFloat(newWeight) || weightKg,
       })
       .then(() => {
-        toastStore.addToast('Đã thêm ảnh tiến trình mới thành công!', 'success');
+        toastStore.addToast(
+          "Đã thêm ảnh tiến trình mới thành công!",
+          "success",
+        );
         setIsUploadOpen(false);
-        setNewPhotoUrl('');
+        setNewPhotoUrl("");
         fetchPhotos();
       })
       .catch((err) => {
-        console.error('Error adding photo:', err);
-        toastStore.addToast('Không thể thêm ảnh. Vui lòng thử lại!', 'error');
+        console.error("Error adding photo:", err);
+        toastStore.addToast("Không thể thêm ảnh. Vui lòng thử lại!", "error");
       })
       .finally(() => setSubmitting(false));
   };
 
   const handleDeletePhoto = (photoId: string) => {
-    if (photoId.startsWith('default-')) return;
-    if (!confirm('Bạn có chắc chắn muốn xóa ảnh tiến trình này không?')) return;
+    if (photoId.startsWith("default-")) return;
+    if (!confirm("Bạn có chắc chắn muốn xóa ảnh tiến trình này không?")) return;
 
-    const deleteUrl = isPtView && studentId ? `/pt/students/${studentId}/photos/${photoId}` : `/progress/photos/${photoId}`;
+    const deleteUrl =
+      isPtView && studentId
+        ? `/pt/students/${studentId}/photos/${photoId}`
+        : `/progress/photos/${photoId}`;
 
     apiClient
       .delete(deleteUrl)
       .then(() => {
-        toastStore.addToast('Đã xóa ảnh tiến trình', 'success');
+        toastStore.addToast("Đã xóa ảnh tiến trình", "success");
         fetchPhotos();
       })
       .catch((err) => {
-        console.error('Error deleting photo:', err);
-        toastStore.addToast('Không thể xóa ảnh', 'error');
+        console.error("Error deleting photo:", err);
+        toastStore.addToast("Không thể xóa ảnh", "error");
       });
   };
 
@@ -159,21 +203,14 @@ const TransformationJourneySlider = ({
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
         <div className="flex flex-col gap-1">
           <h3 className="text-xl font-headline-md font-bold text-on-surface">
-            {isPtView ? 'Ảnh Tiến Trình Học Viên (Before / After)' : 'Hành Trình Lột Xác (Before / After Slider)'}
+            {isPtView ? "Ảnh Tiến Trình Học Viên" : "Hành Trình Lột Xác"}
           </h3>
           <div className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-green-light/10 border border-green-light/30 text-green-light text-[10px] font-bold shadow-[0_0_10px_rgba(102,200,28,0.3)] w-max">
-            {goalTextMap[goal] || 'Mục tiêu tập luyện'} ({weightKg}kg -&gt; {targetWeightKg}kg)
+            {goalTextMap[goal] || "Mục tiêu tập luyện"} ({weightKg}kg -&gt;{" "}
+            {targetWeightKg}kg)
           </div>
         </div>
         <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setIsUploadOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors cursor-pointer"
-          >
-            <Camera size={14} />
-            {isPtView ? 'Thêm ảnh cho học viên' : 'Cập nhật ảnh mới'}
-          </button>
           <button
             type="button"
             onClick={() => setIsHistoryOpen(true)}
@@ -210,18 +247,23 @@ const TransformationJourneySlider = ({
           <img
             alt="Before"
             className="absolute inset-0 h-full object-cover max-w-none pointer-events-none"
-            style={{ width: containerRef.current ? `${containerRef.current.clientWidth}px` : '100%' }}
+            style={{
+              width: containerRef.current
+                ? `${containerRef.current.clientWidth}px`
+                : "100%",
+            }}
             src={beforePhoto.photoUrl}
           />
           <div className="absolute bottom-4 left-4 px-3 py-1 bg-surface-dim/90 backdrop-blur-md border border-white/20 rounded-lg text-on-surface text-xs font-bold pointer-events-none shadow-lg">
-            Bắt đầu • {beforePhoto.weightAtTime || (weightKg ? weightKg + 5 : 85)} kg
+            Bắt đầu •{" "}
+            {beforePhoto.weightAtTime || (weightKg ? weightKg + 5 : 85)} kg
           </div>
         </div>
 
         {/* Draggable Handle Button */}
         <div
           className="absolute top-0 bottom-0 flex items-center justify-center z-30 pointer-events-none"
-          style={{ left: `${sliderPosition}%`, transform: 'translateX(-50%)' }}
+          style={{ left: `${sliderPosition}%`, transform: "translateX(-50%)" }}
         >
           <div className="w-10 h-10 rounded-full bg-green-light shadow-[0_0_20px_rgba(102,200,28,0.8)] flex items-center justify-center text-dark-slate scale-100 group-hover:scale-110 transition-transform">
             <ChevronsLeftRight size={20} className="stroke-[2.5]" />
@@ -232,9 +274,16 @@ const TransformationJourneySlider = ({
       <div className="flex items-center justify-between text-xs text-on-surface-variant opacity-80">
         <div className="flex items-center gap-2">
           <Lock size={14} className="shrink-0" />
-          <p>Kéo thanh trượt để so sánh ảnh Trước & Sau. {isPtView ? 'PT có quyền CRUD ảnh tiến trình.' : 'Ảnh bảo mật chỉ bạn và PT xem.'}</p>
+          <p>
+            Kéo thanh trượt để so sánh ảnh Trước & Sau.{" "}
+            {isPtView
+              ? "PT có quyền CRUD ảnh tiến trình."
+              : "Ảnh bảo mật chỉ bạn và PT xem."}
+          </p>
         </div>
-        <span className="font-semibold text-green-light">Tỷ lệ: {Math.round(sliderPosition)}%</span>
+        <span className="font-semibold text-green-light">
+          Tỷ lệ: {Math.round(sliderPosition)}%
+        </span>
       </div>
 
       {/* Modal 1: Upload New Photo */}
@@ -244,7 +293,9 @@ const TransformationJourneySlider = ({
             <div className="flex justify-between items-center pb-2 border-b border-white/10">
               <h4 className="text-lg font-bold flex items-center gap-2">
                 <Camera className="text-green-light" size={20} />
-                {isPtView ? 'Cập nhật ảnh tiến trình cho học viên' : 'Cập nhật ảnh tiến trình hình thể'}
+                {isPtView
+                  ? "Cập nhật ảnh tiến trình cho học viên"
+                  : "Cập nhật ảnh tiến trình hình thể"}
               </h4>
               <button
                 type="button"
@@ -261,20 +312,28 @@ const TransformationJourneySlider = ({
                   Nhãn loại ảnh:
                 </label>
                 <div className="grid grid-cols-4 gap-2">
-                  {(['BEFORE', 'AFTER', 'FRONT', 'SIDE'] as const).map((tag) => (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => setNewTag(tag)}
-                      className={`py-2 text-xs font-bold rounded-lg border transition-all ${
-                        newTag === tag
-                          ? 'border-green-light bg-green-light/20 text-green-light'
-                          : 'border-white/10 bg-white/5 text-white/60 hover:border-white/20'
-                      }`}
-                    >
-                      {tag === 'BEFORE' ? 'Trước (Before)' : tag === 'AFTER' ? 'Hiện tại (After)' : tag === 'FRONT' ? 'Mặt trước' : 'Mặt bên'}
-                    </button>
-                  ))}
+                  {(["BEFORE", "AFTER", "FRONT", "SIDE"] as const).map(
+                    (tag) => (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => setNewTag(tag)}
+                        className={`py-2 text-xs font-bold rounded-lg border transition-all ${
+                          newTag === tag
+                            ? "border-green-light bg-green-light/20 text-green-light"
+                            : "border-white/10 bg-white/5 text-white/60 hover:border-white/20"
+                        }`}
+                      >
+                        {tag === "BEFORE"
+                          ? "Trước (Before)"
+                          : tag === "AFTER"
+                            ? "Hiện tại (After)"
+                            : tag === "FRONT"
+                              ? "Mặt trước"
+                              : "Mặt bên"}
+                      </button>
+                    ),
+                  )}
                 </div>
               </div>
 
@@ -317,7 +376,11 @@ const TransformationJourneySlider = ({
                       onClick={() => setNewPhotoUrl(preset.url)}
                       className="relative h-16 rounded-lg overflow-hidden border border-white/10 hover:border-green-light transition-all group"
                     >
-                      <img src={preset.url} alt={preset.label} className="w-full h-full object-cover" />
+                      <img
+                        src={preset.url}
+                        alt={preset.label}
+                        className="w-full h-full object-cover"
+                      />
                       <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                         <Check size={16} className="text-green-light" />
                       </div>
@@ -341,7 +404,7 @@ const TransformationJourneySlider = ({
                 disabled={submitting}
                 className="flex-1 py-2.5 rounded-lg bg-green-light text-[#003824] text-xs font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-1"
               >
-                {submitting ? 'Đang lưu...' : 'Lưu ảnh tiến trình'}
+                {submitting ? "Đang lưu..." : "Lưu ảnh tiến trình"}
               </button>
             </div>
           </div>
@@ -369,7 +432,8 @@ const TransformationJourneySlider = ({
             <div className="overflow-y-auto flex-1 pr-1 no-scrollbar">
               {photos.length === 0 ? (
                 <div className="py-12 text-center text-white/50 text-sm">
-                  Chưa có ảnh tiến trình nào được lưu. Bấm &quot;Thêm ảnh&quot; để tải ảnh lên!
+                  Chưa có ảnh tiến trình nào được lưu. Bấm &quot;Thêm ảnh&quot;
+                  để tải ảnh lên!
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -381,11 +445,11 @@ const TransformationJourneySlider = ({
                       <div className="h-44 w-full relative">
                         <img
                           src={photo.photoUrl}
-                          alt={photo.tag || 'Progress'}
+                          alt={photo.tag || "Progress"}
                           className="w-full h-full object-cover"
                         />
                         <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/70 backdrop-blur-md text-[10px] font-bold text-green-light border border-green-light/30">
-                          {photo.tag || 'PROGRESS'}
+                          {photo.tag || "PROGRESS"}
                         </span>
                         <button
                           type="button"
@@ -398,10 +462,12 @@ const TransformationJourneySlider = ({
                       <div className="p-2.5 text-xs flex justify-between items-center text-white/70">
                         <span className="flex items-center gap-1">
                           <Calendar size={12} />
-                          {new Date(photo.takenAt).toLocaleDateString('vi-VN')}
+                          {new Date(photo.takenAt).toLocaleDateString("vi-VN")}
                         </span>
                         {photo.weightAtTime && (
-                          <span className="font-bold text-white">{photo.weightAtTime} kg</span>
+                          <span className="font-bold text-white">
+                            {photo.weightAtTime} kg
+                          </span>
                         )}
                       </div>
                     </div>

@@ -103,7 +103,7 @@ const PtInviteStudentModal = ({
                 type="number"
                 min={1}
                 required
-                placeholder="12"
+                placeholder="Ví dụ: 12, 24, 36..."
                 value={totalSessions === 0 ? '' : totalSessions}
                 onChange={(e) =>
                   onTotalSessionsChange(

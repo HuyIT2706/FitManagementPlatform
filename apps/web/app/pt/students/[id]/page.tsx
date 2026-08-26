@@ -178,6 +178,12 @@ const PTStudentDetailPage = ({
       })
       .then(() => {
         setSaving(false);
+        if (studentDetail) {
+          setStudentDetail({
+            ...studentDetail,
+            assignedExercises,
+          });
+        }
         toast.success('Lưu & Giao giáo án tập luyện thành công!');
       })
       .catch((err) => {
@@ -366,7 +372,7 @@ const PTStudentDetailPage = ({
                 : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50'
             }`}
           >
-            Mục Tiêu & Thực Đơn
+            Thực Đơn
           </button>
 
           <button

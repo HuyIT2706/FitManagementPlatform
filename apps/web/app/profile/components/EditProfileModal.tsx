@@ -400,7 +400,7 @@ const EditProfileModal = ({
             className="w-full bg-primary text-dark-slate font-extrabold py-3.5 rounded-xl hover:bg-primary/90 transition-all shadow-[0_0_15px_rgba(102,200,28,0.4)] cursor-pointer disabled:opacity-50 mt-4 flex items-center justify-center gap-2"
           >
             <Save size={18} />
-            {saving ? 'Đang lưu...' : 'Lưu Thay Đổi Chỉ Số Hồ Sơ'}
+            {saving ? 'Đang lưu...' : 'Lưu Hồ Sơ'}
           </button>
         </form>
       </div>
