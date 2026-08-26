@@ -93,10 +93,10 @@ const ToastContainer = () => {
 
               {/* Toast Text Content */}
               <div className="flex-1 min-w-0 pr-1">
-                <h4 className="font-headline-md text-sm font-bold text-on-surface tracking-tight">
+                <h4 className="font-headline-md text-[16px] font-bold text-on-surface tracking-tight">
                   {toast.title || config.defaultTitle}
                 </h4>
-                <p className="font-body-md text-xs text-on-surface-variant/90 leading-relaxed mt-0.5 break-words">
+                <p className="font-body-md text-sm text-on-surface-variant/90 leading-relaxed mt-0.5 break-words">
                   {toast.message}
                 </p>
               </div>

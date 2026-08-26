@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { Dumbbell } from 'lucide-react';
 import type { ExerciseFormModalProps } from '../../../../interface';
 
 const ExerciseFormModal = ({

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { EggFried, UtensilsCrossed, MoonStar, Apple, Plus, ChevronRight } from 'lucide-react';
+import { EggFried, UtensilsCrossed, MoonStar, Apple, Plus } from 'lucide-react';
 import toast from '../../../utils/toast';
 import { type DailyMealGridProps } from '../../../interface';
 
@@ -85,9 +85,6 @@ const DailyMealGrid = ({
     <div className="col-span-1 md:col-span-12 mt-4">
       <div className="flex justify-between items-center mb-4 px-1">
         <h3 className="font-headline-md text-xl font-bold text-on-surface">Bữa ăn hàng ngày</h3>
-        <button className="font-label-lg text-sm text-green-light hover:text-primary transition-colors flex items-center font-semibold cursor-pointer">
-          Lên kế hoạch <ChevronRight size={16} className="ml-1" />
-        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-gutter">
