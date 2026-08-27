@@ -23,66 +23,66 @@ export class PtService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getDashboardData(ptUserId: string): Promise<PTDashboardData> {
-    const ptUser = await this.prisma.user.findUnique({
-      where: { id: ptUserId },
-      select: { fullName: true, avatarUrl: true },
-    });
-
-    const coachName = ptUser ? `Coach ${ptUser.fullName}` : 'Coach PT';
-    const coachAvatar = ptUser?.avatarUrl || undefined;
-
-    // Find official approved students assigned to this PT
-    const approvedProfiles = await this.prisma.studentProfile.findMany({
-      where: { trainerId: ptUserId, status: 'APPROVED' },
-      select: {
-        id: true,
-        studentId: true,
-        student: {
-          select: {
-            id: true,
-            fullName: true,
-            avatarUrl: true,
-            userPackages: {
-              where: { isActive: true },
-              take: 1,
-              select: {
-                totalSessions: true,
-                remainingSessions: true,
-              },
-            },
-            mealLogs: {
-              take: 5,
-              orderBy: { logDate: 'desc' },
-              select: {
-                id: true,
-                mealName: true,
-                logDate: true,
-                totalCalories: true,
-                totalProtein: true,
-                totalCarbs: true,
-                totalFat: true,
-                reviews: {
-                  select: { id: true, ptId: true, comment: true },
+    const [ptUser, approvedProfiles] = await Promise.all([
+      this.prisma.user.findUnique({
+        where: { id: ptUserId },
+        select: { fullName: true, avatarUrl: true },
+      }),
+      this.prisma.studentProfile.findMany({
+        where: { trainerId: ptUserId, status: 'APPROVED' },
+        select: {
+          id: true,
+          studentId: true,
+          student: {
+            select: {
+              id: true,
+              fullName: true,
+              avatarUrl: true,
+              userPackages: {
+                where: { isActive: true },
+                take: 1,
+                select: {
+                  totalSessions: true,
+                  remainingSessions: true,
                 },
-                items: {
-                  select: {
-                    id: true,
-                    foodName: true,
-                    weightInGram: true,
-                    calories: true,
+              },
+              mealLogs: {
+                take: 5,
+                orderBy: { logDate: 'desc' },
+                select: {
+                  id: true,
+                  mealName: true,
+                  logDate: true,
+                  totalCalories: true,
+                  totalProtein: true,
+                  totalCarbs: true,
+                  totalFat: true,
+                  reviews: {
+                    select: { id: true, ptId: true, comment: true },
+                  },
+                  items: {
+                    select: {
+                      id: true,
+                      foodName: true,
+                      weightInGram: true,
+                      calories: true,
+                    },
                   },
                 },
               },
-            },
-            bodyMetrics: {
-              take: 1,
-              orderBy: { recordedAt: 'desc' },
-              select: { weight: true, recordedAt: true },
+              bodyMetrics: {
+                take: 1,
+                orderBy: { recordedAt: 'desc' },
+                select: { weight: true, recordedAt: true },
+              },
             },
           },
         },
-      },
-    });
+      }),
+    ]);
+
+    const coachName = ptUser ? `Coach ${ptUser.fullName}` : 'Coach PT';
+    const coachAvatar = ptUser?.avatarUrl || undefined;
 
     const totalVipStudents = approvedProfiles.length;
 

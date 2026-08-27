@@ -133,6 +133,7 @@ const AdminLayout = ({
               <Link
                 key={item.href}
                 href={item.href}
+                prefetch={true}
                 className={`flex-1 min-w-[170px] py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
                   item.isActive
                     ? 'bg-[#10b981] text-[#003824] shadow-[0_0_15px_rgba(16,185,129,0.4)]'

@@ -137,18 +137,30 @@ export class NutritionService {
     const endOfDay = new Date(date);
     endOfDay.setHours(23, 59, 59, 999);
 
-    const meals = await this.prisma.mealLog.findMany({
-      where: {
-        userId,
-        logDate: {
-          gte: startOfDay,
-          lte: endOfDay,
+    const [meals, user, streak] = await Promise.all([
+      this.prisma.mealLog.findMany({
+        where: {
+          userId,
+          logDate: {
+            gte: startOfDay,
+            lte: endOfDay,
+          },
         },
-      },
-      include: {
-        items: true,
-      },
-    });
+        include: {
+          items: true,
+        },
+      }),
+      this.prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+          nutritionTargets: {
+            orderBy: { effectiveDate: 'desc' },
+            take: 1,
+          },
+        },
+      }),
+      this.getStreakData(userId),
+    ]);
 
     // Tổng kết toàn ngày & Nhóm theo bữa ăn (mealName)
     let totalCalories = 0;
@@ -214,17 +226,6 @@ export class NutritionService {
       summary.totalFat = Math.round(summary.totalFat * 10) / 10;
     });
 
-    // Lấy thông tin user và mục tiêu dinh dưỡng từ DB
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        nutritionTargets: {
-          orderBy: { effectiveDate: 'desc' },
-          take: 1,
-        },
-      },
-    });
-
     const target = user?.nutritionTargets?.[0];
     const targetCalo = target?.targetCalo || 2000;
     const targetProtein = target?.targetProtein || 150;
@@ -255,7 +256,6 @@ export class NutritionService {
     );
     const remainingCalories = Math.max(0, targetCalo - consumedCaloRound);
 
-    const streak = await this.getStreakData(userId);
     const mealSlots = this.getMealSlotsByFrequency(user?.mealFrequency);
 
     return {

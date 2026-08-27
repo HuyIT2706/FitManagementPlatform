@@ -16,7 +16,7 @@ import PtPendingApproval from '../../../components/ui/PtPendingApproval';
 import PtScheduleWeekStrip from './components/PtScheduleWeekStrip';
 import PtScheduleSlotCard, { type ScheduleSlot } from './components/PtScheduleSlotCard';
 
-import { useCurrentUser, usePtDashboard, usePtSchedule } from '../../../api/swr';
+import { useCurrentUser, usePtDashboard, usePtSchedule } from '../../../hooks/swr';
 
 const AddScheduleModal = dynamic(() => import('./components/AddScheduleModal'), {
   ssr: false,

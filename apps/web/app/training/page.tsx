@@ -4,14 +4,13 @@ import { useEffect, useState } from 'react';
 import Header from '../../components/ui/Header';
 import BottomNavBar from '../../components/navigation/BottomNavBar';
 import AppLoading from '../../components/ui/AppLoading';
-import apiClient from '../../api/axios';
-import type {
-  UserDataHome,
-  ExerciseItem,
-  ExercisePaginatedResponse,
-  MealPlanAssigned,
-  AssignedWorkoutPlanData,
-} from '../../interface';
+import type { ExerciseItem } from '../../interface';
+import {
+  useCurrentUser,
+  useAssignedMealPlan,
+  useAssignedWorkoutPlan,
+  useExerciseLibrary,
+} from '../../hooks/swr';
 
 import TrainingVipBanner from './components/TrainingVipBanner';
 import ExerciseLibraryGrid from './components/ExerciseLibraryGrid';
@@ -20,80 +19,38 @@ import AssignedWorkoutPlanCard from './components/AssignedWorkoutPlanCard';
 import ExerciseDetailModal from './components/ExerciseDetailModal';
 
 const WorkoutPage = () => {
-  const [userData, setUserData] = useState<UserDataHome | null>(null);
-  const [assignedMealPlan, setAssignedMealPlan] = useState<MealPlanAssigned | null>(null);
-  const [assignedWorkoutPlan, setAssignedWorkoutPlan] = useState<AssignedWorkoutPlanData | null>(
-    null
-  );
+  const { data: userData, isLoading: userLoading } = useCurrentUser();
+  const { data: assignedMealPlan } = useAssignedMealPlan();
+  const { data: assignedWorkoutPlan } = useAssignedWorkoutPlan();
 
-  const [exercises, setExercises] = useState<ExerciseItem[]>([]);
   const [selectedMuscle, setSelectedMuscle] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
-  const [totalExercises, setTotalExercises] = useState<number>(0);
   const pageSize = 8;
 
-  const [loading, setLoading] = useState(true);
-  const [exerciseLoading, setExerciseLoading] = useState(false);
   const [checkedExercises, setCheckedExercises] = useState<Record<string, boolean>>({});
-
-  // Selected exercise for detail modal
   const [activeExercise, setActiveExercise] = useState<ExerciseItem | null>(null);
 
-  // Debounce search query by 400ms to avoid overwhelming the backend API
+  // Debounce search query by 300ms to avoid overwhelming the backend API
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
-    }, 400);
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  useEffect(() => {
-    Promise.all([
-      apiClient.get<UserDataHome>('/users/me'),
-      apiClient.get<MealPlanAssigned | null>('/workout/assigned-meal-plan'),
-      apiClient.get<AssignedWorkoutPlanData | null>('/workout/assigned-workout-plan'),
-    ])
-      .then(([userRes, mealPlanRes, workoutPlanRes]) => {
-        setUserData(userRes.data);
-        setAssignedMealPlan(mealPlanRes.data);
-        setAssignedWorkoutPlan(workoutPlanRes.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
-  }, []);
+  const { data: exerciseData, isLoading: exerciseLoading } = useExerciseLibrary(
+    currentPage,
+    pageSize,
+    selectedMuscle,
+    debouncedSearchQuery
+  );
 
-  useEffect(() => {
-    fetchExercises(selectedMuscle, debouncedSearchQuery, currentPage);
-  }, [selectedMuscle, debouncedSearchQuery, currentPage]);
-
-  const fetchExercises = (muscle: string, search: string, page: number) => {
-    setExerciseLoading(true);
-    const muscleQuery = muscle === 'ALL' ? '' : `&muscle=${encodeURIComponent(muscle)}`;
-    const searchQueryStr =
-      search.trim() === '' ? '' : `&search=${encodeURIComponent(search.trim())}`;
-
-    apiClient
-      .get<ExercisePaginatedResponse>(
-        `/workout/exercises?page=${page}&limit=${pageSize}${muscleQuery}${searchQueryStr}`
-      )
-      .then((res) => {
-        setExercises(res.data.data);
-        setTotalPages(res.data.totalPages);
-        setTotalExercises(res.data.total);
-        setExerciseLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setExerciseLoading(false);
-      });
-  };
+  const exercises = exerciseData?.data || [];
+  const totalPages = exerciseData?.totalPages || 1;
+  const totalExercises = exerciseData?.total || 0;
 
   const handleMuscleSelect = (muscleId: string) => {
     setSelectedMuscle(muscleId);
@@ -122,7 +79,7 @@ const WorkoutPage = () => {
     window.location.href = '/login';
   };
 
-  if (loading) {
+  if (userLoading && !userData) {
     return <AppLoading fullScreen size="lg" message="Đang nạp dữ liệu tập luyện..." />;
   }
 
@@ -131,18 +88,18 @@ const WorkoutPage = () => {
       <Header userData={userData} onLogout={handleLogout} />
 
       <main className="max-w-7xl mx-auto px-container-padding mt-4 md:mt-8 space-y-gutter">
-        <TrainingVipBanner userData={userData} assignedMealPlan={assignedMealPlan} />
+        <TrainingVipBanner userData={userData || null} assignedMealPlan={assignedMealPlan || null} />
 
         {/* Assigned 1:1 Workout Plan Section from Backend */}
         <AssignedWorkoutPlanCard
-          assignedWorkoutPlan={assignedWorkoutPlan}
+          assignedWorkoutPlan={assignedWorkoutPlan || null}
           checkedExercises={checkedExercises}
           onToggleExerciseCheck={handleToggleExerciseCheck}
         />
 
         {/* Assigned 1:1 Meal Plan Section from Backend */}
         <AssignedMealPlanCard
-          assignedMealPlan={assignedMealPlan}
+          assignedMealPlan={assignedMealPlan || null}
           ptName={userData?.assignedPt?.fullName || ''}
         />
 

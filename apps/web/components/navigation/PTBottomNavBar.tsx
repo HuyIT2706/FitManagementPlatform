@@ -15,6 +15,7 @@ const PTBottomNavBar = ({ activeTab }: PTBottomNavBarProps) => {
           {/* Trang chủ */}
           <Link
             href="/pt"
+            prefetch={true}
             className={`flex items-center gap-2 rounded-full transition-colors ${
               activeTab === "home"
                 ? "bg-green-light/10 text-green-light px-4 py-2 font-bold"
@@ -34,10 +35,11 @@ const PTBottomNavBar = ({ activeTab }: PTBottomNavBarProps) => {
             {/* Lịch dạy */}
             <Link
               href="/pt/schedule"
+              prefetch={true}
               className={`flex items-center gap-2 rounded-full transition-colors ${
                 activeTab === "schedule"
                   ? "bg-green-light/10 text-green-light px-4 py-2 font-bold"
-                : "w-10 h-10 flex items-center justify-center text-on-surface-variant/40 hover:bg-surface-bright/10"
+                  : "w-10 h-10 flex items-center justify-center text-on-surface-variant/40 hover:bg-surface-bright/10"
               }`}
             >
               <span
@@ -54,6 +56,7 @@ const PTBottomNavBar = ({ activeTab }: PTBottomNavBarProps) => {
             {/* Học viên */}
             <Link
               href="/pt/students"
+              prefetch={true}
               className={`flex items-center gap-2 rounded-full transition-colors ${
                 activeTab === "students"
                   ? "bg-green-light/10 text-green-light px-4 py-2 font-bold"
@@ -74,6 +77,7 @@ const PTBottomNavBar = ({ activeTab }: PTBottomNavBarProps) => {
             {/* Tôi */}
             <Link
               href="/pt/profile"
+              prefetch={true}
               className={`flex items-center gap-2 rounded-full transition-colors ${
                 activeTab === "profile"
                   ? "bg-green-light/10 text-green-light px-4 py-2 font-bold"

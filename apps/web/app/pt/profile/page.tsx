@@ -6,7 +6,7 @@ import PTBottomNavBar from '../../../components/navigation/PTBottomNavBar';
 import AppLoading from '../../../components/ui/AppLoading';
 import { toast } from '../../../utils/toast';
 
-import { useCurrentUser, usePtDashboard, usePtCodeQr } from '../../../api/swr';
+import { useCurrentUser, usePtDashboard, usePtCodeQr } from '../../../hooks/swr';
 import AccessDenied from '../../../components/ui/AccessDenied';
 import PtPendingApproval from '../../../components/ui/PtPendingApproval';
 import PtProfileCard from './components/PtProfileCard';

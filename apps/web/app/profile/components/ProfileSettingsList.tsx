@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { KeyRound, Bell, LogOut, ChevronRight, User, HeartPulse, X, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { KeyRound, Bell, LogOut, ChevronRight, User, HeartPulse, X, ShieldCheck } from 'lucide-react';
 import ChangePasswordModal from './ChangePasswordModal';
 import NotificationSettingsModal from './NotificationSettingsModal';
 
@@ -193,24 +193,11 @@ const ProfileSettingsList = ({
             </div>
           </div>
 
-          {/* Cleared Status Banner */}
-          <div className="p-4 rounded-2xl bg-primary/10 border border-primary/25 flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-primary/20 text-primary flex items-center justify-center shrink-0">
-              <CheckCircle2 size={22} className="text-primary" />
-            </div>
-            <div>
-              <p className="font-extrabold text-primary text-sm">PAR-Q Cleared (Đạt tiêu chuẩn an toàn)</p>
-              <p className="text-xs text-white/70 mt-0.5 leading-relaxed">
-                Hồ sơ sức khỏe của bạn hoàn toàn không có bất kỳ chống chỉ định y tế nào. Bạn đủ điều kiện tập luyện cùng PT.
-              </p>
-            </div>
-          </div>
-
           {/* Criteria List */}
           <div className="space-y-2.5 max-h-[45vh] overflow-y-auto pr-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             <div className="flex items-center justify-between pb-1">
               <span className="text-xs font-bold text-primary uppercase tracking-wider">
-                📋 Chi tiết 7 tiêu chí đánh giá y tế:
+                Chi tiết 7 tiêu chí đánh giá y tế:
               </span>
               <span className="text-[11px] text-white/50 font-medium">7/7 Đạt</span>
             </div>

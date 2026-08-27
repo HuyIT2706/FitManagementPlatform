@@ -5,8 +5,7 @@ import Header from '../../components/ui/Header';
 import BottomNavBar from '../../components/navigation/BottomNavBar';
 import AppLoading from '../../components/ui/AppLoading';
 import AccessDenied from '../../components/ui/AccessDenied';
-import apiClient from '../../api/axios';
-import type { DailyNutritionData, MealSlotConfig } from '../../interface';
+import type { MealSlotConfig } from '../../interface';
 import {
   formatYYYYMMDD,
   getMonday,
@@ -15,7 +14,7 @@ import {
   getWeekDays,
 } from '../../utils/date';
 
-import { useCurrentUser } from '../../api/swr';
+import { useCurrentUser, useDailyNutrition } from '../../hooks/swr';
 import CalendarStrip from './components/CalendarStrip';
 import DailyFuelHeroCard from './components/DailyFuelHeroCard';
 import MacroCards from './components/MacroCards';
@@ -23,23 +22,11 @@ import DailyMealGrid from './components/DailyMealGrid';
 
 const Home = () => {
   const { data: userData, isLoading: userLoading } = useCurrentUser();
-  const [dailyData, setDailyData] = useState<DailyNutritionData | null>(null);
-  const [dailyLoading, setDailyLoading] = useState(false);
-
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
   const [currentMonday, setCurrentMonday] = useState<Date>(() => getMonday(new Date()));
 
-  useEffect(() => {
-    const todayStr = formatYYYYMMDD(new Date());
-    apiClient
-      .get<DailyNutritionData>(`/nutrition/daily?date=${todayStr}`)
-      .then((res) => {
-        setDailyData(res.data);
-      })
-      .catch(() => {
-        setDailyData(null);
-      });
-  }, []);
+  const selectedDateStr = formatYYYYMMDD(selectedDate);
+  const { data: dailyData, isLoading: dailyLoading } = useDailyNutrition(selectedDateStr);
 
   useEffect(() => {
     if (userData && userData.role === 'USER' && userData.onboardingCompleted === false) {
@@ -47,24 +34,8 @@ const Home = () => {
     }
   }, [userData]);
 
-  const fetchDailyDataForDate = (targetDate: Date) => {
-    setDailyLoading(true);
-    const dateStr = formatYYYYMMDD(targetDate);
-    apiClient
-      .get<DailyNutritionData>(`/nutrition/daily?date=${dateStr}`)
-      .then((res) => {
-        setDailyData(res.data);
-        setDailyLoading(false);
-      })
-      .catch((err) => {
-        console.error('Lỗi tải nhật ký dinh dưỡng ngày:', err);
-        setDailyLoading(false);
-      });
-  };
-
   const handleSelectDate = (date: Date) => {
     setSelectedDate(date);
-    fetchDailyDataForDate(date);
   };
 
   const handlePrevWeek = () => {
@@ -83,7 +54,6 @@ const Home = () => {
     const today = new Date();
     setSelectedDate(today);
     setCurrentMonday(getMonday(today));
-    fetchDailyDataForDate(today);
   };
 
   const handleLogout = () => {
@@ -91,9 +61,7 @@ const Home = () => {
     window.location.href = '/login';
   };
 
-  const loading = userLoading || (userData?.role === 'USER' && !dailyData && !dailyLoading);
-
-  if (loading) {
+  if (userLoading && !userData) {
     return <AppLoading fullScreen size="lg" message="Đang nạp dữ liệu dinh dưỡng hôm nay..." />;
   }
 

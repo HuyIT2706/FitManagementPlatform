@@ -8,7 +8,7 @@ import AccessDenied from '../../components/ui/AccessDenied';
 import apiClient from '../../api/axios';
 import { toast } from '../../utils/toast';
 
-import { useCurrentUser, usePtDashboard } from '../../api/swr';
+import { useCurrentUser, usePtDashboard } from '../../hooks/swr';
 import PtPendingApproval from '../../components/ui/PtPendingApproval';
 import PtWelcomeHeader from './home/components/PtWelcomeHeader';
 import PtBentoStats from './home/components/PtBentoStats';

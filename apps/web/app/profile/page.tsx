@@ -1,48 +1,33 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Header from '../../components/ui/Header';
 import BottomNavBar from '../../components/navigation/BottomNavBar';
 import AppLoading from '../../components/ui/AppLoading';
-import apiClient from '../../api/axios';
-import type { UserDataHome } from '../../interface';
 
 import ProfileHeaderCard from './components/ProfileHeaderCard';
 import PtCoachBindCard from './components/PtCoachBindCard';
 import ProfileBiometricsGrid from './components/ProfileBiometricsGrid';
 import TransformationJourneySlider from './components/TransformationJourneySlider';
 import DailyMacroTargetMaster from './components/DailyMacroTargetMaster';
+import { useCurrentUser } from '../../hooks/swr';
 import ProfileSettingsList from './components/ProfileSettingsList';
 import EditProfileModal from './components/EditProfileModal';
 
 const ProfilePage = () => {
-  const [userData, setUserData] = useState<UserDataHome | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: userData, isLoading: loading, mutate } = useCurrentUser();
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
   const fetchUserData = () => {
-    apiClient
-      .get<UserDataHome>('/users/me')
-      .then((res) => {
-        setUserData(res.data);
-        setLoading(false);
-      })
-      .catch((err: unknown) => {
-        console.error('Error fetching user profile data:', err);
-        setLoading(false);
-      });
+    mutate();
   };
-
-  useEffect(() => {
-    fetchUserData();
-  }, []);
 
   const handleLogout = (): void => {
     localStorage.removeItem('jwt_token');
     window.location.href = '/login';
   };
 
-  if (loading) {
+  if (loading && !userData) {
     return <AppLoading fullScreen size="lg" message="Đang nạp hồ sơ cá nhân..." />;
   }
 
@@ -94,7 +79,7 @@ const ProfilePage = () => {
       <main className="px-4 md:px-10 pt-4 max-w-7xl mx-auto flex flex-col gap-4">
         {/* 1. Profile Header Hero */}
         <ProfileHeaderCard
-          userData={userData}
+          userData={userData || null}
           onEditProfile={() => setIsEditProfileOpen(true)}
         />
 
@@ -142,7 +127,7 @@ const ProfilePage = () => {
         {/* 7. Edit Profile Modal */}
         <EditProfileModal
           isOpen={isEditProfileOpen}
-          userData={userData}
+          userData={userData || null}
           onClose={() => setIsEditProfileOpen(false)}
           onSuccess={fetchUserData}
         />

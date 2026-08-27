@@ -1,62 +1,27 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Header from '../../components/ui/Header';
 import BottomNavBar from '../../components/navigation/BottomNavBar';
 import AppLoading from '../../components/ui/AppLoading';
-import apiClient from '../../api/axios';
-import type { UserDataHome, DailyNutritionData, MonthCell } from '../../interface';
+import type { MonthCell } from '../../interface';
 import { formatYYYYMMDD, isSameDay } from '../../utils/date';
+import { useCurrentUser, useDailyNutrition } from '../../hooks/swr';
 
 import HistoryStreakHeroCard from './components/HistoryStreakHeroCard';
 import HistoryMonthCalendar from './components/HistoryMonthCalendar';
 import HistoryNutritionDetails from './components/HistoryNutritionDetails';
 
 const HistoryPage = () => {
-  const [userData, setUserData] = useState<UserDataHome | null>(null);
-  const [dailyData, setDailyData] = useState<DailyNutritionData | null>(null);
-
-  const [loading, setLoading] = useState(true);
-  const [dailyLoading, setDailyLoading] = useState(false);
-
+  const { data: userData, isLoading: userLoading } = useCurrentUser();
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
   const [currentMonth, setCurrentMonth] = useState<Date>(() => new Date());
 
-  useEffect(() => {
-    const todayStr = formatYYYYMMDD(new Date());
-    Promise.all([
-      apiClient.get<UserDataHome>('/users/me'),
-      apiClient.get<DailyNutritionData>(`/nutrition/daily?date=${todayStr}`),
-    ])
-      .then(([userRes, dailyRes]) => {
-        setUserData(userRes.data);
-        setDailyData(dailyRes.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
-  }, []);
-
-  const fetchDailyDataForDate = (targetDate: Date) => {
-    setDailyLoading(true);
-    const dateStr = formatYYYYMMDD(targetDate);
-    apiClient
-      .get<DailyNutritionData>(`/nutrition/daily?date=${dateStr}`)
-      .then((res) => {
-        setDailyData(res.data);
-        setDailyLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setDailyLoading(false);
-      });
-  };
+  const selectedDateStr = formatYYYYMMDD(selectedDate);
+  const { data: dailyData, isLoading: dailyLoading } = useDailyNutrition(selectedDateStr);
 
   const handleSelectDate = (date: Date) => {
     setSelectedDate(date);
-    fetchDailyDataForDate(date);
   };
 
   const handlePrevMonth = () => {
@@ -71,7 +36,6 @@ const HistoryPage = () => {
     const today = new Date();
     setSelectedDate(today);
     setCurrentMonth(new Date());
-    fetchDailyDataForDate(today);
   };
 
   const handleLogout = () => {
@@ -79,7 +43,7 @@ const HistoryPage = () => {
     window.location.href = '/login';
   };
 
-  if (loading) {
+  if (userLoading && !userData) {
     return <AppLoading fullScreen size="lg" message="Đang tải lịch sử & báo cáo..." />;
   }
 

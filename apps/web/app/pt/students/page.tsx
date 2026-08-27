@@ -11,7 +11,7 @@ import { toast } from '../../../utils/toast';
 import dynamic from 'next/dynamic';
 import PtStudentCard, { type StudentListItem } from './components/PtStudentCard';
 import AccessDenied from '../../../components/ui/AccessDenied';
-import { useCurrentUser, usePtDashboard } from '../../../api/swr';
+import { useCurrentUser, usePtDashboard } from '../../../hooks/swr';
 import PtPendingApproval from '../../../components/ui/PtPendingApproval';
 
 const PtInviteStudentModal = dynamic(() => import('./components/PtInviteStudentModal'), {
