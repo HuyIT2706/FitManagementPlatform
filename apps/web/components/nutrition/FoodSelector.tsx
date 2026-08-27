@@ -1,8 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Plus, CheckCircle2, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Plus, CheckCircle2, ChevronLeft, ChevronRight, X, History } from 'lucide-react';
 import AppLoading from '../ui/AppLoading';
 import AppSearchInput from '../ui/AppSearchInput';
 import apiClient from '../../api/axios';
@@ -11,7 +11,7 @@ import type { FoodItem, FoodSelectorProps, FoodPaginatedResponse } from '../../i
 import { useMealBuilderStore } from '../../services/useMealBuilderStore';
 
 export const QUICK_FILTERS = [
-  { id: 'ALL', label: 'Tất cả', query: '' },
+  { id: 'ALL', label: 'Lịch sử', query: '' },
   { id: 'MEAT', label: 'Thịt & Cá', query: 'thịt' },
   { id: 'EGG', label: 'Trứng & Sữa', query: 'trứng' },
   { id: 'VEG', label: 'Rau củ', query: 'rau' },
@@ -47,15 +47,12 @@ const FoodSelector = ({
     return () => clearTimeout(timer);
   }, [query]);
 
-  useEffect(() => {
-    fetchFoods(debouncedQuery, currentPage);
-  }, [debouncedQuery, currentPage]);
-
-  const fetchFoods = async (q: string = '', page: number = 1) => {
+  const fetchFoods = useCallback(async (q: string = '', page: number = 1, filterId: string = 'ALL') => {
     setLoading(true);
     try {
+      const isHistoryParam = filterId === 'ALL' && (!q || q.trim() === '') ? '&isHistory=true' : '';
       const res = await apiClient.get<FoodPaginatedResponse | FoodItem[]>(
-        `/nutrition/foods?q=${encodeURIComponent(q)}&page=${page}&limit=8`
+        `/nutrition/foods?q=${encodeURIComponent(q)}&page=${page}&limit=8${isHistoryParam}`
       );
       if (res.data && 'data' in res.data && Array.isArray(res.data.data)) {
         setFoods(res.data.data);
@@ -71,7 +68,11 @@ const FoodSelector = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchFoods(debouncedQuery, currentPage, selectedFilter);
+  }, [debouncedQuery, currentPage, selectedFilter, fetchFoods]);
 
   const handleFilterClick = (filter: (typeof QUICK_FILTERS)[0]) => {
     setSelectedFilter(filter.id);
@@ -98,7 +99,9 @@ const FoodSelector = ({
         <div className="px-1 flex items-center justify-between">
           <h3 className="font-bold text-lg text-on-surface">{title}</h3>
           <span className="text-xs text-on-surface-variant font-medium">
-            {totalCount} món trong thư viện
+            {selectedFilter === 'ALL' && !query
+              ? `${totalCount} món đã từng ăn`
+              : `${totalCount} món phù hợp`}
           </span>
         </div>
       )}
@@ -123,12 +126,13 @@ const FoodSelector = ({
               type="button"
               suppressHydrationWarning
               onClick={() => handleFilterClick(filter)}
-              className={`whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
+              className={`whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                 isActive
                   ? 'bg-primary text-dark-slate shadow-[0_0_10px_rgba(102,200,28,0.4)] scale-[1.02]'
                   : 'bg-surface-bright/40 text-on-surface-variant border border-white/10 hover:bg-surface-bright hover:text-on-surface'
               }`}
             >
+              {filter.id === 'ALL' && <History size={13} className={isActive ? 'text-dark-slate' : 'text-primary'} />}
               {filter.label}
             </button>
           );
@@ -138,10 +142,20 @@ const FoodSelector = ({
       {/* Food Cards List */}
       <div className="space-y-2.5 pt-1">
         {loading ? (
-          <AppLoading size="sm" message="Đang tìm kiếm thực phẩm..." />
+          <AppLoading size="sm" message="Đang tải danh sách món ăn..." />
         ) : foods.length === 0 ? (
-          <div className="text-center py-12 text-on-surface-variant text-sm">
-            Không tìm thấy món ăn phù hợp.
+          <div className="text-center py-10 px-4 rounded-2xl bg-surface-bright/10 border border-white/5 space-y-2">
+            <History size={32} className="mx-auto text-on-surface-variant/40 mb-1" />
+            <p className="text-sm font-bold text-on-surface">
+              {selectedFilter === 'ALL' && !query
+                ? 'Bạn chưa có lịch sử món ăn'
+                : 'Không tìm thấy món ăn phù hợp'}
+            </p>
+            <p className="text-xs text-on-surface-variant max-w-xs mx-auto">
+              {selectedFilter === 'ALL' && !query
+                ? 'Hãy gõ tên món vào ô tìm kiếm hoặc chọn danh mục phía trên để thêm món mới nhé!'
+                : 'Thử tìm kiếm với từ khóa khác hoặc xóa bộ lọc.'}
+            </p>
           </div>
         ) : (
           foods.map((food) => (
@@ -165,11 +179,16 @@ const FoodSelector = ({
 
                 {/* Food Details */}
                 <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
                     <h4 className="font-bold text-on-surface text-xs leading-snug line-clamp-2 capitalize">
                       {food.name}
                     </h4>
-                    {food.source && (
+                    {food.isRecent && (
+                      <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/20 text-primary border border-primary/30 shrink-0">
+                        <History size={10} /> Đã từng thêm
+                      </span>
+                    )}
+                    {food.source && !food.isRecent && (
                       <CheckCircle2 size={14} className="text-[#0095F6] shrink-0" />
                     )}
                   </div>

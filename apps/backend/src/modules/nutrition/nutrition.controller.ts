@@ -19,10 +19,19 @@ export class NutritionController {
 
   @Get('foods')
   async searchFoods(
+    @Request() req: RequestWithUser,
     @Query('q') query?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
+    @Query('isHistory') isHistory?: string,
   ) {
+    if (isHistory === 'true' && (!query || query.trim() === '')) {
+      return this.nutritionService.getUserRecentFoods(
+        req.user.sub,
+        page,
+        limit,
+      );
+    }
     return this.nutritionService.searchFoods(query, page, limit);
   }
 
@@ -41,7 +50,6 @@ export class NutritionController {
     @Request() req: RequestWithUser,
     @Query('date') dateString?: string,
   ) {
-    // If no date is provided, use today's date
     const date = dateString ? new Date(dateString) : new Date();
     return this.nutritionService.getDailyNutrition(req.user.sub, date);
   }

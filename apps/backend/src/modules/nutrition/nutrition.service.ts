@@ -3,7 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import type { FoodPaginatedResponse } from '@repo/types';
+import type { FoodItem, FoodPaginatedResponse } from '@repo/types';
 import type { Prisma } from '@repo/db';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogMealDto } from './dto/log-meal.dto';
@@ -42,6 +42,54 @@ export class NutritionService {
 
     return {
       data,
+      total,
+      page: pageNum,
+      limit: limitNum,
+      totalPages: Math.ceil(total / limitNum) || 1,
+    };
+  }
+
+  async getUserRecentFoods(
+    userId: string,
+    page: number = 1,
+    limit: number = 8,
+  ): Promise<FoodPaginatedResponse> {
+    const pageNum = Math.max(1, Number(page) || 1);
+    const limitNum = Math.max(1, Number(limit) || 8);
+
+    // 1. Lấy danh sách các món ăn gần đây từ lịch sử nhật ký của user
+    const recentItems = await this.prisma.mealItem.findMany({
+      where: {
+        mealLog: { userId },
+        foodLibraryId: { not: null },
+      },
+      orderBy: {
+        mealLog: { logDate: 'desc' },
+      },
+      take: 100,
+      include: {
+        food: true,
+      },
+    });
+
+    const uniqueFoodsMap = new Map<string, FoodItem>();
+    for (const item of recentItems) {
+      if (item.food && !uniqueFoodsMap.has(item.food.id)) {
+        uniqueFoodsMap.set(item.food.id, {
+          ...item.food,
+          isRecent: true,
+        });
+      }
+    }
+
+    const userFoods: FoodItem[] = Array.from(uniqueFoodsMap.values());
+
+    const total = userFoods.length;
+    const skip = (pageNum - 1) * limitNum;
+    const paginatedData = userFoods.slice(skip, skip + limitNum);
+
+    return {
+      data: paginatedData,
       total,
       page: pageNum,
       limit: limitNum,

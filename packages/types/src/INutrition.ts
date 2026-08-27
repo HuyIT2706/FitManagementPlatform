@@ -22,6 +22,7 @@ export interface FoodItem {
   conAxitPer100g?: number | null;
   source?: string | null;
   imageUrl?: string | null;
+  isRecent?: boolean;
 }
 
 export interface FoodPaginatedResponse {
