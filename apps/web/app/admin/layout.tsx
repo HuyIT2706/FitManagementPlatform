@@ -96,8 +96,12 @@ const AdminLayout = ({
     <div className="min-h-screen bg-[#090d0b] text-[#dde4dd] font-sans pb-24" suppressHydrationWarning>
       {/* Top Header */}
       <header className="sticky top-0 z-30 bg-[#0e1511]/90 backdrop-blur-md border-b border-white/10 px-6 py-4 flex items-center justify-between" suppressHydrationWarning>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/15 bg-white/5 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.15)] shrink-0">
+        <Link
+          href="/admin"
+          className="flex items-center gap-3 group cursor-pointer hover:opacity-90 transition-all"
+          title="Về trang chủ Admin"
+        >
+          <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/15 bg-white/5 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.15)] shrink-0 group-hover:scale-105 transition-transform">
             <Image
               src={LogoApp}
               alt="NutriCore Logo"
@@ -106,9 +110,11 @@ const AdminLayout = ({
             />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white tracking-wide">NutriCore Admin</h1>
+            <h1 className="text-xl font-bold text-white tracking-wide group-hover:text-primary transition-colors">
+              NutriCore Admin
+            </h1>
           </div>
-        </div>
+        </Link>
 
         <div className="flex items-center gap-3">
           <button
