@@ -1,6 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
+import { Settings2 } from 'lucide-react';
+
 interface StudentHeaderHeroProps {
   fullName: string;
   avatarUrl?: string;
@@ -52,17 +54,19 @@ const StudentHeaderHero = ({
           </div>
 
           <div className="flex items-center gap-2 self-center md:self-start">
-            <span className="px-3.5 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-bold uppercase tracking-wider">
+            <span className="px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-bold uppercase tracking-wider">
               {packageName}
             </span>
 
             <button
               type="button"
+              suppressHydrationWarning
               onClick={onOpenEditSessionModal}
-              className="p-1.5 rounded-xl bg-surface-bright text-on-surface-variant hover:text-primary hover:bg-surface-bright/80 transition-colors cursor-pointer border border-white/10"
-              title="Sửa số buổi & gói tập"
+              className="w-8 h-8 rounded-full bg-white/5 hover:bg-primary/20 text-white/70 hover:text-primary border border-white/15 hover:border-primary/40 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm hover:scale-105 active:scale-95 group"
+              title="Chỉnh sửa số buổi & gói tập"
+              aria-label="Chỉnh sửa số buổi & gói tập"
             >
-              <span className="material-symbols-outlined text-[18px]">settings</span>
+              <Settings2 size={16} className="group-hover:rotate-45 transition-transform duration-300" />
             </button>
           </div>
         </div>

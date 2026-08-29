@@ -2,27 +2,8 @@
 'use client';
 
 import { Clock, Dumbbell, CheckCircle2, PlusCircle } from 'lucide-react';
-
-export interface ScheduleSlot {
-  id: string;
-  startTime: string;
-  endTime: string;
-  studentName?: string;
-  studentAvatar?: string;
-  packageName?: string;
-  sessionNumber?: string;
-  workoutName?: string;
-  exercisesCount?: number;
-  status?: 'ONGOING' | 'UPCOMING' | 'COMPLETED' | 'OVERDUE';
-  isCheckedIn?: boolean;
-  isBusy: boolean;
-}
-
-interface PtScheduleSlotCardProps {
-  slot: ScheduleSlot;
-  isChecked: boolean;
-  onCheckIn: (slotId: string) => void;
-}
+import type { ScheduleSlot, PtScheduleSlotCardProps } from '../../../../interface';
+export type { ScheduleSlot, PtScheduleSlotCardProps };
 
 const PtScheduleSlotCard = ({
   slot,
@@ -65,42 +46,42 @@ const PtScheduleSlotCard = ({
         >
           {/* Top Header Row */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/5">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 min-w-0">
               <div className="w-11 h-11 rounded-full overflow-hidden border border-white/10 shrink-0">
                 <img src={avatar} alt={slot.studentName} className="w-full h-full object-cover" />
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h4 className="font-bold text-on-surface text-base">{slot.studentName}</h4>
-                  <span className="text-[11px] font-semibold text-primary/90 bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                  <h4 className="font-bold text-on-surface text-base whitespace-nowrap">{slot.studentName}</h4>
+                  <span className="text-[11px] font-semibold text-primary/90 bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20 whitespace-nowrap shrink-0">
                     {slot.packageName}
                   </span>
                 </div>
-                <span className="text-xs text-on-surface-variant font-medium">
+                <span className="text-xs text-on-surface-variant font-medium whitespace-nowrap block mt-0.5">
                   {slot.sessionNumber}
                 </span>
               </div>
             </div>
 
             {/* Status Tag */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
               {isSlotChecked ? (
-                <span className="bg-green-light/20 text-green-light text-xs font-bold px-3 py-1 rounded-full border border-green-light/40 flex items-center gap-1.5">
+                <span className="bg-green-light/20 text-green-light text-xs font-bold px-3 py-1.5 rounded-full border border-green-light/40 flex items-center gap-1.5 whitespace-nowrap">
                   <CheckCircle2 size={14} className="stroke-[2.5]" />
                   Đã hoàn thành
                 </span>
               ) : slot.status === 'ONGOING' ? (
-                <span className="bg-primary/20 text-primary text-xs font-bold px-3 py-1 rounded-full border border-primary/40 flex items-center gap-1.5 animate-pulse">
+                <span className="bg-primary/20 text-primary text-xs font-bold px-3 py-1.5 rounded-full border border-primary/40 flex items-center gap-1.5 animate-pulse whitespace-nowrap">
                   <span className="w-2 h-2 rounded-full bg-primary"></span>
                   Đang diễn ra
                 </span>
               ) : slot.status === 'OVERDUE' ? (
-                <span className="bg-amber-500/20 text-amber-400 text-xs font-bold px-3 py-1 rounded-full border border-amber-500/40 flex items-center gap-1.5">
+                <span className="bg-amber-500/20 text-amber-400 text-xs font-bold px-3 py-1.5 rounded-full border border-amber-500/40 flex items-center gap-1.5 whitespace-nowrap">
                   <Clock size={14} />
                   Quá giờ (Chưa điểm danh)
                 </span>
               ) : (
-                <span className="bg-blue-500/20 text-blue-400 text-xs font-bold px-3 py-1 rounded-full border border-blue-500/40 flex items-center gap-1.5">
+                <span className="bg-blue-500/20 text-blue-400 text-xs font-bold px-3 py-1.5 rounded-full border border-blue-500/40 flex items-center gap-1.5 whitespace-nowrap">
                   <Clock size={14} />
                   Sắp diễn ra
                 </span>
@@ -110,43 +91,44 @@ const PtScheduleSlotCard = ({
 
           {/* Workout Class Details */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-            <div className="bg-surface-bright/40 p-3 rounded-xl border border-white/5 flex items-center gap-2.5">
+            <div className="bg-surface-bright/40 p-3.5 rounded-2xl border border-white/5 flex items-center gap-2.5 min-w-0">
               <Clock size={18} className="text-primary shrink-0" />
-              <div>
-                <span className="text-on-surface-variant block text-[10px]">Thang thời gian ca</span>
-                <strong className="text-on-surface text-sm">
+              <div className="min-w-0">
+                <span className="text-on-surface-variant block text-[10px] whitespace-nowrap">Khung thời gian ca</span>
+                <strong className="text-on-surface text-sm whitespace-nowrap">
                   {slot.startTime} - {slot.endTime}
                 </strong>
               </div>
             </div>
 
-            <div className="bg-surface-bright/40 p-3 rounded-xl border border-white/5 flex items-center gap-2.5">
+            <div className="bg-surface-bright/40 p-3.5 rounded-2xl border border-white/5 flex items-center gap-2.5 min-w-0">
               <Dumbbell size={18} className="text-primary shrink-0" />
-              <div>
-                <span className="text-on-surface-variant block text-[10px]">Giáo án tập luyện</span>
-                <strong className="text-on-surface text-sm">{slot.workoutName}</strong>
+              <div className="min-w-0">
+                <span className="text-on-surface-variant block text-[10px] whitespace-nowrap">Giáo án tập luyện</span>
+                <strong className="text-on-surface text-sm truncate block">{slot.workoutName}</strong>
               </div>
             </div>
           </div>
 
           {/* Card Action Footer */}
-          <div className="pt-1 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <span className="text-xs text-on-surface-variant font-medium">
-              Giao án bao gồm <strong>{slot.exercisesCount} bài tập</strong>
+          <div className="pt-1 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <span className="text-xs text-on-surface-variant font-medium whitespace-nowrap self-start sm:self-auto">
+              Giáo án bao gồm <strong className="text-white">{slot.exercisesCount} bài tập</strong>
             </span>
 
             <button
               type="button"
+              suppressHydrationWarning
               onClick={() => onCheckIn(slot.id)}
               disabled={isSlotChecked}
-              className={`w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 ${
+              className={`w-full sm:w-auto px-5 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap shrink-0 ${
                 isSlotChecked
                   ? 'bg-surface-bright text-green-light border border-green-light/40 cursor-default'
-                  : 'bg-primary text-dark-slate hover:bg-primary/90 shadow-[0_0_12px_rgba(102,200,28,0.3)] active:scale-95'
+                  : 'bg-primary text-dark-slate hover:opacity-90 shadow-[0_0_12px_rgba(102,200,28,0.3)] active:scale-95'
               }`}
             >
               <CheckCircle2 size={16} className={isSlotChecked ? 'stroke-[2.5]' : ''} />
-              {isSlotChecked ? 'Đã điểm danh trừ buổi' : 'Check-in Trừ Buổi'}
+              {isSlotChecked ? 'Đã điểm danh trừ buổi' : 'Điểm Danh Trừ Buổi'}
             </button>
           </div>
         </div>

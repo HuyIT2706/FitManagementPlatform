@@ -1559,4 +1559,47 @@ export class PtService {
       scheduledDate: scheduledDateFormatted,
     };
   }
+
+  async createPtScheduleBatch(
+    ptUserId: string,
+    dto: {
+      studentId: string;
+      title: string;
+      timeSlot?: string;
+      dates: string[];
+    },
+  ) {
+    if (!dto.studentId) {
+      throw new BadRequestException('Vui lòng chọn học viên');
+    }
+    if (!dto.dates || dto.dates.length === 0) {
+      throw new BadRequestException(
+        'Vui lòng chọn ít nhất một ngày để xếp lịch',
+      );
+    }
+
+    const note = dto.timeSlot
+      ? `Khung giờ: ${dto.timeSlot} | Tự động xếp lịch`
+      : 'Tự động xếp lịch HLV';
+
+    const createPromises = dto.dates.map((dateStr) => {
+      const scheduledDate = new Date(
+        dateStr + (dateStr.includes('T') ? '' : 'T08:00:00'),
+      );
+      return this.prisma.workoutSchedule.create({
+        data: {
+          studentId: dto.studentId,
+          title: dto.title || 'Giáo Án Tập Luyện 1:1',
+          scheduledDate,
+          note,
+        },
+      });
+    });
+
+    const results = await Promise.all(createPromises);
+    return {
+      message: `Đã tự động xếp thành công ${results.length} buổi tập!`,
+      count: results.length,
+    };
+  }
 }

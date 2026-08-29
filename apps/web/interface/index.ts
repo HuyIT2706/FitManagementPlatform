@@ -6,6 +6,7 @@ export * from "./IHistory";
 export * from "./IProfile";
 export * from "./IAddMeal";
 export * from "./IPt";
+export * from "./IPtSchedule";
 export * from "./IAdmin";
 export type {
   MealItem,

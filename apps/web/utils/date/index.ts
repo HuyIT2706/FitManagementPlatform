@@ -1,4 +1,4 @@
-// formats Date
+// Formats Date as YYYY-MM-DD
 export const formatYYYYMMDD = (d: Date): string => {
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -6,6 +6,7 @@ export const formatYYYYMMDD = (d: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
+// Gets the Monday of the current week
 export const getMonday = (d: Date): Date => {
   const date = new Date(d);
   const day = date.getDay();
@@ -15,6 +16,7 @@ export const getMonday = (d: Date): Date => {
   return monday;
 };
 
+// Checks if two dates are on the same calendar day
 export const isSameDay = (d1: Date, d2: Date): boolean => {
   return (
     d1.getFullYear() === d2.getFullYear() &&
@@ -23,10 +25,12 @@ export const isSameDay = (d1: Date, d2: Date): boolean => {
   );
 };
 
+// Formats display date in Vietnamese
 export const formatDisplayDate = (d: Date): string => {
   return `Ngày ${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
 };
 
+// Gets array of 7 dates starting from given Monday
 export const getWeekDays = (monday: Date): Date[] => {
   return Array.from({ length: 7 }, (_, i) => {
     const day = new Date(monday);
@@ -34,6 +38,26 @@ export const getWeekDays = (monday: Date): Date[] => {
     return day;
   });
 };
+
+export const WEEKDAY_NAMES_VI = [
+  'Thứ 2',
+  'Thứ 3',
+  'Thứ 4',
+  'Thứ 5',
+  'Thứ 6',
+  'Thứ 7',
+  'Chủ nhật',
+];
+
+export const WEEKDAY_SHORT_NAMES_VI = [
+  'T2',
+  'T3',
+  'T4',
+  'T5',
+  'T6',
+  'T7',
+  'CN',
+];
 
 export const MONTH_NAMES_VI = [
   'Tháng 1',

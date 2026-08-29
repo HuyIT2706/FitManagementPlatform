@@ -57,6 +57,20 @@ export class PtController {
     return this.ptService.createPtScheduleSession(req.user.sub, dto);
   }
 
+  @Post('schedule/batch')
+  async createPtScheduleBatch(
+    @Request() req: RequestWithUser,
+    @Body()
+    dto: {
+      studentId: string;
+      title: string;
+      timeSlot?: string;
+      dates: string[];
+    },
+  ) {
+    return this.ptService.createPtScheduleBatch(req.user.sub, dto);
+  }
+
   @Get('code-qr')
   async getPtCodeAndQr(@Request() req: RequestWithUser) {
     return this.ptService.getPtCodeAndQr(req.user.sub);
