@@ -613,6 +613,10 @@ export class PtService {
         beforeWeight: beforePhoto ? (student.targetWeight ?? 0) : 0,
         afterWeight: afterPhoto ? (latestMetric?.weight ?? 0) : 0,
       },
+      targetCalories: latestTarget?.targetCalo ?? 0,
+      targetProtein: latestTarget?.targetProtein ?? 0,
+      targetCarbs: latestTarget?.targetCarbs ?? 0,
+      targetFat: latestTarget?.targetFat ?? 0,
       nutritionTarget: {
         targetCalories: latestTarget?.targetCalo ?? 0,
         proteinGrams: latestTarget?.targetProtein ?? 0,
@@ -786,15 +790,19 @@ export class PtService {
 
   async assignNutritionToStudent(dto: AssignNutritionDto) {
     if (dto.studentId) {
-      const targetCalories = Number(dto.targetCalories || 2200);
+      const targetCalories = Number(dto.targetCalories ?? 2200);
       const targetProtein = Number(
-        dto.proteinGrams || Math.round((targetCalories * 0.3) / 4),
+        dto.targetProtein ??
+          dto.proteinGrams ??
+          Math.round((targetCalories * 0.3) / 4),
       );
       const targetCarbs = Number(
-        dto.carbsGrams || Math.round((targetCalories * 0.4) / 4),
+        dto.targetCarbs ??
+          dto.carbsGrams ??
+          Math.round((targetCalories * 0.4) / 4),
       );
       const targetFat = Number(
-        dto.fatGrams || Math.round((targetCalories * 0.3) / 9),
+        dto.targetFat ?? dto.fatGrams ?? Math.round((targetCalories * 0.3) / 9),
       );
 
       const prescribedMealPlan = dto.prescribedMealPlan

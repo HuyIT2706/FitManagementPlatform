@@ -69,31 +69,66 @@ const StudentNutritionTab = ({
     setIsFoodModalOpen(true);
   };
 
-  const handleAddFoodToMeal = (
-    _food: FoodItem,
-    _weightInGrams: number,
-    macroText: string,
-  ) => {
+  const mergeFoodIntoMealText = (
+    currentText: string | undefined,
+    food: FoodItem,
+    weightInGrams: number,
+  ): string => {
+    if (!currentText || !currentText.trim()) {
+      const cal = Math.round((food.caloriesPer100g * weightInGrams) / 100);
+      const p = Math.round((food.proteinPer100g * weightInGrams) / 100);
+      const c = Math.round((food.carbsPer100g * weightInGrams) / 100);
+      const f = Math.round((food.fatPer100g * weightInGrams) / 100);
+      return `+ ${weightInGrams}g ${food.name} (${cal} kcal, ${p}g P, ${c}g C, ${f}g F)`;
+    }
+
+    const lines = currentText.split("\n");
+    const foodNameClean = food.name.trim().toLowerCase();
+
+    let merged = false;
+    const updatedLines = lines.map((line) => {
+      const lineLower = line.toLowerCase();
+      if (lineLower.includes(foodNameClean)) {
+        const matchWeight = line.match(/(\d+)\s*g/i);
+        const existingWeight =
+          matchWeight && matchWeight[1] ? parseInt(matchWeight[1], 10) : 0;
+        const totalWeight = existingWeight + weightInGrams;
+
+        const cal = Math.round((food.caloriesPer100g * totalWeight) / 100);
+        const p = Math.round((food.proteinPer100g * totalWeight) / 100);
+        const c = Math.round((food.carbsPer100g * totalWeight) / 100);
+        const f = Math.round((food.fatPer100g * totalWeight) / 100);
+
+        merged = true;
+        return `+ ${totalWeight}g ${food.name} (${cal} kcal, ${p}g P, ${c}g C, ${f}g F)`;
+      }
+      return line;
+    });
+
+    if (!merged) {
+      const cal = Math.round((food.caloriesPer100g * weightInGrams) / 100);
+      const p = Math.round((food.proteinPer100g * weightInGrams) / 100);
+      const c = Math.round((food.carbsPer100g * weightInGrams) / 100);
+      const f = Math.round((food.fatPer100g * weightInGrams) / 100);
+      updatedLines.push(
+        `+ ${weightInGrams}g ${food.name} (${cal} kcal, ${p}g P, ${c}g C, ${f}g F)`,
+      );
+    }
+
+    return updatedLines.join("\n");
+  };
+
+  const handleAddFoodToMeal = (food: FoodItem, weightInGrams: number) => {
     if (activeMealKey === "breakfast") {
-      const updated = breakfastText
-        ? `${breakfastText}\n+ ${macroText}`
-        : `+ ${macroText}`;
-      onBreakfastTextChange(updated);
+      onBreakfastTextChange(
+        mergeFoodIntoMealText(breakfastText, food, weightInGrams),
+      );
     } else if (activeMealKey === "lunch") {
-      const updated = lunchText
-        ? `${lunchText}\n+ ${macroText}`
-        : `+ ${macroText}`;
-      onLunchTextChange(updated);
+      onLunchTextChange(mergeFoodIntoMealText(lunchText, food, weightInGrams));
     } else if (activeMealKey === "dinner") {
-      const updated = dinnerText
-        ? `${dinnerText}\n+ ${macroText}`
-        : `+ ${macroText}`;
-      onDinnerTextChange(updated);
+      onDinnerTextChange(mergeFoodIntoMealText(dinnerText, food, weightInGrams));
     } else if (activeMealKey === "snack") {
-      const updated = snackText
-        ? `${snackText}\n+ ${macroText}`
-        : `+ ${macroText}`;
-      onSnackTextChange(updated);
+      onSnackTextChange(mergeFoodIntoMealText(snackText, food, weightInGrams));
     }
   };
 

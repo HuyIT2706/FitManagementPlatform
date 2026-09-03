@@ -91,10 +91,27 @@ const PTStudentDetailPage = ({
         setUserData(userRes.data);
         setStudentDetail(studentRes.data);
         setAssignedExercises(studentRes.data.assignedExercises || []);
-        setTargetCalories(studentRes.data.targetCalories ?? 0);
-        setTargetProtein(studentRes.data.targetProtein ?? 0);
-        setTargetCarbs(studentRes.data.targetCarbs ?? 0);
-        setTargetFat(studentRes.data.targetFat ?? 0);
+        const tCalo =
+          studentRes.data.targetCalories ??
+          studentRes.data.nutritionTarget?.targetCalories ??
+          0;
+        const tProtein =
+          studentRes.data.targetProtein ??
+          studentRes.data.nutritionTarget?.proteinGrams ??
+          0;
+        const tCarbs =
+          studentRes.data.targetCarbs ??
+          studentRes.data.nutritionTarget?.carbsGrams ??
+          0;
+        const tFat =
+          studentRes.data.targetFat ??
+          studentRes.data.nutritionTarget?.fatGrams ??
+          0;
+
+        setTargetCalories(tCalo);
+        setTargetProtein(tProtein);
+        setTargetCarbs(tCarbs);
+        setTargetFat(tFat);
 
         setEditTotalSessions(studentRes.data.totalSessions ?? 0);
         setEditRemainingSessions(studentRes.data.remainingSessions ?? 0);
@@ -200,8 +217,11 @@ const PTStudentDetailPage = ({
         studentId,
         targetCalories,
         targetProtein,
+        proteinGrams: targetProtein,
         targetCarbs,
+        carbsGrams: targetCarbs,
         targetFat,
+        fatGrams: targetFat,
         prescribedMealPlan: {
           breakfast: breakfastText,
           lunch: lunchText,
@@ -212,6 +232,28 @@ const PTStudentDetailPage = ({
       })
       .then(() => {
         setSaving(false);
+        if (studentDetail) {
+          setStudentDetail({
+            ...studentDetail,
+            targetCalories,
+            targetProtein,
+            targetCarbs,
+            targetFat,
+            nutritionTarget: {
+              targetCalories,
+              proteinGrams: targetProtein,
+              carbsGrams: targetCarbs,
+              fatGrams: targetFat,
+            },
+            prescribedMealPlan: {
+              breakfast: breakfastText,
+              lunch: lunchText,
+              dinner: dinnerText,
+              snack: snackText,
+              note: nutritionNote,
+            },
+          });
+        }
         toast.success('Lưu thực đơn & mục tiêu dinh dưỡng thành công!');
       })
       .catch((err) => {

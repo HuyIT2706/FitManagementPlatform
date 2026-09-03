@@ -11,6 +11,7 @@ import {
   Calendar,
   X,
   Check,
+  Upload,
 } from "lucide-react";
 import apiClient from "../../../api/axios";
 import type {
@@ -46,6 +47,21 @@ const TransformationJourneySlider = ({
   const [submitting, setSubmitting] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toastStore.addToast("Kích thước ảnh tối đa 5MB", "error");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewPhotoUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const apiEndpoint =
     isPtView && studentId
@@ -210,7 +226,17 @@ const TransformationJourneySlider = ({
             {targetWeightKg}kg)
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          {isPtView && (
+            <button
+              type="button"
+              onClick={() => setIsUploadOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-light/20 border border-green-light/40 text-green-light text-xs font-bold hover:bg-green-light/30 transition-all cursor-pointer shadow-[0_0_10px_rgba(102,200,28,0.2)]"
+            >
+              <Camera size={14} />
+              Thêm ảnh Body
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setIsHistoryOpen(true)}
@@ -353,15 +379,43 @@ const TransformationJourneySlider = ({
 
               <div>
                 <label className="block text-xs font-semibold text-white/70 mb-1.5">
-                  Đường dẫn ảnh URL (hoặc chọn ảnh mẫu bên dưới):
+                  Tải ảnh từ máy hoặc nhập URL:
                 </label>
-                <input
-                  type="text"
-                  value={newPhotoUrl}
-                  onChange={(e) => setNewPhotoUrl(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg p-2.5 text-sm text-white focus:border-green-light focus:outline-none"
-                  placeholder="https://..."
-                />
+                <div className="flex flex-col gap-2">
+                  <label className="cursor-pointer flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-dashed border-green-light/40 bg-green-light/10 hover:bg-green-light/20 text-green-light text-xs font-bold transition-all">
+                    <Upload size={14} />
+                    Tải ảnh từ máy tính / điện thoại
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleFileUpload}
+                    />
+                  </label>
+                  <input
+                    type="text"
+                    value={
+                      newPhotoUrl.startsWith("data:")
+                        ? "Đã chọn ảnh từ thiết bị"
+                        : newPhotoUrl
+                    }
+                    onChange={(e) => setNewPhotoUrl(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg p-2.5 text-xs text-white focus:border-green-light focus:outline-none placeholder:text-white/30"
+                    placeholder="Hoặc dán đường dẫn ảnh https://..."
+                  />
+                  {newPhotoUrl && (
+                    <div className="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/10">
+                      <img
+                        src={newPhotoUrl}
+                        alt="Preview"
+                        className="w-10 h-10 rounded-lg object-cover border border-green-light/40"
+                      />
+                      <span className="text-xs text-green-light font-medium">
+                        Ảnh xem trước hợp lệ
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div>
