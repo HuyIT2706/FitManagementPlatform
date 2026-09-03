@@ -3,26 +3,23 @@
 
 import { UserCheck, Edit3 } from 'lucide-react';
 import type { ProfileHeaderCardProps } from '../../../interface';
+import { getAvatarUrl } from '../../../utils/avatar';
 
 const ProfileHeaderCard = ({ userData, onEditProfile }: ProfileHeaderCardProps) => {
-  const ptName = userData?.assignedPt ? `PT Phụ trách: ${userData.assignedPt.fullName}` : '';
+  const isApprovedPt =
+    userData?.assignedPt?.status === 'APPROVED' || userData?.assignedPt?.isApproved;
+  const ptName = isApprovedPt ? `PT Phụ trách: ${userData?.assignedPt?.fullName}` : '';
 
   return (
     <section className="bento-card rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center md:items-start gap-6 relative overflow-hidden border border-outline-variant/30">
       <div className="absolute -top-10 -right-10 w-40 h-40 bg-green-light/10 rounded-full blur-3xl pointer-events-none"></div>
 
       <div className="relative">
-        {userData?.avatarUrl ? (
-          <img
-            className="w-24 h-24 rounded-full object-cover border-2 border-surface shadow-lg"
-            alt="Profile Avatar"
-            src={userData.avatarUrl}
-          />
-        ) : (
-          <div className="w-24 h-24 rounded-full bg-green-light text-dark-slate flex items-center justify-center text-3xl font-extrabold shadow-lg">
-            {userData?.fullName?.charAt(0) || 'U'}
-          </div>
-        )}
+        <img
+          className="w-24 h-24 rounded-full object-cover border-2 border-surface shadow-lg bg-surface-bright"
+          alt="Profile Avatar"
+          src={getAvatarUrl(userData?.avatarUrl)}
+        />
         <div className="absolute bottom-1 right-1 w-4 h-4 bg-green-light rounded-full border-2 border-surface-bright shadow-[0_0_8px_rgba(102,200,28,0.6)]"></div>
       </div>
 

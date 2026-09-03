@@ -83,8 +83,7 @@ const AddScheduleModal = ({
       students[0] || {
         id: `st-${Date.now()}`,
         fullName: 'Học viên chọn',
-        avatarUrl:
-          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+        avatarUrl: '/default-avatar.svg',
         packageName: 'Gói PT 1:1 VIP',
         remainingSessions: 10,
         totalSessions: 12,
@@ -95,7 +94,7 @@ const AddScheduleModal = ({
       timeSlot: `${startTime} - ${endTime}`,
       studentId: studentObj.id,
       studentName: studentObj.fullName,
-      studentAvatar: studentObj.avatarUrl,
+      studentAvatar: studentObj.avatarUrl || '/default-avatar.svg',
       workoutName: workoutName || 'Giáo Án Tập Luyện 1:1',
       status: 'PENDING',
       remainingSessions: studentObj.remainingSessions || 10,

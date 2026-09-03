@@ -1,8 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { UserCheck, UserX, Clock, User } from 'lucide-react';
+import { UserCheck, UserX, Clock } from 'lucide-react';
 import type { PTPendingStudentRequest } from '@repo/types';
+import { getAvatarUrl } from '../../../../utils/avatar';
 
 interface PtPendingStudentRequestsProps {
   requests?: PTPendingStudentRequest[];
@@ -37,13 +38,7 @@ const PtPendingStudentRequests = ({
           >
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full overflow-hidden border border-amber-400/50 bg-black/60 shrink-0">
-                {req.studentAvatar ? (
-                  <img src={req.studentAvatar} alt={req.studentName} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full bg-amber-400/20 text-amber-400 flex items-center justify-center font-bold text-lg">
-                    <User size={20} />
-                  </div>
-                )}
+                <img src={getAvatarUrl(req.studentAvatar)} alt={req.studentName} className="w-full h-full object-cover" />
               </div>
 
               <div>

@@ -108,7 +108,10 @@ const HistoryPage = () => {
   ];
 
   // PT Package info
-  const hasPt = Boolean(userData?.assignedPt);
+  const hasPt = Boolean(
+    userData?.assignedPt &&
+      (userData.assignedPt.status === 'APPROVED' || userData.assignedPt.isApproved)
+  );
   const activePkg = userData?.activePackage;
   const remainingPtSessions = activePkg?.remainingSessions ?? 8;
   const totalPtSessions = activePkg?.totalSessions ?? 12;

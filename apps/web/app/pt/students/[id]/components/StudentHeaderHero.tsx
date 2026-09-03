@@ -2,6 +2,7 @@
 'use client';
 
 import { Settings2 } from 'lucide-react';
+import { getAvatarUrl } from '../../../../../utils/avatar';
 
 interface StudentHeaderHeroProps {
   fullName: string;
@@ -33,10 +34,7 @@ const StudentHeaderHero = ({
     <section className="bento-card rounded-3xl p-6 md:p-8 border border-outline-variant/30 relative overflow-hidden flex flex-col md:flex-row items-center md:items-start gap-6">
       <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-primary shadow-[0_0_20px_rgba(102,200,28,0.3)] shrink-0">
         <img
-          src={
-            avatarUrl ||
-            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80'
-          }
+          src={getAvatarUrl(avatarUrl)}
           alt={fullName}
           className="w-full h-full object-cover"
         />

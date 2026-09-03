@@ -3,6 +3,7 @@
 
 import Link from 'next/link';
 import { Edit3, Activity } from 'lucide-react';
+import { getAvatarUrl } from '../../../../utils/avatar';
 
 export interface StudentListItem {
   id: string;
@@ -18,12 +19,14 @@ interface PtStudentCardProps {
 }
 
 const PtStudentCard = ({ student }: PtStudentCardProps) => {
+  const avatar = getAvatarUrl(student.avatar);
+
   return (
     <div className="bento-card rounded-2xl p-5 border border-outline-variant/30 space-y-4 relative group hover:border-primary/50 transition-all">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-full overflow-hidden border border-white/10 shrink-0">
-            <img src={student.avatar} alt={student.name} className="w-full h-full object-cover" />
+            <img src={avatar} alt={student.name} className="w-full h-full object-cover" />
           </div>
           <div>
             <h4 className="font-bold text-on-surface text-base group-hover:text-primary transition-colors">

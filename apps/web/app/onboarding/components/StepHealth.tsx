@@ -66,7 +66,7 @@ const StepHealth = ({ store }: StepHealthProps) => {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <HeartPulse className="text-[#10b981]" size={28} />
-          <h2 className="text-2xl md:text-3xl font-bold">Tầm soát Sức khỏe (PAR-Q+)</h2>
+          <h2 className="text-2xl md:text-3xl font-bold">Khảo sát sức khỏe</h2>
         </div>
       </div>
 
@@ -75,18 +75,18 @@ const StepHealth = ({ store }: StepHealthProps) => {
         <button
           type="button"
           onClick={() => setActiveTab('PARQ')}
-          className={`flex-1 py-2 text-xs md:text-sm font-semibold rounded-lg transition-all ${
+          className={`flex-1 py-2 text-xs md:text-sm font-semibold rounded-2xl transition-all ${
             activeTab === 'PARQ'
               ? 'bg-[#10b981] text-[#003824] shadow-md'
               : 'text-white/60 hover:text-white'
           }`}
         >
-          Khảo sát PAR-Q+ (Chuẩn y tế)
+          Khảo sát PAR-Q+
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('CONDITIONS')}
-          className={`flex-1 py-2 text-xs md:text-sm font-semibold rounded-lg transition-all ${
+          className={`flex-1 py-2 text-xs md:text-sm font-semibold rounded-2xl transition-all ${
             activeTab === 'CONDITIONS'
               ? 'bg-[#10b981] text-[#003824] shadow-md'
               : 'text-white/60 hover:text-white'
@@ -165,7 +165,7 @@ const StepHealth = ({ store }: StepHealthProps) => {
                 <>
                   <CheckCircle2 size={24} className="shrink-0 text-[#10b981]" />
                   <div className="text-xs">
-                    <p className="font-bold text-[#10b981] text-sm mb-0.5">Sẵn sàng Tập luyện (PAR-Q Cleared)</p>
+                    <p className="font-bold text-[#10b981] text-sm mb-0.5">Sẵn sàng Tập luyện</p>
                     <p className="text-white/70">
                       Bạn hoàn toàn đủ điều kiện thể lực để tham gia các chương trình tập luyện cường độ cao.
                     </p>

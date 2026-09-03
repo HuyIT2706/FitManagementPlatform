@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { Utensils } from 'lucide-react';
 import type { FoodFormModalProps } from '../../../../interface';
 
 const FoodFormModal = ({
@@ -33,7 +32,6 @@ const FoodFormModal = ({
     <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4" suppressHydrationWarning>
       <div className="bg-[#121a15] border border-white/10 rounded-2xl w-full max-w-lg p-6 space-y-4 text-white shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
         <h3 className="text-lg font-bold flex items-center gap-2">
-          <Utensils size={20} className="text-[#10b981]" />
           {isEditing ? 'Chỉnh Sửa Món Ăn' : 'Thêm Món Ăn Mới'}
         </h3>
 

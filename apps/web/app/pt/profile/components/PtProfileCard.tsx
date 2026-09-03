@@ -7,6 +7,7 @@ import { Award, Edit3 } from 'lucide-react';
 import type { UserDataHome } from '../../../../interface';
 import apiClient from '../../../../api/axios';
 import { toast } from '../../../../utils/toast';
+import { getAvatarUrl } from '../../../../utils/avatar';
 
 const EditPtProfileModal = dynamic(() => import('./EditPtProfileModal'), {
   ssr: false,
@@ -90,14 +91,12 @@ const PtProfileCard = ({
           </button>
         </div>
 
-        <div className="w-24 h-24 rounded-full overflow-hidden mx-auto border-2 border-primary shadow-[0_0_20px_rgba(102,200,28,0.4)]">
-          {userData?.avatarUrl ? (
-            <img src={userData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full bg-green-light text-dark-slate flex items-center justify-center text-3xl font-extrabold">
-              {userData?.fullName?.charAt(0) || 'P'}
-            </div>
-          )}
+        <div className="w-24 h-24 rounded-full overflow-hidden mx-auto border-2 border-primary shadow-[0_0_20px_rgba(102,200,28,0.4)] bg-surface-bright">
+          <img
+            src={getAvatarUrl(userData?.avatarUrl)}
+            alt="Avatar"
+            className="w-full h-full object-cover"
+          />
         </div>
 
         <div className="space-y-2">

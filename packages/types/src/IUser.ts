@@ -74,6 +74,9 @@ export interface UserDataHome extends UserData {
     avatarUrl?: string | null;
     phone?: string | null;
     email?: string;
+    status?: 'PENDING' | 'APPROVED' | 'REJECTED';
+    isApproved?: boolean;
+    isPending?: boolean;
   } | null;
   activePackage?: {
     id?: string;

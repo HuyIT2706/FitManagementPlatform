@@ -147,6 +147,11 @@ export class PtController {
     return this.ptService.bindPtByStudent(req.user.sub, dto);
   }
 
+  @Delete('students/bind')
+  async cancelBindPt(@Request() req: RequestWithUser) {
+    return this.ptService.cancelBindRequest(req.user.sub);
+  }
+
   @Get('students/:id/photos')
   async getStudentPhotos(@Param('id') id: string) {
     return this.ptService.getStudentPhotos(id);

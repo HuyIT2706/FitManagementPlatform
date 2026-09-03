@@ -102,9 +102,7 @@ export class PtService {
       return {
         id: student.id,
         fullName: student.fullName,
-        avatarUrl:
-          student.avatarUrl ||
-          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+        avatarUrl: student.avatarUrl || '/default-avatar.svg',
         packageName: pkg ? 'Gói PT 1:1' : 'Gói Tiêu chuẩn',
         remainingSessions,
         totalSessions,
@@ -173,9 +171,7 @@ export class PtService {
         timeSlot: timeSlots[idx % timeSlots.length] || '08:00 - 09:00',
         studentId: ws.studentId,
         studentName: student?.fullName || 'Học viên',
-        studentAvatar:
-          student?.avatarUrl ||
-          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+        studentAvatar: student?.avatarUrl || '/default-avatar.svg',
         workoutName: ws.title || 'Giáo Án Tập Luyện 1:1',
         status: isCheckedIn ? 'CHECKED_IN' : 'PENDING',
         remainingSessions: pkg?.remainingSessions ?? 0,
@@ -194,9 +190,7 @@ export class PtService {
             id: log.id,
             studentId: sp.student.id,
             studentName: sp.student.fullName,
-            studentAvatar:
-              sp.student.avatarUrl ||
-              'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+            studentAvatar: sp.student.avatarUrl || '/default-avatar.svg',
             mealName: log.mealName,
             calories: Math.round(log.totalCalories),
             imageUrl:
@@ -231,9 +225,7 @@ export class PtService {
         studentName: sp.student.fullName,
         studentEmail: sp.student.email,
         studentPhone: sp.student.phone || undefined,
-        studentAvatar:
-          sp.student.avatarUrl ||
-          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+        studentAvatar: sp.student.avatarUrl || '/default-avatar.svg',
         requestedAt: sp.assignedAt.toISOString(),
         status: (spObj.status || 'PENDING') as
           'PENDING' | 'APPROVED' | 'REJECTED',
@@ -289,9 +281,7 @@ export class PtService {
         studentName: sp.student.fullName,
         studentEmail: sp.student.email,
         studentPhone: sp.student.phone || undefined,
-        studentAvatar:
-          sp.student.avatarUrl ||
-          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+        studentAvatar: sp.student.avatarUrl || '/default-avatar.svg',
         requestedAt: sp.assignedAt.toISOString(),
         status: (spObj.status || 'PENDING') as
           'PENDING' | 'APPROVED' | 'REJECTED',
@@ -585,9 +575,7 @@ export class PtService {
     return {
       id: student.id,
       fullName: student.fullName,
-      avatarUrl:
-        student.avatarUrl ||
-        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+      avatarUrl: student.avatarUrl || '/default-avatar.svg',
       email: student.email,
       phone: student.phone || undefined,
       gender: student.gender || 'MALE',
@@ -1118,101 +1106,143 @@ export class PtService {
 
   async bindPtByStudent(studentUserId: string, dto: BindPtDto) {
     const rawCode = (dto.ptCodeOrInviteCode || '').trim();
+    if (!rawCode) {
+      throw new BadRequestException('Vui lòng nhập Mã PT hoặc Mã mời!');
+    }
+
+    const removeVietnameseTones = (str: string): string => {
+      return str
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/Đ/g, 'D')
+        .replace(/[^a-zA-Z0-9]/g, '')
+        .toUpperCase();
+    };
 
     // 1. Find PT user by exact ID, email, or phone
     let ptUser = await this.prisma.user.findFirst({
       where: {
         role: 'PT',
-        OR: [{ id: rawCode }, { email: rawCode }, { phone: rawCode }],
+        OR: [
+          { id: rawCode },
+          { email: { equals: rawCode, mode: 'insensitive' } },
+          { phone: rawCode },
+        ],
       },
     });
 
-    // 2. If code starts with PT- or custom string (e.g. PT-ADMIN or PT-HUY), match PT name or default to first PT
+    // 2. If not found by exact ID/email/phone, match generated PT code or name
     if (!ptUser) {
       const allPts = await this.prisma.user.findMany({
         where: { role: 'PT' },
       });
 
-      const removeVietnameseTones = (str: string): string => {
-        return str
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .replace(/đ/g, 'd')
-          .replace(/Đ/g, 'D')
-          .replace(/[^a-zA-Z0-9]/g, '')
-          .toUpperCase();
-      };
+      const cleanCode = removeVietnameseTones(rawCode.replace(/^PT-?/i, ''));
 
-      if (allPts.length > 0) {
-        const cleanCode = removeVietnameseTones(rawCode.replace(/PT-/i, ''));
+      if (allPts.length > 0 && cleanCode) {
         ptUser =
-          allPts.find(
-            (p) =>
+          allPts.find((p) => {
+            const nameParts = p.fullName.trim().split(/\s+/);
+            const lastName = nameParts[nameParts.length - 1] || 'PT';
+            const cleanName =
+              removeVietnameseTones(lastName).slice(0, 4) ||
+              removeVietnameseTones(p.fullName).slice(0, 4) ||
+              'COACH';
+            const idPart = p.id
+              .replace(/[^a-zA-Z0-9]/g, '')
+              .slice(0, 3)
+              .toUpperCase();
+            const expectedCode = `PT-${cleanName}${idPart}`.toUpperCase();
+            const rawUpper = rawCode.toUpperCase();
+
+            return (
+              expectedCode === rawUpper ||
+              expectedCode.includes(cleanCode) ||
               removeVietnameseTones(p.fullName).includes(cleanCode) ||
-              p.id.toUpperCase().includes(cleanCode) ||
-              p.email.toUpperCase().includes(cleanCode),
-          ) || allPts[0];
+              p.id.toUpperCase().startsWith(cleanCode) ||
+              p.email.toUpperCase().includes(cleanCode)
+            );
+          }) || null;
       }
     }
 
-    if (ptUser) {
-      const trainerId = ptUser.id;
+    if (!ptUser) {
+      throw new NotFoundException(
+        'Không tìm thấy Huấn Luyện Viên với mã PT này. Vui lòng kiểm tra lại!',
+      );
+    }
 
-      // Upsert StudentProfile relation in DB
-      await this.prisma.studentProfile.upsert({
-        where: {
-          trainerId_studentId: {
-            trainerId,
-            studentId: studentUserId,
-          },
-        },
-        create: {
+    const trainerId = ptUser.id;
+
+    // Check if already approved with this PT
+    const existingProfile = await this.prisma.studentProfile.findUnique({
+      where: {
+        trainerId_studentId: {
           trainerId,
           studentId: studentUserId,
         },
-        update: {},
-      });
+      },
+    });
 
-      // Ensure student has a MemberPackage in DB
-      const existingPkg = await this.prisma.memberPackage.findFirst({
-        where: { userId: studentUserId, isActive: true },
-      });
-
-      if (!existingPkg) {
-        let gymPkg = await this.prisma.gymPackage.findFirst();
-
-        if (!gymPkg) {
-          gymPkg = await this.prisma.gymPackage.create({
-            data: {
-              title: 'Gói PT 1-1 (12 Buổi)',
-              description: 'Gói tập huấn luyện viên 1:1 cá nhân hóa',
-              price: 3600000,
-              durationDays: 90,
-              totalSessions: 12,
-            },
-          });
-        }
-
-        await this.prisma.memberPackage.create({
-          data: {
-            userId: studentUserId,
-            packageId: gymPkg.id,
-            totalSessions: 12,
-            remainingSessions: 12,
-            endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-          },
-        });
-      }
+    if (existingProfile && existingProfile.status === 'APPROVED') {
+      return {
+        success: true,
+        message: `Bạn đã được liên kết với Coach ${ptUser.fullName}!`,
+        coachName: ptUser.fullName,
+      };
     }
+
+    // Remove any previous pending requests for this student with other PTs
+    await this.prisma.studentProfile.deleteMany({
+      where: {
+        studentId: studentUserId,
+        trainerId: { not: trainerId },
+        status: 'PENDING',
+      },
+    });
+
+    // Upsert StudentProfile relation in DB with status PENDING
+    await this.prisma.studentProfile.upsert({
+      where: {
+        trainerId_studentId: {
+          trainerId,
+          studentId: studentUserId,
+        },
+      },
+      create: {
+        trainerId,
+        studentId: studentUserId,
+        status: 'PENDING',
+      },
+      update: {
+        status: 'PENDING',
+        assignedAt: new Date(),
+      },
+    });
 
     return {
       success: true,
       studentUserId,
       ptCode: dto.ptCodeOrInviteCode,
-      coachName: ptUser ? `Coach ${ptUser.fullName}` : undefined,
-      message: ptUser
-        ? `Chúc mừng! Đã liên kết tài khoản 1-1 với Coach ${ptUser.fullName} thành công!`
-        : 'Đã gửi yêu cầu liên kết với Huấn luyện viên cá nhân!',
+      coachName: `Coach ${ptUser.fullName}`,
+      message: `Đã gửi lời mời kết nối tới Coach ${ptUser.fullName}! Đang chờ HLV phê duyệt.`,
+    };
+  }
+
+  async cancelBindRequest(studentUserId: string) {
+    const deleted = await this.prisma.studentProfile.deleteMany({
+      where: {
+        studentId: studentUserId,
+        status: 'PENDING',
+      },
+    });
+    return {
+      success: true,
+      message:
+        deleted.count > 0
+          ? 'Đã hủy yêu cầu liên kết PT thành công!'
+          : 'Không có yêu cầu chờ duyệt nào!',
     };
   }
 
@@ -1470,9 +1500,7 @@ export class PtService {
         timeSlot,
         studentId: ws.studentId,
         studentName: student?.fullName || 'Học viên',
-        studentAvatar:
-          student?.avatarUrl ||
-          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+        studentAvatar: student?.avatarUrl || '/default-avatar.svg',
         workoutName: ws.title || 'Giáo Án Tập Luyện 1:1',
         status: isCheckedIn ? 'CHECKED_IN' : 'PENDING',
         remainingSessions: pkg?.remainingSessions ?? 0,
@@ -1549,9 +1577,7 @@ export class PtService {
       timeSlot: dto.timeSlot || '08:00 - 09:00',
       studentId: schedule.studentId,
       studentName: schedule.student?.fullName || 'Học viên',
-      studentAvatar:
-        schedule.student?.avatarUrl ||
-        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+      studentAvatar: schedule.student?.avatarUrl || '/default-avatar.svg',
       workoutName: schedule.title,
       status: 'PENDING' as const,
       remainingSessions: pkg?.remainingSessions ?? 0,

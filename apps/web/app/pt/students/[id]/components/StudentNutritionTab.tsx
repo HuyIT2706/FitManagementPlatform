@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, StickyNote, EggFried, UtensilsCrossed, MoonStar, Apple } from "lucide-react";
+import { Plus, StickyNote } from "lucide-react";
 import type { FoodItem } from "@repo/types";
 import PtFoodSelectionModal from "./PtFoodSelectionModal";
 
@@ -56,10 +56,10 @@ const StudentNutritionTab = ({
   >("breakfast");
 
   const mealTitleMap = {
-    breakfast: "Bữa Sáng (Breakfast)",
-    lunch: "Bữa Trưa (Lunch)",
-    dinner: "Bữa Tối (Dinner)",
-    snack: "Bữa Phụ (Snack)",
+    breakfast: "Bữa Sáng",
+    lunch: "Bữa Trưa",
+    dinner: "Bữa Tối",
+    snack: "Bữa Phụ",
   };
 
   const handleOpenFoodModal = (
@@ -223,9 +223,6 @@ const StudentNutritionTab = ({
             <div className="p-4 rounded-2xl bg-surface-bright/30 border border-white/10 space-y-2.5 hover:border-amber-400/30 transition-all">
               <div className="flex items-center justify-between">
                 <label className="font-extrabold text-amber-400 flex items-center gap-2 text-xs">
-                  <span className="w-6 h-6 rounded-lg bg-amber-500/20 border border-amber-400/30 flex items-center justify-center">
-                    <EggFried size={13} className="text-amber-400" />
-                  </span>
                   Bữa Sáng
                 </label>
                 <button
@@ -250,9 +247,6 @@ const StudentNutritionTab = ({
             <div className="p-4 rounded-2xl bg-surface-bright/30 border border-white/10 space-y-2.5 hover:border-orange-400/30 transition-all">
               <div className="flex items-center justify-between">
                 <label className="font-extrabold text-orange-400 flex items-center gap-2 text-xs">
-                  <span className="w-6 h-6 rounded-lg bg-orange-500/20 border border-orange-400/30 flex items-center justify-center">
-                    <UtensilsCrossed size={13} className="text-orange-400" />
-                  </span>
                   Bữa Trưa
                 </label>
                 <button
@@ -277,9 +271,6 @@ const StudentNutritionTab = ({
             <div className="p-4 rounded-2xl bg-surface-bright/30 border border-white/10 space-y-2.5 hover:border-indigo-400/30 transition-all">
               <div className="flex items-center justify-between">
                 <label className="font-extrabold text-indigo-400 flex items-center gap-2 text-xs">
-                  <span className="w-6 h-6 rounded-lg bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center">
-                    <MoonStar size={13} className="text-indigo-400" />
-                  </span>
                   Bữa Tối
                 </label>
                 <button
@@ -304,9 +295,6 @@ const StudentNutritionTab = ({
             <div className="p-4 rounded-2xl bg-surface-bright/30 border border-white/10 space-y-2.5 hover:border-emerald-400/30 transition-all">
               <div className="flex items-center justify-between">
                 <label className="font-extrabold text-emerald-400 flex items-center gap-2 text-xs">
-                  <span className="w-6 h-6 rounded-lg bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center">
-                    <Apple size={13} className="text-emerald-400" />
-                  </span>
                   Bữa Phụ
                 </label>
                 <button

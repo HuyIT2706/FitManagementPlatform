@@ -12,6 +12,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import type { CoachReviewCardProps } from '../../../../interface';
+import { getAvatarUrl } from '../../../../utils/avatar';
 
 const CoachReviewCard = ({
   application,
@@ -27,16 +28,15 @@ const CoachReviewCard = ({
     specialties,
     certificateUrl,
     bio,
-    status,
     adminNote,
+    status,
   } = application;
 
   return (
     <div
-      suppressHydrationWarning
-      className={`p-6 rounded-2xl border transition-all bg-[#121a15] flex flex-col md:flex-row md:items-center justify-between gap-6 ${
+      className={`bento-card rounded-2xl p-5 md:p-6 border transition-all space-y-4 ${
         status === 'PENDING'
-          ? 'border-amber-500/40 shadow-[0_0_15px_rgba(245,158,11,0.08)]'
+          ? 'border-amber-500/30'
           : status === 'APPROVED'
             ? 'border-[#10b981]/30'
             : 'border-rose-500/30 opacity-80'
@@ -45,11 +45,7 @@ const CoachReviewCard = ({
       {/* Left Column: Avatar & Basic Info */}
       <div className="flex items-start gap-4">
         <div className="w-16 h-16 rounded-2xl overflow-hidden border border-white/10 shrink-0 bg-white/5 flex items-center justify-center font-extrabold text-2xl text-[#10b981]">
-          {avatarUrl ? (
-            <img src={avatarUrl} alt={fullName} className="w-full h-full object-cover" />
-          ) : (
-            fullName.charAt(0).toUpperCase()
-          )}
+          <img src={getAvatarUrl(avatarUrl)} alt={fullName} className="w-full h-full object-cover" />
         </div>
 
         <div className="space-y-1.5">

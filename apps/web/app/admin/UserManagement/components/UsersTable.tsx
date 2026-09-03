@@ -11,6 +11,7 @@ import {
   Award,
 } from 'lucide-react';
 import type { AdminUsersTableProps } from '../../../../interface';
+import { getAvatarUrl } from '../../../../utils/avatar';
 
 import AppLoading from '../../../../components/ui/AppLoading';
 
@@ -55,11 +56,11 @@ const AdminUsersTable = ({
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 shrink-0 bg-white/5 flex items-center justify-center font-bold text-white">
-                        {u.avatarUrl ? (
-                          <img src={u.avatarUrl} alt={u.fullName} className="w-full h-full object-cover" />
-                        ) : (
-                          u.fullName.charAt(0).toUpperCase()
-                        )}
+                        <img
+                          src={getAvatarUrl(u.avatarUrl)}
+                          alt={u.fullName}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                       <div>
                         <strong className="block text-white font-bold text-sm">{u.fullName}</strong>

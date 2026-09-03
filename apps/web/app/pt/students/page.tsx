@@ -13,6 +13,7 @@ import PtStudentCard, { type StudentListItem } from './components/PtStudentCard'
 import AccessDenied from '../../../components/ui/AccessDenied';
 import { useCurrentUser, usePtDashboard } from '../../../hooks/swr';
 import PtPendingApproval from '../../../components/ui/PtPendingApproval';
+import { getAvatarUrl } from '../../../utils/avatar';
 
 const PtInviteStudentModal = dynamic(() => import('./components/PtInviteStudentModal'), {
   ssr: false,
@@ -99,9 +100,7 @@ const PTStudentsPage = () => {
     pkg: s.packageName || 'Gói PT VIP 1-1',
     remaining: s.remainingSessions,
     total: s.totalSessions,
-    avatar:
-      s.avatarUrl ||
-      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+    avatar: getAvatarUrl(s.avatarUrl),
   }));
 
   return (

@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { Bell, LogOut, User, ChevronDown, ShieldCheck } from 'lucide-react';
 import LogoApp from '../../assets/imgs/logoApp.jpg';
 import type { UserData } from '../../interface';
+import { getAvatarUrl } from '../../utils/avatar';
 
 export interface HeaderProps {
   userData?: UserData | null;
@@ -111,13 +112,11 @@ const Header = ({ userData, onLogout }: HeaderProps) => {
                 className="flex items-center gap-2.5 pl-1.5 pr-3.5 py-1.5 rounded-full bg-white/[0.05] hover:bg-white/[0.09] border border-white/15 hover:border-primary/40 transition-all cursor-pointer shadow-sm group"
               >
                 <div className="w-8 h-8 rounded-full bg-surface-bright overflow-hidden border border-primary/40 shrink-0">
-                  {userData.avatarUrl ? (
-                    <img className="object-cover w-full h-full" src={userData.avatarUrl} alt="Avatar" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-primary text-dark-slate text-xs font-black">
-                      {userData.fullName?.charAt(0) || 'U'}
-                    </div>
-                  )}
+                  <img
+                    className="object-cover w-full h-full"
+                    src={getAvatarUrl(userData.avatarUrl)}
+                    alt="Avatar"
+                  />
                 </div>
                 <span className="text-xs font-extrabold text-white max-w-[140px] truncate">
                   {userData.fullName || 'Thành viên'}
@@ -136,13 +135,11 @@ const Header = ({ userData, onLogout }: HeaderProps) => {
                   {/* User Profile Header in Dropdown */}
                   <div className="p-2.5 border-b border-white/10 flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-surface-bright overflow-hidden border border-primary/40 shrink-0">
-                      {userData.avatarUrl ? (
-                        <img className="object-cover w-full h-full" src={userData.avatarUrl} alt="Avatar" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-primary text-dark-slate text-sm font-black">
-                          {userData.fullName?.charAt(0) || 'U'}
-                        </div>
-                      )}
+                      <img
+                        className="object-cover w-full h-full"
+                        src={getAvatarUrl(userData.avatarUrl)}
+                        alt="Avatar"
+                      />
                     </div>
                     <div className="min-w-0">
                       <h4 className="text-xs font-bold text-white truncate">
@@ -226,13 +223,11 @@ const Header = ({ userData, onLogout }: HeaderProps) => {
                 className="flex items-center gap-1.5 pl-1 pr-2 py-1 rounded-full bg-white/[0.05] border border-white/15 cursor-pointer"
               >
                 <div className="w-7 h-7 rounded-full bg-surface-bright overflow-hidden border border-primary/30 shrink-0">
-                  {userData.avatarUrl ? (
-                    <img className="object-cover w-full h-full" src={userData.avatarUrl} alt="Avatar" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-primary text-dark-slate text-xs font-black">
-                      {userData.fullName?.charAt(0) || 'U'}
-                    </div>
-                  )}
+                  <img
+                    className="object-cover w-full h-full"
+                    src={getAvatarUrl(userData.avatarUrl)}
+                    alt="Avatar"
+                  />
                 </div>
                 <ChevronDown
                   size={13}

@@ -4,6 +4,7 @@
 import { CheckCircle2, MessageSquare, Check } from 'lucide-react';
 import type { PTPendingMeal } from '@repo/types';
 import type { PtPendingMealsProps } from '../../../../interface';
+import { getAvatarUrl } from '../../../../utils/avatar';
 
 const PtPendingMeals = ({
   meals,
@@ -23,9 +24,7 @@ const PtPendingMeals = ({
       <div className="space-y-4">
         {pendingMealList.map((meal: PTPendingMeal) => {
           const isApproved = Boolean(approvedMeals[meal.id]);
-          const avatarImg =
-            meal.studentAvatar ||
-            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80';
+          const avatarImg = getAvatarUrl(meal.studentAvatar);
           const mealImg =
             meal.imageUrl ||
             'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80';

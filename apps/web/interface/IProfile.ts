@@ -12,6 +12,9 @@ export interface PtCoachBindCardProps {
     avatarUrl?: string | null;
     phone?: string | null;
     email?: string;
+    status?: 'PENDING' | 'APPROVED' | 'REJECTED';
+    isApproved?: boolean;
+    isPending?: boolean;
   } | null;
   onBindSuccess?: () => void;
 }

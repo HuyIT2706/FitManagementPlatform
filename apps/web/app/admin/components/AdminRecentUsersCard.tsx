@@ -4,6 +4,7 @@
 import React from 'react';
 import { Users } from 'lucide-react';
 import type { AdminRecentUsersCardProps } from '../../../interface';
+import { getAvatarUrl } from '../../../utils/avatar';
 
 const AdminRecentUsersCard = ({
   recentUsers,
@@ -26,15 +27,11 @@ const AdminRecentUsersCard = ({
             >
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full overflow-hidden bg-white/5 border border-white/10 flex items-center justify-center font-bold text-xs text-white shrink-0">
-                  {u.avatarUrl ? (
-                    <img
-                      src={u.avatarUrl}
-                      alt={u.fullName}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    u.fullName.charAt(0).toUpperCase()
-                  )}
+                  <img
+                    src={getAvatarUrl(u.avatarUrl)}
+                    alt={u.fullName}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div>
                   <strong className="block text-white font-bold text-xs">

@@ -3,6 +3,7 @@
 
 import { Clock, Dumbbell, CheckCircle2, PlusCircle } from 'lucide-react';
 import type { ScheduleSlot, PtScheduleSlotCardProps } from '../../../../interface';
+import { getAvatarUrl } from '../../../../utils/avatar';
 export type { ScheduleSlot, PtScheduleSlotCardProps };
 
 const PtScheduleSlotCard = ({
@@ -11,9 +12,7 @@ const PtScheduleSlotCard = ({
   onCheckIn,
 }: PtScheduleSlotCardProps) => {
   const isSlotChecked = Boolean(isChecked || slot.isCheckedIn);
-  const avatar =
-    slot.studentAvatar ||
-    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80';
+  const avatar = getAvatarUrl(slot.studentAvatar);
 
   return (
     <div className="relative group">

@@ -7,9 +7,15 @@ const TrainingVipBanner = ({
   userData,
   assignedMealPlan,
 }: TrainingVipBannerProps) => {
-  const hasPt = Boolean(userData?.assignedPt || assignedMealPlan);
+  const isApprovedPt = Boolean(
+    userData?.assignedPt &&
+      (userData.assignedPt.status === 'APPROVED' || userData.assignedPt.isApproved)
+  );
+  const hasPt = Boolean(isApprovedPt || assignedMealPlan);
   const ptName =
-    userData?.assignedPt?.fullName || assignedMealPlan?.coachName || '';
+    (isApprovedPt ? userData?.assignedPt?.fullName : '') ||
+    assignedMealPlan?.coachName ||
+    '';
   const activePkg = userData?.activePackage;
   const remainingSessions = activePkg?.remainingSessions ?? 8;
   const totalSessions = activePkg?.totalSessions ?? 12;

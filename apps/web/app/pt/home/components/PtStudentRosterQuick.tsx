@@ -6,6 +6,8 @@ import { Award, Activity } from 'lucide-react';
 import type { PTStudentSummary } from '@repo/types';
 import type { PtStudentRosterQuickProps } from '../../../../interface';
 
+import { getAvatarUrl } from '../../../../utils/avatar';
+
 const PtStudentRosterQuick = ({ students }: PtStudentRosterQuickProps) => {
   const studentList = students || [];
 
@@ -20,9 +22,7 @@ const PtStudentRosterQuick = ({ students }: PtStudentRosterQuickProps) => {
 
       <div className="space-y-3">
         {studentList.map((student: PTStudentSummary) => {
-          const avatar =
-            student.avatarUrl ||
-            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80';
+          const avatar = getAvatarUrl(student.avatarUrl);
 
           return (
             <div

@@ -104,7 +104,10 @@ export class UsersService {
           },
         },
         studentProfiles: {
+          orderBy: { assignedAt: 'desc' },
           select: {
+            id: true,
+            status: true,
             trainer: {
               select: {
                 id: true,
@@ -145,7 +148,16 @@ export class UsersService {
 
     if (!user) return null;
 
-    const assignedPt = user.studentProfiles?.[0]?.trainer || null;
+    const studentProfile = user.studentProfiles?.[0] || null;
+    const ptBindStatus = studentProfile?.status || null;
+    const assignedPt = studentProfile?.trainer
+      ? {
+          ...studentProfile.trainer,
+          status: ptBindStatus,
+          isApproved: ptBindStatus === 'APPROVED',
+          isPending: ptBindStatus === 'PENDING',
+        }
+      : null;
     const activePackage = user.userPackages?.[0] || null;
 
     const isApprovedPt =
