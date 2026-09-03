@@ -9,9 +9,11 @@ import apiClient from '../../api/axios';
 import toast from '../../utils/toast';
 import type { FoodItem, FoodSelectorProps, FoodPaginatedResponse } from '../../interface';
 import { useMealBuilderStore } from '../../services/useMealBuilderStore';
+import { getRecentFoods, saveRecentFood } from '../../utils/recentFoods';
 
 export const QUICK_FILTERS = [
-  { id: 'ALL', label: 'Lịch sử', query: '' },
+  { id: 'HISTORY', label: 'Lịch sử', query: '' },
+  { id: 'ALL', label: 'Tất cả', query: '' },
   { id: 'MEAT', label: 'Thịt & Cá', query: 'thịt' },
   { id: 'EGG', label: 'Trứng & Sữa', query: 'trứng' },
   { id: 'VEG', label: 'Rau củ', query: 'rau' },
@@ -50,7 +52,17 @@ const FoodSelector = ({
   const fetchFoods = useCallback(async (q: string = '', page: number = 1, filterId: string = 'ALL') => {
     setLoading(true);
     try {
-      const isHistoryParam = filterId === 'ALL' && (!q || q.trim() === '') ? '&isHistory=true' : '';
+      if (filterId === 'HISTORY' && (!q || q.trim() === '')) {
+        const localHistory = getRecentFoods();
+        if (localHistory.length > 0) {
+          setFoods(localHistory);
+          setTotalPages(1);
+          setTotalCount(localHistory.length);
+          setLoading(false);
+          return;
+        }
+      }
+      const isHistoryParam = filterId === 'HISTORY' && (!q || q.trim() === '') ? '&isHistory=true' : '';
       const res = await apiClient.get<FoodPaginatedResponse | FoodItem[]>(
         `/nutrition/foods?q=${encodeURIComponent(q)}&page=${page}&limit=8${isHistoryParam}`
       );
@@ -83,6 +95,7 @@ const FoodSelector = ({
   const handleConfirmAdd = () => {
     if (selectedFood && weight && Number(weight) > 0) {
       const numWeight = Number(weight);
+      saveRecentFood(selectedFood);
       addItem(selectedFood, numWeight);
       if (onFoodAdded) {
         onFoodAdded(selectedFood, numWeight);

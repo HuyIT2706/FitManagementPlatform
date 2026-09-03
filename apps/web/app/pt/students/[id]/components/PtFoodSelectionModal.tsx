@@ -2,13 +2,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, UtensilsCrossed, Plus, CheckCircle2, Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, UtensilsCrossed, Plus, CheckCircle2, Check, ChevronLeft, ChevronRight, History } from 'lucide-react';
 import AppLoading from '../../../../../components/ui/AppLoading';
 import AppSearchInput from '../../../../../components/ui/AppSearchInput';
 import apiClient from '../../../../../api/axios';
 import toast from '../../../../../utils/toast';
 import type { FoodItem, FoodPaginatedResponse } from '@repo/types';
 import { QUICK_FILTERS } from '../../../../../components/nutrition/FoodSelector';
+import { getRecentFoods, saveRecentFood } from '../../../../../utils/recentFoods';
 
 interface PtFoodSelectionModalProps {
   isOpen: boolean;
@@ -25,7 +26,7 @@ const PtFoodSelectionModal = ({
 }: PtFoodSelectionModalProps) => {
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('ALL');
+  const [selectedFilter, setSelectedFilter] = useState('HISTORY');
   const [foods, setFoods] = useState<FoodItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
@@ -34,6 +35,21 @@ const PtFoodSelectionModal = ({
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalCount, setTotalCount] = useState<number>(0);
+
+  // Auto detect initial filter when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      const recents = getRecentFoods();
+      if (recents.length > 0) {
+        setSelectedFilter('HISTORY');
+      } else {
+        setSelectedFilter('ALL');
+      }
+      setQuery('');
+      setDebouncedQuery('');
+      setCurrentPage(1);
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -46,6 +62,25 @@ const PtFoodSelectionModal = ({
 
   useEffect(() => {
     if (!isOpen) return;
+
+    // If on HISTORY tab
+    if (selectedFilter === 'HISTORY') {
+      const recents = getRecentFoods();
+      if (!debouncedQuery || debouncedQuery.trim() === '') {
+        setFoods(recents);
+        setTotalPages(1);
+        setTotalCount(recents.length);
+        setLoading(false);
+      } else {
+        const q = debouncedQuery.toLowerCase().trim();
+        const filtered = recents.filter((f) => f.name.toLowerCase().includes(q));
+        setFoods(filtered);
+        setTotalPages(1);
+        setTotalCount(filtered.length);
+        setLoading(false);
+      }
+      return;
+    }
 
     setLoading(true);
     apiClient
@@ -68,13 +103,19 @@ const PtFoodSelectionModal = ({
         console.error('Error fetching foods for PT modal:', error);
         setLoading(false);
       });
-  }, [isOpen, debouncedQuery, currentPage]);
+  }, [isOpen, debouncedQuery, currentPage, selectedFilter]);
 
   if (!isOpen) return null;
 
   const handleFilterClick = (filter: (typeof QUICK_FILTERS)[0]) => {
     setSelectedFilter(filter.id);
-    setQuery(filter.query);
+    if (filter.id === 'HISTORY') {
+      setQuery('');
+      setDebouncedQuery('');
+    } else {
+      setQuery(filter.query);
+      setDebouncedQuery(filter.query);
+    }
     setCurrentPage(1);
   };
 
@@ -85,6 +126,9 @@ const PtFoodSelectionModal = ({
       const protein = Math.round((selectedFood.proteinPer100g * numWeight) / 100);
       const carbs = Math.round((selectedFood.carbsPer100g * numWeight) / 100);
       const fat = Math.round((selectedFood.fatPer100g * numWeight) / 100);
+
+      // Save to recent foods history for PT
+      saveRecentFood(selectedFood);
 
       const macroSummary = `${numWeight}g ${selectedFood.name} (${cal} kcal, ${protein}g P, ${carbs}g C, ${fat}g F)`;
       onAddFoodToMeal(selectedFood, numWeight, macroSummary);
@@ -155,10 +199,32 @@ const PtFoodSelectionModal = ({
           {loading ? (
             <AppLoading size="sm" message="Đang tìm món ăn..." />
           ) : foods.length === 0 ? (
-            <div className="text-center py-12 text-white/50 space-y-2">
-              <UtensilsCrossed size={36} className="mx-auto text-white/20" />
-              <p className="text-sm font-medium">Không tìm thấy thực phẩm phù hợp</p>
-            </div>
+            selectedFilter === 'HISTORY' ? (
+              <div className="text-center py-12 text-white/50 space-y-3">
+                <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto text-primary">
+                  <History size={28} />
+                </div>
+                <h4 className="text-sm font-bold text-white">Chưa có món ăn nào trong lịch sử</h4>
+                <p className="text-xs text-white/60 max-w-sm mx-auto">
+                  Mỗi khi bạn chọn thêm một món ăn vào thực đơn, món đó sẽ được tự động ghi nhớ tại đây để tra cứu và chọn lại nhanh chóng.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedFilter('ALL');
+                    setQuery('');
+                  }}
+                  className="px-4 py-2 rounded-xl bg-primary text-dark-slate font-extrabold text-xs hover:opacity-90 transition-all cursor-pointer inline-flex items-center gap-1.5 shadow-lg"
+                >
+                  Khám phá kho thực phẩm
+                </button>
+              </div>
+            ) : (
+              <div className="text-center py-12 text-white/50 space-y-2">
+                <UtensilsCrossed size={36} className="mx-auto text-white/20" />
+                <p className="text-sm font-medium">Không tìm thấy thực phẩm phù hợp</p>
+              </div>
+            )
           ) : (
             foods.map((food) => (
               <div

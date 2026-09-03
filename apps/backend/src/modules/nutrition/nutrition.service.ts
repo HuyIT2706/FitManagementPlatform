@@ -4,7 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import type { FoodItem, FoodPaginatedResponse } from '@repo/types';
-import type { Prisma } from '@repo/db';
+import { Prisma } from '@repo/db';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogMealDto } from './dto/log-meal.dto';
 
@@ -21,32 +21,117 @@ export class NutritionService {
     const limitNum = Math.max(1, Number(limit) || 8);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.FoodLibraryWhereInput = query
-      ? {
-          name: {
-            contains: query,
-            mode: 'insensitive',
-          },
-        }
-      : {};
+    const trimmed = (query || '').trim();
 
-    const [data, total] = await Promise.all([
-      this.prisma.foodLibrary.findMany({
-        where,
-        skip,
-        take: limitNum,
-        orderBy: { name: 'asc' },
-      }),
-      this.prisma.foodLibrary.count({ where }),
-    ]);
+    if (!trimmed) {
+      const [data, total] = await Promise.all([
+        this.prisma.foodLibrary.findMany({
+          skip,
+          take: limitNum,
+          orderBy: { name: 'asc' },
+        }),
+        this.prisma.foodLibrary.count(),
+      ]);
 
-    return {
-      data,
-      total,
-      page: pageNum,
-      limit: limitNum,
-      totalPages: Math.ceil(total / limitNum) || 1,
-    };
+      return {
+        data,
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum) || 1,
+      };
+    }
+
+    // Smart Vietnamese Food Search:
+    // Normalize typos and common synonyms
+    let normalized = trimmed.toLowerCase();
+    normalized = normalized.replace(/ứ\s*gà/gi, 'ức gà');
+    normalized = normalized.replace(/\bứ\b/gi, 'ức');
+    normalized = normalized.replace(/(?:không|khong|k|ko)\s+da\b/gi, 'bỏ da');
+    normalized = normalized.replace(
+      /(?:không|khong|k|ko)\s+đường\b/gi,
+      'không đường',
+    );
+
+    const words = normalized.split(/\s+/).filter(Boolean);
+
+    if (words.length === 0) {
+      return {
+        data: [],
+        total: 0,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: 1,
+      };
+    }
+
+    try {
+      const conditions = words.map(
+        (w) => Prisma.sql`unaccent(name) ILIKE unaccent(${'%' + w + '%'})`,
+      );
+      const whereClause = Prisma.join(conditions, ' AND ');
+
+      const [data, totalResult] = await Promise.all([
+        this.prisma.$queryRaw<FoodItem[]>(
+          Prisma.sql`
+            SELECT id, name, "caloriesPer100g", "proteinPer100g", "carbsPer100g", "fatPer100g", "fiberPer100g", "category", "imageUrl"
+            FROM food_libraries
+            WHERE ${whereClause}
+            ORDER BY
+              CASE
+                WHEN unaccent(name) ILIKE unaccent(${normalized + '%'}) THEN 0
+                WHEN unaccent(name) ILIKE unaccent(${'%' + normalized + '%'}) THEN 1
+                ELSE 2
+              END,
+              name ASC
+            LIMIT ${limitNum} OFFSET ${skip}
+          `,
+        ),
+        this.prisma.$queryRaw<Array<{ count: number }>>(
+          Prisma.sql`
+            SELECT COUNT(*)::int as count
+            FROM food_libraries
+            WHERE ${whereClause}
+          `,
+        ),
+      ]);
+
+      const total = Number(totalResult[0]?.count || 0);
+
+      return {
+        data,
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum) || 1,
+      };
+    } catch (err) {
+      console.warn('Smart unaccent search fallback to Prisma findMany:', err);
+      const where: Prisma.FoodLibraryWhereInput = {
+        name: {
+          contains: normalized,
+          mode: 'insensitive',
+        },
+      };
+
+      const [data, total] = await Promise.all([
+        this.prisma.foodLibrary.findMany({
+          where,
+          skip,
+          take: limitNum,
+          orderBy: { name: 'asc' },
+        }),
+        this.prisma.foodLibrary.count({ where }),
+      ]);
+
+      return {
+        data,
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum) || 1,
+      };
+    }
   }
 
   async getUserRecentFoods(
