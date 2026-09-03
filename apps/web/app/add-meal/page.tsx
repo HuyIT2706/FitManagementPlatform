@@ -95,7 +95,7 @@ const AddMealContent = () => {
 
         {/* Reusable Food Selector Component */}
         <section>
-          <FoodSelector title="Tìm kiếm & Chọn thực phẩm" />
+          <FoodSelector />
         </section>
       </main>
     </div>

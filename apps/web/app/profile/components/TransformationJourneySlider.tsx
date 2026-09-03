@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import {
   Camera,
   History,
@@ -10,7 +11,6 @@ import {
   Trash2,
   Calendar,
   X,
-  Check,
   Upload,
 } from "lucide-react";
 import apiClient from "../../../api/axios";
@@ -35,6 +35,11 @@ const TransformationJourneySlider = ({
   // Modals state
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // New photo form
   const [newPhotoUrl, setNewPhotoUrl] = useState("");
@@ -140,30 +145,10 @@ const TransformationJourneySlider = ({
     weightAtTime: weightKg ?? 80,
   };
 
-  // Preset sample body photos for quick selection in upload modal
-  const samplePhotoPresets = [
-    {
-      label: "Nam thể thao 1",
-      url: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      label: "Nam thể thao 2",
-      url: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      label: "Nữ thể thao 1",
-      url: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      label: "Nữ thể thao 2",
-      url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80",
-    },
-  ];
-
   const handleAddPhoto = () => {
     if (!newPhotoUrl.trim()) {
       toastStore.addToast(
-        "Vui lòng nhập đường dẫn ảnh hoặc chọn ảnh mẫu",
+        "Vui lòng tải ảnh từ thiết bị hoặc nhập đường dẫn ảnh",
         "error",
       );
       return;
@@ -313,180 +298,217 @@ const TransformationJourneySlider = ({
       </div>
 
       {/* Modal 1: Upload New Photo */}
-      {isUploadOpen && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#121815] border border-white/10 rounded-2xl w-full max-w-lg p-6 flex flex-col gap-4 text-white shadow-2xl animate-in fade-in zoom-in duration-200">
-            <div className="flex justify-between items-center pb-2 border-b border-white/10">
-              <h4 className="text-lg font-bold flex items-center gap-2">
-                <Camera className="text-green-light" size={20} />
-                {isPtView
-                  ? "Cập nhật ảnh tiến trình cho học viên"
-                  : "Cập nhật ảnh tiến trình hình thể"}
-              </h4>
+      {mounted &&
+        isUploadOpen &&
+        createPortal(
+          <div
+            onClick={() => setIsUploadOpen(false)}
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200 cursor-pointer"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="bg-[#121620] border border-white/15 rounded-[32px] max-w-lg w-full max-h-[90vh] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-6 md:p-8 space-y-6 text-white shadow-2xl relative cursor-default animate-in zoom-in-95 duration-200"
+            >
+              {/* Header Close Button */}
               <button
                 type="button"
                 onClick={() => setIsUploadOpen(false)}
-                className="text-white/60 hover:text-white"
+                aria-label="Đóng"
+                className="absolute top-5 right-5 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white border border-white/15 flex items-center justify-center transition-all cursor-pointer z-20"
               >
-                <X size={20} />
+                <X size={18} />
               </button>
-            </div>
 
+              {/* Modal Header */}
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-primary/20 text-primary border border-primary/40 flex items-center justify-center shrink-0">
+                  <Camera size={24} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-extrabold text-xl text-white font-headline-md leading-tight">
+                    {isPtView
+                      ? "Cập Nhật Ảnh Tiến Trình Học Viên"
+                      : "Cập Nhật Ảnh Hình Thể"}
+                  </h3>
+                  <p className="text-xs text-white/60 mt-0.5">
+                    Lưu lại hình ảnh vóc dáng để theo dõi quá trình thay đổi theo thời gian.
+                  </p>
+                </div>
+              </div>
+
+            {/* Form Fields */}
             <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-white/70 mb-1.5">
-                  Nhãn loại ảnh:
+              {/* Photo Tag */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-white/80">
+                  Giai đoạn / Góc chụp (*):
                 </label>
                 <div className="grid grid-cols-4 gap-2">
-                  {(["BEFORE", "AFTER", "FRONT", "SIDE"] as const).map(
-                    (tag) => (
-                      <button
-                        key={tag}
-                        type="button"
-                        onClick={() => setNewTag(tag)}
-                        className={`py-2 text-xs font-bold rounded-lg border transition-all ${
-                          newTag === tag
-                            ? "border-green-light bg-green-light/20 text-green-light"
-                            : "border-white/10 bg-white/5 text-white/60 hover:border-white/20"
-                        }`}
-                      >
-                        {tag === "BEFORE"
-                          ? "Trước (Before)"
-                          : tag === "AFTER"
-                            ? "Hiện tại (After)"
-                            : tag === "FRONT"
-                              ? "Mặt trước"
-                              : "Mặt bên"}
-                      </button>
-                    ),
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-white/70 mb-1.5">
-                  Cân nặng tại thời điểm chụp (kg):
-                </label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={newWeight}
-                  onChange={(e) => setNewWeight(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg p-2.5 text-sm text-white focus:border-green-light focus:outline-none"
-                  placeholder="Ví dụ: 72.5"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-white/70 mb-1.5">
-                  Tải ảnh từ máy hoặc nhập URL:
-                </label>
-                <div className="flex flex-col gap-2">
-                  <label className="cursor-pointer flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-dashed border-green-light/40 bg-green-light/10 hover:bg-green-light/20 text-green-light text-xs font-bold transition-all">
-                    <Upload size={14} />
-                    Tải ảnh từ máy tính / điện thoại
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleFileUpload}
-                    />
-                  </label>
-                  <input
-                    type="text"
-                    value={
-                      newPhotoUrl.startsWith("data:")
-                        ? "Đã chọn ảnh từ thiết bị"
-                        : newPhotoUrl
-                    }
-                    onChange={(e) => setNewPhotoUrl(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg p-2.5 text-xs text-white focus:border-green-light focus:outline-none placeholder:text-white/30"
-                    placeholder="Hoặc dán đường dẫn ảnh https://..."
-                  />
-                  {newPhotoUrl && (
-                    <div className="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/10">
-                      <img
-                        src={newPhotoUrl}
-                        alt="Preview"
-                        className="w-10 h-10 rounded-lg object-cover border border-green-light/40"
-                      />
-                      <span className="text-xs text-green-light font-medium">
-                        Ảnh xem trước hợp lệ
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-white/70 mb-1.5">
-                  Ảnh mẫu nhanh:
-                </label>
-                <div className="grid grid-cols-4 gap-2">
-                  {samplePhotoPresets.map((preset, idx) => (
+                  {[
+                    { tag: "BEFORE", label: "Trước" },
+                    { tag: "AFTER", label: "Hiện tại" },
+                    { tag: "FRONT", label: "Mặt trước" },
+                    { tag: "SIDE", label: "Mặt bên" },
+                  ].map(({ tag, label }) => (
                     <button
-                      key={idx}
+                      key={tag}
                       type="button"
-                      onClick={() => setNewPhotoUrl(preset.url)}
-                      className="relative h-16 rounded-lg overflow-hidden border border-white/10 hover:border-green-light transition-all group"
+                      onClick={() =>
+                        setNewTag(tag as "BEFORE" | "AFTER" | "FRONT" | "SIDE")
+                      }
+                      className={`py-2.5 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
+                        newTag === tag
+                          ? "border-primary bg-primary/20 text-primary shadow-[0_0_12px_rgba(102,200,28,0.3)]"
+                          : "border-white/15 bg-white/[0.05] text-white/70 hover:border-white/30 hover:text-white"
+                      }`}
                     >
-                      <img
-                        src={preset.url}
-                        alt={preset.label}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Check size={16} className="text-green-light" />
-                      </div>
+                      {label}
                     </button>
                   ))}
                 </div>
               </div>
+
+              {/* Weight Input */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-white/80">
+                  Cân nặng tại thời điểm chụp (kg) (*):
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={newWeight}
+                    onChange={(e) => setNewWeight(e.target.value)}
+                    className="w-full bg-white/[0.05] border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-primary outline-none transition-colors"
+                    placeholder="Ví dụ: 71"
+                  />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-white/40 pointer-events-none">
+                    kg
+                  </span>
+                </div>
+              </div>
+
+              {/* Image Upload Area */}
+              <div className="space-y-2">
+                <label className="block text-xs font-semibold text-white/80">
+                  Chọn ảnh hình thể (*):
+                </label>
+                <label className="cursor-pointer flex flex-col items-center justify-center gap-2 p-5 rounded-2xl border-2 border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-all text-center group">
+                  <div className="w-10 h-10 rounded-xl bg-primary/20 text-primary border border-primary/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Upload size={20} />
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-white block">
+                      Tải ảnh từ máy tính hoặc điện thoại
+                    </span>
+                    <span className="text-[11px] text-white/50 block mt-0.5">
+                      Hỗ trợ định dạng PNG, JPG, JPEG (tối đa 5MB)
+                    </span>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileUpload}
+                  />
+                </label>
+
+                <input
+                  type="text"
+                  value={
+                    newPhotoUrl.startsWith("data:")
+                      ? "Đã chọn ảnh từ tệp tin thiết bị"
+                      : newPhotoUrl
+                  }
+                  onChange={(e) => setNewPhotoUrl(e.target.value)}
+                  className="w-full bg-white/[0.05] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white placeholder:text-white/30 focus:border-primary outline-none transition-colors"
+                  placeholder="Hoặc dán đường dẫn ảnh trực tuyến..."
+                />
+
+                {newPhotoUrl && (
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.05] border border-white/15">
+                    <div className="w-12 h-12 rounded-xl overflow-hidden border border-primary/40 shrink-0 bg-black/50">
+                      <img
+                        src={newPhotoUrl}
+                        alt="Xem trước"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-bold text-primary">Ảnh đã sẵn sàng</p>
+                      <p className="text-[11px] text-white/50 truncate">
+                        {newPhotoUrl.startsWith("data:")
+                          ? "Ảnh tải từ tệp tin thiết bị"
+                          : newPhotoUrl}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setNewPhotoUrl("")}
+                      className="p-1.5 rounded-lg hover:bg-white/10 text-white/50 hover:text-rose-400 transition-colors cursor-pointer"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="flex gap-2 pt-2 border-t border-white/10">
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => setIsUploadOpen(false)}
-                className="flex-1 py-2.5 rounded-lg border border-white/10 text-white/70 text-xs font-bold hover:bg-white/5"
+                disabled={submitting}
+                className="flex-1 py-3 rounded-xl bg-white/5 border border-white/15 text-white/80 text-sm font-bold hover:bg-white/10 hover:text-white transition-all cursor-pointer"
               >
                 Hủy
               </button>
               <button
                 type="button"
                 onClick={handleAddPhoto}
-                disabled={submitting}
-                className="flex-1 py-2.5 rounded-lg bg-green-light text-[#003824] text-xs font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-1"
+                disabled={submitting || !newPhotoUrl}
+                className="flex-1 py-3 rounded-xl bg-primary text-dark-slate text-sm font-extrabold shadow-[0_0_20px_rgba(102,200,28,0.4)] hover:bg-primary/90 transition-all cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
               >
                 {submitting ? "Đang lưu..." : "Lưu ảnh tiến trình"}
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
       {/* Modal 2: Photo History Gallery */}
-      {isHistoryOpen && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#121815] border border-white/10 rounded-2xl w-full max-w-2xl p-6 flex flex-col gap-4 text-white shadow-2xl max-h-[85vh] animate-in fade-in zoom-in duration-200">
+      {mounted &&
+        isHistoryOpen &&
+        createPortal(
+          <div
+            onClick={() => setIsHistoryOpen(false)}
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200 cursor-pointer"
+          >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-[#121620] border border-white/15 rounded-[32px] w-full max-w-2xl p-6 md:p-8 flex flex-col gap-5 text-white shadow-2xl max-h-[85vh] relative cursor-default animate-in zoom-in-95 duration-200"
+          >
             <div className="flex justify-between items-center pb-2 border-b border-white/10">
               <h4 className="text-lg font-bold flex items-center gap-2">
-                <History className="text-green-light" size={20} />
-                Lịch sử Ảnh Tiến trình ({photos.length})
+                <History className="text-primary" size={20} />
+                Lịch Sử Ảnh Tiến Trình ({photos.length})
               </h4>
               <button
                 type="button"
                 onClick={() => setIsHistoryOpen(false)}
-                className="text-white/60 hover:text-white"
+                aria-label="Đóng"
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white border border-white/15 flex items-center justify-center transition-all cursor-pointer"
               >
-                <X size={20} />
+                <X size={18} />
               </button>
             </div>
 
-            <div className="overflow-y-auto flex-1 pr-1 no-scrollbar">
+            <div className="overflow-y-auto flex-1 pr-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               {photos.length === 0 ? (
                 <div className="py-12 text-center text-white/50 text-sm">
-                  Chưa có ảnh tiến trình nào được lưu. Bấm &quot;Thêm ảnh&quot;
+                  Chưa có ảnh tiến trình nào được lưu. Bấm &quot;Thêm ảnh Body&quot;
                   để tải ảnh lên!
                 </div>
               ) : (
@@ -494,26 +516,34 @@ const TransformationJourneySlider = ({
                   {photos.map((photo) => (
                     <div
                       key={photo.id}
-                      className="relative rounded-xl overflow-hidden border border-white/10 bg-white/5 flex flex-col group"
+                      className="relative rounded-2xl overflow-hidden border border-white/10 bg-white/5 flex flex-col group"
                     >
                       <div className="h-44 w-full relative">
                         <img
                           src={photo.photoUrl}
-                          alt={photo.tag || "Progress"}
+                          alt={photo.tag || "Ảnh tiến trình"}
                           className="w-full h-full object-cover"
                         />
-                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/70 backdrop-blur-md text-[10px] font-bold text-green-light border border-green-light/30">
-                          {photo.tag || "PROGRESS"}
+                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-md text-[10px] font-bold text-primary border border-primary/30">
+                          {photo.tag === "BEFORE"
+                            ? "Trước"
+                            : photo.tag === "AFTER"
+                              ? "Hiện tại"
+                              : photo.tag === "FRONT"
+                                ? "Mặt trước"
+                                : photo.tag === "SIDE"
+                                  ? "Mặt bên"
+                                  : "Hình thể"}
                         </span>
                         <button
                           type="button"
                           onClick={() => handleDeletePhoto(photo.id)}
-                          className="absolute top-2 right-2 p-1.5 rounded-lg bg-rose-500/80 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-rose-600"
+                          className="absolute top-2 right-2 p-1.5 rounded-lg bg-rose-500/80 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-rose-600 cursor-pointer"
                         >
                           <Trash2 size={14} />
                         </button>
                       </div>
-                      <div className="p-2.5 text-xs flex justify-between items-center text-white/70">
+                      <div className="p-3 text-xs flex justify-between items-center text-white/70">
                         <span className="flex items-center gap-1">
                           <Calendar size={12} />
                           {new Date(photo.takenAt).toLocaleDateString("vi-VN")}
@@ -530,7 +560,8 @@ const TransformationJourneySlider = ({
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </section>
   );
