@@ -113,11 +113,11 @@ const NotificationSettingsModal = ({ isOpen, onClose }: NotificationSettingsModa
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200 cursor-pointer"
+      className="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200 cursor-pointer"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-[#121620] border border-white/15 rounded-[32px] max-w-xl w-full max-h-[90vh] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-6 md:p-8 space-y-6 text-white shadow-2xl relative cursor-default animate-in zoom-in-95 duration-200"
+        className="bg-[#121620] border border-white/15 rounded-2xl sm:rounded-[32px] max-w-xl w-full max-h-[90vh] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 text-white shadow-2xl relative cursor-default animate-in zoom-in-95 duration-200"
         suppressHydrationWarning
       >
         {/* Header Close Button */}
@@ -125,18 +125,18 @@ const NotificationSettingsModal = ({ isOpen, onClose }: NotificationSettingsModa
           type="button"
           onClick={onClose}
           aria-label="Đóng modal"
-          className="absolute top-5 right-5 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white border border-white/15 flex items-center justify-center transition-all cursor-pointer z-20"
+          className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white border border-white/15 flex items-center justify-center transition-all cursor-pointer z-20"
         >
-          <X size={18} />
+          <X size={16} className="sm:w-[18px] sm:h-[18px]" />
         </button>
 
         {/* Modal Header */}
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-primary/20 text-primary border border-primary/40 flex items-center justify-center shrink-0">
-            <Bell size={24} />
+        <div className="flex items-center gap-3 pr-8">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-primary/20 text-primary border border-primary/40 flex items-center justify-center shrink-0">
+            <Bell size={20} className="sm:w-6 sm:h-6" />
           </div>
           <div>
-            <h3 className="font-extrabold text-xl text-white font-headline-md">
+            <h3 className="font-extrabold text-lg sm:text-xl text-white font-headline-md leading-tight">
               Cài Đặt Thông Báo
             </h3>
             <p className="text-xs text-white/60 mt-0.5">

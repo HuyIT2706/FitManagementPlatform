@@ -82,12 +82,12 @@ const DailyMealGrid = ({
   };
 
   return (
-    <div className="col-span-1 md:col-span-12 mt-4">
-      <div className="flex justify-between items-center mb-4 px-1">
-        <h3 className="font-headline-md text-xl font-bold text-on-surface">Bữa ăn hàng ngày</h3>
+    <div className="col-span-1 md:col-span-12 mt-2 sm:mt-4">
+      <div className="flex justify-between items-center mb-3 sm:mb-4 px-1">
+        <h3 className="font-headline-md text-lg sm:text-xl font-bold text-on-surface">Bữa ăn hàng ngày</h3>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-gutter">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-gutter">
         {mealSlots.map((mealConfig) => {
           const mealDetails = getMealDetails(mealConfig.id);
           const hasItems = mealDetails.items.length > 0;
@@ -96,18 +96,18 @@ const DailyMealGrid = ({
           return (
             <div
               key={mealConfig.id}
-              className={`bento-card p-5 flex flex-col justify-between group transition-all duration-300 border border-bento-border/50 rounded-2xl ${config.cardHover}`}
+              className={`bento-card p-4 sm:p-5 flex flex-col justify-between group transition-all duration-300 border border-bento-border/50 rounded-2xl sm:rounded-3xl ${config.cardHover}`}
             >
               {/* Header: Icon, Meal Name, Total Calories & Add Button */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3.5">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
                   <div
-                    className={`w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${config.badgeBg}`}
+                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl border flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${config.badgeBg}`}
                   >
                     {config.icon}
                   </div>
-                  <div>
-                    <h4 className="font-headline-md text-base font-bold text-on-surface">
+                  <div className="min-w-0">
+                    <h4 className="font-headline-md text-sm sm:text-base font-bold text-on-surface truncate">
                       {mealConfig.name}
                     </h4>
                     <span
@@ -123,28 +123,28 @@ const DailyMealGrid = ({
                 <Link
                   href={`/add-meal?type=${mealConfig.id}&date=${selectedDateFormattedStr}`}
                   onClick={(e) => handleAddMealClick(e)}
-                  className={`w-9 h-9 rounded-xl border border-outline-variant/40 flex items-center justify-center transition-all ${
+                  className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl border border-outline-variant/40 flex items-center justify-center transition-all shrink-0 ${
                     isFutureDate
                       ? 'opacity-40 cursor-not-allowed text-on-surface-variant'
                       : 'text-on-surface-variant hover:bg-green-light/20 hover:text-green-light hover:border-green-light cursor-pointer'
                   }`}
                   aria-label={`Thêm ${mealConfig.name}`}
                 >
-                  <Plus size={18} />
+                  <Plus size={16} className="sm:w-[18px] sm:h-[18px]" />
                 </Link>
               </div>
 
               {/* Food Items List */}
-              <div className="mt-3 pt-3 border-t border-bento-border/40">
+              <div className="mt-2.5 sm:mt-3 pt-2.5 sm:pt-3 border-t border-bento-border/40">
                 {hasItems ? (
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-1 sm:gap-1.5">
                     {mealDetails.items.map((item, idx) => (
                       <span
                         key={idx}
-                        className="text-xs bg-surface-bright/40 border border-white/10 text-on-surface px-2.5 py-1 rounded-lg font-medium capitalize"
+                        className="text-[11px] sm:text-xs bg-surface-bright/40 border border-white/10 text-on-surface px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg font-medium capitalize"
                       >
                         {item.foodName}{' '}
-                        <span className="text-on-surface-variant/70 text-[11px]">
+                        <span className="text-on-surface-variant/70 text-[10px] sm:text-[11px]">
                           ({item.weightInGram}g)
                         </span>
                       </span>

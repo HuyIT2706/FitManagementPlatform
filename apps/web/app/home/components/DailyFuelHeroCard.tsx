@@ -26,22 +26,23 @@ const DailyFuelHeroCard = ({
   const currentStrokeLength = (percentage / 100) * maxArcLength;
 
   return (
-    <div className="bento-card col-span-1 md:col-span-8 p-6 md:p-8 flex flex-col items-center justify-center relative overflow-hidden group border border-bento-border/60 rounded-3xl">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-green-light/5 rounded-full blur-[60px] pointer-events-none"></div>
+    <div className="bento-card col-span-1 md:col-span-8 p-4 sm:p-6 md:p-8 flex flex-col items-center justify-center relative overflow-hidden group border border-bento-border/60 rounded-3xl">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 sm:w-64 h-48 sm:h-64 bg-green-light/5 rounded-full blur-[60px] pointer-events-none"></div>
 
       {/* Header */}
-      <div className="w-full flex justify-between items-center mb-6 z-10">
+      <div className="w-full flex justify-between items-center mb-4 sm:mb-6 z-10">
         <div>
-          <h2 className="font-headline-md text-xl md:text-2xl text-on-surface tracking-tight font-bold">
+          <h2 className="font-headline-md text-lg sm:text-xl md:text-2xl text-on-surface tracking-tight font-bold">
             CALO NẠP HÀNG NGÀY
           </h2>
           <p className="text-xs text-on-surface-variant mt-0.5">
             {isSelectedDateToday ? 'Hôm nay' : selectedDateFormatted}
           </p>
         </div>
-        <Flame size={26} className="text-green-light" />
+        <Flame size={24} className="text-green-light shrink-0" />
       </div>
-      <div className="relative w-64 h-64 flex items-center justify-center z-10 my-4">
+
+      <div className="relative w-52 h-52 sm:w-64 sm:h-64 flex items-center justify-center z-10 my-2 sm:my-4">
         <svg className="w-full h-full transform rotate-[135deg]" viewBox="0 0 280 280">
           <circle
             cx="140"
@@ -75,11 +76,11 @@ const DailyFuelHeroCard = ({
         </svg>
 
         {/* Center Text */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-          <span className="font-stats-xl text-4xl font-extrabold text-on-surface tracking-tighter">
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
+          <span className="font-stats-xl text-3xl sm:text-4xl font-extrabold text-on-surface tracking-tighter">
             {consumedCalo}
           </span>
-          <span className="font-label-lg text-sm text-on-surface-variant mt-1">kcal đã nạp</span>
+          <span className="font-label-lg text-xs sm:text-sm text-on-surface-variant mt-1">kcal đã nạp</span>
           <span className="text-xs text-[#10b981] font-bold mt-0.5">
             {rawPercentage.toFixed(1)}%
           </span>
@@ -87,18 +88,18 @@ const DailyFuelHeroCard = ({
       </div>
 
       {/* Stats Summary Grid */}
-      <div className="grid grid-cols-3 w-full gap-4 mt-6 z-10 border-t border-bento-border/50 pt-6">
-        <div className="flex flex-col items-center">
-          <span className="font-headline-md text-xl font-bold text-on-surface">{remainingCalories}</span>
-          <span className="font-label-lg text-xs text-on-surface-variant uppercase tracking-wider">Còn lại</span>
+      <div className="grid grid-cols-3 w-full gap-2 sm:gap-4 mt-4 sm:mt-6 z-10 border-t border-bento-border/50 pt-4 sm:pt-6">
+        <div className="flex flex-col items-center text-center">
+          <span className="font-headline-md text-base sm:text-xl font-bold text-on-surface">{remainingCalories}</span>
+          <span className="font-label-lg text-[10px] sm:text-xs text-on-surface-variant uppercase tracking-wider">Còn lại</span>
         </div>
-        <div className="flex flex-col items-center border-l border-r border-bento-border/50">
-          <span className="font-headline-md text-xl font-bold text-on-surface">{targetCalo}</span>
-          <span className="font-label-lg text-xs text-on-surface-variant uppercase tracking-wider">Mục tiêu</span>
+        <div className="flex flex-col items-center text-center border-l border-r border-bento-border/50">
+          <span className="font-headline-md text-base sm:text-xl font-bold text-on-surface">{targetCalo}</span>
+          <span className="font-label-lg text-[10px] sm:text-xs text-on-surface-variant uppercase tracking-wider">Mục tiêu</span>
         </div>
-        <div className="flex flex-col items-center">
-          <span className="font-headline-md text-xl font-bold text-on-surface">0</span>
-          <span className="font-label-lg text-xs text-on-surface-variant uppercase tracking-wider">Đốt cháy</span>
+        <div className="flex flex-col items-center text-center">
+          <span className="font-headline-md text-base sm:text-xl font-bold text-on-surface">0</span>
+          <span className="font-label-lg text-[10px] sm:text-xs text-on-surface-variant uppercase tracking-wider">Đốt cháy</span>
         </div>
       </div>
     </div>

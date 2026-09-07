@@ -25,11 +25,11 @@ const HistoryMonthCalendar = ({
   };
 
   return (
-    <section className="md:col-span-4 bento-card rounded-3xl p-6 flex flex-col justify-between border border-outline-variant/30">
+    <section className="md:col-span-4 bento-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col justify-between border border-outline-variant/30">
       <div>
         {/* Month Header Navigation */}
-        <div className="flex items-center justify-between mb-5 px-1">
-          <h3 className="text-base font-headline-md font-bold text-on-surface">
+        <div className="flex items-center justify-between mb-4 sm:mb-5 px-1">
+          <h3 className="text-sm sm:text-base font-headline-md font-bold text-on-surface">
             {monthNames[currentMonth.getMonth()]}, {currentMonth.getFullYear()}
           </h3>
 
@@ -37,31 +37,31 @@ const HistoryMonthCalendar = ({
             <button
               onClick={onPrevMonth}
               aria-label="Tháng trước"
-              className="w-8 h-8 rounded-full bg-surface-bright/30 border border-white/10 text-on-surface hover:bg-surface-bright transition-colors flex items-center justify-center cursor-pointer"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-surface-bright/30 border border-white/10 text-on-surface hover:bg-surface-bright transition-colors flex items-center justify-center cursor-pointer"
             >
-              <ChevronLeft size={16} />
+              <ChevronLeft size={15} />
             </button>
             <button
               onClick={onNextMonth}
               aria-label="Tháng sau"
-              className="w-8 h-8 rounded-full bg-surface-bright/30 border border-white/10 text-on-surface hover:bg-surface-bright transition-colors flex items-center justify-center cursor-pointer"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-surface-bright/30 border border-white/10 text-on-surface hover:bg-surface-bright transition-colors flex items-center justify-center cursor-pointer"
             >
-              <ChevronRight size={16} />
+              <ChevronRight size={15} />
             </button>
           </div>
         </div>
 
         {/* Weekday Labels (T2 .. CN) */}
-        <div className="grid grid-cols-7 gap-y-3 text-center mb-2">
+        <div className="grid grid-cols-7 gap-y-2 sm:gap-y-3 text-center mb-2">
           {['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].map((day) => (
-            <span key={day} className="text-[11px] font-bold text-on-surface-variant/50">
+            <span key={day} className="text-[10px] sm:text-[11px] font-bold text-on-surface-variant/50">
               {day}
             </span>
           ))}
         </div>
 
         {/* Round Circular Dates Grid (rounded-full) */}
-        <div className="grid grid-cols-7 gap-y-2 gap-x-1 text-center">
+        <div className="grid grid-cols-7 gap-y-1.5 sm:gap-y-2 gap-x-1 text-center">
           {monthCells.map((cell, idx) => {
             const isSelected = isSameDay(cell.date, selectedDate);
             const isToday = isSameDay(cell.date, new Date());
@@ -71,7 +71,7 @@ const HistoryMonthCalendar = ({
               <div key={idx} className="flex items-center justify-center">
                 <button
                   onClick={() => onSelectDate(cell.date)}
-                  className={`w-8 h-8 md:w-9 md:h-9 rounded-full flex flex-col items-center justify-center text-xs transition-all duration-200 cursor-pointer relative ${
+                  className={`w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-full flex flex-col items-center justify-center text-[11px] sm:text-xs transition-all duration-200 cursor-pointer relative ${
                     isSelected
                       ? 'bg-green-light text-dark-slate font-extrabold shadow-[0_0_15px_rgba(102,200,28,0.4)] scale-105'
                       : isToday
@@ -95,7 +95,7 @@ const HistoryMonthCalendar = ({
       {!isSelectedDateToday && (
         <button
           onClick={onGoToToday}
-          className="mt-4 w-full py-2 rounded-xl bg-green-light/15 text-green-light font-bold text-xs hover:bg-green-light/25 transition-colors border border-green-light/30 flex items-center justify-center gap-1.5 cursor-pointer"
+          className="mt-3 sm:mt-4 w-full py-2 rounded-xl bg-green-light/15 text-green-light font-bold text-xs hover:bg-green-light/25 transition-colors border border-green-light/30 flex items-center justify-center gap-1.5 cursor-pointer"
         >
           <CalendarIcon size={14} />
           Xem Hôm nay

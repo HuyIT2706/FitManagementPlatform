@@ -239,7 +239,7 @@ const Header = ({ userData, onLogout }: HeaderProps) => {
 
               {/* Popover Dropdown Menu (Mobile) */}
               {isUserMenuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-60 bg-[#121620]/95 backdrop-blur-xl border border-white/15 rounded-2xl p-2 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1">
+                <div className="absolute right-0 top-full mt-2 w-60 max-w-[calc(100vw-32px)] bg-[#121620]/95 backdrop-blur-xl border border-white/15 rounded-2xl p-2 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1">
                   <div className="p-2 border-b border-white/10">
                     <h4 className="text-xs font-bold text-white truncate">
                       {userData.fullName || 'Thành viên'}

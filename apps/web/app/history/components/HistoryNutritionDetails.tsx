@@ -87,27 +87,27 @@ const HistoryNutritionDetails = ({
 
   return (
     <section
-      className={`md:col-span-12 bento-card rounded-3xl p-6 md:p-8 border border-outline-variant/30 space-y-6 transition-opacity duration-200 ${
+      className={`md:col-span-12 bento-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-outline-variant/30 space-y-4 sm:space-y-6 transition-opacity duration-200 ${
         dailyLoading ? 'opacity-50 pointer-events-none' : 'opacity-100'
       }`}
     >
       {/* Date Header & Calorie Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-bento-border/50">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 pb-3 sm:pb-4 border-b border-bento-border/50">
         <div>
-          <h2 className="text-xl font-headline-md font-bold text-on-surface">Nhật ký dinh dưỡng</h2>
+          <h2 className="text-lg sm:text-xl font-headline-md font-bold text-on-surface">Nhật ký dinh dưỡng</h2>
           <span className="text-xs text-on-surface-variant mt-0.5 block">
             {isSelectedDateToday ? 'Hôm nay' : formatDisplayDate(selectedDate)}
           </span>
         </div>
 
         <div className="flex flex-col md:items-end">
-          <div className="flex items-center gap-2 mb-1.5">
+          <div className="flex items-center gap-2 mb-1 sm:mb-1.5">
             <span className="text-xs text-on-surface-variant font-medium">Calo đã nạp:</span>
-            <span className="text-base font-bold text-green-light">
+            <span className="text-sm sm:text-base font-bold text-green-light">
               {consumedCalo} / {targetCalo} kcal
             </span>
           </div>
-          <div className="w-full md:w-64 h-2.5 bg-surface-bright rounded-full overflow-hidden">
+          <div className="w-full md:w-64 h-2 sm:h-2.5 bg-surface-bright rounded-full overflow-hidden">
             <div
               className="h-full bg-green-light rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(102,200,28,0.5)]"
               style={{ width: `${totalCaloPercent}%` }}
@@ -117,44 +117,44 @@ const HistoryNutritionDetails = ({
       </div>
 
       {/* Macro Summary Row */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="flex flex-col items-center p-3.5 bg-surface-bright/30 rounded-2xl border border-white/5">
-          <span className="text-xs text-on-surface-variant mb-1 font-medium">Đạm (Protein)</span>
-          <span className="text-base md:text-lg font-bold text-[#0086C9]">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="flex flex-col items-center p-2.5 sm:p-3.5 bg-surface-bright/30 rounded-xl sm:rounded-2xl border border-white/5 text-center">
+          <span className="text-[11px] sm:text-xs text-on-surface-variant mb-0.5 sm:mb-1 font-medium truncate w-full">Đạm (Protein)</span>
+          <span className="text-sm sm:text-base md:text-lg font-bold text-[#0086C9]">
             {consumedProtein}{' '}
-            <span className="text-xs font-normal text-on-surface-variant">/{targetProtein}g</span>
+            <span className="text-[10px] sm:text-xs font-normal text-on-surface-variant">/{targetProtein}g</span>
           </span>
-          <span className="text-[11px] text-[#0086C9] font-semibold mt-0.5">{proteinPercent}%</span>
+          <span className="text-[10px] sm:text-[11px] text-[#0086C9] font-semibold mt-0.5">{proteinPercent}%</span>
         </div>
 
-        <div className="flex flex-col items-center p-3.5 bg-surface-bright/30 rounded-2xl border border-white/5">
-          <span className="text-xs text-on-surface-variant mb-1 font-medium">
+        <div className="flex flex-col items-center p-2.5 sm:p-3.5 bg-surface-bright/30 rounded-xl sm:rounded-2xl border border-white/5 text-center">
+          <span className="text-[11px] sm:text-xs text-on-surface-variant mb-0.5 sm:mb-1 font-medium truncate w-full">
             Tinh bột (Carbs)
           </span>
-          <span className="text-base md:text-lg font-bold text-[#EF6820]">
+          <span className="text-sm sm:text-base md:text-lg font-bold text-[#EF6820]">
             {consumedCarbs}{' '}
-            <span className="text-xs font-normal text-on-surface-variant">/{targetCarbs}g</span>
+            <span className="text-[10px] sm:text-xs font-normal text-on-surface-variant">/{targetCarbs}g</span>
           </span>
-          <span className="text-[11px] text-[#EF6820] font-semibold mt-0.5">{carbsPercent}%</span>
+          <span className="text-[10px] sm:text-[11px] text-[#EF6820] font-semibold mt-0.5">{carbsPercent}%</span>
         </div>
 
-        <div className="flex flex-col items-center p-3.5 bg-surface-bright/30 rounded-2xl border border-white/5">
-          <span className="text-xs text-on-surface-variant mb-1 font-medium">Chất béo (Fat)</span>
-          <span className="text-base md:text-lg font-bold text-[#F63D68]">
+        <div className="flex flex-col items-center p-2.5 sm:p-3.5 bg-surface-bright/30 rounded-xl sm:rounded-2xl border border-white/5 text-center">
+          <span className="text-[11px] sm:text-xs text-on-surface-variant mb-0.5 sm:mb-1 font-medium truncate w-full">Chất béo (Fat)</span>
+          <span className="text-sm sm:text-base md:text-lg font-bold text-[#F63D68]">
             {consumedFat}{' '}
-            <span className="text-xs font-normal text-on-surface-variant">/{targetFat}g</span>
+            <span className="text-[10px] sm:text-xs font-normal text-on-surface-variant">/{targetFat}g</span>
           </span>
-          <span className="text-[11px] text-[#F63D68] font-semibold mt-0.5">{fatPercent}%</span>
+          <span className="text-[10px] sm:text-[11px] text-[#F63D68] font-semibold mt-0.5">{fatPercent}%</span>
         </div>
       </div>
 
       {/* Daily Meals Grid */}
-      <div className="space-y-4 pt-2">
-        <h3 className="text-base font-headline-md font-bold text-on-surface px-1">
+      <div className="space-y-3 sm:space-y-4 pt-1 sm:pt-2">
+        <h3 className="text-sm sm:text-base font-headline-md font-bold text-on-surface px-1">
           Danh sách bữa ăn
         </h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-gutter">
           {mealSlots.map((mealConfig) => {
             const mealDetails = getMealDetails(mealConfig.id);
             const hasItems = mealDetails.items.length > 0;
@@ -163,18 +163,18 @@ const HistoryNutritionDetails = ({
             return (
               <div
                 key={mealConfig.id}
-                className={`bento-card p-5 flex flex-col justify-between group transition-all duration-300 border border-bento-border/50 rounded-2xl ${config.cardHover}`}
+                className={`bento-card p-4 sm:p-5 flex flex-col justify-between group transition-all duration-300 border border-bento-border/50 rounded-2xl sm:rounded-3xl ${config.cardHover}`}
               >
                 {/* Header: Icon, Meal Name, Total Calories & Status Check */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3.5">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
                     <div
-                      className={`w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${config.badgeBg}`}
+                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl border flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${config.badgeBg}`}
                     >
                       {config.icon}
                     </div>
-                    <div>
-                      <h4 className="font-headline-md text-base font-bold text-on-surface">
+                    <div className="min-w-0">
+                      <h4 className="font-headline-md text-sm sm:text-base font-bold text-on-surface truncate">
                         {mealConfig.name}
                       </h4>
                       <span
@@ -188,23 +188,23 @@ const HistoryNutritionDetails = ({
                   </div>
 
                   {hasItems && (
-                    <div className="w-7 h-7 rounded-full bg-green-light/10 border border-green-light/30 flex items-center justify-center">
-                      <CheckCircle2 size={16} className="text-green-light stroke-[2.5]" />
+                    <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-green-light/10 border border-green-light/30 flex items-center justify-center shrink-0">
+                      <CheckCircle2 size={15} className="text-green-light stroke-[2.5]" />
                     </div>
                   )}
                 </div>
 
                 {/* Food Items List */}
-                <div className="mt-3 pt-3 border-t border-bento-border/40">
+                <div className="mt-2.5 sm:mt-3 pt-2.5 sm:pt-3 border-t border-bento-border/40">
                   {hasItems ? (
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1 sm:gap-1.5">
                       {mealDetails.items.map((item, idx) => (
                         <span
                           key={idx}
-                          className="text-xs bg-surface-bright/40 border border-white/10 text-on-surface px-2.5 py-1 rounded-lg font-medium capitalize flex items-center gap-1"
+                          className="text-[11px] sm:text-xs bg-surface-bright/40 border border-white/10 text-on-surface px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg font-medium capitalize flex items-center gap-1"
                         >
                           {item.foodName}{' '}
-                          <span className="text-on-surface-variant/70 text-[11px]">
+                          <span className="text-on-surface-variant/70 text-[10px] sm:text-[11px]">
                             ({item.weightInGram}g)
                           </span>
                         </span>

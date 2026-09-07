@@ -24,12 +24,12 @@ const TrainingVipBanner = ({
     : 66;
 
   return (
-    <section className="bento-card rounded-3xl p-6 md:p-8 flex flex-col gap-6 relative overflow-hidden border border-outline-variant/30">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 z-10">
-        <div className="space-y-2">
-          <div className="flex items-center gap-3">
+    <section className="bento-card rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-8 flex flex-col gap-4 sm:gap-6 relative overflow-hidden border border-outline-variant/30">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 sm:gap-4 z-10">
+        <div className="space-y-1.5 sm:space-y-2">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             <span
-              className="bg-green-light/20 text-green-light px-3.5 py-1 rounded-full text-xs font-bold tracking-wider uppercase flex items-center gap-1.5"
+              className="bg-green-light/20 text-green-light px-3 py-0.5 sm:px-3.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-bold tracking-wider uppercase flex items-center gap-1.5"
               style={{
                 boxShadow: '0 0 15px rgba(102, 200, 28, 0.4)',
                 border: '1px solid rgba(102, 200, 28, 0.5)',
@@ -37,15 +37,15 @@ const TrainingVipBanner = ({
             >
               Xin chào 
             </span>
-            <h1 className="font-headline-md text-xl md:text-2xl text-on-surface font-bold">
+            <h1 className="font-headline-md text-lg sm:text-xl md:text-2xl text-on-surface font-bold">
               {userData?.fullName || 'Thành viên'}
             </h1>
           </div>
 
           {hasPt && (
             <div className="flex items-center gap-2 text-on-surface-variant">
-              <UserCheck size={18} className="text-primary shrink-0" />
-              <span className="font-label-lg text-base">
+              <UserCheck size={16} className="text-primary shrink-0 sm:w-[18px] sm:h-[18px]" />
+              <span className="font-label-lg text-sm sm:text-base">
                 PT Phụ trách: <strong className="text-on-surface">{ptName}</strong>
               </span>
             </div>
@@ -55,7 +55,7 @@ const TrainingVipBanner = ({
 
       {hasPt && (
         <div className="space-y-2 z-10 mt-1">
-          <div className="flex justify-between font-label-sm text-base">
+          <div className="flex justify-between font-label-sm text-sm sm:text-base">
             <span className="text-on-surface-variant">Số buổi tập còn lại</span>
             <span className="text-green-light font-bold">
               {remainingSessions} / {totalSessions} Buổi

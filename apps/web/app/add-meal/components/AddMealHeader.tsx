@@ -11,18 +11,18 @@ const AddMealHeader = ({
   onSaveMeal,
 }: AddMealHeaderProps) => {
   return (
-    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/10 px-4 py-4 flex items-center gap-4">
+    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/10 px-3 sm:px-4 py-3 sm:py-4 flex items-center gap-3 sm:gap-4">
       <button
         type="button"
         suppressHydrationWarning
         onClick={onBack}
-        className="p-2 rounded-full hover:bg-white/10 text-on-surface transition-colors cursor-pointer"
+        className="p-1.5 sm:p-2 rounded-full hover:bg-white/10 text-on-surface transition-colors cursor-pointer shrink-0"
         aria-label="Quay lại"
       >
-        <ArrowLeft size={20} />
+        <ArrowLeft size={18} className="sm:w-5 sm:h-5" />
       </button>
 
-      <h1 className="text-xl font-bold font-headline-md flex-1 text-on-surface">
+      <h1 className="text-lg sm:text-xl font-bold font-headline-md flex-1 text-on-surface truncate">
         Thêm {mealTitle}
       </h1>
 
@@ -32,7 +32,7 @@ const AddMealHeader = ({
           suppressHydrationWarning
           onClick={onSaveMeal}
           disabled={isSaving}
-          className="px-5 py-2 bg-primary text-black rounded-full font-bold text-sm hover:opacity-90 transition-opacity shadow-[0_0_12px_rgba(102,200,28,0.4)] cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+          className="px-4 sm:px-5 py-1.5 sm:py-2 bg-primary text-black rounded-full font-bold text-xs sm:text-sm hover:opacity-90 transition-opacity shadow-[0_0_12px_rgba(102,200,28,0.4)] cursor-pointer flex items-center gap-1 sm:gap-1.5 disabled:opacity-50 shrink-0"
         >
           {isSaving ? "Đang lưu..." : "Lưu lại"}
         </button>

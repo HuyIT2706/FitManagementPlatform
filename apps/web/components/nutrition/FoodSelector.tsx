@@ -130,7 +130,7 @@ const FoodSelector = ({
       </div>
 
       {/* Quick Filter Chips */}
-      <div className="flex overflow-x-auto gap-2 pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex overflow-x-auto gap-2 pb-1.5 -mx-4 px-4 sm:mx-0 sm:px-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {QUICK_FILTERS.map((filter) => {
           const isActive = selectedFilter === filter.id;
           return (
@@ -139,7 +139,7 @@ const FoodSelector = ({
               type="button"
               suppressHydrationWarning
               onClick={() => handleFilterClick(filter)}
-              className={`whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`whitespace-nowrap px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                 isActive
                   ? 'bg-primary text-dark-slate shadow-[0_0_10px_rgba(102,200,28,0.4)] scale-[1.02]'
                   : 'bg-surface-bright/40 text-on-surface-variant border border-white/10 hover:bg-surface-bright hover:text-on-surface'
@@ -153,11 +153,11 @@ const FoodSelector = ({
       </div>
 
       {/* Food Cards List */}
-      <div className="space-y-2.5 pt-1">
+      <div className="space-y-2 sm:space-y-2.5 pt-1">
         {loading ? (
           <AppLoading size="sm" message="Đang tải danh sách món ăn..." />
         ) : foods.length === 0 ? (
-          <div className="text-center py-10 px-4 rounded-2xl bg-surface-bright/10 border border-white/5 space-y-2">
+          <div className="text-center py-8 sm:py-10 px-4 rounded-2xl bg-surface-bright/10 border border-white/5 space-y-2">
             <History size={32} className="mx-auto text-on-surface-variant/40 mb-1" />
             <p className="text-sm font-bold text-on-surface">
               {selectedFilter === 'ALL' && !query
@@ -175,11 +175,11 @@ const FoodSelector = ({
             <div
               key={food.id}
               onClick={() => setSelectedFood(food)}
-              className="p-3.5 rounded-2xl bg-surface-bright/20 border border-white/10 hover:border-primary/40 hover:bg-surface-bright/40 transition-all cursor-pointer flex items-center justify-between gap-3 group"
+              className="p-3 sm:p-3.5 rounded-2xl bg-surface-bright/20 border border-white/10 hover:border-primary/40 hover:bg-surface-bright/40 transition-all cursor-pointer flex items-center justify-between gap-3 group"
             >
-              <div className="flex items-center gap-3.5 min-w-0">
+              <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
                 {/* Round Food Avatar */}
-                <div className="w-12 h-12 rounded-full overflow-hidden border border-white/15 shrink-0 bg-black/60 shadow-sm">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border border-white/15 shrink-0 bg-black/60 shadow-sm">
                   <img
                     src={
                       food.imageUrl ||
@@ -193,16 +193,16 @@ const FoodSelector = ({
                 {/* Food Details */}
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <h4 className="font-bold text-on-surface text-xs leading-snug line-clamp-2 capitalize">
+                    <h4 className="font-bold text-on-surface text-xs sm:text-sm leading-snug line-clamp-1 capitalize">
                       {food.name}
                     </h4>
                     {food.isRecent && (
-                      <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/20 text-primary border border-primary/30 shrink-0">
+                      <span className="inline-flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-primary/20 text-primary border border-primary/30 shrink-0">
                         <History size={10} /> Đã từng thêm
                       </span>
                     )}
                     {food.source && !food.isRecent && (
-                      <CheckCircle2 size={14} className="text-[#0095F6] shrink-0" />
+                      <CheckCircle2 size={13} className="text-[#0095F6] shrink-0" />
                     )}
                   </div>
                   <p className="text-xs text-on-surface-variant mt-0.5">
@@ -223,9 +223,9 @@ const FoodSelector = ({
                   setSelectedFood(food);
                 }}
                 aria-label="Chọn món ăn"
-                className="w-9 h-9 rounded-full border border-white/20 hover:border-primary hover:bg-primary hover:text-black text-on-surface flex items-center justify-center shrink-0 transition-all cursor-pointer"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-white/20 hover:border-primary hover:bg-primary hover:text-black text-on-surface flex items-center justify-center shrink-0 transition-all cursor-pointer"
               >
-                <Plus size={18} />
+                <Plus size={16} className="sm:w-[18px] sm:h-[18px]" />
               </button>
             </div>
           ))
@@ -234,7 +234,7 @@ const FoodSelector = ({
 
       {/* Pagination Footer */}
       {!loading && totalPages > 1 && (
-        <div className="p-4 border border-white/10 rounded-2xl bg-surface-bright/30 flex items-center justify-between gap-3 text-xs">
+        <div className="p-3 sm:p-4 border border-white/10 rounded-2xl bg-surface-bright/30 flex items-center justify-between gap-3 text-xs">
           <span className="text-on-surface-variant font-medium">
             Trang <strong className="text-on-surface">{currentPage}</strong> / {totalPages} ({totalCount} món)
           </span>
@@ -244,7 +244,7 @@ const FoodSelector = ({
               type="button"
               disabled={currentPage <= 1 || loading}
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-              className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-on-surface hover:bg-white/15 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 font-bold transition-all cursor-pointer"
+              className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-on-surface hover:bg-white/15 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 font-bold transition-all cursor-pointer"
             >
               <ChevronLeft size={16} />
               Trước
@@ -253,7 +253,7 @@ const FoodSelector = ({
               type="button"
               disabled={currentPage >= totalPages || loading}
               onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-              className="px-3 py-1.5 rounded-xl bg-primary/20 border border-primary/30 text-primary hover:bg-primary/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 font-bold transition-all cursor-pointer"
+              className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-primary/20 border border-primary/30 text-primary hover:bg-primary/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 font-bold transition-all cursor-pointer"
             >
               Sau
               <ChevronRight size={16} />
@@ -270,12 +270,12 @@ const FoodSelector = ({
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-[#121620] border border-white/15 w-full md:w-[440px] rounded-t-[32px] md:rounded-[32px] p-6 space-y-6 text-white shadow-2xl relative cursor-default animate-in slide-in-from-bottom duration-200"
+            className="bg-[#121620] border border-white/15 w-full md:w-[440px] rounded-t-[28px] md:rounded-[32px] p-5 sm:p-6 space-y-4 sm:space-y-6 text-white shadow-2xl relative cursor-default animate-in slide-in-from-bottom duration-200"
           >
             {/* Modal Header */}
             <div className="flex justify-between items-start gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full overflow-hidden border border-white/15 shrink-0 bg-black/60">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border border-white/15 shrink-0 bg-black/60">
                   <img
                     src={
                       selectedFood.imageUrl ||
@@ -285,8 +285,8 @@ const FoodSelector = ({
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <div>
-                  <h3 className="font-bold text-lg leading-tight line-clamp-2 capitalize">
+                <div className="min-w-0">
+                  <h3 className="font-bold text-base sm:text-lg leading-tight line-clamp-1 capitalize">
                     {selectedFood.name}
                   </h3>
                   <p className="text-xs text-white/60 mt-0.5">Giá trị dinh dưỡng trên 100g</p>
@@ -297,14 +297,14 @@ const FoodSelector = ({
                 suppressHydrationWarning
                 onClick={() => setSelectedFood(null)}
                 aria-label="Đóng bảng nhập"
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white flex items-center justify-center transition-colors border border-white/10 cursor-pointer"
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white flex items-center justify-center transition-colors border border-white/10 cursor-pointer shrink-0"
               >
                 <X size={16} />
               </button>
             </div>
 
             {/* Gram Weight Input */}
-            <div className="space-y-2">
+            <div className="space-y-1.5 sm:space-y-2">
               <label className="block text-xs font-semibold text-white/70">
                 Trọng lượng khẩu phần (Gram)
               </label>
@@ -313,7 +313,7 @@ const FoodSelector = ({
                   type="number"
                   placeholder="0"
                   suppressHydrationWarning
-                  className="w-full bg-white/[0.05] border border-white/15 rounded-2xl p-4 text-3xl font-extrabold text-center text-primary focus:outline-none focus:border-primary transition-colors"
+                  className="w-full bg-white/[0.05] border border-white/15 rounded-2xl p-3 sm:p-4 text-2xl sm:text-3xl font-extrabold text-center text-primary focus:outline-none focus:border-primary transition-colors"
                   value={weight === 0 ? '' : weight}
                   onChange={(e) => setWeight(e.target.value === '' ? '' : Number(e.target.value))}
                   autoFocus
@@ -325,29 +325,29 @@ const FoodSelector = ({
             </div>
 
             {/* Nutrition Macros Breakdown */}
-            <div className="grid grid-cols-4 gap-2 bg-white/[0.04] border border-white/10 p-4 rounded-2xl">
+            <div className="grid grid-cols-4 gap-1.5 sm:gap-2 bg-white/[0.04] border border-white/10 p-3 sm:p-4 rounded-2xl">
               <div className="text-center">
-                <p className="text-[11px] font-semibold text-white/50 mb-1">CALO</p>
-                <p className="font-extrabold text-base text-primary">
+                <p className="text-[10px] sm:text-[11px] font-semibold text-white/50 mb-0.5 sm:mb-1">CALO</p>
+                <p className="font-extrabold text-sm sm:text-base text-primary">
                   {weight ? Math.round((selectedFood.caloriesPer100g * Number(weight)) / 100) : 0}
                 </p>
               </div>
               <div className="text-center border-l border-white/10">
-                <p className="text-[11px] font-semibold text-white/50 mb-1">PROTEIN</p>
-                <p className="font-bold text-base text-[#0086C9]">
+                <p className="text-[10px] sm:text-[11px] font-semibold text-white/50 mb-0.5 sm:mb-1">PROTEIN</p>
+                <p className="font-bold text-sm sm:text-base text-[#0086C9]">
                   {weight ? Math.round((selectedFood.proteinPer100g * Number(weight)) / 100) : 0}
                   g
                 </p>
               </div>
               <div className="text-center border-l border-white/10">
-                <p className="text-[11px] font-semibold text-white/50 mb-1">CARB</p>
-                <p className="font-bold text-base text-[#EF6820]">
+                <p className="text-[10px] sm:text-[11px] font-semibold text-white/50 mb-0.5 sm:mb-1">CARB</p>
+                <p className="font-bold text-sm sm:text-base text-[#EF6820]">
                   {weight ? Math.round((selectedFood.carbsPer100g * Number(weight)) / 100) : 0}g
                 </p>
               </div>
               <div className="text-center border-l border-white/10">
-                <p className="text-[11px] font-semibold text-white/50 mb-1">FAT</p>
-                <p className="font-bold text-base text-[#F63D68]">
+                <p className="text-[10px] sm:text-[11px] font-semibold text-white/50 mb-0.5 sm:mb-1">FAT</p>
+                <p className="font-bold text-sm sm:text-base text-[#F63D68]">
                   {weight ? Math.round((selectedFood.fatPer100g * Number(weight)) / 100) : 0}g
                 </p>
               </div>
@@ -359,7 +359,7 @@ const FoodSelector = ({
               suppressHydrationWarning
               onClick={handleConfirmAdd}
               disabled={!weight || Number(weight) <= 0}
-              className="w-full bg-primary text-dark-slate font-bold py-3.5 rounded-2xl disabled:opacity-50 transition-all hover:opacity-90 shadow-[0_0_15px_rgba(102,200,28,0.4)] cursor-pointer"
+              className="w-full bg-primary text-dark-slate font-bold py-3 sm:py-3.5 rounded-2xl disabled:opacity-50 transition-all hover:opacity-90 shadow-[0_0_15px_rgba(102,200,28,0.4)] cursor-pointer text-sm sm:text-base"
             >
               Thêm vào bữa ăn
             </button>
