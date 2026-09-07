@@ -78,20 +78,20 @@ const PtProfileCard = ({
 
   return (
     <>
-      <div className="bento-card rounded-3xl p-6 md:p-8 space-y-6 border border-outline-variant/30 text-center relative overflow-hidden">
+      <div className="bento-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 border border-outline-variant/30 text-center relative overflow-hidden">
         {/* Top Action Header */}
         <div className="flex justify-end">
           <button
             type="button"
             onClick={() => setIsEditOpen(true)}
-            className="px-3.5 py-1.5 rounded-xl bg-primary/10 border border-primary/30 text-primary text-xs font-bold flex items-center gap-1.5 hover:bg-primary/20 transition-all cursor-pointer"
+            className="px-3 sm:px-3.5 py-1.5 rounded-xl bg-primary/10 border border-primary/30 text-primary text-xs font-bold flex items-center gap-1.5 hover:bg-primary/20 transition-all cursor-pointer"
           >
             <Edit3 size={14} />
             Chỉnh sửa hồ sơ HLV
           </button>
         </div>
 
-        <div className="w-24 h-24 rounded-full overflow-hidden mx-auto border-2 border-primary shadow-[0_0_20px_rgba(102,200,28,0.4)] bg-surface-bright">
+        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden mx-auto border-2 border-primary shadow-[0_0_20px_rgba(102,200,28,0.4)] bg-surface-bright">
           <img
             src={getAvatarUrl(userData?.avatarUrl)}
             alt="Avatar"
@@ -99,28 +99,28 @@ const PtProfileCard = ({
           />
         </div>
 
-        <div className="space-y-2">
-          <h1 className="text-2xl font-extrabold font-headline-md text-on-surface">
+        <div className="space-y-1.5 sm:space-y-2">
+          <h1 className="text-xl sm:text-2xl font-extrabold font-headline-md text-on-surface truncate px-2">
             {fullName || userData?.fullName || 'Coach Huấn Luyện Viên'}
           </h1>
-          <p className="text-xs text-on-surface-variant font-medium">
+          <p className="text-xs text-on-surface-variant font-medium truncate px-2">
             {userData?.email || 'pt@nutricore.com'}
           </p>
 
-          <p className="text-xs text-on-surface/80 italic max-w-lg mx-auto leading-relaxed pt-1">
+          <p className="text-xs text-on-surface/80 italic max-w-lg mx-auto leading-relaxed pt-1 px-2">
             &quot;{bio}&quot;
           </p>
 
           {/* Specialization Tags */}
-          <div className="flex flex-wrap justify-center gap-1.5 pt-2">
-            <span className="bg-primary/15 text-primary text-[11px] font-bold px-3 py-1 rounded-full border border-primary/30 flex items-center gap-1">
+          <div className="flex flex-wrap justify-center gap-1.5 pt-1.5 sm:pt-2">
+            <span className="bg-primary/15 text-primary text-[10px] sm:text-[11px] font-bold px-2.5 sm:px-3 py-1 rounded-full border border-primary/30 flex items-center gap-1">
               <Award size={13} />
               {experienceYears} năm kinh nghiệm
             </span>
             {specialties.map((spec) => (
               <span
                 key={spec}
-                className="bg-white/5 text-on-surface-variant text-[11px] font-semibold px-2.5 py-1 rounded-full border border-white/10"
+                className="bg-white/5 text-on-surface-variant text-[10px] sm:text-[11px] font-semibold px-2.5 py-1 rounded-full border border-white/10"
               >
                 {spec}
               </span>
@@ -129,14 +129,14 @@ const PtProfileCard = ({
         </div>
 
         {/* Real Backend PT Stats */}
-        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10 max-w-md mx-auto">
-          <div className="bg-surface-bright/30 p-3.5 rounded-2xl border border-white/5">
-            <span className="text-2xl font-extrabold text-primary block">{totalStudents}</span>
-            <span className="text-xs font-semibold text-on-surface-variant">Học viên VIP</span>
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-4 pt-3 sm:pt-4 border-t border-white/10 max-w-md mx-auto">
+          <div className="bg-surface-bright/30 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border border-white/5">
+            <span className="text-xl sm:text-2xl font-extrabold text-primary block truncate">{totalStudents}</span>
+            <span className="text-[11px] sm:text-xs font-semibold text-on-surface-variant">Học viên VIP</span>
           </div>
-          <div className="bg-surface-bright/30 p-3.5 rounded-2xl border border-white/5">
-            <span className="text-2xl font-extrabold text-on-surface block">{completedHours}+</span>
-            <span className="text-xs font-semibold text-on-surface-variant">Buổi hoàn thành</span>
+          <div className="bg-surface-bright/30 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border border-white/5">
+            <span className="text-xl sm:text-2xl font-extrabold text-on-surface block truncate">{completedHours}+</span>
+            <span className="text-[11px] sm:text-xs font-semibold text-on-surface-variant">Buổi hoàn thành</span>
           </div>
         </div>
       </div>

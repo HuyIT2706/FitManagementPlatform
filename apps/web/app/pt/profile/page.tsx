@@ -62,10 +62,10 @@ const PTProfilePage = () => {
   const completedHours = dashboardData?.completedSessionsCount ?? 0;
 
   return (
-    <div className="min-h-screen bg-background pb-32 pt-2 md:pt-0 dark text-on-surface">
+    <div className="min-h-screen bg-background pb-28 sm:pb-32 pt-2 md:pt-0 dark text-on-surface">
       <Header userData={userData} onLogout={handleLogout} />
 
-      <main className="max-w-4xl mx-auto px-container-padding mt-4 md:mt-8 space-y-6">
+      <main className="max-w-4xl mx-auto px-3 sm:px-4 md:px-container-padding mt-3 sm:mt-4 md:mt-8 space-y-4 sm:space-y-6">
         {/* PT Profile Hero Card */}
         <PtProfileCard
           userData={userData || null}

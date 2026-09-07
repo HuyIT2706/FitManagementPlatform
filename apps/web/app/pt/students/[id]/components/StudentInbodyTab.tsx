@@ -41,44 +41,44 @@ const StudentInbodyTab = ({
   onSaveInBody,
 }: StudentInbodyTabProps) => {
   return (
-    <section className="space-y-6">
+    <section className="space-y-4 sm:space-y-6">
       {/* InBody Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bento-card rounded-2xl p-5 border border-outline-variant/30 space-y-1">
-          <span className="text-xs text-on-surface-variant font-medium">Cân nặng hiện tại</span>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
+        <div className="bento-card rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border border-outline-variant/30 space-y-1">
+          <span className="text-[11px] sm:text-xs text-on-surface-variant font-medium truncate block">Cân nặng hiện tại</span>
           <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-extrabold text-on-surface">{inbodyWeight}</span>
+            <span className="text-xl sm:text-2xl font-extrabold text-on-surface truncate">{inbodyWeight}</span>
             <span className="text-xs font-bold text-primary">Kg</span>
           </div>
         </div>
 
-        <div className="bento-card rounded-2xl p-5 border border-outline-variant/30 space-y-1">
-          <span className="text-xs text-on-surface-variant font-medium">Chiều cao</span>
+        <div className="bento-card rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border border-outline-variant/30 space-y-1">
+          <span className="text-[11px] sm:text-xs text-on-surface-variant font-medium truncate block">Chiều cao</span>
           <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-extrabold text-on-surface">{inbodyHeight}</span>
+            <span className="text-xl sm:text-2xl font-extrabold text-on-surface truncate">{inbodyHeight}</span>
             <span className="text-xs font-bold text-primary">Cm</span>
           </div>
         </div>
 
-        <div className="bento-card rounded-2xl p-5 border border-outline-variant/30 space-y-1">
-          <span className="text-xs text-on-surface-variant font-medium">Tỷ lệ mỡ (Body Fat)</span>
+        <div className="bento-card rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border border-outline-variant/30 space-y-1">
+          <span className="text-[11px] sm:text-xs text-on-surface-variant font-medium truncate block">Tỷ lệ mỡ (Body Fat)</span>
           <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-extrabold text-amber-400">{inbodyFat}</span>
+            <span className="text-xl sm:text-2xl font-extrabold text-amber-400 truncate">{inbodyFat}</span>
             <span className="text-xs font-bold text-amber-400">%</span>
           </div>
         </div>
 
-        <div className="bento-card rounded-2xl p-5 border border-outline-variant/30 space-y-1">
-          <span className="text-xs text-on-surface-variant font-medium">Khối lượng cơ</span>
+        <div className="bento-card rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border border-outline-variant/30 space-y-1">
+          <span className="text-[11px] sm:text-xs text-on-surface-variant font-medium truncate block">Khối lượng cơ</span>
           <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-extrabold text-blue-400">{inbodyMuscle}</span>
+            <span className="text-xl sm:text-2xl font-extrabold text-blue-400 truncate">{inbodyMuscle}</span>
             <span className="text-xs font-bold text-blue-400">Kg</span>
           </div>
         </div>
       </div>
 
       {/* InBody Edit / Action Bar */}
-      <div className="bento-card rounded-3xl p-6 md:p-8 border border-outline-variant/30 space-y-6">
+      <div className="bento-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-outline-variant/30 space-y-4 sm:space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h3 className="text-lg font-bold text-on-surface flex items-center gap-2">
@@ -233,8 +233,8 @@ const StudentInbodyTab = ({
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+          <div className="-mx-3 sm:mx-0 px-3 sm:px-0 overflow-x-auto [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+            <table className="w-full text-left text-xs min-w-[340px]">
               <thead>
                 <tr className="border-b border-white/10 text-on-surface-variant">
                   <th className="py-2.5 px-3 font-semibold">Thời gian</th>
@@ -253,7 +253,7 @@ const StudentInbodyTab = ({
                 ) : (
                   historyPoints.map((pt, i) => (
                     <tr key={i} className="hover:bg-white/5 transition-colors">
-                      <td className="py-2.5 px-3 font-bold text-on-surface">{pt.date}</td>
+                      <td className="py-2.5 px-3 font-bold text-on-surface whitespace-nowrap">{pt.date}</td>
                       <td className="py-2.5 px-3 font-extrabold text-primary">{pt.weightKg}</td>
                       <td className="py-2.5 px-3 font-extrabold text-amber-400">
                         {pt.bodyFatPercent}%

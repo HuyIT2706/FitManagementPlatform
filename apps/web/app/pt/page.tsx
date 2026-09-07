@@ -97,7 +97,7 @@ const PTPage = () => {
     <div className="min-h-screen bg-background pb-32 pt-2 md:pt-0 dark text-on-surface">
       <Header userData={userData} onLogout={handleLogout} />
 
-      <main className="max-w-7xl mx-auto px-container-padding mt-4 md:mt-8 space-y-gutter">
+      <main className="max-w-7xl mx-auto px-container-padding mt-3 sm:mt-4 md:mt-8 space-y-4 sm:space-y-6">
         {/* Section 1: Welcome Header */}
         <PtWelcomeHeader
           coachName={coachName}
@@ -122,9 +122,9 @@ const PTPage = () => {
         />
 
         {/* Main Content Grid Split */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
           {/* Left Column: Schedule List */}
-          <div className="lg:col-span-8 space-y-gutter">
+          <div className="lg:col-span-8 space-y-4 sm:space-y-6">
             {/* Section 4: Today's PT Schedule */}
             <PtScheduleList
               sessions={ptData?.todaySessions}

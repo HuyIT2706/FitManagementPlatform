@@ -75,27 +75,27 @@ const ExerciseSelectionModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-[#121814] border border-primary/30 rounded-3xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-[0_0_30px_rgba(102,200,28,0.15)] overflow-hidden">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="bg-[#121814] border border-primary/30 rounded-2xl sm:rounded-3xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-[0_0_30px_rgba(102,200,28,0.15)] overflow-hidden">
         {/* Header */}
-        <div className="p-5 md:p-6 border-b border-white/10 flex items-center justify-between bg-black/40">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-primary/20 text-primary border border-primary/30 flex items-center justify-center">
-              <Dumbbell size={22} />
+        <div className="p-4 sm:p-5 md:p-6 border-b border-white/10 flex items-center justify-between bg-black/40">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-primary/20 text-primary border border-primary/30 flex items-center justify-center shrink-0">
+              <Dumbbell size={20} className="sm:w-[22px] sm:h-[22px]" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white">Thư viện bài tập</h3>
+              <h3 className="text-base sm:text-lg font-bold text-white">Thư viện bài tập</h3>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/15 text-white/70 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/5 hover:bg-white/15 text-white/70 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
           >
             <X size={18} />
           </button>
         </div>
-        <div className="p-5 border-b border-white/10 space-y-4 bg-surface-bright/20">
+        <div className="p-3.5 sm:p-5 border-b border-white/10 space-y-3 sm:space-y-4 bg-surface-bright/20">
           {/* Search Input */}
           <div>
             <AppSearchInput
@@ -107,13 +107,13 @@ const ExerciseSelectionModal = ({
           </div>
 
           {/* Category Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
             {muscleCategories.map((cat) => (
               <button
                 key={cat.key}
                 type="button"
                 onClick={() => handleMuscleSelect(cat.key)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                   selectedMuscle === cat.key
                     ? 'bg-primary text-dark-slate shadow-[0_0_12px_rgba(102,200,28,0.3)] scale-105'
                     : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white'
@@ -126,7 +126,7 @@ const ExerciseSelectionModal = ({
         </div>
 
         {/* Exercise List */}
-        <div className="p-5 overflow-y-auto flex-1 space-y-3 [&&::-webkit-scrollbar]:w-1.5 [&&::-webkit-scrollbar-thumb]:bg-primary/40 [&&::-webkit-scrollbar-thumb]:rounded-full [&&::-webkit-scrollbar-track]:bg-black/20">
+        <div className="p-3 sm:p-5 overflow-y-auto flex-1 space-y-2.5 sm:space-y-3 [&&::-webkit-scrollbar]:w-1.5 [&&::-webkit-scrollbar-thumb]:bg-primary/40 [&&::-webkit-scrollbar-thumb]:rounded-full [&&::-webkit-scrollbar-track]:bg-black/20">
           {loading ? (
             <AppLoading size="sm" message="Đang lấy danh sách bài tập..." />
           ) : exercises.length === 0 ? (
@@ -147,14 +147,14 @@ const ExerciseSelectionModal = ({
               return (
                 <div
                   key={ex.id}
-                  className={`p-4 rounded-2xl border transition-all flex items-center justify-between gap-4 ${
+                  className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 ${
                     isSelected
                       ? 'border-primary bg-primary/10 shadow-[0_0_15px_rgba(102,200,28,0.15)]'
                       : 'border-white/10 bg-black/30 hover:border-primary/50 hover:bg-black/50'
                   }`}
                 >
-                  <div className="flex items-center gap-3.5 min-w-0">
-                    <div className="w-14 h-14 rounded-2xl overflow-hidden border border-white/10 bg-black/60 shrink-0 relative group">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl overflow-hidden border border-white/10 bg-black/60 shrink-0 relative group">
                       <img
                         src={imgUrl}
                         alt={ex.name}
@@ -162,19 +162,19 @@ const ExerciseSelectionModal = ({
                       />
                     </div>
 
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded-md bg-primary/20 text-primary text-[10px] font-extrabold capitalize border border-primary/30">
+                        <span className="px-2 py-0.5 rounded-md bg-primary/20 text-primary text-[10px] font-extrabold capitalize border border-primary/30 truncate max-w-full">
                           {muscleGroupText}
                         </span>
                       </div>
-                      <h4 className="font-extrabold text-white text-sm mt-0.5 truncate">
+                      <h4 className="font-extrabold text-white text-xs sm:text-sm mt-0.5 truncate">
                         {ex.name}
                       </h4>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center justify-end gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
                     <a
                       href={`https://www.youtube.com/results?search_query=${encodeURIComponent(ex.name + ' exercise guidance')}`}
                       target="_blank"
@@ -183,7 +183,7 @@ const ExerciseSelectionModal = ({
                       title="Xem video hướng dẫn phom dáng"
                     >
                       <PlayCircle size={16} />
-                      <span className="hidden sm:inline">Video phom</span>
+                      <span className="inline">Video phom</span>
                       <ExternalLink size={12} />
                     </a>
 
@@ -216,8 +216,8 @@ const ExerciseSelectionModal = ({
         </div>
 
         {/* Pagination Footer */}
-        <div className="p-4 border-t border-white/10 bg-black/40 flex items-center justify-between gap-3 text-xs">
-          <span className="text-white/60 font-medium">
+        <div className="p-3 sm:p-4 border-t border-white/10 bg-black/40 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-3 text-xs">
+          <span className="text-white/60 font-medium text-center sm:text-left">
             Trang <strong className="text-white">{currentPage}</strong> / {totalPages} ({totalExercises} bài tập)
           </span>
 

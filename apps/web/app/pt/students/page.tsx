@@ -107,14 +107,14 @@ const PTStudentsPage = () => {
     <div className="min-h-screen bg-background pb-32 pt-2 md:pt-0 dark text-on-surface">
       <Header userData={userData} onLogout={handleLogout} />
 
-      <main className="max-w-7xl mx-auto px-container-padding mt-4 md:mt-8 space-y-6">
+      <main className="max-w-7xl mx-auto px-container-padding mt-3 sm:mt-4 md:mt-8 space-y-4 sm:space-y-6">
         {/* Header Summary & Add Student Action */}
-        <div className="bento-card rounded-3xl p-6 md:p-8 space-y-4 border border-outline-variant/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="bento-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 space-y-3 sm:space-y-4 border border-outline-variant/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold font-headline-md text-on-surface">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold font-headline-md text-on-surface">
               Danh sách Học viên phụ trách
             </h1>
-            <p className="text-sm text-on-surface-variant font-medium mt-1">
+            <p className="text-xs sm:text-sm text-on-surface-variant font-medium mt-1">
               Quản lý danh sách học viên kèm PT, gửi link mời Gmail/QR Code, giao giáo án và thực
               đơn.
             </p>
@@ -126,14 +126,14 @@ const PTStudentsPage = () => {
               setGeneratedInviteUrl(null);
               setIsInviteModalOpen(true);
             }}
-            className="px-5 py-3 bg-primary text-dark-slate font-extrabold text-xs rounded-2xl shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
+            className="w-full sm:w-auto px-4 sm:px-5 py-2.5 sm:py-3 bg-primary text-dark-slate font-extrabold text-xs rounded-2xl shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
           >
             <UserPlus size={18} />+ Thêm Học Viên Mới
           </button>
         </div>
 
         {/* Student Roster Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           {studentsList.map((student) => (
             <PtStudentCard key={student.id} student={student} />
           ))}

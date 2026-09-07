@@ -122,13 +122,13 @@ export const PtScheduleMonthGrid: React.FC<PtScheduleMonthGridProps> = ({
   }, [monthInfo]);
 
   return (
-    <section className="bento-card rounded-3xl p-4 md:p-6 border border-white/10 shadow-2xl space-y-4 overflow-hidden">
+    <section className="bento-card rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 md:p-6 border border-white/10 shadow-2xl space-y-3 sm:space-y-4 overflow-hidden">
       {/* Weekday Column Headers */}
-      <div className="grid grid-cols-7 gap-1.5 md:gap-2 text-center">
+      <div className="grid grid-cols-7 gap-1 sm:gap-1.5 md:gap-2 text-center">
         {WEEKDAY_NAMES_VI.map((name, idx) => (
           <div
             key={name}
-            className={`py-2 text-xs md:text-sm font-bold uppercase tracking-wider ${
+            className={`py-1 sm:py-2 text-[10px] sm:text-xs md:text-sm font-bold uppercase tracking-wider ${
               idx >= 5 ? 'text-amber-400/80' : 'text-white/60'
             }`}
           >
@@ -138,7 +138,7 @@ export const PtScheduleMonthGrid: React.FC<PtScheduleMonthGridProps> = ({
       </div>
 
       {/* Monthly Days Grid */}
-      <div className="grid grid-cols-7 gap-1.5 md:gap-2">
+      <div className="grid grid-cols-7 gap-1 sm:gap-1.5 md:gap-2">
         {calendarCells.map((cell) => {
           const isToday = isSameDay(cell.date, today);
           const isSelected = isSameDay(cell.date, selectedDate);
@@ -156,7 +156,7 @@ export const PtScheduleMonthGrid: React.FC<PtScheduleMonthGridProps> = ({
                   onOpenDayDetails(cell.date);
                 }
               }}
-              className={`min-h-[100px] md:min-h-[125px] p-2 md:p-2.5 rounded-2xl md:rounded-3xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group relative ${
+              className={`min-h-[64px] sm:min-h-[95px] md:min-h-[125px] p-1 sm:p-2 md:p-2.5 rounded-xl sm:rounded-2xl md:rounded-3xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group relative ${
                 isSelected
                   ? 'bg-primary/[0.08] border-primary shadow-[0_0_15px_rgba(102,200,28,0.25)] ring-1 ring-primary/40'
                   : cell.isCurrentMonth
@@ -167,7 +167,7 @@ export const PtScheduleMonthGrid: React.FC<PtScheduleMonthGridProps> = ({
               {/* Day Header: Day Number + Quick Add Button on hover */}
               <div className="flex items-center justify-between">
                 <span
-                  className={`w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center text-xs md:text-sm font-extrabold transition-all ${
+                  className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center text-[10px] sm:text-xs md:text-sm font-extrabold transition-all ${
                     isToday
                       ? 'bg-primary text-dark-slate shadow-[0_0_10px_rgba(102,200,28,0.5)] scale-105'
                       : isSelected
@@ -180,7 +180,7 @@ export const PtScheduleMonthGrid: React.FC<PtScheduleMonthGridProps> = ({
                   {cell.dayNumber}
                 </span>
 
-                {/* Quick Add icon on hover for current month */}
+                {/* Quick Add icon on hover for current month (hidden on mobile) */}
                 <button
                   type="button"
                   suppressHydrationWarning
@@ -191,14 +191,36 @@ export const PtScheduleMonthGrid: React.FC<PtScheduleMonthGridProps> = ({
                   }}
                   title={`Thêm ca dạy ngày ${cell.dayNumber}`}
                   aria-label={`Thêm ca dạy ngày ${cell.dayNumber}`}
-                  className="opacity-0 group-hover:opacity-100 w-5 h-5 rounded-full bg-white/10 hover:bg-primary hover:text-black text-white/70 flex items-center justify-center transition-all cursor-pointer"
+                  className="hidden sm:flex opacity-0 group-hover:opacity-100 w-5 h-5 rounded-full bg-white/10 hover:bg-primary hover:text-black text-white/70 items-center justify-center transition-all cursor-pointer"
                 >
                   <Plus size={12} />
                 </button>
               </div>
 
-              {/* Session Pill Cards inside cell */}
-              <div className="space-y-1 my-1 flex-1 overflow-hidden">
+              {/* Mobile View: Compact dots/mini-badges for sessions */}
+              <div className="sm:hidden flex flex-col items-center justify-center gap-0.5 my-1 flex-1">
+                {daySessions.length > 0 && (
+                  <div className="flex items-center justify-center gap-0.5 flex-wrap">
+                    {daySessions.slice(0, 3).map((s) => {
+                      const isDone = s.status === 'CHECKED_IN' || Boolean(checkedSessions[s.id]);
+                      return (
+                        <span
+                          key={s.id}
+                          className={`w-1.5 h-1.5 rounded-full ${isDone ? 'bg-emerald-400' : 'bg-primary'}`}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+                {daySessions.length > 0 && (
+                  <span className="text-[8px] font-extrabold text-primary/90 leading-tight">
+                    {daySessions.length} ca
+                  </span>
+                )}
+              </div>
+
+              {/* Tablet & Desktop View: Session Pill Cards inside cell */}
+              <div className="hidden sm:block space-y-1 my-1 flex-1 overflow-hidden">
                 {visibleSessions.map((session, idx) => {
                   const isCheckedIn =
                     session.status === 'CHECKED_IN' || Boolean(checkedSessions[session.id]);
@@ -248,9 +270,9 @@ export const PtScheduleMonthGrid: React.FC<PtScheduleMonthGridProps> = ({
                 )}
               </div>
 
-              {/* Bottom active indicator bar if has sessions */}
+              {/* Bottom active indicator bar if has sessions (Tablet & Desktop) */}
               {daySessions.length > 0 && (
-                <div className="flex items-center gap-1 justify-center pt-0.5">
+                <div className="hidden sm:flex items-center gap-1 justify-center pt-0.5">
                   <span className="text-[9px] font-bold text-white/40">
                     {daySessions.length} ca
                   </span>

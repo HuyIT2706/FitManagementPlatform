@@ -254,31 +254,31 @@ const PTSchedulePage = () => {
     <div className="min-h-screen bg-background pb-32 pt-2 md:pt-0 dark text-on-surface">
       <Header userData={userData} onLogout={handleLogout} />
 
-      <main className="max-w-6xl mx-auto px-container-padding mt-4 md:mt-8 space-y-6">
+      <main className="max-w-6xl mx-auto px-container-padding mt-3 sm:mt-4 md:mt-8 space-y-4 sm:space-y-6">
         {/* Top Hero Banner & Toolbar Controls */}
-        <section className="bento-card rounded-3xl p-5 md:p-7 border border-outline-variant/30 relative overflow-hidden space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <section className="bento-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-7 border border-outline-variant/30 relative overflow-hidden space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
             {/* Title & Description */}
             <div>
-              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-1.5 border border-primary/30">
-                <Calendar size={15} />
+              <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-1.5 border border-primary/30">
+                <Calendar size={14} />
                 Lịch Học & Dạy PT
               </div>
-              <h1 className="text-2xl md:text-3xl font-extrabold font-headline-md text-on-surface">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold font-headline-md text-on-surface">
                 Timeline Lịch Dạy
               </h1>
-              <p className="text-xs md:text-sm text-on-surface-variant font-medium">
+              <p className="text-xs sm:text-sm text-on-surface-variant font-medium mt-0.5">
                 Toàn bộ ca dạy, lịch học của các học viên trong trung tâm.
               </p>
             </div>
 
             {/* Action Button: Thêm ca dạy */}
-            <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-auto">
+            <div className="flex items-center gap-2.5 shrink-0 w-full sm:w-auto">
               <button
                 type="button"
                 suppressHydrationWarning
                 onClick={() => handleOpenAddModalForDate(selectedDate)}
-                className="px-5 py-3 rounded-2xl bg-primary text-dark-slate font-extrabold text-xs shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                className="w-full sm:w-auto px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-primary text-dark-slate font-extrabold text-xs shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
               >
                 <PlusCircle size={16} />
                 Thêm Ca Dạy Mới
@@ -287,7 +287,7 @@ const PTSchedulePage = () => {
           </div>
 
           {/* Sub Toolbar: Month Navigation + Custom Glassmorphism Filter Dropdown */}
-          <div className="pt-3 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 flex-wrap">
+          <div className="pt-3 border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
             {/* Month / Period Navigation Controls */}
             <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
               <div className="flex items-center gap-1 bg-white/[0.04] border border-white/10 rounded-2xl p-1">
@@ -302,7 +302,7 @@ const PTSchedulePage = () => {
                   <ChevronLeft size={18} />
                 </button>
 
-                <span className="px-3 text-sm font-extrabold text-white whitespace-nowrap min-w-[130px] text-center">
+                <span className="px-2 sm:px-3 text-xs sm:text-sm font-extrabold text-white whitespace-nowrap min-w-[105px] sm:min-w-[130px] text-center">
                   {monthYearLabel}
                 </span>
 
@@ -323,7 +323,7 @@ const PTSchedulePage = () => {
                   type="button"
                   suppressHydrationWarning
                   onClick={handleGoToToday}
-                  className="px-3.5 py-2 rounded-2xl bg-surface-bright text-on-surface border border-white/10 font-bold text-xs hover:border-primary/40 transition-colors flex items-center gap-1.5 cursor-pointer shrink-0"
+                  className="px-3 sm:px-3.5 py-2 rounded-2xl bg-surface-bright text-on-surface border border-white/10 font-bold text-xs hover:border-primary/40 transition-colors flex items-center gap-1.5 cursor-pointer shrink-0"
                 >
                   <RotateCcw size={14} />
                   Hôm nay
@@ -338,11 +338,11 @@ const PTSchedulePage = () => {
                   type="button"
                   suppressHydrationWarning
                   onClick={() => setIsStudentDropdownOpen((prev) => !prev)}
-                  className="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 bg-white/[0.05] hover:bg-white/[0.08] border border-white/15 hover:border-primary/40 rounded-2xl px-4 py-2.5 text-xs font-bold text-white transition-all cursor-pointer shadow-sm"
+                  className="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 bg-white/[0.05] hover:bg-white/[0.08] border border-white/15 hover:border-primary/40 rounded-2xl px-3.5 sm:px-4 py-2.5 text-xs font-bold text-white transition-all cursor-pointer shadow-sm"
                 >
                   <div className="flex items-center gap-2 truncate">
                     <Filter size={14} className="text-primary shrink-0" />
-                    <span className="max-w-[160px] truncate">
+                    <span className="max-w-[140px] sm:max-w-[160px] truncate">
                       {selectedStudentObj
                         ? selectedStudentObj.fullName
                         : `Tất cả học viên (${studentsList.length})`}
@@ -358,7 +358,7 @@ const PTSchedulePage = () => {
 
                 {/* Custom Popover Dropdown Menu */}
                 {isStudentDropdownOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-64 bg-[#121620]/95 backdrop-blur-xl border border-white/15 rounded-2xl p-1.5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1 max-h-60 overflow-y-auto [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+                  <div className="absolute right-0 top-full mt-2 w-full sm:w-64 max-w-[calc(100vw-32px)] bg-[#121620]/95 backdrop-blur-xl border border-white/15 rounded-2xl p-1.5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1 max-h-60 overflow-y-auto [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
                     {/* Option All Students */}
                     <button
                       type="button"

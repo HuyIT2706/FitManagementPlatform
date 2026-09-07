@@ -36,17 +36,17 @@ const StudentWorkoutTab = ({
   onSaveWorkout,
 }: StudentWorkoutTabProps) => {
   return (
-    <section className="space-y-6">
+    <section className="space-y-4 sm:space-y-6">
       {/* Add Exercise Form Card */}
-      <div className="bento-card rounded-3xl p-6 md:p-8 border border-outline-variant/30 space-y-4">
-        <h3 className="text-lg font-bold text-on-surface flex items-center gap-2">
+      <div className="bento-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-outline-variant/30 space-y-3 sm:space-y-4">
+        <h3 className="text-base sm:text-lg font-bold text-on-surface flex items-center gap-2">
           <span className="material-symbols-outlined text-primary">
             add_task
           </span>
           Thêm bài tập mới vào giáo án
         </h3>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs items-end">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 text-xs items-end">
           <div className="sm:col-span-2">
             <label className="block text-on-surface-variant font-medium mb-1">
               Tên bài tập
@@ -126,9 +126,9 @@ const StudentWorkoutTab = ({
       </div>
 
       {/* Currently Assigned Exercises List */}
-      <div className="bento-card rounded-3xl p-6 md:p-8 border border-outline-variant/30 space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold text-on-surface flex items-center gap-2">
+      <div className="bento-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-outline-variant/30 space-y-3 sm:space-y-4">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-base sm:text-lg font-bold text-on-surface flex items-center gap-2 truncate">
             Danh sách các bài tập ({assignedExercises.length})
           </h3>
 
@@ -136,18 +136,18 @@ const StudentWorkoutTab = ({
             type="button"
             onClick={onSaveWorkout}
             disabled={saving}
-            className="px-5 py-2.5 rounded-xl bg-primary text-dark-slate font-extrabold text-xs flex items-center gap-1.5 shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 cursor-pointer transition-all disabled:opacity-50"
+            className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-primary text-dark-slate font-extrabold text-xs flex items-center gap-1.5 shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 cursor-pointer transition-all disabled:opacity-50 shrink-0"
           >
             {saving ? "Đang lưu..." : "Lưu"}
           </button>
         </div>
 
         {assignedExercises.length === 0 ? (
-          <div className="p-8 text-center border border-dashed border-white/10 rounded-2xl space-y-2">
-            <p className="text-sm font-medium text-on-surface-variant">
+          <div className="p-6 sm:p-8 text-center border border-dashed border-white/10 rounded-2xl space-y-2">
+            <p className="text-xs sm:text-sm font-medium text-on-surface-variant">
               Chưa có bài tập nào trong giáo án cá nhân hóa.
             </p>
-            <p className="text-xs text-on-surface-variant/70">
+            <p className="text-[11px] sm:text-xs text-on-surface-variant/70">
               Chọn bài tập từ Thư viện và bấm nút &quot;Thêm Bài Tập&quot; phía
               trên.
             </p>
@@ -157,10 +157,10 @@ const StudentWorkoutTab = ({
             {assignedExercises.map((ex, idx) => (
               <div
                 key={ex.id || idx}
-                className="p-4 rounded-2xl bg-surface-bright/40 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-surface-bright/40 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4"
               >
-                <div className="flex items-center gap-3.5">
-                  <div className="w-12 h-12 rounded-2xl overflow-hidden border border-white/15 shrink-0 bg-surface-bright/80 flex items-center justify-center">
+                <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1">
+                  <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl overflow-hidden border border-white/15 shrink-0 bg-surface-bright/80 flex items-center justify-center">
                     {ex.imageUrl || ex.setupImageUrl || ex.startImageUrl ? (
                       <img
                         src={
@@ -175,11 +175,11 @@ const StudentWorkoutTab = ({
                       </div>
                     )}
                   </div>
-                  <div>
-                    <h4 className="font-extrabold text-on-surface text-sm">
+                  <div className="min-w-0 flex-1">
+                    <h4 className="font-extrabold text-on-surface text-sm truncate">
                       {ex.name}
                     </h4>
-                    <p className="text-xs text-on-surface-variant font-medium mt-0.5">
+                    <p className="text-xs text-on-surface-variant font-medium mt-0.5 truncate">
                       {ex.category ? `${ex.category} • ` : ""}
                       {ex.sets} Hiệp x {ex.reps} Lần{" "}
                       {ex.dayOfWeek ? `(${ex.dayOfWeek})` : ""}
@@ -190,7 +190,7 @@ const StudentWorkoutTab = ({
                 <button
                   type="button"
                   onClick={() => onRemoveExercise(ex.id)}
-                  className="w-10 h-10 rounded-full bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30 flex items-center justify-center shrink-0 self-end sm:self-center transition-all cursor-pointer shadow-sm hover:scale-105"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30 flex items-center justify-center shrink-0 self-end sm:self-center transition-all cursor-pointer shadow-sm hover:scale-105"
                   title="Xóa bài tập này"
                 >
                   <span className="material-symbols-outlined text-[18px]">

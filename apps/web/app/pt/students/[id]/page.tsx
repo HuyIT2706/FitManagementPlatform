@@ -392,11 +392,11 @@ const PTStudentDetailPage = ({
         />
 
         {/* Sub-Tabs Switcher */}
-        <section className="flex items-center gap-2 p-1.5 bg-surface-bright/40 rounded-2xl border border-white/10 overflow-x-auto">
+        <section className="flex items-center gap-1.5 sm:gap-2 p-1.5 bg-surface-bright/40 rounded-2xl border border-white/10 overflow-x-auto [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
           <button
             type="button"
             onClick={() => setActiveSubTab('workout')}
-            className={`flex-1 min-w-[130px] py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            className={`flex-1 min-w-[100px] sm:min-w-[130px] py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer whitespace-nowrap ${
               activeSubTab === 'workout'
                 ? 'bg-primary text-dark-slate shadow-[0_0_15px_rgba(102,200,28,0.4)]'
                 : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50'
@@ -408,7 +408,7 @@ const PTStudentDetailPage = ({
           <button
             type="button"
             onClick={() => setActiveSubTab('nutrition')}
-            className={`flex-1 min-w-[130px] py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            className={`flex-1 min-w-[100px] sm:min-w-[130px] py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer whitespace-nowrap ${
               activeSubTab === 'nutrition'
                 ? 'bg-primary text-dark-slate shadow-[0_0_15px_rgba(102,200,28,0.4)]'
                 : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50'
@@ -420,7 +420,7 @@ const PTStudentDetailPage = ({
           <button
             type="button"
             onClick={() => setActiveSubTab('inbody')}
-            className={`flex-1 min-w-[130px] py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            className={`flex-1 min-w-[100px] sm:min-w-[130px] py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer whitespace-nowrap ${
               activeSubTab === 'inbody'
                 ? 'bg-primary text-dark-slate shadow-[0_0_15px_rgba(102,200,28,0.4)]'
                 : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50'

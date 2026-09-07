@@ -133,12 +133,12 @@ const StudentNutritionTab = ({
   };
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-4 sm:space-y-6">
       {/* Target Macros Settings */}
-      <div className="bento-card rounded-3xl p-6 md:p-8 border border-outline-variant/30 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bento-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-outline-variant/30 space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
           <div>
-            <h3 className="text-lg font-bold text-on-surface flex items-center gap-2">
+            <h3 className="text-base sm:text-lg font-bold text-on-surface flex items-center gap-2">
               Mục Tiêu Dinh Dưỡng & Phân Chia Bữa Ăn
             </h3>
             <p className="text-xs text-on-surface-variant mt-0.5">
@@ -151,7 +151,7 @@ const StudentNutritionTab = ({
             type="button"
             onClick={onSaveNutrition}
             disabled={saving}
-            className="px-5 py-2.5 rounded-xl bg-primary text-dark-slate font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 cursor-pointer transition-all disabled:opacity-50"
+            className="w-full sm:w-auto px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-primary text-dark-slate font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 cursor-pointer transition-all disabled:opacity-50 shrink-0"
           >
             <span className="material-symbols-outlined text-[18px]">save</span>
             {saving ? "Đang lưu..." : "Lưu kế hoạch"}
@@ -159,9 +159,9 @@ const StudentNutritionTab = ({
         </div>
 
         {/* Macro Inputs */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-          <div className="p-4 rounded-2xl bg-surface-bright/40 border border-white/10 space-y-1.5 hover:border-primary/30 transition-all">
-            <span className="font-semibold text-on-surface-variant">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 text-xs">
+          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-surface-bright/40 border border-white/10 space-y-1 sm:space-y-1.5 hover:border-primary/30 transition-all">
+            <span className="font-semibold text-on-surface-variant text-[11px] sm:text-xs truncate block">
               Target Calo (Kcal)
             </span>
             <input
@@ -173,12 +173,12 @@ const StudentNutritionTab = ({
                   e.target.value === "" ? 0 : Number(e.target.value),
                 )
               }
-              className="w-full bg-surface-bright/60 border border-primary/40 rounded-xl px-3 py-2 text-primary font-extrabold text-base outline-none focus:border-primary focus:bg-surface-bright transition-all"
+              className="w-full bg-surface-bright/60 border border-primary/40 rounded-xl px-2.5 sm:px-3 py-1.5 sm:py-2 text-primary font-extrabold text-sm sm:text-base outline-none focus:border-primary focus:bg-surface-bright transition-all"
             />
           </div>
 
-          <div className="p-4 rounded-2xl bg-surface-bright/40 border border-white/10 space-y-1.5 hover:border-amber-400/30 transition-all">
-            <span className="font-semibold text-amber-400">
+          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-surface-bright/40 border border-white/10 space-y-1 sm:space-y-1.5 hover:border-amber-400/30 transition-all">
+            <span className="font-semibold text-amber-400 text-[11px] sm:text-xs truncate block">
               Protein (Grams)
             </span>
             <input
@@ -190,12 +190,12 @@ const StudentNutritionTab = ({
                   e.target.value === "" ? 0 : Number(e.target.value),
                 )
               }
-              className="w-full bg-surface-bright/60 border border-amber-400/40 rounded-xl px-3 py-2 text-amber-400 font-extrabold text-base outline-none focus:border-amber-400 focus:bg-surface-bright transition-all"
+              className="w-full bg-surface-bright/60 border border-amber-400/40 rounded-xl px-2.5 sm:px-3 py-1.5 sm:py-2 text-amber-400 font-extrabold text-sm sm:text-base outline-none focus:border-amber-400 focus:bg-surface-bright transition-all"
             />
           </div>
 
-          <div className="p-4 rounded-2xl bg-surface-bright/40 border border-white/10 space-y-1.5 hover:border-blue-400/30 transition-all">
-            <span className="font-semibold text-blue-400">Carbs (Grams)</span>
+          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-surface-bright/40 border border-white/10 space-y-1 sm:space-y-1.5 hover:border-blue-400/30 transition-all">
+            <span className="font-semibold text-blue-400 text-[11px] sm:text-xs truncate block">Carbs (Grams)</span>
             <input
               type="number"
               placeholder="0"
@@ -205,12 +205,12 @@ const StudentNutritionTab = ({
                   e.target.value === "" ? 0 : Number(e.target.value),
                 )
               }
-              className="w-full bg-surface-bright/60 border border-blue-400/40 rounded-xl px-3 py-2 text-blue-400 font-extrabold text-base outline-none focus:border-blue-400 focus:bg-surface-bright transition-all"
+              className="w-full bg-surface-bright/60 border border-blue-400/40 rounded-xl px-2.5 sm:px-3 py-1.5 sm:py-2 text-blue-400 font-extrabold text-sm sm:text-base outline-none focus:border-blue-400 focus:bg-surface-bright transition-all"
             />
           </div>
 
-          <div className="p-4 rounded-2xl bg-surface-bright/40 border border-white/10 space-y-1.5 hover:border-rose-400/30 transition-all">
-            <span className="font-semibold text-rose-400">Fat (Grams)</span>
+          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-surface-bright/40 border border-white/10 space-y-1 sm:space-y-1.5 hover:border-rose-400/30 transition-all">
+            <span className="font-semibold text-rose-400 text-[11px] sm:text-xs truncate block">Fat (Grams)</span>
             <input
               type="number"
               placeholder="0"
@@ -220,13 +220,13 @@ const StudentNutritionTab = ({
                   e.target.value === "" ? 0 : Number(e.target.value),
                 )
               }
-              className="w-full bg-surface-bright/60 border border-rose-400/40 rounded-xl px-3 py-2 text-rose-400 font-extrabold text-base outline-none focus:border-rose-400 focus:bg-surface-bright transition-all"
+              className="w-full bg-surface-bright/60 border border-rose-400/40 rounded-xl px-2.5 sm:px-3 py-1.5 sm:py-2 text-rose-400 font-extrabold text-sm sm:text-base outline-none focus:border-rose-400 focus:bg-surface-bright transition-all"
             />
           </div>
         </div>
 
         {/* Coach Advice / Note Section */}
-        <div className="p-4 rounded-2xl bg-surface-bright/30 border border-white/10 space-y-2 hover:border-white/20 transition-all">
+        <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-surface-bright/30 border border-white/10 space-y-2 hover:border-white/20 transition-all">
           <div className="flex items-center justify-between">
             <label className="font-extrabold text-primary flex items-center gap-1.5 text-xs">
               <StickyNote size={15} />
@@ -241,21 +241,21 @@ const StudentNutritionTab = ({
             value={nutritionNote}
             onChange={(e) => onNutritionNoteChange(e.target.value)}
             placeholder="Ví dụ: Nhớ uống đủ 2.5L nước mỗi ngày, ăn chậm nhai kỹ và hạn chế nạp tinh bột nhanh sau 20h tối..."
-            className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-primary/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all text-xs"
+            className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-2.5 sm:p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-primary/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all text-xs"
           />
         </div>
 
         {/* 4 Meal Slots Prescribed Plan */}
-        <div className="space-y-4 pt-2">
+        <div className="space-y-3 sm:space-y-4 pt-2">
           <div className="flex items-center justify-between border-b border-white/10 pb-2">
             <h4 className="text-sm font-bold text-on-surface flex items-center gap-2">
               Phân Chia Thực Đơn Chi Tiết 4 Bữa
             </h4>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 text-xs">
             {/* Breakfast */}
-            <div className="p-4 rounded-2xl bg-surface-bright/30 border border-white/10 space-y-2.5 hover:border-amber-400/30 transition-all">
+            <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-surface-bright/30 border border-white/10 space-y-2.5 hover:border-amber-400/30 transition-all">
               <div className="flex items-center justify-between">
                 <label className="font-extrabold text-amber-400 flex items-center gap-2 text-xs">
                   Bữa Sáng

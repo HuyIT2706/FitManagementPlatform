@@ -46,7 +46,7 @@ const PtScheduleList = ({
             return (
               <div
                 key={session.id}
-                className={`bento-card rounded-2xl p-5 border transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                className={`bento-card rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 ${
                   isChecked
                     ? 'border-green-light/40 bg-green-light/10'
                     : isOverdue
@@ -54,22 +54,22 @@ const PtScheduleList = ({
                       : 'border-outline-variant/30 hover:border-white/20'
                 }`}
               >
-                <div className="flex items-center gap-4">
-                  <div className="bg-surface-bright rounded-xl p-3 flex flex-col items-center justify-center min-w-[80px] border border-white/10 text-center">
-                    <span className={`text-xs font-bold ${isOverdue ? 'text-amber-400' : 'text-primary'}`}>{session.timeSlot}</span>
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                  <div className="bg-surface-bright rounded-xl p-2 sm:p-3 flex flex-col items-center justify-center min-w-[70px] sm:min-w-[80px] border border-white/10 text-center shrink-0">
+                    <span className={`text-[11px] sm:text-xs font-bold ${isOverdue ? 'text-amber-400' : 'text-primary'}`}>{session.timeSlot}</span>
                   </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-bold text-on-surface text-base">{session.studentName}</h4>
+                  <div className="space-y-1 min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h4 className="font-bold text-on-surface text-sm sm:text-base truncate">{session.studentName}</h4>
                       {isOverdue && (
-                        <span className="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">
+                        <span className="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold shrink-0">
                           Quá giờ
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-on-surface-variant flex items-center gap-1.5 font-medium">
+                    <p className="text-xs text-on-surface-variant flex items-center gap-1.5 font-medium truncate">
                       <Dumbbell size={14} className="text-primary shrink-0" />
-                      {session.workoutName}
+                      <span className="truncate">{session.workoutName}</span>
                     </p>
                   </div>
                 </div>
@@ -78,7 +78,7 @@ const PtScheduleList = ({
                   type="button"
                   onClick={() => onCheckInSession(session.id)}
                   disabled={isChecked}
-                  className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                  className={`w-full sm:w-auto px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 shrink-0 ${
                     isChecked
                       ? 'bg-surface-bright text-green-light border border-green-light/40 cursor-default'
                       : 'bg-primary text-dark-slate hover:bg-primary/90 shadow-[0_0_12px_rgba(102,200,28,0.3)] active:scale-95'

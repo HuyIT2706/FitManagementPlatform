@@ -27,22 +27,22 @@ const PtStudentRosterQuick = ({ students }: PtStudentRosterQuickProps) => {
           return (
             <div
               key={student.id}
-              className="bento-card rounded-2xl p-4 border border-outline-variant/30 space-y-3"
+              className="bento-card rounded-xl sm:rounded-2xl p-3.5 sm:p-4 border border-outline-variant/30 space-y-3"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-full overflow-hidden border border-white/10 shrink-0">
+              <div className="flex items-center justify-between gap-2.5">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border border-white/10 shrink-0">
                     <img src={avatar} alt={student.fullName} className="w-full h-full object-cover" />
                   </div>
-                  <div>
-                    <h4 className="font-bold text-on-surface text-sm">{student.fullName}</h4>
-                    <span className="text-xs text-on-surface-variant font-medium">
+                  <div className="min-w-0 flex-1">
+                    <h4 className="font-bold text-on-surface text-sm truncate">{student.fullName}</h4>
+                    <span className="text-xs text-on-surface-variant font-medium truncate block">
                       {student.packageName}
                     </span>
                   </div>
                 </div>
 
-                <div className="text-right">
+                <div className="text-right shrink-0">
                   <span className="font-bold text-sm text-primary block">
                     {student.remainingSessions}/{student.totalSessions}
                   </span>
@@ -51,20 +51,20 @@ const PtStudentRosterQuick = ({ students }: PtStudentRosterQuickProps) => {
               </div>
 
               <div className="pt-2 border-t border-white/5 flex justify-around">
-                <button
-                  type="button"
+                <Link
+                  href={`/pt/students/${student.id}`}
                   className="text-primary text-xs font-semibold flex items-center gap-1.5 hover:underline cursor-pointer"
                 >
                   <Award size={14} className="shrink-0" />
                   Before/After
-                </button>
-                <button
-                  type="button"
+                </Link>
+                <Link
+                  href={`/pt/students/${student.id}`}
                   className="text-primary text-xs font-semibold flex items-center gap-1.5 hover:underline cursor-pointer"
                 >
                   <Activity size={14} className="shrink-0" />
                   InBody
-                </button>
+                </Link>
               </div>
             </div>
           );
