@@ -14,28 +14,28 @@ const FoodTable = ({
   onDelete,
 }: FoodTableProps) => {
   return (
-    <div className="bg-[#121a15] rounded-2xl border border-white/10 overflow-hidden shadow-xl" suppressHydrationWarning>
-      <div className="overflow-x-auto">
+    <div className="bg-[#121a15] rounded-xl sm:rounded-2xl border border-white/10 overflow-hidden shadow-xl" suppressHydrationWarning>
+      <div className="overflow-x-auto [&&::-webkit-scrollbar]:h-1.5 [&&::-webkit-scrollbar-thumb]:bg-white/20 [&&::-webkit-scrollbar-thumb]:rounded-full">
         <table className="w-full text-left text-xs text-white">
           <thead className="bg-white/5 text-white/60 uppercase font-semibold text-[10px] tracking-wider border-b border-white/10">
             <tr>
-              <th className="px-6 py-4">Món Ăn</th>
-              <th className="px-6 py-4">Danh Mục</th>
-              <th className="px-6 py-4">Năng Lượng (100g)</th>
-              <th className="px-6 py-4">Thành Phần Dinh Dưỡng</th>
-              <th className="px-6 py-4 text-right">Thao Tác</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4">Món Ăn</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4">Danh Mục</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4">Năng Lượng (100g)</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4">Thành Phần Dinh Dưỡng</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4 text-right">Thao Tác</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
             {loading ? (
               <tr>
-                <td colSpan={5} className="px-6 py-8 text-center text-white/50">
+                <td colSpan={5} className="px-4 sm:px-6 py-8 text-center text-white/50">
                   <AppLoading size="sm" message="Đang tải danh sách món ăn..." />
                 </td>
               </tr>
             ) : foods.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-white/50">
+                <td colSpan={5} className="px-4 sm:px-6 py-12 text-center text-white/50">
                   Không tìm thấy món ăn nào
                 </td>
               </tr>
@@ -43,38 +43,38 @@ const FoodTable = ({
               foods.map((f) => (
                 <tr key={f.id} className="hover:bg-white/[0.02] transition-colors">
                   {/* Column 1: Image & Name */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/5 border border-white/10 shrink-0 flex items-center justify-center text-white/40">
+                  <td className="px-4 sm:px-6 py-3 sm:py-4">
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-[150px] sm:min-w-0">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl overflow-hidden bg-white/5 border border-white/10 shrink-0 flex items-center justify-center text-white/40">
                         {f.imageUrl ? (
                           <img src={f.imageUrl} alt={f.name} className="w-full h-full object-cover" />
                         ) : (
-                          <Utensils size={20} />
+                          <Utensils size={18} className="sm:w-5 sm:h-5" />
                         )}
                       </div>
                       <div className="max-w-[200px]">
-                        <strong className="block text-white font-bold truncate">{f.name}</strong>
+                        <strong className="block text-white font-bold truncate text-xs sm:text-sm">{f.name}</strong>
                       </div>
                     </div>
                   </td>
 
                   {/* Column 2: Category */}
-                  <td className="px-6 py-4">
+                  <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                     <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
                       {f.category || 'Chung'}
                     </span>
                   </td>
 
                   {/* Column 3: Calories */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-1.5 font-extrabold text-[#10b981] text-sm">
+                  <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                    <div className="flex items-center gap-1.5 font-extrabold text-[#10b981] text-xs sm:text-sm">
                       <Flame size={15} />
                       {f.caloriesPer100g} kcal
                     </div>
                   </td>
 
                   {/* Column 4: Macro Pills */}
-                  <td className="px-6 py-4">
+                  <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <span className="px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-300 font-bold text-[10px] border border-rose-500/30">
                         P: {f.proteinPer100g}g
@@ -94,7 +94,7 @@ const FoodTable = ({
                   </td>
 
                   {/* Column 5: Action Buttons */}
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-4 sm:px-6 py-3 sm:py-4 text-right whitespace-nowrap">
                     <div className="flex items-center justify-end gap-2">
                       <button
                         type="button"

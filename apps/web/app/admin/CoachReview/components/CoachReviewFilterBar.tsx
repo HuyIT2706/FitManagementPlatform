@@ -14,16 +14,16 @@ const CoachReviewFilterBar = ({
   const statusList: AdminFilterStatus[] = ['PENDING', 'APPROVED', 'REJECTED', 'ALL'];
 
   return (
-    <section className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-[#121a15] p-4 rounded-2xl border border-white/10" suppressHydrationWarning>
+    <section className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 bg-[#121a15] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white/10" suppressHydrationWarning>
       {/* Status Filter Tabs */}
-      <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 overflow-x-auto w-full sm:w-auto">
+      <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 overflow-x-auto w-full sm:w-auto [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
         {statusList.map((st) => (
           <button
             key={st}
             type="button"
             suppressHydrationWarning
             onClick={() => onFilterChange(st)}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
               filterStatus === st
                 ? st === 'PENDING'
                   ? 'bg-amber-400 text-dark-slate shadow-md'

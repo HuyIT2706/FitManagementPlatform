@@ -25,7 +25,7 @@ const ExerciseFilterBar = ({
   ];
 
   return (
-    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-[#121a15] p-4 rounded-2xl border border-white/10" suppressHydrationWarning>
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 bg-[#121a15] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white/10" suppressHydrationWarning>
       <div className="grow max-w-md">
         <AppSearchInput
           size="sm"
@@ -37,14 +37,14 @@ const ExerciseFilterBar = ({
         />
       </div>
 
-      <div className="flex items-center gap-2 overflow-x-auto" suppressHydrationWarning>
+      <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]" suppressHydrationWarning>
         {categories.map((cat) => (
           <button
             key={cat.id}
             type="button"
             suppressHydrationWarning
             onClick={() => onCategoryChange(cat.id)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
               category === cat.id
                 ? 'bg-[#10b981] text-[#003824] shadow-md shadow-[#10b981]/20'
                 : 'bg-white/5 border border-white/10 text-white/60 hover:text-white'
@@ -61,7 +61,7 @@ const ExerciseFilterBar = ({
           className="p-2 rounded-xl bg-white/5 border border-white/10 text-white/60 hover:text-white cursor-pointer ml-auto shrink-0"
           title="Làm mới danh sách"
         >
-          <RefreshCw size={16} />
+          <RefreshCw size={15} />
         </button>
       </div>
     </div>

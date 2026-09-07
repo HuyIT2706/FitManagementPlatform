@@ -115,7 +115,7 @@ const AdminUsersManagement = () => {
   };
 
   return (
-    <div className="space-y-6" suppressHydrationWarning>
+    <div className="space-y-4 sm:space-y-6" suppressHydrationWarning>
       {/* Component 1: Search & Role Filter Bar */}
       <AdminUsersFilterBar
         searchTerm={searchTerm}

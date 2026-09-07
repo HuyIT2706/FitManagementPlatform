@@ -6,19 +6,19 @@ import type { AdminAnalyticsHeaderProps } from '../../../interface';
 
 const AdminAnalyticsHeader = ({ onRefresh }: AdminAnalyticsHeaderProps) => {
   return (
-    <div className="flex items-center justify-between" suppressHydrationWarning>
-      <div>
-        <h2 className="text-xl font-bold text-white tracking-wide">Tổng Quan Hoạt Động Hệ Thống</h2>
+    <div className="flex items-center justify-between gap-3" suppressHydrationWarning>
+      <div className="min-w-0">
+        <h2 className="text-base sm:text-xl font-bold text-white tracking-wide truncate">Tổng Quan Hoạt Động Hệ Thống</h2>
       </div>
 
       <button
         type="button"
         suppressHydrationWarning
         onClick={onRefresh}
-        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 text-xs font-bold transition-colors cursor-pointer"
+        className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 text-xs font-bold transition-colors cursor-pointer shrink-0"
       >
-        <RefreshCw size={15} />
-        Làm Mới
+        <RefreshCw size={14} className="sm:w-3.5 sm:h-3.5" />
+        <span className="hidden xs:inline sm:inline">Làm Mới</span>
       </button>
     </div>
   );

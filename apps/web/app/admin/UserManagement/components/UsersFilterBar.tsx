@@ -21,7 +21,7 @@ const AdminUsersFilterBar = ({
   ];
 
   return (
-    <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-[#121a15] p-4 rounded-2xl border border-white/10" suppressHydrationWarning>
+    <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 sm:gap-4 bg-[#121a15] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white/10" suppressHydrationWarning>
       {/* Search Bar */}
       <div className="grow max-w-md" suppressHydrationWarning>
         <AppSearchInput
@@ -35,14 +35,14 @@ const AdminUsersFilterBar = ({
       </div>
 
       {/* Role Filters */}
-      <div className="flex items-center gap-2 overflow-x-auto" suppressHydrationWarning>
+      <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]" suppressHydrationWarning>
         {roles.map((r) => (
           <button
             key={r.id}
             type="button"
             suppressHydrationWarning
             onClick={() => onRoleFilterChange(r.id)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
               roleFilter === r.id
                 ? 'bg-[#10b981] text-[#003824] shadow-md shadow-[#10b981]/20'
                 : 'bg-white/5 border border-white/10 text-white/60 hover:text-white'
@@ -59,7 +59,7 @@ const AdminUsersFilterBar = ({
           className="p-2 rounded-xl bg-white/5 border border-white/10 text-white/60 hover:text-white cursor-pointer ml-auto shrink-0"
           title="Làm mới"
         >
-          <RefreshCw size={16} />
+          <RefreshCw size={15} />
         </button>
       </div>
     </div>

@@ -95,13 +95,13 @@ const AdminLayout = ({
   return (
     <div className="min-h-screen bg-[#090d0b] text-[#dde4dd] font-sans pb-24" suppressHydrationWarning>
       {/* Top Header */}
-      <header className="sticky top-0 z-30 bg-[#0e1511]/90 backdrop-blur-md border-b border-white/10 px-6 py-4 flex items-center justify-between" suppressHydrationWarning>
+      <header className="sticky top-0 z-30 bg-[#0e1511]/90 backdrop-blur-md border-b border-white/10 px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between" suppressHydrationWarning>
         <Link
           href="/admin"
-          className="flex items-center gap-3 group cursor-pointer hover:opacity-90 transition-all"
+          className="flex items-center gap-2.5 sm:gap-3 group cursor-pointer hover:opacity-90 transition-all min-w-0"
           title="Về trang chủ Admin"
         >
-          <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/15 bg-white/5 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.15)] shrink-0 group-hover:scale-105 transition-transform">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl overflow-hidden border border-white/15 bg-white/5 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.15)] shrink-0 group-hover:scale-105 transition-transform">
             <Image
               src={LogoApp}
               alt="NutriCore Logo"
@@ -109,30 +109,30 @@ const AdminLayout = ({
               priority
             />
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-white tracking-wide group-hover:text-primary transition-colors">
+          <div className="min-w-0">
+            <h1 className="text-base sm:text-xl font-bold text-white tracking-wide group-hover:text-primary transition-colors truncate">
               NutriCore Admin
             </h1>
           </div>
         </Link>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <button
             type="button"
             suppressHydrationWarning
             onClick={handleLogout}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-bold hover:bg-rose-500/20 transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-bold hover:bg-rose-500/20 transition-colors cursor-pointer"
           >
-            <LogOut size={16} />
-            Đăng xuất
+            <LogOut size={15} />
+            <span className="hidden xs:inline sm:inline">Đăng xuất</span>
           </button>
         </div>
       </header>
 
       {/* Main Container */}
-      <div className="max-w-7xl mx-auto px-6 mt-6 space-y-6">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 mt-4 sm:mt-6 space-y-4 sm:space-y-6">
         {/* Navigation Tabs Bar */}
-        <section className="flex items-center gap-2 p-1.5 rounded-2xl bg-white/5 border border-white/10 overflow-x-auto shadow-lg">
+        <section className="flex items-center gap-1.5 sm:gap-2 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl bg-white/5 border border-white/10 overflow-x-auto shadow-lg [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -140,14 +140,14 @@ const AdminLayout = ({
                 key={item.href}
                 href={item.href}
                 prefetch={true}
-                className={`flex-1 min-w-[170px] py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                className={`flex-1 min-w-[140px] sm:min-w-[170px] py-2 sm:py-3 rounded-lg sm:rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer whitespace-nowrap ${
                   item.isActive
                     ? 'bg-[#10b981] text-[#003824] shadow-[0_0_15px_rgba(16,185,129,0.4)]'
                     : 'text-white/60 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <Icon size={16} />
-                {item.label}
+                <Icon size={15} className="shrink-0" />
+                <span>{item.label}</span>
               </Link>
             );
           })}

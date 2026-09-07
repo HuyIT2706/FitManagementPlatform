@@ -51,7 +51,7 @@ const AdminAnalyticsOverview = () => {
   const { overview, goalDistribution, recentUsers, recentApplications } = data;
 
   return (
-    <div className="space-y-8" suppressHydrationWarning>
+    <div className="space-y-4 sm:space-y-6 md:space-y-8" suppressHydrationWarning>
       {/* Component 1: Header & Refresh Action */}
       <AdminAnalyticsHeader onRefresh={fetchAnalytics} />
 
@@ -62,7 +62,7 @@ const AdminAnalyticsOverview = () => {
       <AdminGoalDistributionCard goalDistribution={goalDistribution} />
 
       {/* Component 4 & 5: Recent Activities Columns */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <AdminRecentUsersCard recentUsers={recentUsers} />
         <AdminRecentApplicationsCard recentApplications={recentApplications} />
       </div>

@@ -8,9 +8,9 @@ const AdminRecentApplicationsCard = ({
   recentApplications,
 }: AdminRecentApplicationsCardProps) => {
   return (
-    <div className="p-6 rounded-2xl bg-[#121a15] border border-white/10 space-y-4 shadow-xl" suppressHydrationWarning>
-      <h3 className="font-bold text-base text-white flex items-center gap-2">
-        <Clock className="text-amber-400" size={18} />
+    <div className="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-[#121a15] border border-white/10 space-y-3 sm:space-y-4 shadow-xl" suppressHydrationWarning>
+      <h3 className="font-bold text-sm sm:text-base text-white flex items-center gap-2">
+        <Clock className="text-amber-400 shrink-0" size={18} />
         Đơn Đăng Ký HLV Gần Đây
       </h3>
 
@@ -21,11 +21,11 @@ const AdminRecentApplicationsCard = ({
           recentApplications.map((app) => (
             <div
               key={app.id}
-              className="py-3 flex items-center justify-between gap-3 first:pt-0 last:pb-0"
+              className="py-2.5 sm:py-3 flex items-center justify-between gap-3 first:pt-0 last:pb-0"
             >
-              <div>
-                <strong className="block text-white font-bold text-xs">{app.fullName}</strong>
-                <span className="text-white/40 text-[10px]">{app.email}</span>
+              <div className="min-w-0 flex-1">
+                <strong className="block text-white font-bold text-xs truncate">{app.fullName}</strong>
+                <span className="text-white/40 text-[10px] block truncate">{app.email}</span>
               </div>
 
               <div className="text-right space-y-0.5">

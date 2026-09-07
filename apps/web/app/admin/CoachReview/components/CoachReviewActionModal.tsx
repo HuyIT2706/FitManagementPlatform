@@ -19,18 +19,18 @@ const CoachReviewActionModal = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4" suppressHydrationWarning>
-      <div className="bg-[#121a15] border border-white/10 rounded-2xl w-full max-w-md p-6 space-y-4 text-white shadow-2xl animate-in fade-in zoom-in duration-200">
-        <h3 className="text-lg font-bold flex items-center gap-2">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4" suppressHydrationWarning>
+      <div className="bg-[#121a15] border border-white/10 rounded-2xl w-full max-w-md p-4 sm:p-6 space-y-3.5 sm:space-y-4 text-white shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
+        <h3 className="text-base sm:text-lg font-bold flex items-center gap-2">
           {action === 'APPROVE' ? (
             <>
-              <UserCheck className="text-[#10b981]" size={22} />
-              Xác nhận Phê duyệt HLV PT
+              <UserCheck className="text-[#10b981] shrink-0" size={20} />
+              <span>Xác nhận Phê duyệt HLV PT</span>
             </>
           ) : (
             <>
-              <UserX className="text-rose-400" size={22} />
-              Xác nhận Từ chối Đơn HLV
+              <UserX className="text-rose-400 shrink-0" size={20} />
+              <span>Xác nhận Từ chối Đơn HLV</span>
             </>
           )}
         </h3>
@@ -55,12 +55,12 @@ const CoachReviewActionModal = ({
           />
         </div>
 
-        <div className="flex gap-3 pt-2 border-t border-white/10">
+        <div className="flex flex-col-reverse sm:flex-row gap-2.5 sm:gap-3 pt-2 border-t border-white/10">
           <button
             type="button"
             suppressHydrationWarning
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl border border-white/10 text-white/70 text-xs font-bold hover:bg-white/5 cursor-pointer"
+            className="w-full sm:flex-1 py-2.5 rounded-xl border border-white/10 text-white/70 text-xs font-bold hover:bg-white/5 cursor-pointer text-center"
           >
             Hủy
           </button>
@@ -69,7 +69,7 @@ const CoachReviewActionModal = ({
             suppressHydrationWarning
             onClick={onSubmit}
             disabled={submitting}
-            className={`flex-1 py-2.5 rounded-xl text-xs font-extrabold transition-opacity flex items-center justify-center gap-1 cursor-pointer ${
+            className={`w-full sm:flex-1 py-2.5 rounded-xl text-xs font-extrabold transition-opacity flex items-center justify-center gap-1 cursor-pointer text-center ${
               action === 'APPROVE'
                 ? 'bg-[#10b981] text-[#003824] shadow-[0_0_15px_rgba(16,185,129,0.4)]'
                 : 'bg-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.4)]'

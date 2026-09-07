@@ -14,28 +14,28 @@ const ExerciseTable = ({
   onDelete,
 }: ExerciseTableProps) => {
   return (
-    <div className="bg-[#121a15] rounded-2xl border border-white/10 overflow-hidden shadow-xl" suppressHydrationWarning>
-      <div className="overflow-x-auto">
+    <div className="bg-[#121a15] rounded-xl sm:rounded-2xl border border-white/10 overflow-hidden shadow-xl" suppressHydrationWarning>
+      <div className="overflow-x-auto [&&::-webkit-scrollbar]:h-1.5 [&&::-webkit-scrollbar-thumb]:bg-white/20 [&&::-webkit-scrollbar-thumb]:rounded-full">
         <table className="w-full text-left text-xs text-white">
           <thead className="bg-white/5 text-white/60 uppercase font-semibold text-[10px] tracking-wider border-b border-white/10">
             <tr>
-              <th className="px-6 py-4">Bài Tập</th>
-              <th className="px-6 py-4">Nhóm Cơ</th>
-              <th className="px-6 py-4">Thiết Bị</th>
-              <th className="px-6 py-4">Hướng Dẫn Thực Hiện</th>
-              <th className="px-6 py-4 text-right">Thao Tác</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4">Bài Tập</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4">Nhóm Cơ</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4">Thiết Bị</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4">Hướng Dẫn Thực Hiện</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4 text-right">Thao Tác</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
             {loading ? (
               <tr>
-                <td colSpan={5} className="px-6 py-8 text-center text-white/50">
+                <td colSpan={5} className="px-4 sm:px-6 py-8 text-center text-white/50">
                   <AppLoading size="sm" message="Đang tải danh sách bài tập..." />
                 </td>
               </tr>
             ) : exercises.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-white/50">
+                <td colSpan={5} className="px-4 sm:px-6 py-12 text-center text-white/50">
                   Không tìm thấy bài tập nào
                 </td>
               </tr>
@@ -43,9 +43,9 @@ const ExerciseTable = ({
               exercises.map((ex) => (
                 <tr key={ex.id} className="hover:bg-white/[0.02] transition-colors">
                   {/* Column 1: Image & Name */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/5 border border-white/10 shrink-0 flex items-center justify-center text-white/40">
+                  <td className="px-4 sm:px-6 py-3 sm:py-4">
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-[150px] sm:min-w-0">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl overflow-hidden bg-white/5 border border-white/10 shrink-0 flex items-center justify-center text-white/40">
                         {ex.setupImageUrl || ex.startImageUrl ? (
                           <img
                             src={ex.setupImageUrl || ex.startImageUrl}
@@ -53,30 +53,30 @@ const ExerciseTable = ({
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <Dumbbell size={20} />
+                          <Dumbbell size={18} className="sm:w-5 sm:h-5" />
                         )}
                       </div>
                       <div className="max-w-[220px]">
-                        <strong className="block text-white font-bold truncate">{ex.name}</strong>
+                        <strong className="block text-white font-bold truncate text-xs sm:text-sm">{ex.name}</strong>
                       </div>
                     </div>
                   </td>
 
-                  <td className="px-6 py-4">
+                  <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                     {ex.primaryMuscles && ex.primaryMuscles.length > 0 && (
-                      <span className="px-2.5 py-0.5 rounded-full min-w-[100px] text-ms font-bold bg-[#10b981]/15 text-[#10b981] border capitalize border-[#10b981]/30">
+                      <span className="px-2.5 py-0.5 rounded-full min-w-[80px] text-xs font-bold bg-[#10b981]/15 text-[#10b981] border capitalize border-[#10b981]/30">
                         {ex.primaryMuscles.join(', ')}
                       </span>
                     )}
                   </td>
 
                   {/* Column 3: Equipment */}
-                  <td className="px-6 py-4">
-                    <span className="text-white/80 font-medium capitalize">{ex.equipment || 'Bodyweight'}</span>
+                  <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                    <span className="text-white/80 font-medium capitalize text-xs">{ex.equipment || 'Bodyweight'}</span>
                   </td>
 
                   {/* Column 4: Instructions */}
-                  <td className="px-6 py-4 max-w-xs">
+                  <td className="px-4 sm:px-6 py-3 sm:py-4 max-w-xs">
                     <p className="text-white/60 line-clamp-2 text-[11px]">
                       {ex.instructions && ex.instructions.length > 0
                         ? ex.instructions.join(' ')
@@ -85,7 +85,7 @@ const ExerciseTable = ({
                   </td>
 
                   {/* Column 5: Action Buttons */}
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-4 sm:px-6 py-3 sm:py-4 text-right whitespace-nowrap">
                     <div className="flex items-center justify-end gap-2">
                       <button
                         type="button"

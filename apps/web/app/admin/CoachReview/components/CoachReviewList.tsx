@@ -13,9 +13,9 @@ const CoachReviewList = ({
   onReject,
 }: CoachReviewListProps) => {
   return (
-    <section className="space-y-4" suppressHydrationWarning>
-      <h2 className="text-lg font-bold text-white flex items-center gap-2">
-        <FileText size={20} className="text-[#10b981]" />
+    <section className="space-y-3 sm:space-y-4" suppressHydrationWarning>
+      <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+        <FileText size={18} className="text-[#10b981] sm:w-5 sm:h-5 shrink-0" />
         Danh sách Đơn Đăng Ký Trở Thành HLV PT ({applications.length})
       </h2>
 

@@ -22,29 +22,29 @@ const AdminUsersTable = ({
   onDeleteUser,
 }: AdminUsersTableProps) => {
   return (
-    <div className="bg-[#121a15] rounded-2xl border border-white/10 overflow-hidden shadow-xl" suppressHydrationWarning>
-      <div className="overflow-x-auto">
+    <div className="bg-[#121a15] rounded-xl sm:rounded-2xl border border-white/10 overflow-hidden shadow-xl" suppressHydrationWarning>
+      <div className="overflow-x-auto [&&::-webkit-scrollbar]:h-1.5 [&&::-webkit-scrollbar-thumb]:bg-white/20 [&&::-webkit-scrollbar-thumb]:rounded-full">
         <table className="w-full text-left text-xs text-white">
           <thead className="bg-white/5 text-white/60 uppercase font-semibold text-[10px] tracking-wider border-b border-white/10">
             <tr>
-              <th className="px-6 py-4">Người Dùng</th>
-              <th className="px-6 py-4">Phân Quyền (Role)</th>
-              <th className="px-6 py-4">Gói Tập / HLV Kèm</th>
-              <th className="px-6 py-4">Mục Tiêu</th>
-              <th className="px-6 py-4">Ngày Tham Gia</th>
-              <th className="px-6 py-4 text-right">Thao Tác</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4">Người Dùng</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4">Phân Quyền (Role)</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4">Gói Tập / HLV Kèm</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4">Mục Tiêu</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4">Ngày Tham Gia</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4 text-right">Thao Tác</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
             {loading ? (
               <tr>
-                <td colSpan={6} className="px-6 py-8 text-center text-white/50">
+                <td colSpan={6} className="px-4 sm:px-6 py-8 text-center text-white/50">
                   <AppLoading size="sm" message="Đang tải danh sách người dùng..." />
                 </td>
               </tr>
             ) : users.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center text-white/50">
+                <td colSpan={6} className="px-4 sm:px-6 py-12 text-center text-white/50">
                   <Users size={32} className="mx-auto mb-2 text-white/20" />
                   Không tìm thấy người dùng nào
                 </td>
@@ -53,25 +53,25 @@ const AdminUsersTable = ({
               users.map((u) => (
                 <tr key={u.id} className="hover:bg-white/[0.02] transition-colors">
                   {/* User Info */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 shrink-0 bg-white/5 flex items-center justify-center font-bold text-white">
+                  <td className="px-4 sm:px-6 py-3 sm:py-4">
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-[160px] sm:min-w-0">
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border border-white/10 shrink-0 bg-white/5 flex items-center justify-center font-bold text-white">
                         <img
                           src={getAvatarUrl(u.avatarUrl)}
                           alt={u.fullName}
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <div>
-                        <strong className="block text-white font-bold text-sm">{u.fullName}</strong>
-                        <span className="text-white/50 text-[11px] block">{u.email}</span>
-                        {u.phone && <span className="text-white/40 text-[10px]">{u.phone}</span>}
+                      <div className="min-w-0">
+                        <strong className="block text-white font-bold text-xs sm:text-sm truncate">{u.fullName}</strong>
+                        <span className="text-white/50 text-[10px] sm:text-[11px] block truncate">{u.email}</span>
+                        {u.phone && <span className="text-white/40 text-[10px] block truncate">{u.phone}</span>}
                       </div>
                     </div>
                   </td>
 
                   {/* Role Badge */}
-                  <td className="px-6 py-4">
+                  <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                     {u.role === 'ADMIN' && (
                       <span className="px-2.5 py-1 rounded-md bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30 flex items-center gap-1.5 w-fit text-[11px]">
                         <Shield size={12} />
@@ -93,10 +93,10 @@ const AdminUsersTable = ({
                   </td>
 
                   {/* Active Package */}
-                  <td className="px-6 py-4">
+                  <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                     {u.activePackage ? (
                       <div className="space-y-0.5">
-                        <span className="font-bold text-[#10b981] flex items-center gap-1">
+                        <span className="font-bold text-[#10b981] flex items-center gap-1 text-xs">
                           <Award size={13} />
                           {u.activePackage.title}
                         </span>
@@ -112,8 +112,8 @@ const AdminUsersTable = ({
                   </td>
 
                   {/* Goal */}
-                  <td className="px-6 py-4">
-                    <span className="text-white/80 font-medium">
+                  <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                    <span className="text-white/80 font-medium text-xs">
                       {u.goal === 'LOSE_WEIGHT'
                         ? 'Giảm Mỡ'
                         : u.goal === 'BUILD_MUSCLE'
@@ -125,12 +125,12 @@ const AdminUsersTable = ({
                   </td>
 
                   {/* Created Date */}
-                  <td className="px-6 py-4 text-white/50 text-[11px]">
+                  <td className="px-4 sm:px-6 py-3 sm:py-4 text-white/50 text-[11px] whitespace-nowrap">
                     {new Date(u.createdAt).toLocaleDateString('vi-VN')}
                   </td>
 
                   {/* Actions */}
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-4 sm:px-6 py-3 sm:py-4 text-right whitespace-nowrap">
                     <div className="flex items-center justify-end gap-2">
                       {/* Change Role Button */}
                       <button
