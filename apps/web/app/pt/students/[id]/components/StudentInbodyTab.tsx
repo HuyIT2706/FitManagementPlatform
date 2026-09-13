@@ -2,6 +2,7 @@
 
 import type { InBodyHistoryPoint } from '@repo/types';
 import TransformationJourneySlider from '../../../../profile/components/TransformationJourneySlider';
+import InBodyStockChart from './InBodyStockChart';
 
 interface StudentInbodyTabProps {
   studentId: string;
@@ -186,14 +187,21 @@ const StudentInbodyTab = ({
           </div>
         )}
 
-        {/* Chart View Switcher & Historical Table */}
-        <div className="space-y-4 pt-2">
+        {/* Stock-Market Style InBody Interactive Chart */}
+        <InBodyStockChart
+          historyPoints={historyPoints}
+          metric={chartMetric}
+          onMetricChange={onChartMetricChange}
+        />
+
+        {/* Historical Table */}
+        <div className="space-y-4 pt-4 border-t border-white/5">
           <div className="flex items-center justify-between">
             <h4 className="text-sm font-bold text-on-surface flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-[18px]">
-                show_chart
+                table_chart
               </span>
-              Lịch sử các lần đo InBody
+              Bảng dữ liệu chi tiết
             </h4>
 
             <div className="flex items-center gap-1.5 p-1 bg-surface-bright/50 rounded-xl border border-white/10">

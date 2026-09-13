@@ -256,7 +256,7 @@ const PTSchedulePage = () => {
 
       <main className="max-w-6xl mx-auto px-container-padding mt-3 sm:mt-4 md:mt-8 space-y-4 sm:space-y-6">
         {/* Top Hero Banner & Toolbar Controls */}
-        <section className="bento-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-7 border border-outline-variant/30 relative overflow-hidden space-y-4">
+        <section className="bento-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-7 border border-outline-variant/30 relative z-20 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
             {/* Title & Description */}
             <div>

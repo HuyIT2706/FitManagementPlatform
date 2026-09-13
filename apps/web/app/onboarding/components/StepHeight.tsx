@@ -13,15 +13,15 @@ const StepHeight = ({ store }: StepHeightProps) => {
 
   return (
     <div className="flex flex-col flex-1 h-full">
-      <div className="flex items-center gap-2 mb-2">
-        <Ruler className="text-[#10b981]" size={28} />
-        <h2 className="text-3xl font-bold">Chiều cao hiện tại</h2>
+      <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+        <Ruler className="text-[#10b981] shrink-0" size={24} />
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white">Chiều cao hiện tại</h2>
       </div>
-      <p className="text-white/60 text-base mb-8">
+      <p className="text-white/60 text-xs sm:text-sm md:text-base mb-4 sm:mb-6">
         Thông tin này giúp tính chỉ số BMI & Calo (Hợp lệ: 100cm - 200cm).
       </p>
 
-      <div className="flex flex-col items-center justify-center mt-6 space-y-4">
+      <div className="flex flex-col items-center justify-center mt-4 sm:mt-6 space-y-4">
         <div className="flex items-end justify-center text-[#10b981]">
           <input
             type="number"
@@ -34,9 +34,9 @@ const StepHeight = ({ store }: StepHeightProps) => {
               store.setHeight(isNaN(val) ? 0 : val);
             }}
             placeholder="170"
-            className="bg-transparent text-7xl font-bold w-44 text-center outline-none border-b-2 border-[#10b981]"
+            className="bg-transparent text-5xl sm:text-6xl md:text-7xl font-extrabold w-36 sm:w-44 text-center outline-none border-b-2 border-[#10b981]"
           />
-          <span className="text-2xl pb-4 ml-2 font-semibold">cm</span>
+          <span className="text-xl sm:text-2xl pb-2 sm:pb-4 ml-2 font-semibold">cm</span>
         </div>
 
         {height > 0 && !isHeightValid && (

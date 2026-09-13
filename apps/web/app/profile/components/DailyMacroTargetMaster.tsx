@@ -1,6 +1,5 @@
 "use client";
 
-import { CheckCircle2 } from "lucide-react";
 import type { DailyMacroTargetMasterProps } from "../../../interface";
 
 const DailyMacroTargetMaster = ({
@@ -8,12 +7,7 @@ const DailyMacroTargetMaster = ({
   targetProtein,
   targetCarbs,
   targetFat,
-  suggestedOffset,
 }: DailyMacroTargetMasterProps) => {
-  const offsetLabel =
-    suggestedOffset >= 0
-      ? `+ ${suggestedOffset}`
-      : `- ${Math.abs(suggestedOffset)}`;
 
   return (
     <section className="bento-card rounded-2xl p-4 sm:p-6 md:p-8 flex flex-col gap-4 sm:gap-6 border border-outline-variant/30">
@@ -22,10 +16,6 @@ const DailyMacroTargetMaster = ({
           <h3 className="text-lg sm:text-xl font-headline-md font-bold mb-1.5 sm:mb-2 text-on-surface">
             Mục tiêu Calo & Macro Nạp Vào
           </h3>
-          <div className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded bg-surface-bright/40 border border-white/5 text-[9px] sm:text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider">
-            <CheckCircle2 size={13} className="text-primary shrink-0" />
-            Chỉ định bởi PT (Calo = TDEE {offsetLabel})
-          </div>
         </div>
       </div>
 

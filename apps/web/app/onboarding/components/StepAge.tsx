@@ -14,19 +14,19 @@ const StepAge = ({ store }: StepAgeProps) => {
   const isValidAge = calculatedAge >= 13 && calculatedAge <= 65;
 
   return (
-    <div className="flex flex-col flex-1 h-full pb-6">
-      <div className="flex items-center gap-2 mb-2">
-        <Calendar className="text-[#10b981]" size={28} />
-        <h2 className="text-3xl font-bold">Năm sinh của bạn?</h2>
+    <div className="flex flex-col flex-1 h-full pb-4 sm:pb-6">
+      <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+        <Calendar className="text-[#10b981] shrink-0" size={24} />
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white">Năm sinh của bạn?</h2>
       </div>
-      <p className="text-white/60 text-base mb-8">
+      <p className="text-white/60 text-xs sm:text-sm md:text-base mb-4 sm:mb-6">
         Kéo thanh chọn năm sinh (Độ tuổi hợp lệ: <strong className="text-[#10b981]">13 - 65 tuổi</strong>).
       </p>
 
-      <div className="w-full my-6 flex flex-col items-center">
+      <div className="w-full my-4 sm:my-6 flex flex-col items-center">
         {/* Main Year Display Badge */}
-        <div className="relative flex flex-col items-center justify-center p-6 rounded-3xl bg-white/5 border border-white/10 w-full max-w-sm">
-          <span className="text-6xl font-extrabold text-[#10b981] tracking-wider mb-2">
+        <div className="relative flex flex-col items-center justify-center p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-white/5 border border-white/10 w-full max-w-sm">
+          <span className="text-5xl sm:text-6xl font-extrabold text-[#10b981] tracking-wider mb-2">
             {selectedYear}
           </span>
           <div className="flex items-center gap-2">

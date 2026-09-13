@@ -1,9 +1,15 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { KeyRound, Lock, Eye, EyeOff, X, CheckCircle2, ShieldAlert } from 'lucide-react';
-import apiClient from '../../../api/axios';
-import { toast } from '../../../utils/toast';
+import React, { useState } from "react";
+import {
+  Lock,
+  Eye,
+  EyeOff,
+  X,
+  CheckCircle2,
+} from "lucide-react";
+import apiClient from "../../../api/axios";
+import { toast } from "../../../utils/toast";
 
 interface ChangePasswordModalProps {
   isOpen: boolean;
@@ -11,9 +17,9 @@ interface ChangePasswordModalProps {
 }
 
 const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -27,40 +33,44 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
     e.preventDefault();
 
     if (!currentPassword || !newPassword || !confirmPassword) {
-      toast.error('Vui lòng nhập đầy đủ các trường thông tin!');
+      toast.error("Vui lòng nhập đầy đủ các trường thông tin!");
       return;
     }
 
     if (newPassword.length < 6) {
-      toast.error('Mật khẩu mới phải có tối thiểu 6 ký tự!');
+      toast.error("Mật khẩu mới phải có tối thiểu 6 ký tự!");
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      toast.error('Mật khẩu mới và xác nhận mật khẩu không khớp nhau!');
+      toast.error("Mật khẩu mới và xác nhận mật khẩu không khớp nhau!");
       return;
     }
 
     if (currentPassword === newPassword) {
-      toast.error('Mật khẩu mới phải khác mật khẩu hiện tại!');
+      toast.error("Mật khẩu mới phải khác mật khẩu hiện tại!");
       return;
     }
 
     setLoading(true);
     try {
-      const res = await apiClient.post<{ message: string }>('/auth/change-password', {
-        currentPassword,
-        newPassword,
-      });
-      toast.success(res.data.message || 'Đổi mật khẩu thành công!');
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
+      const res = await apiClient.post<{ message: string }>(
+        "/auth/change-password",
+        {
+          currentPassword,
+          newPassword,
+        },
+      );
+      toast.success(res.data.message || "Đổi mật khẩu thành công!");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
       onClose();
     } catch (err: unknown) {
       const errorMsg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        'Đổi mật khẩu thất bại, vui lòng kiểm tra lại mật khẩu hiện tại!';
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ||
+        "Đổi mật khẩu thất bại, vui lòng kiểm tra lại mật khẩu hiện tại!";
       toast.error(errorMsg);
     } finally {
       setLoading(false);
@@ -89,17 +99,9 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
 
         {/* Modal Header */}
         <div className="flex items-center gap-3 pr-8">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-primary/20 text-primary border border-primary/40 flex items-center justify-center shrink-0">
-            <KeyRound size={20} className="sm:w-6 sm:h-6" />
-          </div>
-          <div>
             <h3 className="font-extrabold text-lg sm:text-xl text-white font-headline-md leading-tight">
               Đổi Mật Khẩu Tài Khoản
             </h3>
-            <p className="text-xs text-white/60 mt-0.5">
-              Cập nhật mật khẩu bảo vệ tài khoản và dữ liệu tập luyện của bạn.
-            </p>
-          </div>
         </div>
 
         {/* Form Fields */}
@@ -115,7 +117,7 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
                 className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"
               />
               <input
-                type={showCurrentPassword ? 'text' : 'password'}
+                type={showCurrentPassword ? "text" : "password"}
                 required
                 suppressHydrationWarning
                 value={currentPassword}
@@ -145,7 +147,7 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
                 className="absolute left-3.5 top-1/2 -translate-y-1/2 text-primary pointer-events-none"
               />
               <input
-                type={showNewPassword ? 'text' : 'password'}
+                type={showNewPassword ? "text" : "password"}
                 required
                 suppressHydrationWarning
                 value={newPassword}
@@ -175,7 +177,7 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
                 className="absolute left-3.5 top-1/2 -translate-y-1/2 text-primary pointer-events-none"
               />
               <input
-                type={showConfirmPassword ? 'text' : 'password'}
+                type={showConfirmPassword ? "text" : "password"}
                 required
                 suppressHydrationWarning
                 value={confirmPassword}
@@ -191,16 +193,6 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
               >
                 {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
-            </div>
-          </div>
-
-          {/* Security Notice */}
-          <div className="p-3.5 rounded-2xl bg-primary/10 border border-primary/20 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-primary/20 text-primary flex items-center justify-center shrink-0">
-              <ShieldAlert size={18} />
-            </div>
-            <div className="text-xs text-white/70">
-              Mật khẩu mới nên kết hợp chữ cái, số và ký tự đặc biệt để đảm bảo tính an toàn cao nhất.
             </div>
           </div>
 
@@ -221,7 +213,7 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
               disabled={loading}
               className="flex-1 py-3 rounded-xl bg-primary text-dark-slate text-sm font-extrabold shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
             >
-              {loading ? 'Đang cập nhật...' : 'Cập Nhật Mật Khẩu'}
+              {loading ? "Đang cập nhật..." : "Cập Nhật Mật Khẩu"}
             </button>
           </div>
         </form>

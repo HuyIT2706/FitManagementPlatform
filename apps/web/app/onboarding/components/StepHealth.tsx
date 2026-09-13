@@ -62,11 +62,11 @@ const StepHealth = ({ store }: StepHealthProps) => {
   const hasParqRisk = Object.values(parqAnswers).some(Boolean);
 
   return (
-    <div className="flex flex-col flex-1 h-full max-h-[62vh] md:max-h-[70vh]">
-      <div className="flex items-center justify-between mb-3">
+    <div className="flex flex-col flex-1 h-full pb-4 sm:pb-6">
+      <div className="flex items-center justify-between mb-2 sm:mb-3">
         <div className="flex items-center gap-2">
-          <HeartPulse className="text-[#10b981]" size={28} />
-          <h2 className="text-2xl md:text-3xl font-bold">Khảo sát sức khỏe</h2>
+          <HeartPulse className="text-[#10b981] shrink-0" size={24} />
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white">Khảo sát sức khỏe</h2>
         </div>
       </div>
 

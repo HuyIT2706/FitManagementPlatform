@@ -16,7 +16,7 @@ const ExerciseTable = ({
   return (
     <div className="bg-[#121a15] rounded-xl sm:rounded-2xl border border-white/10 overflow-hidden shadow-xl" suppressHydrationWarning>
       <div className="overflow-x-auto [&&::-webkit-scrollbar]:h-1.5 [&&::-webkit-scrollbar-thumb]:bg-white/20 [&&::-webkit-scrollbar-thumb]:rounded-full">
-        <table className="w-full text-left text-xs text-white">
+        <table className="w-full text-left text-xs text-white min-w-[650px]">
           <thead className="bg-white/5 text-white/60 uppercase font-semibold text-[10px] tracking-wider border-b border-white/10">
             <tr>
               <th className="px-4 sm:px-6 py-3 sm:py-4">Bài Tập</th>

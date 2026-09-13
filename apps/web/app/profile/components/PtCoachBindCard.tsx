@@ -115,7 +115,7 @@ const PtCoachBindCard = ({ assignedPt, onBindSuccess }: PtCoachBindCardProps) =>
           <strong className="text-green-light font-bold">
             Coach {assignedPt?.fullName}
           </strong>
-          {assignedPt?.phone ? ` (SĐT: ${assignedPt.phone})` : ''}. Chức năng nhập mã mới đã được khóa.
+          {assignedPt?.phone ? ` (SĐT: ${assignedPt.phone})` : ''}.
         </p>
       ) : isPendingPt ? (
         <p className="text-xs text-on-surface-variant font-medium">

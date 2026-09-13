@@ -15,27 +15,27 @@ const StepWeight = ({ store }: StepWeightProps) => {
   const isTargetWeightValid = targetWeight >= 30 && targetWeight <= 150;
 
   return (
-    <div className="flex flex-col flex-1 h-full space-y-6">
+    <div className="flex flex-col flex-1 h-full space-y-4 sm:space-y-6">
       <div>
-        <div className="flex items-center gap-2 mb-2">
-          <Scale className="text-[#10b981]" size={28} />
-          <h2 className="text-3xl font-bold">Chỉ số cơ thể</h2>
+        <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+          <Scale className="text-[#10b981] shrink-0" size={24} />
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white">Chỉ số cơ thể</h2>
         </div>
-        <p className="text-white/60 text-base">
+        <p className="text-white/60 text-xs sm:text-sm md:text-base">
           Xác định điểm xuất phát và đích đến của bạn (Hợp lệ: 30kg - 150kg).
         </p>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Current Weight Input */}
         <div
-          className={`bg-white/5 p-6 rounded-3xl border transition-all flex flex-col items-center ${
+          className={`bg-white/5 p-4 sm:p-6 rounded-2xl sm:rounded-3xl border transition-all flex flex-col items-center ${
             weight > 0 && !isWeightValid
               ? 'border-rose-500/80 bg-rose-500/5'
               : 'border-white/10'
           }`}
         >
-          <span className="text-white/60 text-sm font-semibold uppercase tracking-wider mb-2">
+          <span className="text-white/60 text-xs sm:text-sm font-semibold uppercase tracking-wider mb-2">
             Hiện tại
           </span>
           <div className="flex items-end text-[#10b981]">
@@ -64,13 +64,13 @@ const StepWeight = ({ store }: StepWeightProps) => {
 
         {/* Target Weight Input */}
         <div
-          className={`bg-white/5 p-6 rounded-3xl border transition-all flex flex-col items-center ${
+          className={`bg-white/5 p-4 sm:p-6 rounded-2xl sm:rounded-3xl border transition-all flex flex-col items-center ${
             targetWeight > 0 && !isTargetWeightValid
               ? 'border-rose-500/80 bg-rose-500/5'
               : 'border-white/10'
           }`}
         >
-          <span className="text-white/60 text-sm font-semibold uppercase tracking-wider mb-2">
+          <span className="text-white/60 text-xs sm:text-sm font-semibold uppercase tracking-wider mb-2">
             Mục tiêu
           </span>
           <div className="flex items-end text-[#10b981]">

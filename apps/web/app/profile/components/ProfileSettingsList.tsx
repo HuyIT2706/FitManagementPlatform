@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { KeyRound, Bell, LogOut, ChevronRight, User, HeartPulse, X, ShieldCheck } from 'lucide-react';
+import { KeyRound, Bell, LogOut, ChevronRight, User, HeartPulse, X } from 'lucide-react';
 import ChangePasswordModal from './ChangePasswordModal';
 import NotificationSettingsModal from './NotificationSettingsModal';
 
@@ -180,9 +180,6 @@ const ProfileSettingsList = ({
 
           {/* Modal Header */}
           <div className="flex items-center gap-3 pr-8">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-primary/20 text-primary border border-primary/40 flex items-center justify-center shrink-0">
-              <ShieldCheck size={20} className="sm:w-6 sm:h-6" />
-            </div>
             <div>
               <h3 className="font-extrabold text-lg sm:text-xl text-white font-headline-md leading-tight">
                 Kết Quả Tầm Soát PAR-Q+

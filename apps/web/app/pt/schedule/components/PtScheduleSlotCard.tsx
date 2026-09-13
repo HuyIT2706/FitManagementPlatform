@@ -18,7 +18,7 @@ const PtScheduleSlotCard = ({
     <div className="relative group">
       {/* Timeline Glowing Bullet Dot */}
       <div
-        className={`absolute -left-[31px] md:-left-[39px] top-4 w-4 h-4 rounded-full border-2 transition-all ${
+        className={`absolute -left-[33px] sm:-left-[41px] top-4 w-4 h-4 rounded-full border-2 transition-all ${
           slot.isBusy
             ? isSlotChecked
               ? 'border-green-light bg-green-light shadow-[0_0_10px_rgba(102,200,28,0.8)]'

@@ -4,7 +4,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Bell, LogOut, User, ChevronDown, ShieldCheck } from 'lucide-react';
 import LogoApp from '../../assets/imgs/logoApp.jpg';
 import type { UserData } from '../../interface';
@@ -17,6 +17,7 @@ export interface HeaderProps {
 
 const Header = ({ userData, onLogout }: HeaderProps) => {
   const router = useRouter();
+  const pathname = usePathname();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const desktopMenuRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
@@ -50,11 +51,30 @@ const Header = ({ userData, onLogout }: HeaderProps) => {
   const getRoleLabel = () => {
     if (userData?.role === 'ADMIN') return 'Quản trị viên';
     if (userData?.role === 'PT') return 'Huấn luyện viên (PT)';
-    return 'Học viên NutriCore';
+    return 'Người dùng';
   };
 
   const homeHref = getHomeHref();
   const profileHref = getProfileHref();
+
+  const isPt = userData?.role === 'PT' || pathname.startsWith('/pt');
+  const isAdmin = userData?.role === 'ADMIN' || pathname.startsWith('/admin');
+
+  const ptNavItems = [
+    { label: 'Trang chủ', href: '/pt', icon: 'home', isActive: pathname === '/pt' },
+    { label: 'Lịch dạy', href: '/pt/schedule', icon: 'calendar_today', isActive: pathname.startsWith('/pt/schedule') },
+    { label: 'Học viên', href: '/pt/students', icon: 'group', isActive: pathname.startsWith('/pt/students') },
+    { label: 'Tôi', href: '/pt/profile', icon: 'person', isActive: pathname.startsWith('/pt/profile') },
+  ];
+
+  const userNavItems = [
+    { label: 'Nhật ký', href: '/home', icon: 'style', isActive: pathname === '/home' || pathname.startsWith('/add-meal') },
+    { label: 'Tập luyện', href: '/training', icon: 'directions_run', isActive: pathname.startsWith('/training') },
+    { label: 'Lịch sử', href: '/history', icon: 'explore', isActive: pathname.startsWith('/history') },
+    { label: 'Tôi', href: '/profile', icon: 'person', isActive: pathname.startsWith('/profile') },
+  ];
+
+  const navItems = isAdmin ? [] : isPt ? ptNavItems : userNavItems;
 
   const handleProfileClick = () => {
     setIsUserMenuOpen(false);
@@ -69,11 +89,11 @@ const Header = ({ userData, onLogout }: HeaderProps) => {
   return (
     <>
       {/* TopAppBar (Desktop) */}
-      <header className="hidden md:flex justify-between items-center px-container-padding py-stack-sm w-full bg-surface-dim/80 backdrop-blur-xl border-b border-outline-variant/30 sticky top-0 z-50 transition-colors duration-200">
+      <header className="hidden md:flex justify-between items-center px-container-padding py-stack-sm w-full bg-surface-dim/80 backdrop-blur-xl border-b border-outline-variant/30 sticky top-0 z-50 transition-colors duration-200 relative">
         {/* Brand App Logo & Name (Clickable link to Role Home) */}
         <Link
           href={homeHref}
-          className="flex items-center gap-3.5 group cursor-pointer hover:opacity-90 transition-all"
+          className="flex items-center gap-3.5 group cursor-pointer hover:opacity-90 transition-all shrink-0"
           title="Về trang chủ NutriCore"
         >
           <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/15 bg-white/5 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(16,185,129,0.2)] group-hover:scale-105 transition-transform">
@@ -91,8 +111,50 @@ const Header = ({ userData, onLogout }: HeaderProps) => {
           </div>
         </Link>
 
+        {/* Center Navigation Bar (Desktop / Laptop) */}
+        {navItems.length > 0 && (
+          <nav className="absolute left-1/2 -translate-x-1/2 flex items-center justify-between w-[320px] md:w-[360px] lg:w-[420px]">
+            {navItems.map((item) => {
+              const isActive = item.isActive;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  prefetch={true}
+                  className={`group relative py-2.5 px-2 text-sm tracking-wide transition-all duration-200 active:scale-95 cursor-pointer ${
+                    isActive
+                      ? 'text-primary font-bold'
+                      : 'text-white/60 hover:text-white font-medium'
+                  }`}
+                >
+                  {/* Subtle ambient light from bottom when active or hover */}
+                  <span
+                    className={`absolute inset-0 pointer-events-none transition-opacity duration-300 ${
+                      isActive
+                        ? 'bg-gradient-to-t from-primary/15 via-primary/[0.04] to-transparent opacity-100'
+                        : 'bg-gradient-to-t from-white/[0.06] to-transparent opacity-0 group-hover:opacity-100'
+                    }`}
+                  />
+
+                  {/* Label Text */}
+                  <span className="relative z-10 transition-colors duration-200">
+                    {item.label}
+                  </span>
+
+                  {/* Glowing Bottom Line for Active, Animated expand line for Hover */}
+                  {isActive ? (
+                    <span className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-emerald-400 via-primary to-green-400 shadow-[0_0_12px_rgba(16,185,129,0.85)] z-20" />
+                  ) : (
+                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 group-hover:w-full h-[1.5px] bg-white/40 transition-all duration-300 ease-out z-20" />
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+        )}
+
         {/* Right Section: Notification Bell + User Profile Capsule with Dropdown */}
-        <div className="flex gap-3 items-center">
+        <div className="flex gap-3 items-center shrink-0">
           {/* Circular Badge Notification Bell Button */}
           <button
             type="button"

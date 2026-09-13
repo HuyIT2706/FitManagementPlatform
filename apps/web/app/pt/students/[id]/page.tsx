@@ -1,7 +1,8 @@
 'use client';
-
-import { use, useEffect, useState } from 'react';
+ 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import Header from '../../../../components/ui/Header';
 import PTBottomNavBar from '../../../../components/navigation/PTBottomNavBar';
 import AppLoading from '../../../../components/ui/AppLoading';
@@ -31,17 +32,14 @@ const ExerciseSelectionModal = dynamic(
   { ssr: false }
 );
 
-const PTStudentDetailPage = ({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) => {
-  const resolvedParams = use(params);
-  const studentId = resolvedParams.id;
+const PTStudentDetailPage = () => {
+  const routeParams = useParams();
+  const studentId = (routeParams?.id as string) || '';
 
   const [userData, setUserData] = useState<UserDataHome | null>(null);
   const [studentDetail, setStudentDetail] = useState<PTStudentDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeSubTab, setActiveSubTab] = useState<'workout' | 'nutrition' | 'inbody'>('workout');
 
   // Workout assignment local state
@@ -135,6 +133,7 @@ const PTStudentDetailPage = ({
       })
       .catch((err) => {
         console.error(err);
+        setError('Không tìm thấy thông tin hoặc bạn chưa được liên kết với học viên này.');
         setLoading(false);
       });
   }, [studentId]);
@@ -357,8 +356,31 @@ const PTStudentDetailPage = ({
     return <PtPendingApproval currentUser={userData} onLogout={handleLogout} />;
   }
 
-  if (!studentDetail) {
-    return <AppLoading fullScreen size="lg" message="Đang nạp hồ sơ học viên..." />;
+  if (error || !studentDetail) {
+    return (
+      <div className="min-h-screen bg-background pb-32 pt-2 md:pt-0 dark text-on-surface">
+        <Header userData={userData} onLogout={handleLogout} />
+        <main className="max-w-xl mx-auto px-container-padding mt-12 space-y-6 text-center">
+          <div className="bento-card p-8 rounded-3xl border border-white/10 space-y-4">
+            <span className="material-symbols-outlined text-amber-400 text-5xl">person_off</span>
+            <h3 className="text-xl font-bold text-white">Không tìm thấy học viên</h3>
+            <p className="text-sm text-on-surface-variant">
+              {error || 'Học viên này có thể không tồn tại hoặc đã bị hủy liên kết.'}
+            </p>
+            <div className="pt-3">
+              <Link
+                href="/pt/students"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-dark-slate font-extrabold text-xs shadow-[0_0_15px_rgba(102,200,28,0.4)]"
+              >
+                <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+                Quay lại Danh sách Học viên
+              </Link>
+            </div>
+          </div>
+        </main>
+        <PTBottomNavBar activeTab="students" />
+      </div>
+    );
   }
 
   const historyPoints = studentDetail.bodyMetricsHistory || [];
@@ -396,7 +418,7 @@ const PTStudentDetailPage = ({
           <button
             type="button"
             onClick={() => setActiveSubTab('workout')}
-            className={`flex-1 min-w-[100px] sm:min-w-[130px] py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer whitespace-nowrap ${
+            className={`flex-1 min-w-[100px] sm:min-w-[130px] py-2.5 sm:py-3 rounded-3xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer whitespace-nowrap ${
               activeSubTab === 'workout'
                 ? 'bg-primary text-dark-slate shadow-[0_0_15px_rgba(102,200,28,0.4)]'
                 : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50'
@@ -408,7 +430,7 @@ const PTStudentDetailPage = ({
           <button
             type="button"
             onClick={() => setActiveSubTab('nutrition')}
-            className={`flex-1 min-w-[100px] sm:min-w-[130px] py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer whitespace-nowrap ${
+            className={`flex-1 min-w-[100px] sm:min-w-[130px] py-2.5 sm:py-3 rounded-3xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer whitespace-nowrap ${
               activeSubTab === 'nutrition'
                 ? 'bg-primary text-dark-slate shadow-[0_0_15px_rgba(102,200,28,0.4)]'
                 : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50'
@@ -420,13 +442,13 @@ const PTStudentDetailPage = ({
           <button
             type="button"
             onClick={() => setActiveSubTab('inbody')}
-            className={`flex-1 min-w-[100px] sm:min-w-[130px] py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer whitespace-nowrap ${
+            className={`flex-1 min-w-[100px] sm:min-w-[130px] py-2.5 sm:py-3 rounded-3xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer whitespace-nowrap ${
               activeSubTab === 'inbody'
                 ? 'bg-primary text-dark-slate shadow-[0_0_15px_rgba(102,200,28,0.4)]'
                 : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50'
             }`}
           >
-            InBody & Tiến Độ
+            InBody
           </button>
         </section>
 

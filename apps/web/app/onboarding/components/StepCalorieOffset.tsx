@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { type OnboardingState } from '../../../store/onboardingStore';
 import apiClient from '../../../api/axios';
-import { Flame, SlidersHorizontal } from 'lucide-react';
+import { Flame } from 'lucide-react';
 import type { CalorieOffsetOption } from '../../../interface';
 
 interface StepCalorieOffsetProps {
@@ -69,31 +69,26 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
     }
   };
 
-  const handleSelectPresetChip = (val: number) => {
-    setCustomInput(String(val));
-    store.setCaloriesOffset(isLosing ? -val : val);
-  };
-
   const customNum = Math.abs(parseInt(customInput, 10)) || 0;
   const weeklyRate = ((customNum * 7) / 7700).toFixed(2);
 
   return (
     <div className="flex flex-col flex-1 h-full">
-      <div className="flex items-center gap-2 mb-2">
-        <Flame className="text-[#10b981]" size={28} />
-        <h2 className="text-3xl font-bold">
+      <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+        <Flame className="text-[#10b981] shrink-0" size={24} />
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white">
           {isLosing ? 'Mức độ Thâm hụt Calo' : 'Mức độ Thặng dư Calo'}
         </h2>
       </div>
-      <p className="text-white/60 text-base mb-6">
+      <p className="text-white/60 text-xs sm:text-sm md:text-base mb-3 sm:mb-5">
         Chọn tốc độ {isLosing ? 'giảm cân' : 'tăng cân'} phù hợp nhất với cơ địa & lối sống của bạn.
       </p>
 
-      <div className="space-y-4 overflow-y-auto pb-4 no-scrollbar">
+      <div className="space-y-3 sm:space-y-4 overflow-y-auto pb-4 no-scrollbar">
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((n) => (
-              <div key={n} className="p-5 rounded-2xl border border-white/10 bg-white/5 animate-pulse h-24" />
+              <div key={n} className="p-4 sm:p-5 rounded-2xl border border-white/10 bg-white/5 animate-pulse h-20 sm:h-24" />
             ))}
           </div>
         ) : (
@@ -109,7 +104,7 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
                     setIsCustom(false);
                     store.setCaloriesOffset(opt.offset);
                   }}
-                  className={`w-full text-left p-5 rounded-2xl border-2 transition-all cursor-pointer relative ${
+                  className={`w-full text-left p-4 sm:p-5 rounded-2xl border-2 transition-all cursor-pointer relative ${
                     isSelected
                       ? 'border-[#10b981] bg-[#10b981]/15 shadow-[0_0_15px_rgba(16,185,129,0.2)]'
                       : 'border-white/10 bg-white/5 hover:border-white/20'
@@ -117,7 +112,7 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
                 >
                   <div className="flex items-center justify-between mb-1.5">
                     <h3
-                      className={`text-lg font-bold ${
+                      className={`text-base sm:text-lg font-bold ${
                         isSelected ? 'text-[#10b981]' : 'text-white'
                       }`}
                     >
@@ -151,15 +146,6 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div
-                    className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${
-                      isCustom
-                        ? 'bg-[#10b981] text-dark-slate font-bold'
-                        : 'bg-white/10 text-white/70'
-                    }`}
-                  >
-                    <SlidersHorizontal size={16} />
-                  </div>
                   <h3
                     className={`text-lg font-bold ${
                       isCustom ? 'text-[#10b981]' : 'text-white'
@@ -168,18 +154,7 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
                     {isLosing ? 'Tùy chỉnh mức thâm hụt' : 'Tùy chỉnh mức thặng dư'}
                   </h3>
                 </div>
-                <span className="text-[10px] uppercase tracking-wider font-bold bg-white/10 text-white/80 border border-white/15 px-2.5 py-1 rounded-full shrink-0">
-                  Tự nhập
-                </span>
               </div>
-
-              <p className="text-sm text-white/70 leading-relaxed">
-                {isLosing
-                  ? 'Tự nhập lượng calo bạn muốn thâm hụt mỗi ngày (ví dụ: 500, 600, 700 kcal...)'
-                  : 'Tự nhập lượng calo bạn muốn thặng dư mỗi ngày (ví dụ: 300, 500, 600 kcal...)'}
-              </p>
-
-              {/* Input field and quick chips displayed when selected */}
               {isCustom && (
                 <div
                   onClick={(e) => e.stopPropagation()}
@@ -202,27 +177,6 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
                       </span>
                     </div>
                   </div>
-
-                  {/* Quick Preset Chips */}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs text-white/50 font-medium">Gợi ý nhanh:</span>
-                    {(isLosing ? [300, 500, 600, 700, 800] : [200, 300, 400, 500, 600]).map((val) => (
-                      <button
-                        key={val}
-                        type="button"
-                        suppressHydrationWarning
-                        onClick={() => handleSelectPresetChip(val)}
-                        className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer border ${
-                          customNum === val
-                            ? 'bg-[#10b981] text-dark-slate border-[#10b981] shadow-sm'
-                            : 'bg-white/5 hover:bg-white/10 text-white/80 border-white/10'
-                        }`}
-                      >
-                        {val} kcal
-                      </button>
-                    ))}
-                  </div>
-
                   {/* Realtime impact estimate */}
                   {customNum > 0 && (
                     <div className="flex items-center gap-2 p-3 rounded-xl bg-white/[0.03] border border-white/10 text-xs text-white/80">

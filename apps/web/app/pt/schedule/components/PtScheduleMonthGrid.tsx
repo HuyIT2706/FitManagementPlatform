@@ -156,7 +156,7 @@ export const PtScheduleMonthGrid: React.FC<PtScheduleMonthGridProps> = ({
                   onOpenDayDetails(cell.date);
                 }
               }}
-              className={`min-h-[64px] sm:min-h-[95px] md:min-h-[125px] p-1 sm:p-2 md:p-2.5 rounded-xl sm:rounded-2xl md:rounded-3xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group relative ${
+              className={`min-h-[68px] sm:min-h-[105px] md:min-h-[125px] p-1 sm:p-2 md:p-2.5 rounded-xl sm:rounded-2xl md:rounded-3xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group relative ${
                 isSelected
                   ? 'bg-primary/[0.08] border-primary shadow-[0_0_15px_rgba(102,200,28,0.25)] ring-1 ring-primary/40'
                   : cell.isCurrentMonth

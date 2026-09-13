@@ -80,12 +80,7 @@ const ExerciseSelectionModal = ({
         {/* Header */}
         <div className="p-4 sm:p-5 md:p-6 border-b border-white/10 flex items-center justify-between bg-black/40">
           <div className="flex items-center gap-2.5 sm:gap-3">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-primary/20 text-primary border border-primary/30 flex items-center justify-center shrink-0">
-              <Dumbbell size={20} className="sm:w-[22px] sm:h-[22px]" />
-            </div>
-            <div>
               <h3 className="text-base sm:text-lg font-bold text-white">Thư viện bài tập</h3>
-            </div>
           </div>
           <button
             type="button"
@@ -174,16 +169,16 @@ const ExerciseSelectionModal = ({
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-end gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
+                  <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5 w-full sm:w-auto">
                     <a
                       href={`https://www.youtube.com/results?search_query=${encodeURIComponent(ex.name + ' exercise guidance')}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="p-2 rounded-xl bg-white/5 text-amber-400 hover:bg-amber-400/20 hover:text-amber-300 border border-white/10 transition-colors flex items-center gap-1 text-xs font-semibold"
+                      className="flex-1 sm:flex-none justify-center p-2 rounded-xl bg-white/5 text-amber-400 hover:bg-amber-400/20 hover:text-amber-300 border border-white/10 transition-colors flex items-center gap-1 text-xs font-semibold"
                       title="Xem video hướng dẫn phom dáng"
                     >
-                      <PlayCircle size={16} />
-                      <span className="inline">Video phom</span>
+                      <PlayCircle size={15} />
+                      <span>Video Form</span>
                       <ExternalLink size={12} />
                     </a>
 
@@ -193,7 +188,7 @@ const ExerciseSelectionModal = ({
                         onSelectExercise(ex);
                         onClose();
                       }}
-                      className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                      className={`flex-1 sm:flex-none justify-center px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                         isSelected
                           ? 'bg-primary text-dark-slate shadow-[0_0_10px_rgba(102,200,28,0.4)]'
                           : 'bg-white/10 text-white hover:bg-primary hover:text-dark-slate'
