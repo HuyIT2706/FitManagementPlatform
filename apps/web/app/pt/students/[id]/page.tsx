@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { ArrowLeft } from 'lucide-react';
 import Header from '../../../../components/ui/Header';
 import PTBottomNavBar from '../../../../components/navigation/PTBottomNavBar';
 import AppLoading from '../../../../components/ui/AppLoading';
@@ -367,13 +368,14 @@ const PTStudentDetailPage = () => {
             <p className="text-sm text-on-surface-variant">
               {error || 'Học viên này có thể không tồn tại hoặc đã bị hủy liên kết.'}
             </p>
-            <div className="pt-3">
+            <div className="pt-3 flex justify-center">
               <Link
                 href="/pt/students"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-dark-slate font-extrabold text-xs shadow-[0_0_15px_rgba(102,200,28,0.4)]"
+                aria-label="Quay lại danh sách học viên"
+                title="Quay lại danh sách học viên"
+                className="w-11 h-11 rounded-full border border-white/15 bg-surface-dark/80 hover:bg-white/10 hover:border-primary/60 text-white flex items-center justify-center transition-all duration-200 shadow-sm group active:scale-95 cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[16px]">arrow_back</span>
-                Quay lại Danh sách Học viên
+                <ArrowLeft className="w-5 h-5 text-on-surface-variant group-hover:text-primary transition-colors" />
               </Link>
             </div>
           </div>
@@ -390,14 +392,15 @@ const PTStudentDetailPage = () => {
       <Header userData={userData} onLogout={handleLogout} />
 
       <main className="max-w-6xl mx-auto px-container-padding mt-4 md:mt-8 space-y-6">
-        {/* Back Link */}
+        {/* Back Button */}
         <div>
           <Link
             href="/pt/students"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline"
+            aria-label="Quay lại danh sách học viên"
+            title="Quay lại danh sách học viên"
+            className="w-10 h-10 rounded-full border border-white/15 bg-surface-dark/80 hover:bg-white/10 hover:border-primary/60 text-white flex items-center justify-center transition-all duration-200 shadow-sm group active:scale-95 cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[16px]">arrow_back</span>
-            Quay lại Danh sách Học viên
+            <ArrowLeft className="w-5 h-5 text-on-surface-variant group-hover:text-primary transition-colors" />
           </Link>
         </div>
 

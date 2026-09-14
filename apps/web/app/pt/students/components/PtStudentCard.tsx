@@ -2,7 +2,6 @@
 'use client';
 
 import Link from 'next/link';
-import { Edit3, Activity } from 'lucide-react';
 import { getAvatarUrl } from '../../../../utils/avatar';
 
 export interface StudentListItem {
@@ -48,16 +47,7 @@ const PtStudentCard = ({ student }: PtStudentCardProps) => {
           href={`/pt/students/${student.id}`}
           className="flex-1 min-w-[150px] bg-primary/10 text-primary hover:bg-primary/20 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors border border-primary/20 text-center"
         >
-          <Edit3 size={15} />
-          Giao bài tập & Thực đơn
-        </Link>
-
-        <Link
-          href={`/pt/students/${student.id}`}
-          className="px-3.5 sm:px-4 py-2 bg-surface-bright/40 text-on-surface hover:bg-surface-bright rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors border border-white/10 shrink-0"
-        >
-          <Activity size={15} />
-          InBody
+          Tiến trình và chỉ số 
         </Link>
       </div>
     </div>

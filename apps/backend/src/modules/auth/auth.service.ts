@@ -219,14 +219,15 @@ export class AuthService {
 
   async changePassword(userId: string, currentPass: string, newPass: string) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user || !user.passwordHash) {
-      throw new BadRequestException('Tài khoản không hỗ trợ đổi mật khẩu!');
+    if (!user) {
+      throw new BadRequestException('Tài khoản không tồn tại!');
     }
 
-    const userPass = user.passwordHash;
-    const isMatch = await bcrypt.compare(currentPass, userPass);
-    if (!isMatch) {
-      throw new BadRequestException('Mật khẩu hiện tại không chính xác!');
+    if (user.passwordHash) {
+      const isMatch = await bcrypt.compare(currentPass, user.passwordHash);
+      if (!isMatch) {
+        throw new BadRequestException('Mật khẩu hiện tại không chính xác!');
+      }
     }
 
     const hashedPassword = await bcrypt.hash(newPass, 10);
@@ -235,6 +236,10 @@ export class AuthService {
       data: { passwordHash: hashedPassword },
     });
 
-    return { message: 'Đổi mật khẩu thành công!' };
+    return {
+      message: user.passwordHash
+        ? 'Đổi mật khẩu thành công!'
+        : 'Thiết lập mật khẩu mới thành công!',
+    };
   }
 }

@@ -131,7 +131,7 @@ const DailyMealGrid = ({
                 <Link
                   href={`/add-meal?type=${mealConfig.id}&date=${selectedDateFormattedStr}`}
                   onClick={(e) => handleAddMealClick(e)}
-                  className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl border border-outline-variant/40 flex items-center justify-center transition-all shrink-0 ${
+                  className={`w-8 h-8 sm:w-9 sm:h-9 rounded-3xl border border-outline-variant/40 flex items-center justify-center transition-all shrink-0 ${
                     isFutureDate
                       ? 'opacity-40 cursor-not-allowed text-on-surface-variant'
                       : 'text-on-surface-variant hover:bg-green-light/20 hover:text-green-light hover:border-green-light cursor-pointer'
