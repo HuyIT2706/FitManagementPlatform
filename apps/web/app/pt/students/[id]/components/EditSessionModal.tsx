@@ -35,7 +35,7 @@ const EditSessionModal = ({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-[#121620] rounded-2xl sm:rounded-[32px] p-4 sm:p-6 md:p-8 max-w-md w-full border border-white/15 space-y-4 sm:space-y-6 shadow-2xl relative cursor-default animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto"
+        className="bg-[#121620] rounded-2xl sm:rounded-[32px] p-4 sm:p-6 md:p-8 max-w-md w-full border border-white/15 space-y-4 sm:space-y-6 shadow-2xl relative cursor-default animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
       >
         {/* Header */}
         <div className="flex items-center justify-between gap-3">

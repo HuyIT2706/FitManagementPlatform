@@ -1,6 +1,5 @@
 'use client';
 
-import { Dumbbell } from 'lucide-react';
 import type { PtWelcomeHeaderProps } from '../../../../interface';
 
 const PtWelcomeHeader = ({
@@ -10,13 +9,6 @@ const PtWelcomeHeader = ({
 }: PtWelcomeHeaderProps) => {
   return (
     <section className="bento-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 flex flex-col gap-2.5 sm:gap-3 relative overflow-hidden border border-outline-variant/30">
-      <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-primary/10 text-primary px-3 sm:px-3.5 py-1 rounded-full w-max border border-primary/30">
-        <Dumbbell size={15} className="shrink-0" />
-        <span className="font-label-sm text-[11px] sm:text-xs font-bold uppercase tracking-wider">
-          Coach / Personal Trainer
-        </span>
-      </div>
-
       <h1 className="font-headline-md text-xl sm:text-2xl md:text-3xl font-extrabold text-on-surface">
         Chào {coachName}!
       </h1>

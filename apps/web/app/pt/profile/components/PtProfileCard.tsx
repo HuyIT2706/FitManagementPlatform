@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
-import { Award, Edit3 } from 'lucide-react';
+import { Award } from 'lucide-react';
 import type { UserDataHome } from '../../../../interface';
 import apiClient from '../../../../api/axios';
 import { toast } from '../../../../utils/toast';
@@ -86,7 +86,6 @@ const PtProfileCard = ({
             onClick={() => setIsEditOpen(true)}
             className="px-3 sm:px-3.5 py-1.5 rounded-xl bg-primary/10 border border-primary/30 text-primary text-xs font-bold flex items-center gap-1.5 hover:bg-primary/20 transition-all cursor-pointer"
           >
-            <Edit3 size={14} />
             Chỉnh sửa hồ sơ HLV
           </button>
         </div>

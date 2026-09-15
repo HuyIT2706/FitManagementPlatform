@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Dumbbell, CheckCircle2 } from 'lucide-react';
 import type { PTSessionItem } from '@repo/types';
 import type { PtScheduleListProps } from '../../../../interface';
@@ -21,12 +22,12 @@ const PtScheduleList = ({
           <p className="text-xs text-on-surface-variant font-medium">
             Hôm nay bạn chưa có ca dạy nào được lên lịch.
           </p>
-          <a
+          <Link
             href="/pt/schedule"
             className="inline-flex items-center gap-1.5 text-xs text-primary font-bold hover:underline"
           >
             Xếp lịch dạy mới cho học viên
-          </a>
+          </Link>
         </div>
       ) : (
         <div className="space-y-3">

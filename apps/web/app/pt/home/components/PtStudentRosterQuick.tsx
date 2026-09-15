@@ -2,7 +2,6 @@
 'use client';
 
 import Link from 'next/link';
-import { Award, Activity } from 'lucide-react';
 import type { PTStudentSummary } from '@repo/types';
 import type { PtStudentRosterQuickProps } from '../../../../interface';
 
@@ -50,20 +49,12 @@ const PtStudentRosterQuick = ({ students }: PtStudentRosterQuickProps) => {
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-white/5 flex justify-around">
+              <div className="pt-2 border-t border-white/5 flex items-center justify-center">
                 <Link
                   href={`/pt/students/${student.id}`}
-                  className="text-primary text-xs font-semibold flex items-center gap-1.5 hover:underline cursor-pointer"
+                  className="text-primary text-xs font-semibold hover:underline cursor-pointer"
                 >
-                  <Award size={14} className="shrink-0" />
-                  Before/After
-                </Link>
-                <Link
-                  href={`/pt/students/${student.id}`}
-                  className="text-primary text-xs font-semibold flex items-center gap-1.5 hover:underline cursor-pointer"
-                >
-                  <Activity size={14} className="shrink-0" />
-                  InBody
+                  Xem chi tiết
                 </Link>
               </div>
             </div>

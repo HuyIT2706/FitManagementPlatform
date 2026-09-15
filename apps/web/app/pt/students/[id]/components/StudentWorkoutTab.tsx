@@ -40,9 +40,6 @@ const StudentWorkoutTab = ({
       {/* Add Exercise Form Card */}
       <div className="bento-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-outline-variant/30 space-y-3 sm:space-y-4">
         <h3 className="text-base sm:text-lg font-bold text-on-surface flex items-center gap-2">
-          <span className="material-symbols-outlined text-primary">
-            add_task
-          </span>
           Thêm bài tập mới vào giáo án
         </h3>
 

@@ -30,7 +30,7 @@ const FoodFormModal = ({
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4" suppressHydrationWarning>
-      <div className="bg-[#121a15] border border-white/10 rounded-2xl w-full max-w-lg p-4 sm:p-6 space-y-3.5 sm:space-y-4 text-white shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#121a15] border border-white/10 rounded-2xl w-full max-w-lg p-4 sm:p-6 space-y-3.5 sm:space-y-4 text-white shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         <h3 className="text-base sm:text-lg font-bold flex items-center gap-2">
           {isEditing ? 'Chỉnh Sửa Món Ăn' : 'Thêm Món Ăn Mới'}
         </h3>

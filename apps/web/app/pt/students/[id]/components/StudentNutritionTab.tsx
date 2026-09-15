@@ -74,12 +74,14 @@ const StudentNutritionTab = ({
     food: FoodItem,
     weightInGrams: number,
   ): string => {
+    const cal = Math.round((food.caloriesPer100g * weightInGrams) / 100);
+    const p = Math.round((food.proteinPer100g * weightInGrams) / 100);
+    const c = Math.round((food.carbsPer100g * weightInGrams) / 100);
+    const f = Math.round((food.fatPer100g * weightInGrams) / 100);
+    const foodEntry = `${weightInGrams}g ${food.name} (${cal} kcal, ${p}g P, ${c}g C, ${f}g F)`;
+
     if (!currentText || !currentText.trim()) {
-      const cal = Math.round((food.caloriesPer100g * weightInGrams) / 100);
-      const p = Math.round((food.proteinPer100g * weightInGrams) / 100);
-      const c = Math.round((food.carbsPer100g * weightInGrams) / 100);
-      const f = Math.round((food.fatPer100g * weightInGrams) / 100);
-      return `+ ${weightInGrams}g ${food.name} (${cal} kcal, ${p}g P, ${c}g C, ${f}g F)`;
+      return foodEntry;
     }
 
     const lines = currentText.split("\n");
@@ -94,25 +96,19 @@ const StudentNutritionTab = ({
           matchWeight && matchWeight[1] ? parseInt(matchWeight[1], 10) : 0;
         const totalWeight = existingWeight + weightInGrams;
 
-        const cal = Math.round((food.caloriesPer100g * totalWeight) / 100);
-        const p = Math.round((food.proteinPer100g * totalWeight) / 100);
-        const c = Math.round((food.carbsPer100g * totalWeight) / 100);
-        const f = Math.round((food.fatPer100g * totalWeight) / 100);
+        const totalCal = Math.round((food.caloriesPer100g * totalWeight) / 100);
+        const totalP = Math.round((food.proteinPer100g * totalWeight) / 100);
+        const totalC = Math.round((food.carbsPer100g * totalWeight) / 100);
+        const totalF = Math.round((food.fatPer100g * totalWeight) / 100);
 
         merged = true;
-        return `+ ${totalWeight}g ${food.name} (${cal} kcal, ${p}g P, ${c}g C, ${f}g F)`;
+        return `${totalWeight}g ${food.name} (${totalCal} kcal, ${totalP}g P, ${totalC}g C, ${totalF}g F)`;
       }
       return line;
     });
 
     if (!merged) {
-      const cal = Math.round((food.caloriesPer100g * weightInGrams) / 100);
-      const p = Math.round((food.proteinPer100g * weightInGrams) / 100);
-      const c = Math.round((food.carbsPer100g * weightInGrams) / 100);
-      const f = Math.round((food.fatPer100g * weightInGrams) / 100);
-      updatedLines.push(
-        `+ ${weightInGrams}g ${food.name} (${cal} kcal, ${p}g P, ${c}g C, ${f}g F)`,
-      );
+      updatedLines.push(foodEntry);
     }
 
     return updatedLines.join("\n");
@@ -139,12 +135,8 @@ const StudentNutritionTab = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
           <div>
             <h3 className="text-base sm:text-lg font-bold text-on-surface flex items-center gap-2">
-              Mục Tiêu Dinh Dưỡng & Phân Chia Bữa Ăn
+              Mục Tiêu Dinh Dưỡng
             </h3>
-            <p className="text-xs text-on-surface-variant mt-0.5">
-              Thiết lập mục tiêu calo, macro và chỉ định thực đơn từng bữa cho
-              học viên
-            </p>
           </div>
 
           <button
@@ -153,7 +145,6 @@ const StudentNutritionTab = ({
             disabled={saving}
             className="w-full sm:w-auto px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-primary text-dark-slate font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 cursor-pointer transition-all disabled:opacity-50 shrink-0"
           >
-            <span className="material-symbols-outlined text-[18px]">save</span>
             {saving ? "Đang lưu..." : "Lưu kế hoạch"}
           </button>
         </div>
@@ -241,7 +232,7 @@ const StudentNutritionTab = ({
             value={nutritionNote}
             onChange={(e) => onNutritionNoteChange(e.target.value)}
             placeholder="Ví dụ: Nhớ uống đủ 2.5L nước mỗi ngày, ăn chậm nhai kỹ và hạn chế nạp tinh bột nhanh sau 20h tối..."
-            className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-2.5 sm:p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-primary/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all text-xs"
+            className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-2.5 sm:p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-primary/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all text-xs no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
           />
         </div>
 
@@ -273,8 +264,8 @@ const StudentNutritionTab = ({
                 rows={3}
                 value={breakfastText}
                 onChange={(e) => onBreakfastTextChange(e.target.value)}
-                placeholder="Ví dụ: + 100g Yến mạch (389 kcal)&#10;+ 2 Quả trứng luộc..."
-                className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-amber-400/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all"
+                placeholder="Ví dụ: 100g Yến mạch (389 kcal)&#10;2 Quả trứng luộc..."
+                className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-amber-400/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
               />
             </div>
 
@@ -297,8 +288,8 @@ const StudentNutritionTab = ({
                 rows={3}
                 value={lunchText}
                 onChange={(e) => onLunchTextChange(e.target.value)}
-                placeholder="Ví dụ: + 150g Ức gà áp chảo (248 kcal)&#10;+ 150g Cơm gạo lứt..."
-                className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-orange-400/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all"
+                placeholder="Ví dụ: 150g Ức gà áp chảo (248 kcal)&#10;150g Cơm gạo lứt..."
+                className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-orange-400/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
               />
             </div>
 
@@ -321,8 +312,8 @@ const StudentNutritionTab = ({
                 rows={3}
                 value={dinnerText}
                 onChange={(e) => onDinnerTextChange(e.target.value)}
-                placeholder="Ví dụ: + 150g Thăn bò nướng (375 kcal)&#10;+ 150g Khoai lang..."
-                className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-indigo-400/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all"
+                placeholder="Ví dụ: 150g Thăn bò nướng (375 kcal)&#10;150g Khoai lang..."
+                className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-indigo-400/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
               />
             </div>
 
@@ -345,8 +336,8 @@ const StudentNutritionTab = ({
                 rows={3}
                 value={snackText}
                 onChange={(e) => onSnackTextChange(e.target.value)}
-                placeholder="Ví dụ: + 1 Quả táo (52 kcal)&#10;+ 1 Muỗng Whey Protein Isolate..."
-                className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-emerald-400/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all"
+                placeholder="Ví dụ: 1 Quả táo (52 kcal)&#10;1 Muỗng Whey Protein Isolate..."
+                className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-emerald-400/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
               />
             </div>
           </div>

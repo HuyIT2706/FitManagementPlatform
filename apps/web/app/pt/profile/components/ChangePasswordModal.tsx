@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState, useMemo } from 'react';
-import { Lock, X, Eye, EyeOff, AlertCircle } from 'lucide-react';
-import apiClient from '../../../../api/axios';
-import { toast } from '../../../../utils/toast';
+import { useState, useMemo } from "react";
+import { X, Eye, EyeOff, AlertCircle } from "lucide-react";
+import apiClient from "../../../../api/axios";
+import { toast } from "../../../../utils/toast";
 
 interface ChangePasswordModalProps {
   isOpen: boolean;
@@ -11,11 +11,13 @@ interface ChangePasswordModalProps {
 }
 
 const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [currentPasswordError, setCurrentPasswordError] = useState<string | null>(null);
+  const [currentPasswordError, setCurrentPasswordError] = useState<
+    string | null
+  >(null);
   const [serverError, setServerError] = useState<string | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -27,23 +29,27 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
   // Realtime validation messages
   const newPasswordError = useMemo(() => {
     if (newPassword.length > 0 && newPassword.length < 6) {
-      return 'Mật khẩu mới phải có tối thiểu 6 ký tự!';
+      return "Mật khẩu mới phải có tối thiểu 6 ký tự!";
     }
-    if (newPassword.length >= 6 && currentPassword && newPassword === currentPassword) {
-      return 'Mật khẩu mới phải khác mật khẩu hiện tại!';
+    if (
+      newPassword.length >= 6 &&
+      currentPassword &&
+      newPassword === currentPassword
+    ) {
+      return "Mật khẩu mới phải khác mật khẩu hiện tại!";
     }
     if (isSubmitted && !newPassword) {
-      return 'Vui lòng nhập mật khẩu mới!';
+      return "Vui lòng nhập mật khẩu mới!";
     }
     return null;
   }, [newPassword, currentPassword, isSubmitted]);
 
   const confirmPasswordError = useMemo(() => {
     if (confirmPassword.length > 0 && newPassword !== confirmPassword) {
-      return 'Mật khẩu xác nhận không khớp với mật khẩu mới!';
+      return "Mật khẩu xác nhận không khớp với mật khẩu mới!";
     }
     if (isSubmitted && !confirmPassword) {
-      return 'Vui lòng xác nhận mật khẩu mới!';
+      return "Vui lòng xác nhận mật khẩu mới!";
     }
     return null;
   }, [confirmPassword, newPassword, isSubmitted]);
@@ -51,9 +57,9 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
   if (!isOpen) return null;
 
   const handleClose = () => {
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
     setCurrentPasswordError(null);
     setServerError(null);
     setIsSubmitted(false);
@@ -66,40 +72,41 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
     setServerError(null);
 
     if (!currentPassword) {
-      setCurrentPasswordError('Vui lòng nhập mật khẩu hiện tại!');
-      toast.error('Vui lòng nhập mật khẩu hiện tại!');
+      setCurrentPasswordError("Vui lòng nhập mật khẩu hiện tại!");
+      toast.error("Vui lòng nhập mật khẩu hiện tại!");
       return;
     }
 
     if (newPasswordError || confirmPasswordError) {
-      toast.error('Vui lòng kiểm tra lại thông tin mật khẩu hợp lệ!');
+      toast.error("Vui lòng kiểm tra lại thông tin mật khẩu hợp lệ!");
       return;
     }
 
     if (!newPassword || !confirmPassword) {
-      toast.error('Vui lòng nhập đầy đủ các trường thông tin!');
+      toast.error("Vui lòng nhập đầy đủ các trường thông tin!");
       return;
     }
 
     setSaving(true);
     apiClient
-      .post<{ message?: string }>('/auth/change-password', {
+      .post<{ message?: string }>("/auth/change-password", {
         currentPassword,
         newPassword,
       })
       .then((res) => {
         setSaving(false);
-        toast.success(res.data.message || 'Đổi mật khẩu thành công!');
+        toast.success(res.data.message || "Đổi mật khẩu thành công!");
         handleClose();
       })
       .catch((err: { response?: { data?: { message?: string } } }) => {
         console.error(err);
         setSaving(false);
-        const errMsg = err?.response?.data?.message || 'Không thể đổi mật khẩu!';
+        const errMsg =
+          err?.response?.data?.message || "Không thể đổi mật khẩu!";
         if (
-          errMsg.toLowerCase().includes('hiện tại') ||
-          errMsg.toLowerCase().includes('không chính xác') ||
-          errMsg.toLowerCase().includes('current')
+          errMsg.toLowerCase().includes("hiện tại") ||
+          errMsg.toLowerCase().includes("không chính xác") ||
+          errMsg.toLowerCase().includes("current")
         ) {
           setCurrentPasswordError(errMsg);
         } else {
@@ -111,21 +118,14 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-[#12161f] border border-outline-variant/30 w-full max-w-md rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 shadow-[0_0_50px_rgba(0,0,0,0.9)] relative text-left max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#12161f] border border-outline-variant/30 w-full max-w-md rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 shadow-[0_0_50px_rgba(0,0,0,0.9)] relative text-left max-h-[90vh] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-white/10 gap-3">
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 pr-2">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-primary/20 text-primary flex items-center justify-center border border-primary/30 shrink-0">
-              <Lock size={18} className="sm:w-5 sm:h-5" />
-            </div>
-            <div className="min-w-0">
-              <h3 className="font-extrabold text-base sm:text-lg text-white truncate">Đổi Mật Khẩu</h3>
-              <p className="text-[11px] sm:text-xs text-on-surface-variant truncate">
-                Bảo mật tài khoản PT với mật khẩu mới
-              </p>
-            </div>
+            <h3 className="font-extrabold text-base sm:text-lg text-white truncate">
+              Đổi Mật Khẩu
+            </h3>
           </div>
-
           <button
             type="button"
             onClick={handleClose}
@@ -144,7 +144,7 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
             </label>
             <div className="relative">
               <input
-                type={showCurrentPass ? 'text' : 'password'}
+                type={showCurrentPass ? "text" : "password"}
                 value={currentPassword}
                 onChange={(e) => {
                   setCurrentPassword(e.target.value);
@@ -153,8 +153,8 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
                 }}
                 className={`w-full bg-surface-bright/50 border rounded-xl pl-3.5 pr-10 py-2.5 text-xs sm:text-sm font-bold text-white outline-none transition-colors ${
                   currentPasswordError
-                    ? 'border-rose-500/80 focus:border-rose-500 bg-rose-500/[0.04]'
-                    : 'border-white/10 focus:border-primary'
+                    ? "border-rose-500/80 focus:border-rose-500 bg-rose-500/[0.04]"
+                    : "border-white/10 focus:border-primary"
                 }`}
                 placeholder="Nhập mật khẩu đang sử dụng"
               />
@@ -181,7 +181,7 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
             </label>
             <div className="relative">
               <input
-                type={showNewPass ? 'text' : 'password'}
+                type={showNewPass ? "text" : "password"}
                 value={newPassword}
                 onChange={(e) => {
                   setNewPassword(e.target.value);
@@ -189,8 +189,8 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
                 }}
                 className={`w-full bg-surface-bright/50 border rounded-xl pl-3.5 pr-10 py-2.5 text-xs sm:text-sm font-bold text-white outline-none transition-colors ${
                   newPasswordError
-                    ? 'border-rose-500/80 focus:border-rose-500 bg-rose-500/[0.04]'
-                    : 'border-white/10 focus:border-primary'
+                    ? "border-rose-500/80 focus:border-rose-500 bg-rose-500/[0.04]"
+                    : "border-white/10 focus:border-primary"
                 }`}
                 placeholder="Tối thiểu 6 ký tự"
               />
@@ -217,7 +217,7 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
             </label>
             <div className="relative">
               <input
-                type={showConfirmPass ? 'text' : 'password'}
+                type={showConfirmPass ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => {
                   setConfirmPassword(e.target.value);
@@ -225,8 +225,8 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
                 }}
                 className={`w-full bg-surface-bright/50 border rounded-xl pl-3.5 pr-10 py-2.5 text-xs sm:text-sm font-bold text-white outline-none transition-colors ${
                   confirmPasswordError
-                    ? 'border-rose-500/80 focus:border-rose-500 bg-rose-500/[0.04]'
-                    : 'border-white/10 focus:border-primary'
+                    ? "border-rose-500/80 focus:border-rose-500 bg-rose-500/[0.04]"
+                    : "border-white/10 focus:border-primary"
                 }`}
                 placeholder="Nhập lại mật khẩu mới"
               />
@@ -268,7 +268,7 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
               disabled={saving}
               className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-primary text-dark-slate font-extrabold text-xs shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 transition-all cursor-pointer disabled:opacity-50 text-center"
             >
-              {saving ? 'Đang cập nhật...' : 'Xác Nhận Đổi Mật Khẩu'}
+              {saving ? "Đang cập nhật..." : "Đổi Mật Khẩu"}
             </button>
           </div>
         </form>

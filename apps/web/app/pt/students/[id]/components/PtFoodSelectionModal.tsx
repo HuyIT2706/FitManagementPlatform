@@ -313,7 +313,7 @@ const PtFoodSelectionModal = ({
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="bg-[#121620] border border-primary/40 w-full max-w-md rounded-2xl sm:rounded-3xl p-4 sm:p-6 space-y-4 sm:space-y-6 text-white shadow-2xl relative animate-in zoom-in-95 duration-200 text-left max-h-[90vh] overflow-y-auto"
+              className="bg-[#121620] border border-primary/40 w-full max-w-md rounded-2xl sm:rounded-3xl p-4 sm:p-6 space-y-4 sm:space-y-6 text-white shadow-2xl relative animate-in zoom-in-95 duration-200 text-left max-h-[90vh] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             >
               {/* Header */}
               <div className="flex justify-between items-start gap-3 border-b border-white/10 pb-3">
