@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, StickyNote } from "lucide-react";
 import type { FoodItem } from "@repo/types";
 import PtFoodSelectionModal from "./PtFoodSelectionModal";
@@ -55,6 +55,49 @@ const StudentNutritionTab = ({
     "breakfast" | "lunch" | "dinner" | "snack"
   >("breakfast");
 
+  // Auto-convert any legacy "+ " food lines to "(+) " in real-time
+  useEffect(() => {
+    const normalizeMealLines = (text: string) => {
+      if (!text || !text.includes('+ ')) return text;
+      return text
+        .split('\n')
+        .map((line) => {
+          const trimmed = line.trim();
+          if (trimmed.startsWith('+ ')) {
+            return trimmed.replace(/^\+\s+/, '(+) ');
+          }
+          return line;
+        })
+        .join('\n');
+    };
+
+    if (breakfastText && breakfastText.includes('+ ')) {
+      const fixed = normalizeMealLines(breakfastText);
+      if (fixed !== breakfastText) onBreakfastTextChange(fixed);
+    }
+    if (lunchText && lunchText.includes('+ ')) {
+      const fixed = normalizeMealLines(lunchText);
+      if (fixed !== lunchText) onLunchTextChange(fixed);
+    }
+    if (dinnerText && dinnerText.includes('+ ')) {
+      const fixed = normalizeMealLines(dinnerText);
+      if (fixed !== dinnerText) onDinnerTextChange(fixed);
+    }
+    if (snackText && snackText.includes('+ ')) {
+      const fixed = normalizeMealLines(snackText);
+      if (fixed !== snackText) onSnackTextChange(fixed);
+    }
+  }, [
+    breakfastText,
+    lunchText,
+    dinnerText,
+    snackText,
+    onBreakfastTextChange,
+    onLunchTextChange,
+    onDinnerTextChange,
+    onSnackTextChange,
+  ]);
+
   const mealTitleMap = {
     breakfast: "Bữa Sáng",
     lunch: "Bữa Trưa",
@@ -78,7 +121,7 @@ const StudentNutritionTab = ({
     const p = Math.round((food.proteinPer100g * weightInGrams) / 100);
     const c = Math.round((food.carbsPer100g * weightInGrams) / 100);
     const f = Math.round((food.fatPer100g * weightInGrams) / 100);
-    const foodEntry = `${weightInGrams}g ${food.name} (${cal} kcal, ${p}g P, ${c}g C, ${f}g F)`;
+    const foodEntry = `(+) ${weightInGrams}g ${food.name} (${cal} kcal, ${p}g P, ${c}g C, ${f}g F)`;
 
     if (!currentText || !currentText.trim()) {
       return foodEntry;
@@ -102,7 +145,7 @@ const StudentNutritionTab = ({
         const totalF = Math.round((food.fatPer100g * totalWeight) / 100);
 
         merged = true;
-        return `${totalWeight}g ${food.name} (${totalCal} kcal, ${totalP}g P, ${totalC}g C, ${totalF}g F)`;
+        return `(+) ${totalWeight}g ${food.name} (${totalCal} kcal, ${totalP}g P, ${totalC}g C, ${totalF}g F)`;
       }
       return line;
     });
@@ -261,10 +304,10 @@ const StudentNutritionTab = ({
                 </button>
               </div>
               <textarea
-                rows={3}
+                rows={5}
                 value={breakfastText}
                 onChange={(e) => onBreakfastTextChange(e.target.value)}
-                placeholder="Ví dụ: 100g Yến mạch (389 kcal)&#10;2 Quả trứng luộc..."
+                placeholder="Ví dụ: (+) 100g Yến mạch (389 kcal)&#10;(+) 2 Quả trứng luộc..."
                 className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-amber-400/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
               />
             </div>
@@ -285,10 +328,10 @@ const StudentNutritionTab = ({
                 </button>
               </div>
               <textarea
-                rows={3}
+                rows={5}
                 value={lunchText}
                 onChange={(e) => onLunchTextChange(e.target.value)}
-                placeholder="Ví dụ: 150g Ức gà áp chảo (248 kcal)&#10;150g Cơm gạo lứt..."
+                placeholder="Ví dụ: (+) 150g Ức gà áp chảo (248 kcal)&#10;(+) 150g Cơm gạo lứt..."
                 className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-orange-400/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
               />
             </div>
@@ -309,10 +352,10 @@ const StudentNutritionTab = ({
                 </button>
               </div>
               <textarea
-                rows={3}
+                rows={5}
                 value={dinnerText}
                 onChange={(e) => onDinnerTextChange(e.target.value)}
-                placeholder="Ví dụ: 150g Thăn bò nướng (375 kcal)&#10;150g Khoai lang..."
+                placeholder="Ví dụ: (+) 150g Thăn bò nướng (375 kcal)&#10;(+) 150g Khoai lang..."
                 className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-indigo-400/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
               />
             </div>
@@ -333,10 +376,10 @@ const StudentNutritionTab = ({
                 </button>
               </div>
               <textarea
-                rows={3}
+                rows={5}
                 value={snackText}
                 onChange={(e) => onSnackTextChange(e.target.value)}
-                placeholder="Ví dụ: 1 Quả táo (52 kcal)&#10;1 Muỗng Whey Protein Isolate..."
+                placeholder="Ví dụ: (+) 1 Quả táo (52 kcal)&#10;(+) 1 Muỗng Whey Protein Isolate..."
                 className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-emerald-400/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
               />
             </div>

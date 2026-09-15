@@ -23,10 +23,6 @@ const PtQrCodeCard = ({ ptCode, qrUrl, onCopyPtCode }: PtQrCodeCardProps) => {
     <div className="bento-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-primary/30 space-y-4 sm:space-y-6 bg-primary/5 relative overflow-hidden">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-1.5 bg-primary/15 text-primary px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-2 border border-primary/30">
-            <QrCode size={15} className="sm:w-4 sm:h-4" />
-            Mã Định Danh PT Coach
-          </div>
           <h3 className="text-lg sm:text-xl font-bold text-on-surface">Mã PT & QR Code Liên Kết 1-1</h3>
           <p className="text-xs text-on-surface-variant mt-1 font-medium max-w-md leading-relaxed">
             Cho học viên quét mã QR hoặc gõ Mã PT này khi đăng ký/liên kết tài khoản để kết nối trực

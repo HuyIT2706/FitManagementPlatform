@@ -4,12 +4,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import {
-  Camera,
-  History,
-  Lock,
   ChevronsLeftRight,
   Trash2,
-  Calendar,
   X,
   Upload,
 } from "lucide-react";
@@ -43,13 +39,17 @@ const TransformationJourneySlider = ({
 
   // New photo form
   const [newPhotoUrl, setNewPhotoUrl] = useState("");
-  const [newTag, setNewTag] = useState<"BEFORE" | "AFTER" | "FRONT" | "SIDE">(
-    "AFTER",
-  );
+  const [newTag, setNewTag] = useState<"BEFORE" | "AFTER">("AFTER");
   const [newWeight, setNewWeight] = useState<string>(
-    weightKg ? String(weightKg) : "75",
+    weightKg && weightKg > 0 ? String(weightKg) : "",
   );
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isUploadOpen) {
+      setNewWeight(weightKg && weightKg > 0 ? String(weightKg) : "");
+    }
+  }, [isUploadOpen, weightKg]);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -132,17 +132,15 @@ const TransformationJourneySlider = ({
     photoUrl:
       "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1000&q=80",
     takenAt: "Ban đầu",
-    weightAtTime: weightKg ? weightKg + 5 : 85,
+    weightAtTime: weightKg && weightKg > 0 ? weightKg : null,
   };
 
-  const afterPhoto = photos.find(
-    (p) => p.tag === "AFTER" || p.tag === "FRONT",
-  ) || {
+  const afterPhoto = photos.find((p) => p.tag === "AFTER") || {
     id: "default-after",
     photoUrl:
       "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1000&q=80",
     takenAt: "Hôm nay",
-    weightAtTime: weightKg ?? 80,
+    weightAtTime: weightKg && weightKg > 0 ? weightKg : null,
   };
 
   const handleAddPhoto = () => {
@@ -207,8 +205,12 @@ const TransformationJourneySlider = ({
             {isPtView ? "Ảnh Tiến Trình Học Viên" : "Hành Trình Lột Xác"}
           </h3>
           <div className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-green-light/10 border border-green-light/30 text-green-light text-[10px] font-bold shadow-[0_0_10px_rgba(102,200,28,0.3)] w-max max-w-full truncate">
-            {goalTextMap[goal] || "Mục tiêu tập luyện"} ({weightKg}kg -&gt;{" "}
-            {targetWeightKg}kg)
+            {goalTextMap[goal] || "Mục tiêu tập luyện"}
+            {weightKg && weightKg > 0 && targetWeightKg && targetWeightKg > 0
+              ? ` (${weightKg}kg -> ${targetWeightKg}kg)`
+              : weightKg && weightKg > 0
+                ? ` (${weightKg}kg)`
+                : ""}
           </div>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -216,18 +218,16 @@ const TransformationJourneySlider = ({
             <button
               type="button"
               onClick={() => setIsUploadOpen(true)}
-              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-light/20 border border-green-light/40 text-green-light text-xs font-bold hover:bg-green-light/30 transition-all cursor-pointer shadow-[0_0_10px_rgba(102,200,28,0.2)]"
+              className="flex-1 sm:flex-initial flex items-center justify-center px-3 py-1.5 rounded-lg bg-green-light/20 border border-green-light/40 text-green-light text-xs font-bold hover:bg-green-light/30 transition-all cursor-pointer shadow-[0_0_10px_rgba(102,200,28,0.2)]"
             >
-              <Camera size={14} />
               Thêm ảnh Body
             </button>
           )}
           <button
             type="button"
             onClick={() => setIsHistoryOpen(true)}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-bright/40 border border-white/5 text-on-surface-variant text-xs font-semibold hover:bg-surface-bright/80 transition-colors cursor-pointer"
+            className="flex-1 sm:flex-initial flex items-center justify-center px-3 py-1.5 rounded-lg bg-surface-bright/40 border border-white/5 text-on-surface-variant text-xs font-semibold hover:bg-surface-bright/80 transition-colors cursor-pointer"
           >
-            <History size={14} />
             Lịch sử ({photos.length})
           </button>
         </div>
@@ -247,7 +247,7 @@ const TransformationJourneySlider = ({
           src={afterPhoto.photoUrl}
         />
         <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 px-2.5 py-0.5 sm:px-3 sm:py-1 bg-surface-dim/90 backdrop-blur-md border border-green-light rounded-lg text-green-light text-[11px] sm:text-xs font-bold z-20 pointer-events-none shadow-lg">
-          Hiện tại • {afterPhoto.weightAtTime || weightKg} kg
+          Hiện tại{afterPhoto.weightAtTime || (weightKg && weightKg > 0) ? ` • ${afterPhoto.weightAtTime || weightKg} kg` : ""}
         </div>
 
         {/* BEFORE Image (Clipped by sliderPosition %) */}
@@ -266,8 +266,7 @@ const TransformationJourneySlider = ({
             src={beforePhoto.photoUrl}
           />
           <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 px-2.5 py-0.5 sm:px-3 sm:py-1 bg-surface-dim/90 backdrop-blur-md border border-white/20 rounded-lg text-on-surface text-[11px] sm:text-xs font-bold pointer-events-none shadow-lg">
-            Bắt đầu •{" "}
-            {beforePhoto.weightAtTime || (weightKg ? weightKg + 5 : 85)} kg
+            Bắt đầu{beforePhoto.weightAtTime ? ` • ${beforePhoto.weightAtTime} kg` : (weightKg && weightKg > 0 ? ` • ${weightKg} kg` : "")}
           </div>
         </div>
 
@@ -284,7 +283,6 @@ const TransformationJourneySlider = ({
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs text-on-surface-variant opacity-80 gap-1.5 sm:gap-2.5">
         <div className="flex items-center gap-1.5">
-          <Lock size={13} className="shrink-0" />
           <p className="text-[11px] sm:text-xs">
             Kéo thanh trượt để so sánh ảnh Trước & Sau.{" "}
             {isPtView
@@ -320,20 +318,15 @@ const TransformationJourneySlider = ({
               </button>
 
               {/* Modal Header */}
-              <div className="flex items-center gap-3 pr-8">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-primary/20 text-primary border border-primary/40 flex items-center justify-center shrink-0">
-                  <Camera className="w-5 h-5 sm:w-6 sm:h-6" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-extrabold text-base sm:text-xl text-white font-headline-md leading-tight">
-                    {isPtView
-                      ? "Cập Nhật Ảnh Tiến Trình Học Viên"
-                      : "Cập Nhật Ảnh Hình Thể"}
-                  </h3>
-                  <p className="text-[11px] sm:text-xs text-white/60 mt-0.5">
-                    Lưu lại hình ảnh vóc dáng để theo dõi quá trình thay đổi theo thời gian.
-                  </p>
-                </div>
+              <div className="pr-8">
+                <h3 className="font-extrabold text-base sm:text-xl text-white font-headline-md leading-tight">
+                  {isPtView
+                    ? "Cập Nhật Ảnh Tiến Trình Học Viên"
+                    : "Cập Nhật Ảnh Hình Thể"}
+                </h3>
+                <p className="text-[11px] sm:text-xs text-white/60 mt-1">
+                  Lưu lại hình ảnh vóc dáng để theo dõi quá trình thay đổi theo thời gian.
+                </p>
               </div>
 
               {/* Form Fields */}
@@ -341,20 +334,18 @@ const TransformationJourneySlider = ({
                 {/* Photo Tag */}
                 <div className="space-y-1.5">
                   <label className="block text-xs font-semibold text-white/80">
-                    Giai đoạn / Góc chụp (*):
+                    Giai đoạn (*):
                   </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     {[
                       { tag: "BEFORE", label: "Trước" },
                       { tag: "AFTER", label: "Hiện tại" },
-                      { tag: "FRONT", label: "Mặt trước" },
-                      { tag: "SIDE", label: "Mặt bên" },
                     ].map(({ tag, label }) => (
                       <button
                         key={tag}
                         type="button"
                         onClick={() =>
-                          setNewTag(tag as "BEFORE" | "AFTER" | "FRONT" | "SIDE")
+                          setNewTag(tag as "BEFORE" | "AFTER")
                         }
                         className={`py-2 sm:py-2.5 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
                           newTag === tag
@@ -491,8 +482,7 @@ const TransformationJourneySlider = ({
               className="bg-[#121620] border border-white/15 rounded-2xl sm:rounded-[32px] w-full max-w-2xl p-5 sm:p-6 md:p-8 flex flex-col gap-4 sm:gap-5 text-white shadow-2xl max-h-[88vh] relative cursor-default animate-in zoom-in-95 duration-200"
             >
               <div className="flex justify-between items-center pb-2 border-b border-white/10 pr-8">
-                <h4 className="text-base sm:text-lg font-bold flex items-center gap-2">
-                  <History className="text-primary w-5 h-5" />
+                <h4 className="text-base sm:text-lg font-bold">
                   Lịch Sử Ảnh Tiến Trình ({photos.length})
                 </h4>
                 <button
@@ -544,8 +534,7 @@ const TransformationJourneySlider = ({
                           </button>
                         </div>
                         <div className="p-2.5 sm:p-3 text-xs flex justify-between items-center text-white/70">
-                          <span className="flex items-center gap-1 text-[11px] sm:text-xs">
-                            <Calendar size={12} />
+                          <span className="text-[11px] sm:text-xs">
                             {new Date(photo.takenAt).toLocaleDateString("vi-VN")}
                           </span>
                           {photo.weightAtTime && (

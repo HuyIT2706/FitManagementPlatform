@@ -124,10 +124,24 @@ const PTStudentDetailPage = () => {
         }
 
         if (studentRes.data.prescribedMealPlan) {
-          setBreakfastText(studentRes.data.prescribedMealPlan.breakfast || '');
-          setLunchText(studentRes.data.prescribedMealPlan.lunch || '');
-          setDinnerText(studentRes.data.prescribedMealPlan.dinner || '');
-          setSnackText(studentRes.data.prescribedMealPlan.snack || '');
+          const normalizeMealLines = (text?: string | null) => {
+            if (!text) return '';
+            return text
+              .split('\n')
+              .map((line) => {
+                const trimmed = line.trim();
+                if (trimmed.startsWith('+ ')) {
+                  return trimmed.replace(/^\+\s+/, '(+) ');
+                }
+                return line;
+              })
+              .join('\n');
+          };
+
+          setBreakfastText(normalizeMealLines(studentRes.data.prescribedMealPlan.breakfast));
+          setLunchText(normalizeMealLines(studentRes.data.prescribedMealPlan.lunch));
+          setDinnerText(normalizeMealLines(studentRes.data.prescribedMealPlan.dinner));
+          setSnackText(normalizeMealLines(studentRes.data.prescribedMealPlan.snack));
           setNutritionNote(studentRes.data.prescribedMealPlan.note || '');
         }
         setLoading(false);
@@ -509,6 +523,8 @@ const PTStudentDetailPage = () => {
             inbodyHeight={inbodyHeight}
             inbodyFat={inbodyFat}
             inbodyMuscle={inbodyMuscle}
+            targetWeight={studentDetail?.targetWeight}
+            goal={studentDetail?.goal}
             chartMetric={chartMetric}
             isEditingInBody={isEditingInBody}
             historyPoints={historyPoints}

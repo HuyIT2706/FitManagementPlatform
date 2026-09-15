@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import type { InBodyHistoryPoint } from '@repo/types';
-import { TrendingDown, TrendingUp, Minus, Activity, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { TrendingDown, TrendingUp, Minus, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
 interface InBodyStockChartProps {
   historyPoints: InBodyHistoryPoint[];
@@ -167,7 +167,9 @@ const InBodyStockChart = ({
     if (dataSeries.length === 0) {
       return { current: 0, initial: 0, delta: 0, pct: 0, high: 0, low: 0 };
     }
-    const firstItem = dataSeries[0];
+    // Filter out 0 values for initial calculation if the first point was 0
+    const nonZeroSeries = dataSeries.filter((d) => d.value > 0);
+    const firstItem = nonZeroSeries.length > 0 ? nonZeroSeries[0] : dataSeries[0];
     const lastItem = dataSeries[dataSeries.length - 1];
     if (!firstItem || !lastItem) {
       return { current: 0, initial: 0, delta: 0, pct: 0, high: 0, low: 0 };
@@ -175,7 +177,7 @@ const InBodyStockChart = ({
     const initial = firstItem.value;
     const current = lastItem.value;
     const delta = current - initial;
-    const pct = initial !== 0 ? (delta / initial) * 100 : 0;
+    const pct = initial > 0 ? (delta / initial) * 100 : 0;
     const high = Math.max(...dataSeries.map((d) => d.value));
     const low = Math.min(...dataSeries.map((d) => d.value));
     return { current, initial, delta, pct, high, low };
@@ -210,18 +212,7 @@ const InBodyStockChart = ({
         {/* Left: Financial Asset Ticker style info */}
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="flex h-2.5 w-2.5 relative">
-              <span
-                className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                style={{ backgroundColor: metricConfig.color }}
-              />
-              <span
-                className="relative inline-flex rounded-full h-2.5 w-2.5"
-                style={{ backgroundColor: metricConfig.color }}
-              />
-            </span>
-            <span className="text-xs uppercase tracking-widest text-white/60 font-black flex items-center gap-1.5">
-              <Activity size={13} className="text-primary" />
+            <span className="text-xs uppercase tracking-widest text-white/60 font-black">
               Biểu đồ phân tích InBody
             </span>
             <span className="text-[10px] px-2 py-0.5 rounded-full border bg-white/5 border-white/10 text-white/70 font-mono">
@@ -240,23 +231,26 @@ const InBodyStockChart = ({
             {dataSeries.length > 1 && (
               <div
                 className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black tracking-wide border ${
-                  stats.delta < 0
+                  stats.delta > 0
                     ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
-                    : stats.delta > 0
+                    : stats.delta < 0
                     ? 'bg-rose-500/15 text-rose-400 border-rose-500/30'
                     : 'bg-white/10 text-white/70 border-white/20'
                 }`}
               >
-                {stats.delta < 0 ? (
-                  <TrendingDown size={14} className="shrink-0" />
-                ) : stats.delta > 0 ? (
+                {stats.delta > 0 ? (
                   <TrendingUp size={14} className="shrink-0" />
+                ) : stats.delta < 0 ? (
+                  <TrendingDown size={14} className="shrink-0" />
                 ) : (
                   <Minus size={14} className="shrink-0" />
                 )}
                 <span>
                   {stats.delta > 0 ? `+${stats.delta.toFixed(1)}` : stats.delta.toFixed(1)}{' '}
-                  {metricConfig.unit} ({stats.pct > 0 ? `+${stats.pct.toFixed(1)}` : stats.pct.toFixed(1)}%)
+                  {metricConfig.unit}
+                  {stats.pct !== 0 && (
+                    <> ({stats.pct > 0 ? `+${stats.pct.toFixed(1)}` : stats.pct.toFixed(1)}%)</>
+                  )}
                 </span>
               </div>
             )}
@@ -305,7 +299,6 @@ const InBodyStockChart = ({
       <div className="relative w-full overflow-hidden select-none">
         {dataSeries.length === 0 ? (
           <div className="h-48 flex flex-col items-center justify-center text-center p-6 text-white/40 space-y-2">
-            <Activity size={32} className="opacity-40 animate-pulse" />
             <p className="text-xs font-medium">Chưa có đủ dữ liệu InBody để kết xuất biểu đồ biến động.</p>
           </div>
         ) : (
@@ -515,9 +508,9 @@ const InBodyStockChart = ({
                     <div
                       className={`text-[10px] font-bold flex items-center justify-center gap-0.5 ${
                         hoveredDelta > 0
-                          ? 'text-rose-400'
-                          : hoveredDelta < 0
                           ? 'text-emerald-400'
+                          : hoveredDelta < 0
+                          ? 'text-rose-400'
                           : 'text-white/50'
                       }`}
                     >
@@ -560,7 +553,7 @@ const InBodyStockChart = ({
             <span className="text-[10px] text-white/50 font-medium">Biến thiên tổng</span>
             <span
               className={`text-sm font-bold font-mono mt-0.5 ${
-                stats.delta < 0 ? 'text-emerald-400' : stats.delta > 0 ? 'text-rose-400' : 'text-white'
+                stats.delta > 0 ? 'text-emerald-400' : stats.delta < 0 ? 'text-rose-400' : 'text-white'
               }`}
             >
               {stats.delta > 0 ? `+${stats.delta.toFixed(1)}` : stats.delta.toFixed(1)}{' '}

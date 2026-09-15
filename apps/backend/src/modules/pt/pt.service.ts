@@ -579,6 +579,8 @@ export class PtService {
       email: student.email,
       phone: student.phone || undefined,
       gender: student.gender || 'MALE',
+      goal: student.goal || undefined,
+      targetWeight: student.targetWeight ?? undefined,
       packageName: pkg ? 'Gói PT 1:1' : 'Gói Tiêu chuẩn',
       remainingSessions: pkg?.remainingSessions ?? 0,
       totalSessions: pkg?.totalSessions ?? 0,
@@ -645,6 +647,15 @@ export class PtService {
   }
 
   async addStudentPhoto(studentId: string, dto: CreateProgressPhotoDto) {
+    if (dto.weightAtTime && dto.weightAtTime > 0) {
+      await this.prisma.bodyMetric.create({
+        data: {
+          userId: studentId,
+          weight: dto.weightAtTime,
+          recordedAt: dto.takenAt ? new Date(dto.takenAt) : new Date(),
+        },
+      });
+    }
     return this.prisma.progressPhoto.create({
       data: {
         userId: studentId,

@@ -10,6 +10,8 @@ interface StudentInbodyTabProps {
   inbodyHeight: number;
   inbodyFat: number;
   inbodyMuscle: number;
+  targetWeight?: number;
+  goal?: string;
   chartMetric: 'weight' | 'fat' | 'muscle';
   isEditingInBody: boolean;
   historyPoints: InBodyHistoryPoint[];
@@ -29,6 +31,8 @@ const StudentInbodyTab = ({
   inbodyHeight,
   inbodyFat,
   inbodyMuscle,
+  targetWeight,
+  goal,
   chartMetric,
   isEditingInBody,
   historyPoints,
@@ -81,22 +85,15 @@ const StudentInbodyTab = ({
       {/* InBody Edit / Action Bar */}
       <div className="bento-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-outline-variant/30 space-y-4 sm:space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h3 className="text-lg font-bold text-on-surface flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary">analytics</span>
+            <h3 className="text-lg font-bold text-on-surface">
               Theo Dõi Chỉ Số InBody & Thay Đổi
             </h3>
-            <p className="text-xs text-on-surface-variant mt-0.5">
-              Cập nhật đo đạc định kỳ để đánh giá mức độ tiến bộ của học viên
-            </p>
-          </div>
 
           <button
             type="button"
             onClick={() => onToggleEditInBody(!isEditingInBody)}
-            className="px-4 py-2 rounded-xl bg-surface-bright border border-white/10 text-on-surface font-bold text-xs flex items-center justify-center gap-1.5 hover:text-primary hover:border-primary/40 transition-colors cursor-pointer self-start sm:self-auto"
+            className="px-4 py-2 rounded-xl bg-surface-bright border border-white/10 text-on-surface font-bold text-xs flex items-center justify-center hover:text-primary hover:border-primary/40 transition-colors cursor-pointer self-start sm:self-auto"
           >
-            <span className="material-symbols-outlined text-[16px]">edit</span>
             {isEditingInBody ? 'Đóng Form' : 'Cập Nhật InBody Mới'}
           </button>
         </div>
@@ -104,8 +101,7 @@ const StudentInbodyTab = ({
         {/* Edit InBody Form */}
         {isEditingInBody && (
           <div className="p-5 rounded-2xl bg-surface-bright/40 border border-primary/30 space-y-4 animate-in fade-in duration-200">
-            <h4 className="font-extrabold text-sm text-primary flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[18px]">add_chart</span>
+            <h4 className="font-extrabold text-sm text-primary">
               Nhập kết quả đo InBody mới nhất
             </h4>
 
@@ -197,10 +193,7 @@ const StudentInbodyTab = ({
         {/* Historical Table */}
         <div className="space-y-4 pt-4 border-t border-white/5">
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-bold text-on-surface flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-[18px]">
-                table_chart
-              </span>
+            <h4 className="text-sm font-bold text-on-surface">
               Bảng dữ liệu chi tiết
             </h4>
 
@@ -280,10 +273,15 @@ const StudentInbodyTab = ({
 
       {/* Interactive Before / After Comparison Slider & Photo Manager for PT */}
       <TransformationJourneySlider
-        goal="LOSE_WEIGHT"
+        goal={goal || 'MAINTAIN'}
         weightKg={inbodyWeight}
-        targetWeightKg={70}
-        goalTextMap={{ LOSE_WEIGHT: 'Giảm mỡ & Tăng cơ' }}
+        targetWeightKg={targetWeight || 0}
+        goalTextMap={{
+          LOSE_WEIGHT: 'Giảm mỡ & Tăng cơ',
+          GAIN_MUSCLE: 'Tăng cơ & Giảm mỡ',
+          MAINTAIN: 'Duy trì vóc dáng',
+          ENDURANCE: 'Sức bền & Thể lực',
+        }}
         studentId={studentId}
         isPtView={true}
       />
