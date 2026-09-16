@@ -76,21 +76,21 @@ const ExerciseSelectionModal = ({
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-[#121814] border border-primary/30 rounded-2xl sm:rounded-3xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-[0_0_30px_rgba(102,200,28,0.15)] overflow-hidden">
+      <div className="bg-white dark:bg-[#121814] border border-slate-200 dark:border-primary/30 rounded-2xl sm:rounded-3xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl dark:shadow-[0_0_30px_rgba(102,200,28,0.15)] overflow-hidden text-slate-900 dark:text-white">
         {/* Header */}
-        <div className="p-4 sm:p-5 md:p-6 border-b border-white/10 flex items-center justify-between bg-black/40">
+        <div className="p-4 sm:p-5 md:p-6 border-b border-slate-200 dark:border-white/10 flex items-center justify-between bg-slate-50 dark:bg-black/40">
           <div className="flex items-center gap-2.5 sm:gap-3">
-              <h3 className="text-base sm:text-lg font-bold text-white">Thư viện bài tập</h3>
+              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Thư viện bài tập</h3>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/5 hover:bg-white/15 text-white/70 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/15 text-slate-500 hover:text-slate-800 dark:text-white/70 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer"
           >
             <X size={18} />
           </button>
         </div>
-        <div className="p-3.5 sm:p-5 border-b border-white/10 space-y-3 sm:space-y-4 bg-surface-bright/20">
+        <div className="p-3.5 sm:p-5 border-b border-slate-200 dark:border-white/10 space-y-3 sm:space-y-4 bg-slate-50/50 dark:bg-surface-bright/20">
           {/* Search Input */}
           <div>
             <AppSearchInput
@@ -111,7 +111,7 @@ const ExerciseSelectionModal = ({
                 className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                   selectedMuscle === cat.key
                     ? 'bg-primary text-dark-slate shadow-[0_0_12px_rgba(102,200,28,0.3)] scale-105'
-                    : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white'
+                    : 'bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-white/70 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-transparent'
                 }`}
               >
                 {cat.label}
@@ -125,8 +125,8 @@ const ExerciseSelectionModal = ({
           {loading ? (
             <AppLoading size="sm" message="Đang lấy danh sách bài tập..." />
           ) : exercises.length === 0 ? (
-            <div className="text-center py-12 text-white/50 space-y-2">
-              <Dumbbell size={36} className="mx-auto text-white/20" />
+            <div className="text-center py-12 text-slate-500 dark:text-white/50 space-y-2">
+              <Dumbbell size={36} className="mx-auto text-slate-300 dark:text-white/20" />
               <p className="text-sm font-medium">Không tìm thấy bài tập phù hợp</p>
             </div>
           ) : (
@@ -145,11 +145,11 @@ const ExerciseSelectionModal = ({
                   className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 ${
                     isSelected
                       ? 'border-primary bg-primary/10 shadow-[0_0_15px_rgba(102,200,28,0.15)]'
-                      : 'border-white/10 bg-black/30 hover:border-primary/50 hover:bg-black/50'
+                      : 'border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-black/30 hover:border-primary/50 hover:bg-slate-100 dark:hover:bg-black/50'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl overflow-hidden border border-white/10 bg-black/60 shrink-0 relative group">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200 dark:border-white/10 bg-slate-200 dark:bg-black/60 shrink-0 relative group">
                       <img
                         src={imgUrl}
                         alt={ex.name}
@@ -159,22 +159,22 @@ const ExerciseSelectionModal = ({
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded-md bg-primary/20 text-primary text-[10px] font-extrabold capitalize border border-primary/30 truncate max-w-full">
+                        <span className="px-2 py-0.5 rounded-md bg-primary/15 text-primary-dark dark:text-primary text-[10px] font-extrabold capitalize border border-primary/30 truncate max-w-full">
                           {muscleGroupText}
                         </span>
                       </div>
-                      <h4 className="font-extrabold text-white text-xs sm:text-sm mt-0.5 truncate">
+                      <h4 className="font-extrabold text-slate-900 dark:text-white text-xs sm:text-sm mt-0.5 truncate">
                         {ex.name}
                       </h4>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5 w-full sm:w-auto">
+                  <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200 dark:border-white/5 w-full sm:w-auto">
                     <a
                       href={`https://www.youtube.com/results?search_query=${encodeURIComponent(ex.name + ' exercise guidance')}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex-1 sm:flex-none justify-center p-2 rounded-xl bg-white/5 text-amber-400 hover:bg-amber-400/20 hover:text-amber-300 border border-white/10 transition-colors flex items-center gap-1 text-xs font-semibold"
+                      className="flex-1 sm:flex-none justify-center p-2 rounded-xl bg-amber-50 dark:bg-white/5 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-400/20 hover:text-amber-800 dark:hover:text-amber-300 border border-amber-200 dark:border-white/10 transition-colors flex items-center gap-1 text-xs font-semibold"
                       title="Xem video hướng dẫn phom dáng"
                     >
                       <PlayCircle size={15} />
@@ -191,7 +191,7 @@ const ExerciseSelectionModal = ({
                       className={`flex-1 sm:flex-none justify-center px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                         isSelected
                           ? 'bg-primary text-dark-slate shadow-[0_0_10px_rgba(102,200,28,0.4)]'
-                          : 'bg-white/10 text-white hover:bg-primary hover:text-dark-slate'
+                          : 'bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white hover:bg-primary hover:text-dark-slate border border-slate-200 dark:border-transparent'
                       }`}
                     >
                       {isSelected ? (
@@ -211,9 +211,9 @@ const ExerciseSelectionModal = ({
         </div>
 
         {/* Pagination Footer */}
-        <div className="p-3 sm:p-4 border-t border-white/10 bg-black/40 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-3 text-xs">
-          <span className="text-white/60 font-medium text-center sm:text-left">
-            Trang <strong className="text-white">{currentPage}</strong> / {totalPages} ({totalExercises} bài tập)
+        <div className="p-3 sm:p-4 border-t border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-black/40 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-3 text-xs">
+          <span className="text-slate-600 dark:text-white/60 font-medium text-center sm:text-left">
+            Trang <strong className="text-slate-900 dark:text-white">{currentPage}</strong> / {totalPages} ({totalExercises} bài tập)
           </span>
 
           <div className="flex items-center gap-2">
@@ -221,7 +221,7 @@ const ExerciseSelectionModal = ({
               type="button"
               disabled={currentPage <= 1 || loading}
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-              className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/15 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 font-bold transition-all cursor-pointer"
+              className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-white/15 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 font-bold transition-all cursor-pointer"
             >
               <ChevronLeft size={16} />
               Trước
@@ -230,7 +230,7 @@ const ExerciseSelectionModal = ({
               type="button"
               disabled={currentPage >= totalPages || loading}
               onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-              className="px-3 py-1.5 rounded-xl bg-primary/20 border border-primary/30 text-primary hover:bg-primary/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 font-bold transition-all cursor-pointer"
+              className="px-3 py-1.5 rounded-xl bg-primary/20 border border-primary/30 text-primary-dark dark:text-primary hover:bg-primary/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 font-bold transition-all cursor-pointer"
             >
               Sau
               <ChevronRight size={16} />

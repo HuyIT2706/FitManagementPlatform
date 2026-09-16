@@ -73,7 +73,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-32 pt-2 md:pt-0 dark text-on-surface">
+    <div className="min-h-screen bg-background pb-32 text-on-surface">
       <Header userData={userData} onLogout={handleLogout} />
 
       <main className="px-4 md:px-10 pt-4 max-w-7xl mx-auto flex flex-col gap-4">

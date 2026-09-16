@@ -104,7 +104,7 @@ const PTStudentsPage = () => {
   }));
 
   return (
-    <div className="min-h-screen bg-background pb-32 pt-2 md:pt-0 dark text-on-surface">
+    <div className="min-h-screen bg-background pb-32 text-on-surface">
       <Header userData={userData} onLogout={handleLogout} />
 
       <main className="max-w-7xl mx-auto px-container-padding mt-3 sm:mt-4 md:mt-8 space-y-4 sm:space-y-6">

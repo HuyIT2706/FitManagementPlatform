@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { KeyRound, Bell, LogOut, ChevronRight, User, HeartPulse, X } from 'lucide-react';
+import { KeyRound, Bell, LogOut, ChevronRight, User, HeartPulse, X, Sun, Moon } from 'lucide-react';
 import ChangePasswordModal from './ChangePasswordModal';
 import NotificationSettingsModal from './NotificationSettingsModal';
+import { useTheme } from '../../../context/ThemeContext';
 
 interface ProfileSettingsListProps {
   onLogout: () => void;
@@ -14,6 +15,7 @@ const ProfileSettingsList = ({
   onLogout,
   onEditProfile,
 }: ProfileSettingsListProps) => {
+  const { isDark, toggleTheme } = useTheme();
   const [isParqOpen, setIsParqOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isNotificationSettingsOpen, setIsNotificationSettingsOpen] = useState(false);
@@ -139,6 +141,58 @@ const ProfileSettingsList = ({
       </button>
 
       <div className="w-full h-px bg-white/5"></div>
+
+      {/* Theme Mode Toggle (Laptop / Desktop - Image 2) */}
+      <button
+        type="button"
+        suppressHydrationWarning
+        onClick={toggleTheme}
+        className="hidden md:flex items-center justify-between p-3 sm:p-4 hover:bg-surface-bright/40 rounded-xl transition-colors cursor-pointer group text-left gap-3"
+      >
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-green-50 dark:bg-green-light/10 flex items-center justify-center border border-green-200 dark:border-green-light/30 text-green-600 dark:text-green-light shrink-0 shadow-xs">
+            {isDark ? (
+              <Sun
+                size={18}
+                className="text-green-600 dark:text-green-light sm:w-5 sm:h-5"
+              />
+            ) : (
+              <Moon
+                size={18}
+                className="text-green-600 dark:text-green-light sm:w-5 sm:h-5"
+              />
+            )}
+          </div>
+          <div className="min-w-0">
+            <div className="text-xs sm:text-sm font-bold text-on-surface truncate">
+              Chế độ giao diện
+            </div>
+            <div className="text-[11px] sm:text-xs font-semibold text-on-surface-variant mt-0.5 truncate">
+              {isDark
+                ? 'Đang bật giao diện tối (Dark mode)'
+                : 'Đang bật giao diện sáng (Light mode)'}
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Animated Toggle Switch */}
+          <div
+            className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${
+              isDark
+                ? 'bg-primary/30 border border-primary/50'
+                : 'bg-slate-300 border border-slate-400/50'
+            }`}
+          >
+            <div
+              className={`w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
+                isDark ? 'translate-x-5 bg-primary' : 'translate-x-0 bg-white'
+              }`}
+            />
+          </div>
+        </div>
+      </button>
+
+      <div className="hidden md:block w-full h-px bg-white/5"></div>
 
       {/* Logout */}
       <button

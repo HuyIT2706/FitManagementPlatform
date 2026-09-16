@@ -60,7 +60,7 @@ const StudentHeaderHero = ({
               type="button"
               suppressHydrationWarning
               onClick={onOpenEditSessionModal}
-              className="w-8 h-8 rounded-full bg-white/5 hover:bg-primary/20 text-white/70 hover:text-primary border border-white/15 hover:border-primary/40 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm hover:scale-105 active:scale-95 group shrink-0"
+              className="w-8 h-8 rounded-full bg-slate-100 hover:bg-primary/20 text-slate-700 hover:text-primary border border-slate-300 dark:border-white/15 dark:bg-white/5 dark:text-white/70 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-xs hover:scale-105 active:scale-95 group shrink-0"
               title="Chỉnh sửa số buổi & gói tập"
               aria-label="Chỉnh sửa số buổi & gói tập"
             >
@@ -73,11 +73,11 @@ const StudentHeaderHero = ({
         <div className="pt-2 max-w-md mx-auto sm:mx-0 space-y-1.5">
           <div className="flex justify-between text-xs font-bold">
             <span className="text-on-surface">Tiến độ gói tập</span>
-            <span className="text-primary">
+            <span className="text-primary-dark dark:text-primary font-bold">
               {remainingSessions} / {totalSessions} Buổi còn lại
             </span>
           </div>
-          <div className="w-full h-2.5 bg-surface-bright rounded-full overflow-hidden border border-white/10">
+          <div className="w-full h-2.5 bg-slate-200 dark:bg-surface-bright rounded-full overflow-hidden border border-slate-300 dark:border-white/10">
             <div
               className="h-full bg-primary rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(102,200,28,0.5)]"
               style={{ width: `${sessionPercentage}%` }}

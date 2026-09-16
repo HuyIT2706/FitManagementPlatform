@@ -127,7 +127,7 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-[#121620] border border-white/15 rounded-2xl sm:rounded-[32px] max-w-lg w-full max-h-[90vh] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 text-white shadow-2xl relative cursor-default animate-in zoom-in-95 duration-200"
+        className="bg-white dark:bg-[#121620] border border-slate-200 dark:border-white/15 rounded-2xl sm:rounded-[32px] max-w-lg w-full max-h-[90vh] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 text-slate-900 dark:text-white shadow-2xl relative cursor-default animate-in zoom-in-95 duration-200"
         suppressHydrationWarning
       >
         {/* Header Close Button */}
@@ -135,14 +135,14 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
           type="button"
           onClick={handleClose}
           aria-label="Đóng modal"
-          className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white border border-white/15 flex items-center justify-center transition-all cursor-pointer z-20"
+          className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white/70 dark:hover:text-white border border-slate-200 dark:border-white/15 flex items-center justify-center transition-all cursor-pointer z-20"
         >
           <X size={16} className="sm:w-[18px] sm:h-[18px]" />
         </button>
 
         {/* Modal Header */}
         <div className="flex items-center gap-3 pr-8">
-          <h3 className="font-extrabold text-lg sm:text-xl text-white font-headline-md leading-tight">
+          <h3 className="font-extrabold text-lg sm:text-xl text-slate-900 dark:text-white font-headline-md leading-tight">
             Đổi Mật Khẩu Tài Khoản
           </h3>
         </div>

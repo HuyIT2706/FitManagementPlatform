@@ -18,7 +18,7 @@ const PtScheduleList = ({
       <h3 className="font-headline-md font-bold text-xl text-on-surface px-1">Lịch dạy hôm nay</h3>
 
       {sessionList.length === 0 ? (
-        <div className="bento-card rounded-2xl p-6 border border-dashed border-white/10 text-center space-y-2">
+        <div className="bento-card rounded-2xl p-6 border border-dashed border-slate-300 dark:border-white/10 text-center space-y-2">
           <p className="text-xs text-on-surface-variant font-medium">
             Hôm nay bạn chưa có ca dạy nào được lên lịch.
           </p>
@@ -49,21 +49,21 @@ const PtScheduleList = ({
                 key={session.id}
                 className={`bento-card rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 ${
                   isChecked
-                    ? 'border-green-light/40 bg-green-light/10'
+                    ? 'border-green-500/40 dark:border-green-light/40 bg-green-50/70 dark:bg-green-light/10'
                     : isOverdue
-                      ? 'border-amber-500/40 bg-amber-500/5'
-                      : 'border-outline-variant/30 hover:border-white/20'
+                      ? 'border-amber-500/40 bg-amber-50/60 dark:bg-amber-500/5'
+                      : 'border-outline-variant/30 hover:border-slate-300 dark:hover:border-white/20'
                 }`}
               >
                 <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-                  <div className="bg-surface-bright rounded-xl p-2 sm:p-3 flex flex-col items-center justify-center min-w-[70px] sm:min-w-[80px] border border-white/10 text-center shrink-0">
-                    <span className={`text-[11px] sm:text-xs font-bold ${isOverdue ? 'text-amber-400' : 'text-primary'}`}>{session.timeSlot}</span>
+                  <div className="bg-slate-100 dark:bg-surface-bright rounded-xl p-2 sm:p-3 flex flex-col items-center justify-center min-w-[70px] sm:min-w-[80px] border border-slate-200 dark:border-white/10 text-center shrink-0">
+                    <span className={`text-[11px] sm:text-xs font-bold ${isOverdue ? 'text-amber-700 dark:text-amber-400' : 'text-primary'}`}>{session.timeSlot}</span>
                   </div>
                   <div className="space-y-1 min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h4 className="font-bold text-on-surface text-sm sm:text-base truncate">{session.studentName}</h4>
                       {isOverdue && (
-                        <span className="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold shrink-0">
+                        <span className="text-[10px] bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold shrink-0">
                           Quá giờ
                         </span>
                       )}
@@ -81,7 +81,7 @@ const PtScheduleList = ({
                   disabled={isChecked}
                   className={`w-full sm:w-auto px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 shrink-0 ${
                     isChecked
-                      ? 'bg-surface-bright text-green-light border border-green-light/40 cursor-default'
+                      ? 'bg-slate-100 dark:bg-surface-bright text-green-700 dark:text-green-light border border-green-500/30 dark:border-green-light/40 cursor-default'
                       : 'bg-primary text-dark-slate hover:bg-primary/90 shadow-[0_0_12px_rgba(102,200,28,0.3)] active:scale-95'
                   }`}
                 >

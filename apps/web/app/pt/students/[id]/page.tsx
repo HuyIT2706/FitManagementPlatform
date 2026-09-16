@@ -373,7 +373,7 @@ const PTStudentDetailPage = () => {
 
   if (error || !studentDetail) {
     return (
-      <div className="min-h-screen bg-background pb-32 pt-2 md:pt-0 dark text-on-surface">
+      <div className="min-h-screen bg-background pb-32 text-on-surface">
         <Header userData={userData} onLogout={handleLogout} />
         <main className="max-w-xl mx-auto px-container-padding mt-12 space-y-6 text-center">
           <div className="bento-card p-8 rounded-3xl border border-white/10 space-y-4">
@@ -402,7 +402,7 @@ const PTStudentDetailPage = () => {
   const historyPoints = studentDetail.bodyMetricsHistory || [];
 
   return (
-    <div className="min-h-screen bg-background pb-32 pt-2 md:pt-0 dark text-on-surface">
+    <div className="min-h-screen bg-background pb-32 text-on-surface">
       <Header userData={userData} onLogout={handleLogout} />
 
       <main className="max-w-6xl mx-auto px-container-padding mt-4 md:mt-8 space-y-6">

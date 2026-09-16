@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
 import { toastStore } from "./toastStore";
 import type { ToastItem, ToastType } from "../../interface";
 
@@ -18,34 +19,34 @@ const toastConfig: Record<
 > = {
   success: {
     icon: "check_circle",
-    iconColor: "text-[#66C81C]",
-    borderColor: "border-[#66C81C]/30",
-    badgeBg: "bg-[#66C81C]/15 text-[#66C81C]",
-    progressBg: "bg-[#66C81C]",
+    iconColor: "text-emerald-600 dark:text-[#66C81C]",
+    borderColor: "border-emerald-400/40 dark:border-[#66C81C]/40",
+    badgeBg: "bg-emerald-50 dark:bg-[#66C81C]/15 border border-emerald-200 dark:border-[#66C81C]/30",
+    progressBg: "bg-emerald-500 dark:bg-[#66C81C]",
     defaultTitle: "Thành công",
   },
   error: {
     icon: "error",
-    iconColor: "text-[#F63D68]",
-    borderColor: "border-[#F63D68]/30",
-    badgeBg: "bg-[#F63D68]/15 text-[#F63D68]",
-    progressBg: "bg-[#F63D68]",
+    iconColor: "text-rose-600 dark:text-[#F63D68]",
+    borderColor: "border-rose-400/40 dark:border-[#F63D68]/40",
+    badgeBg: "bg-rose-50 dark:bg-[#F63D68]/15 border border-rose-200 dark:border-[#F63D68]/30",
+    progressBg: "bg-rose-500 dark:bg-[#F63D68]",
     defaultTitle: "Thất bại",
   },
   warning: {
     icon: "warning",
-    iconColor: "text-[#EF6820]",
-    borderColor: "border-[#EF6820]/30",
-    badgeBg: "bg-[#EF6820]/15 text-[#EF6820]",
-    progressBg: "bg-[#EF6820]",
+    iconColor: "text-amber-600 dark:text-[#EF6820]",
+    borderColor: "border-amber-400/40 dark:border-[#EF6820]/40",
+    badgeBg: "bg-amber-50 dark:bg-[#EF6820]/15 border border-amber-200 dark:border-[#EF6820]/30",
+    progressBg: "bg-amber-500 dark:bg-[#EF6820]",
     defaultTitle: "Cảnh báo",
   },
   info: {
     icon: "info",
-    iconColor: "text-[#0086C9]",
-    borderColor: "border-[#0086C9]/30",
-    badgeBg: "bg-[#0086C9]/15 text-[#0086C9]",
-    progressBg: "bg-[#0086C9]",
+    iconColor: "text-sky-600 dark:text-[#0086C9]",
+    borderColor: "border-sky-400/40 dark:border-[#0086C9]/40",
+    badgeBg: "bg-sky-50 dark:bg-[#0086C9]/15 border border-sky-200 dark:border-[#0086C9]/30",
+    progressBg: "bg-sky-500 dark:bg-[#0086C9]",
     defaultTitle: "Thông tin",
   },
 };
@@ -77,11 +78,11 @@ const ToastContainer = () => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9, y: -10 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              className={`pointer-events-auto relative overflow-hidden rounded-2xl bg-[#121926]/95 backdrop-blur-xl border ${config.borderColor} shadow-2xl shadow-black/50 p-4 text-on-surface flex items-start gap-3`}
+              className={`pointer-events-auto relative overflow-hidden rounded-2xl bg-white/95 dark:bg-[#121926]/95 backdrop-blur-xl border ${config.borderColor} shadow-xl shadow-slate-300/40 dark:shadow-2xl dark:shadow-black/70 p-4 flex items-start gap-3 transition-colors`}
             >
               {/* Icon Badge */}
               <div
-                className={`w-10 h-10 rounded-xl ${config.badgeBg} flex items-center justify-center shrink-0 mt-0.5`}
+                className={`w-10 h-10 rounded-xl ${config.badgeBg} flex items-center justify-center shrink-0 mt-0.5 shadow-xs`}
               >
                 <span
                   className={`material-symbols-outlined text-[22px] ${config.iconColor}`}
@@ -93,15 +94,25 @@ const ToastContainer = () => {
 
               {/* Toast Text Content */}
               <div className="flex-1 min-w-0 pr-1">
-                <h4 className="font-headline-md text-[16px] font-bold text-on-surface tracking-tight">
+                <h4 className="font-headline-md text-[15px] sm:text-[16px] font-bold text-slate-900 dark:text-white tracking-tight">
                   {toast.title || config.defaultTitle}
                 </h4>
-                <p className="font-body-md text-sm text-on-surface-variant/90 leading-relaxed mt-0.5 break-words">
+                <p className="font-body-md text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mt-0.5 break-words">
                   {toast.message}
                 </p>
               </div>
 
-              {/* Bottom Countdown Progress Line (No Colored Shadow) */}
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => toastStore.remove(toast.id)}
+                className="text-slate-400 hover:text-slate-700 dark:text-slate-500 dark:hover:text-white p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors shrink-0 cursor-pointer"
+                aria-label="Đóng thông báo"
+              >
+                <X size={16} />
+              </button>
+
+              {/* Bottom Countdown Progress Line */}
               {toast.duration && toast.duration > 0 ? (
                 <motion.div
                   initial={{ width: "100%" }}
@@ -110,7 +121,7 @@ const ToastContainer = () => {
                     duration: toast.duration / 1000,
                     ease: "linear",
                   }}
-                  className={`absolute bottom-0 left-0 h-[2px] ${config.progressBg} opacity-80`}
+                  className={`absolute bottom-0 left-0 h-[2.5px] ${config.progressBg} opacity-80`}
                 />
               ) : null}
             </motion.div>

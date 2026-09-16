@@ -68,16 +68,16 @@ const StudentInbodyTab = ({
         <div className="bento-card rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border border-outline-variant/30 space-y-1">
           <span className="text-[11px] sm:text-xs text-on-surface-variant font-medium truncate block">Tỷ lệ mỡ (Body Fat)</span>
           <div className="flex items-baseline gap-1">
-            <span className="text-xl sm:text-2xl font-extrabold text-amber-400 truncate">{inbodyFat}</span>
-            <span className="text-xs font-bold text-amber-400">%</span>
+            <span className="text-xl sm:text-2xl font-extrabold text-amber-700 dark:text-amber-400 truncate">{inbodyFat}</span>
+            <span className="text-xs font-bold text-amber-700 dark:text-amber-400">%</span>
           </div>
         </div>
 
         <div className="bento-card rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border border-outline-variant/30 space-y-1">
           <span className="text-[11px] sm:text-xs text-on-surface-variant font-medium truncate block">Khối lượng cơ</span>
           <div className="flex items-baseline gap-1">
-            <span className="text-xl sm:text-2xl font-extrabold text-blue-400 truncate">{inbodyMuscle}</span>
-            <span className="text-xs font-bold text-blue-400">Kg</span>
+            <span className="text-xl sm:text-2xl font-extrabold text-blue-700 dark:text-blue-400 truncate">{inbodyMuscle}</span>
+            <span className="text-xs font-bold text-blue-700 dark:text-blue-400">Kg</span>
           </div>
         </div>
       </div>
@@ -92,7 +92,7 @@ const StudentInbodyTab = ({
           <button
             type="button"
             onClick={() => onToggleEditInBody(!isEditingInBody)}
-            className="px-4 py-2 rounded-xl bg-surface-bright border border-white/10 text-on-surface font-bold text-xs flex items-center justify-center hover:text-primary hover:border-primary/40 transition-colors cursor-pointer self-start sm:self-auto"
+            className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-surface-bright border border-slate-300 dark:border-white/10 text-on-surface font-bold text-xs flex items-center justify-center hover:text-primary hover:border-primary/40 transition-colors cursor-pointer self-start sm:self-auto"
           >
             {isEditingInBody ? 'Đóng Form' : 'Cập Nhật InBody Mới'}
           </button>
@@ -100,8 +100,8 @@ const StudentInbodyTab = ({
 
         {/* Edit InBody Form */}
         {isEditingInBody && (
-          <div className="p-5 rounded-2xl bg-surface-bright/40 border border-primary/30 space-y-4 animate-in fade-in duration-200">
-            <h4 className="font-extrabold text-sm text-primary">
+          <div className="p-5 rounded-2xl bg-slate-50 dark:bg-surface-bright/40 border border-primary/30 space-y-4 animate-in fade-in duration-200">
+            <h4 className="font-extrabold text-sm text-primary-dark dark:text-primary">
               Nhập kết quả đo InBody mới nhất
             </h4>
 
@@ -118,7 +118,7 @@ const StudentInbodyTab = ({
                   onChange={(e) =>
                     onInbodyWeightChange(e.target.value === '' ? 0 : Number(e.target.value))
                   }
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-on-surface font-extrabold focus:border-primary outline-none"
+                  className="w-full bg-white dark:bg-black/40 border border-slate-300 dark:border-white/10 rounded-xl px-3 py-2 text-on-surface font-extrabold focus:border-primary outline-none"
                 />
               </div>
 
@@ -133,7 +133,7 @@ const StudentInbodyTab = ({
                   onChange={(e) =>
                     onInbodyHeightChange(e.target.value === '' ? 0 : Number(e.target.value))
                   }
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-on-surface font-extrabold focus:border-primary outline-none"
+                  className="w-full bg-white dark:bg-black/40 border border-slate-300 dark:border-white/10 rounded-xl px-3 py-2 text-on-surface font-extrabold focus:border-primary outline-none"
                 />
               </div>
 
@@ -149,7 +149,7 @@ const StudentInbodyTab = ({
                   onChange={(e) =>
                     onInbodyFatChange(e.target.value === '' ? 0 : Number(e.target.value))
                   }
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-amber-400 font-extrabold focus:border-amber-400 outline-none"
+                  className="w-full bg-white dark:bg-black/40 border border-slate-300 dark:border-white/10 rounded-xl px-3 py-2 text-amber-700 dark:text-amber-400 font-extrabold focus:border-amber-400 outline-none"
                 />
               </div>
 
@@ -165,7 +165,7 @@ const StudentInbodyTab = ({
                   onChange={(e) =>
                     onInbodyMuscleChange(e.target.value === '' ? 0 : Number(e.target.value))
                   }
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-blue-400 font-extrabold focus:border-blue-400 outline-none"
+                  className="w-full bg-white dark:bg-black/40 border border-slate-300 dark:border-white/10 rounded-xl px-3 py-2 text-blue-700 dark:text-blue-400 font-extrabold focus:border-blue-400 outline-none"
                 />
               </div>
             </div>

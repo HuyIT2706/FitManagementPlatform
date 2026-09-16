@@ -29,14 +29,14 @@ const DailyMealGrid = ({
         return {
           icon: (
             <span
-              className="material-symbols-outlined text-[24px] sm:text-[26px] text-amber-300 drop-shadow-[0_2px_10px_rgba(245,158,11,0.5)]"
+              className="material-symbols-outlined text-[24px] sm:text-[26px] text-amber-600 dark:text-amber-300 drop-shadow-[0_2px_10px_rgba(245,158,11,0.3)]"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
               breakfast_dining
             </span>
           ),
           badgeBg:
-            'bg-gradient-to-br from-amber-500/25 via-orange-500/15 to-transparent border-amber-400/40 text-amber-300 shadow-[0_0_18px_rgba(245,158,11,0.25)]',
+            'bg-amber-500/15 dark:bg-gradient-to-br dark:from-amber-500/25 dark:via-orange-500/15 dark:to-transparent border border-amber-500/30 dark:border-amber-400/40 text-amber-700 dark:text-amber-300 shadow-sm',
           cardHover:
             'hover:border-amber-400/50 hover:shadow-[0_0_24px_rgba(245,158,11,0.12)]',
         };
@@ -44,14 +44,14 @@ const DailyMealGrid = ({
         return {
           icon: (
             <span
-              className="material-symbols-outlined text-[24px] sm:text-[26px] text-orange-300 drop-shadow-[0_2px_10px_rgba(249,115,22,0.5)]"
+              className="material-symbols-outlined text-[24px] sm:text-[26px] text-orange-600 dark:text-orange-300 drop-shadow-[0_2px_10px_rgba(249,115,22,0.3)]"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
               lunch_dining
             </span>
           ),
           badgeBg:
-            'bg-gradient-to-br from-orange-500/25 via-rose-500/15 to-transparent border-orange-400/40 text-orange-300 shadow-[0_0_18px_rgba(249,115,22,0.25)]',
+            'bg-orange-500/15 dark:bg-gradient-to-br dark:from-orange-500/25 dark:via-rose-500/15 dark:to-transparent border border-orange-500/30 dark:border-orange-400/40 text-orange-700 dark:text-orange-300 shadow-sm',
           cardHover:
             'hover:border-orange-400/50 hover:shadow-[0_0_24px_rgba(249,115,22,0.12)]',
         };
@@ -59,14 +59,14 @@ const DailyMealGrid = ({
         return {
           icon: (
             <span
-              className="material-symbols-outlined text-[24px] sm:text-[26px] text-indigo-300 drop-shadow-[0_2px_10px_rgba(99,102,241,0.5)]"
+              className="material-symbols-outlined text-[24px] sm:text-[26px] text-indigo-600 dark:text-indigo-300 drop-shadow-[0_2px_10px_rgba(99,102,241,0.3)]"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
               dinner_dining
             </span>
           ),
           badgeBg:
-            'bg-gradient-to-br from-indigo-500/25 via-purple-500/15 to-transparent border-indigo-400/40 text-indigo-300 shadow-[0_0_18px_rgba(99,102,241,0.25)]',
+            'bg-indigo-500/15 dark:bg-gradient-to-br dark:from-indigo-500/25 dark:via-purple-500/15 dark:to-transparent border border-indigo-500/30 dark:border-indigo-400/40 text-indigo-700 dark:text-indigo-300 shadow-sm',
           cardHover:
             'hover:border-indigo-400/50 hover:shadow-[0_0_24px_rgba(99,102,241,0.12)]',
         };
@@ -75,14 +75,14 @@ const DailyMealGrid = ({
         return {
           icon: (
             <span
-              className="material-symbols-outlined text-[24px] sm:text-[26px] text-emerald-300 drop-shadow-[0_2px_10px_rgba(16,185,129,0.5)]"
+              className="material-symbols-outlined text-[24px] sm:text-[26px] text-emerald-600 dark:text-emerald-300 drop-shadow-[0_2px_10px_rgba(16,185,129,0.3)]"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
               nutrition
             </span>
           ),
           badgeBg:
-            'bg-gradient-to-br from-emerald-500/25 via-teal-500/15 to-transparent border-emerald-400/40 text-emerald-300 shadow-[0_0_18px_rgba(16,185,129,0.25)]',
+            'bg-emerald-500/15 dark:bg-gradient-to-br dark:from-emerald-500/25 dark:via-teal-500/15 dark:to-transparent border border-emerald-500/30 dark:border-emerald-400/40 text-emerald-700 dark:text-emerald-300 shadow-sm',
           cardHover:
             'hover:border-emerald-400/50 hover:shadow-[0_0_24px_rgba(16,185,129,0.12)]',
         };
@@ -149,7 +149,7 @@ const DailyMealGrid = ({
                     {mealDetails.items.map((item, idx) => (
                       <span
                         key={idx}
-                        className="text-[11px] sm:text-xs bg-surface-bright/40 border border-white/10 text-on-surface px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg font-medium capitalize"
+                        className="text-[11px] sm:text-xs bg-slate-100 dark:bg-surface-bright/40 border border-slate-200 dark:border-white/10 text-on-surface px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg font-medium capitalize"
                       >
                         {item.foodName}{' '}
                         <span className="text-on-surface-variant/70 text-[10px] sm:text-[11px]">

@@ -37,14 +37,14 @@ const HistoryMonthCalendar = ({
             <button
               onClick={onPrevMonth}
               aria-label="Tháng trước"
-              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-surface-bright/30 border border-white/10 text-on-surface hover:bg-surface-bright transition-colors flex items-center justify-center cursor-pointer"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-100 dark:bg-surface-bright/30 border border-slate-200 dark:border-white/10 text-on-surface hover:bg-slate-200 dark:hover:bg-surface-bright transition-colors flex items-center justify-center cursor-pointer"
             >
               <ChevronLeft size={15} />
             </button>
             <button
               onClick={onNextMonth}
               aria-label="Tháng sau"
-              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-surface-bright/30 border border-white/10 text-on-surface hover:bg-surface-bright transition-colors flex items-center justify-center cursor-pointer"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-100 dark:bg-surface-bright/30 border border-slate-200 dark:border-white/10 text-on-surface hover:bg-slate-200 dark:hover:bg-surface-bright transition-colors flex items-center justify-center cursor-pointer"
             >
               <ChevronRight size={15} />
             </button>
@@ -54,7 +54,7 @@ const HistoryMonthCalendar = ({
         {/* Weekday Labels (T2 .. CN) */}
         <div className="grid grid-cols-7 gap-y-2 sm:gap-y-3 text-center mb-2">
           {['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].map((day) => (
-            <span key={day} className="text-[10px] sm:text-[11px] font-bold text-on-surface-variant/50">
+            <span key={day} className="text-[10px] sm:text-[11px] font-bold text-slate-900 dark:text-on-surface-variant/70">
               {day}
             </span>
           ))}
@@ -73,12 +73,12 @@ const HistoryMonthCalendar = ({
                   onClick={() => onSelectDate(cell.date)}
                   className={`w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-full flex flex-col items-center justify-center text-[11px] sm:text-xs transition-all duration-200 cursor-pointer relative ${
                     isSelected
-                      ? 'bg-green-light text-dark-slate font-extrabold shadow-[0_0_15px_rgba(102,200,28,0.4)] scale-105'
+                      ? 'bg-green-light text-white dark:text-dark-slate font-extrabold shadow-md scale-105'
                       : isToday
                       ? 'border-2 border-green-light text-green-light font-bold'
                       : cell.isCurrentMonth
-                      ? 'text-on-surface hover:bg-surface-bright/50 font-medium'
-                      : 'text-on-surface-variant/30 hover:bg-surface-bright/20'
+                      ? 'text-on-surface hover:bg-slate-100 dark:hover:bg-surface-bright/50 font-bold'
+                      : 'text-slate-400 dark:text-on-surface-variant/30 hover:bg-slate-100/50 dark:hover:bg-surface-bright/20 font-medium'
                   }`}
                 >
                   <span>{cell.dayNumber}</span>

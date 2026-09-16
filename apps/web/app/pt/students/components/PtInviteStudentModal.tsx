@@ -35,14 +35,14 @@ const PtInviteStudentModal = ({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-[#121620] border border-white/15 rounded-2xl sm:rounded-[32px] max-w-lg w-full p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 text-white shadow-2xl relative cursor-default animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]"
+        className="bg-white dark:bg-[#121620] border border-slate-200 dark:border-white/15 rounded-2xl sm:rounded-[32px] max-w-lg w-full p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 text-slate-900 dark:text-white shadow-2xl relative cursor-default animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]"
       >
         {/* Header Close Button */}
         <button
           type="button"
           onClick={onClose}
           aria-label="Đóng modal"
-          className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white border border-white/15 flex items-center justify-center transition-all cursor-pointer"
+          className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white/70 dark:hover:text-white border border-slate-200 dark:border-white/15 flex items-center justify-center transition-all cursor-pointer"
         >
           <X size={18} />
         </button>
@@ -52,10 +52,10 @@ const PtInviteStudentModal = ({
             <UserPlus size={22} />
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="font-extrabold text-lg sm:text-xl text-white font-headline-md truncate">
+            <h3 className="font-extrabold text-lg sm:text-xl text-slate-900 dark:text-white font-headline-md truncate">
               Mời Học Viên Mới 1-1
             </h3>
-            <p className="text-xs text-white/60 mt-0.5">
+            <p className="text-xs text-slate-600 dark:text-white/60 mt-0.5">
               Tạo đường link kích hoạt gói tập cho học viên của bạn.
             </p>
           </div>
@@ -64,13 +64,13 @@ const PtInviteStudentModal = ({
         {!generatedInviteUrl ? (
           <form onSubmit={onSendInvite} className="space-y-3.5 sm:space-y-4">
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-white/80">
+              <label className="block text-xs font-bold text-slate-700 dark:text-white/80">
                 Email Học Viên (*):
               </label>
               <div className="relative">
                 <Mail
                   size={16}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-white/40 pointer-events-none"
                 />
                 <input
                   type="email"
@@ -78,25 +78,25 @@ const PtInviteStudentModal = ({
                   value={studentEmail}
                   onChange={(e) => onStudentEmailChange(e.target.value)}
                   placeholder="hocvien@gmail.com"
-                  className="w-full bg-white/[0.05] border border-white/15 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:border-primary outline-none"
+                  className="w-full bg-slate-50 dark:bg-white/[0.05] border border-slate-300 dark:border-white/15 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/40 focus:border-primary outline-none"
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-white/80">Tên Gói Tập PT:</label>
+              <label className="block text-xs font-bold text-slate-700 dark:text-white/80">Tên Gói Tập PT:</label>
               <input
                 type="text"
                 required
                 value={packageName}
                 onChange={(e) => onPackageNameChange(e.target.value)}
                 placeholder="Gói PT VIP 1-1"
-                className="w-full bg-white/[0.05] border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white focus:border-primary outline-none"
+                className="w-full bg-slate-50 dark:bg-white/[0.05] border border-slate-300 dark:border-white/15 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/40 focus:border-primary outline-none"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-white/80">
+              <label className="block text-xs font-bold text-slate-700 dark:text-white/80">
                 Tổng số buổi tập:
               </label>
               <input
@@ -110,7 +110,7 @@ const PtInviteStudentModal = ({
                     e.target.value === '' ? 0 : Number(e.target.value)
                   )
                 }
-                className="w-full bg-white/[0.05] border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white focus:border-primary outline-none font-bold text-primary"
+                className="w-full bg-slate-50 dark:bg-white/[0.05] border border-slate-300 dark:border-white/15 rounded-xl px-4 py-2.5 text-sm text-primary font-bold focus:border-primary outline-none"
               />
             </div>
 
@@ -125,8 +125,8 @@ const PtInviteStudentModal = ({
         ) : (
           <div className="space-y-4 pt-2">
             <div className="bg-primary/10 border border-primary/30 p-3.5 sm:p-4 rounded-2xl text-center space-y-1.5">
-              <p className="text-xs text-primary font-bold">🎉 Khởi tạo Link thành công!</p>
-              <p className="text-xs text-white/70">
+              <p className="text-xs text-primary-dark dark:text-primary font-bold">🎉 Khởi tạo Link thành công!</p>
+              <p className="text-xs text-slate-600 dark:text-white/70">
                 Hãy sao chép đường dẫn này và gửi cho học viên để liên kết trực tiếp với bạn.
               </p>
             </div>
@@ -136,7 +136,7 @@ const PtInviteStudentModal = ({
                 type="text"
                 readOnly
                 value={generatedInviteUrl}
-                className="w-full bg-black/60 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-primary font-mono select-all outline-none"
+                className="w-full bg-slate-100 dark:bg-black/60 border border-slate-300 dark:border-white/15 rounded-xl px-3 py-2.5 text-xs text-primary-dark dark:text-primary font-mono select-all outline-none"
               />
               <button
                 type="button"
@@ -151,7 +151,7 @@ const PtInviteStudentModal = ({
             <button
               type="button"
               onClick={onClose}
-              className="w-full bg-surface-bright/40 text-white font-bold py-2.5 sm:py-3 rounded-xl hover:bg-surface-bright transition-colors border border-white/10 cursor-pointer mt-2 text-xs sm:text-sm"
+              className="w-full bg-slate-100 dark:bg-surface-bright/40 text-slate-900 dark:text-white font-bold py-2.5 sm:py-3 rounded-xl hover:bg-slate-200 dark:hover:bg-surface-bright transition-colors border border-slate-300 dark:border-white/10 cursor-pointer mt-2 text-xs sm:text-sm"
             >
               Hoàn tất
             </button>

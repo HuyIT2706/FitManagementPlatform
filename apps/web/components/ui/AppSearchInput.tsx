@@ -85,11 +85,11 @@ const AppSearchInput = ({
   // Variant styling configurations
   const variantConfig = {
     default:
-      'bg-[#121820]/90 border border-white/10 hover:border-white/20 focus-within:border-[#10b981] focus-within:ring-2 focus-within:ring-[#10b981]/20 focus-within:shadow-[0_0_20px_rgba(16,185,129,0.15)]',
+      'bg-slate-100 dark:bg-[#121820]/90 border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 focus-within:shadow-[0_0_20px_rgba(16,185,129,0.15)]',
     filled:
-      'bg-white/5 border border-transparent hover:border-white/10 focus-within:border-[#10b981] focus-within:bg-[#121820] focus-within:ring-2 focus-within:ring-[#10b981]/20',
+      'bg-slate-100 dark:bg-white/5 border border-transparent hover:border-slate-300 dark:hover:border-white/10 focus-within:border-primary focus-within:bg-white dark:focus-within:bg-[#121820] focus-within:ring-2 focus-within:ring-primary/20',
     glass:
-      'bg-white/[0.03] backdrop-blur-xl border border-white/15 hover:border-white/25 focus-within:border-[#10b981] focus-within:ring-2 focus-within:ring-[#10b981]/25 focus-within:shadow-[0_4px_24px_rgba(16,185,129,0.12)]',
+      'bg-white dark:bg-white/[0.03] backdrop-blur-xl border border-slate-200 dark:border-white/15 hover:border-slate-300 dark:hover:border-white/25 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/25 focus-within:shadow-[0_4px_24px_rgba(16,185,129,0.12)]',
   }[variant];
 
   return (
@@ -101,7 +101,7 @@ const AppSearchInput = ({
       {/* Search Icon with Glowing Focus State */}
       <Search
         size={sizeConfig.icon}
-        className="text-white/40 group-focus-within:text-[#10b981] transition-colors duration-300 shrink-0 pointer-events-none"
+        className="text-slate-500 dark:text-white/40 group-focus-within:text-primary transition-colors duration-300 shrink-0 pointer-events-none"
       />
 
       {/* Input Field */}
@@ -115,7 +115,7 @@ const AppSearchInput = ({
         placeholder={placeholder}
         disabled={disabled}
         autoFocus={autoFocus}
-        className={`w-full h-full bg-transparent text-white placeholder-white/40 focus:outline-none font-medium ${sizeConfig.inputPl} ${sizeConfig.inputPr} ${inputClassName}`}
+        className={`w-full h-full bg-transparent text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-white/40 focus:outline-none font-medium ${sizeConfig.inputPl} ${sizeConfig.inputPr} ${inputClassName}`}
       />
 
       {/* Clear Button */}
@@ -124,7 +124,7 @@ const AppSearchInput = ({
           type="button"
           onClick={handleClear}
           aria-label="Xóa từ khóa tìm kiếm"
-          className={`absolute right-2 rounded-full bg-white/10 hover:bg-white/20 text-white/50 hover:text-white transition-all duration-200 cursor-pointer flex items-center justify-center ${sizeConfig.clearBtn}`}
+          className={`absolute right-2 rounded-full bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20 text-slate-600 dark:text-white/50 hover:text-slate-900 dark:hover:text-white transition-all duration-200 cursor-pointer flex items-center justify-center ${sizeConfig.clearBtn}`}
         >
           <X size={sizeConfig.clearIcon} />
         </button>

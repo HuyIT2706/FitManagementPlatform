@@ -59,14 +59,14 @@ const CalendarStrip = ({
           <button
             onClick={onPrevWeek}
             aria-label="Tuần trước"
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-surface-bright/30 border border-white/10 text-on-surface hover:bg-surface-bright/60 transition-colors flex items-center justify-center cursor-pointer"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100 dark:bg-surface-bright/30 border border-slate-200 dark:border-white/10 text-on-surface hover:bg-slate-200 dark:hover:bg-surface-bright/60 transition-colors flex items-center justify-center cursor-pointer"
           >
             <ChevronLeft size={16} />
           </button>
           <button
             onClick={handleNextWeekClick}
             aria-label="Tuần sau"
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-surface-bright/30 border border-white/10 text-on-surface hover:bg-surface-bright/60 transition-colors flex items-center justify-center cursor-pointer"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100 dark:bg-surface-bright/30 border border-slate-200 dark:border-white/10 text-on-surface hover:bg-slate-200 dark:hover:bg-surface-bright/60 transition-colors flex items-center justify-center cursor-pointer"
           >
             <ChevronRight size={16} />
           </button>
@@ -86,10 +86,10 @@ const CalendarStrip = ({
               onClick={() => handleDateClick(day)}
               className={`flex flex-col items-center justify-center py-2 sm:py-2.5 px-0.5 sm:px-1 rounded-xl sm:rounded-2xl transition-all duration-200 cursor-pointer relative ${
                 isFuture
-                  ? 'opacity-30 cursor-not-allowed bg-surface-dim/20 border border-white/5'
+                  ? 'opacity-30 cursor-not-allowed bg-slate-100/50 dark:bg-surface-dim/20 border border-slate-200 dark:border-white/5'
                   : isSelected
-                  ? 'bg-green-light/20 border-2 border-green-light text-green-light shadow-[0_0_15px_rgba(102,200,28,0.25)] scale-[1.02]'
-                  : 'bg-surface-dim/40 border border-white/5 hover:bg-surface-bright/30 opacity-80 hover:opacity-100 text-on-surface'
+                  ? 'bg-green-light/15 border-2 border-green-light text-green-light shadow-sm scale-[1.02]'
+                  : 'bg-slate-100/70 dark:bg-surface-dim/40 border border-slate-200 dark:border-white/5 hover:bg-slate-200/70 dark:hover:bg-surface-bright/30 text-on-surface'
               }`}
             >
               <span className="font-label-lg text-[10px] sm:text-[11px] md:text-xs font-semibold">

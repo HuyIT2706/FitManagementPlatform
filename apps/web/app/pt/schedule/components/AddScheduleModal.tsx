@@ -151,12 +151,12 @@ const AddScheduleModal = ({
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-[#12161f] border border-outline-variant/30 w-full max-w-lg rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 shadow-[0_0_50px_rgba(0,0,0,0.9)] relative max-h-[90vh] overflow-y-auto [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+      <div className="bg-white dark:bg-[#12161f] border border-slate-200 dark:border-outline-variant/30 w-full max-w-lg rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-white/10">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-white/10">
           <div className="flex items-center gap-2.5">
             <div>
-              <h3 className="font-extrabold text-base sm:text-lg text-white">Thêm Ca Dạy Mới</h3>
+              <h3 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-white">Thêm Ca Dạy Mới</h3>
               <p className="text-xs text-on-surface-variant">
                 Tùy chọn thời gian & xếp lịch dạy học viên
               </p>
@@ -166,7 +166,7 @@ const AddScheduleModal = ({
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-on-surface-variant hover:text-white transition-colors cursor-pointer shrink-0"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 dark:bg-white/5 dark:hover:bg-white/10 flex items-center justify-center dark:text-on-surface-variant dark:hover:text-white transition-colors cursor-pointer shrink-0"
           >
             <X size={18} />
           </button>
@@ -184,7 +184,7 @@ const AddScheduleModal = ({
             <button
               type="button"
               onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
-              className="w-full bg-surface-bright/50 border border-white/10 hover:border-primary/50 rounded-xl px-3.5 py-2.5 text-sm font-extrabold text-primary flex items-center justify-between transition-colors cursor-pointer"
+              className="w-full bg-slate-50 dark:bg-surface-bright/50 border border-slate-200 dark:border-white/10 hover:border-primary/50 rounded-xl px-3.5 py-2.5 text-sm font-extrabold text-primary flex items-center justify-between transition-colors cursor-pointer"
             >
               <span>{displayDateStr}</span>
               <ChevronDown
@@ -202,10 +202,10 @@ const AddScheduleModal = ({
                   onClick={() => setIsDatePickerOpen(false)}
                 ></div>
 
-                <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-[#181d26] border border-primary/30 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.9)] p-4 space-y-3 animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-white dark:bg-[#181d26] border border-slate-200 dark:border-primary/30 rounded-2xl shadow-2xl p-4 space-y-3 animate-in fade-in zoom-in-95 duration-150">
                   {/* Calendar Header */}
-                  <div className="flex items-center justify-between pb-2 border-b border-white/10">
-                    <span className="text-xs font-extrabold text-white">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-white/10">
+                    <span className="text-xs font-extrabold text-slate-900 dark:text-white">
                       {monthName}, {year}
                     </span>
 
@@ -213,14 +213,14 @@ const AddScheduleModal = ({
                       <button
                         type="button"
                         onClick={handlePrevMonth}
-                        className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-on-surface-variant hover:text-white transition-colors cursor-pointer"
+                        className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 dark:bg-white/5 dark:hover:bg-white/10 flex items-center justify-center dark:text-on-surface-variant dark:hover:text-white transition-colors cursor-pointer"
                       >
                         <ChevronLeft size={16} />
                       </button>
                       <button
                         type="button"
                         onClick={handleNextMonth}
-                        className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-on-surface-variant hover:text-white transition-colors cursor-pointer"
+                        className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 dark:bg-white/5 dark:hover:bg-white/10 flex items-center justify-center dark:text-on-surface-variant dark:hover:text-white transition-colors cursor-pointer"
                       >
                         <ChevronRight size={16} />
                       </button>
@@ -244,7 +244,7 @@ const AddScheduleModal = ({
                         return (
                           <span
                             key={`prev-${i}`}
-                            className="py-1.5 text-xs text-white/20 font-medium select-none"
+                            className="py-1.5 text-xs text-slate-400 dark:text-white/20 font-medium select-none"
                           >
                             {dayNum}
                           </span>
@@ -270,8 +270,8 @@ const AddScheduleModal = ({
                               isSelected
                                 ? 'bg-primary text-dark-slate font-extrabold shadow-[0_0_10px_rgba(102,200,28,0.4)]'
                                 : isToday
-                                  ? 'border border-primary text-primary font-bold bg-primary/10'
-                                  : 'text-white font-semibold hover:bg-white/10'
+                                  ? 'border border-primary text-primary-dark dark:text-primary font-bold bg-primary/10'
+                                  : 'text-slate-800 dark:text-white font-semibold hover:bg-slate-100 dark:hover:bg-white/10'
                             }`}
                           >
                             {d}
@@ -282,11 +282,11 @@ const AddScheduleModal = ({
                   </div>
 
                   {/* Today Quick Action */}
-                  <div className="pt-2 border-t border-white/10 flex items-center justify-end">
+                  <div className="pt-2 border-t border-slate-200 dark:border-white/10 flex items-center justify-end">
                     <button
                       type="button"
                       onClick={handleToday}
-                      className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
+                      className="text-[11px] font-bold text-primary-dark dark:text-primary hover:underline cursor-pointer"
                     >
                       Hôm nay
                     </button>
@@ -308,14 +308,14 @@ const AddScheduleModal = ({
                 <button
                   type="button"
                   onClick={() => setIsStudentDropdownOpen(!isStudentDropdownOpen)}
-                  className="w-full bg-surface-bright/50 border border-white/10 hover:border-primary/50 rounded-xl px-3.5 py-2.5 text-sm font-bold text-on-surface flex items-center justify-between transition-colors cursor-pointer"
+                  className="w-full bg-slate-50 dark:bg-surface-bright/50 border border-slate-200 dark:border-white/10 hover:border-primary/50 rounded-xl px-3.5 py-2.5 text-sm font-bold text-on-surface flex items-center justify-between transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="font-extrabold text-white truncate">
+                    <span className="font-extrabold text-slate-900 dark:text-white truncate">
                       {selectedStudent ? selectedStudent.fullName : 'Học viên'}
                     </span>
                     {selectedStudent && (
-                      <span className="text-[11px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-md border border-primary/20 shrink-0">
+                      <span className="text-[11px] font-semibold text-primary-dark dark:text-primary bg-primary/10 px-2 py-0.5 rounded-md border border-primary/20 shrink-0">
                         Còn {selectedStudent.remainingSessions}/{selectedStudent.totalSessions} buổi
                       </span>
                     )}
@@ -335,7 +335,7 @@ const AddScheduleModal = ({
                       onClick={() => setIsStudentDropdownOpen(false)}
                     ></div>
 
-                    <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-[#181d26] border border-primary/30 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.9)] max-h-56 overflow-y-auto no-scrollbar p-1.5 space-y-1 animate-in fade-in zoom-in-95 duration-150">
+                    <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-white dark:bg-[#181d26] border border-slate-200 dark:border-primary/30 rounded-2xl shadow-2xl max-h-56 overflow-y-auto no-scrollbar p-1.5 space-y-1 animate-in fade-in zoom-in-95 duration-150">
                       {students.map((st) => {
                         const isSelected = st.id === (selectedStudentId || students[0]?.id);
                         return (
@@ -349,14 +349,14 @@ const AddScheduleModal = ({
                             className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between gap-2 transition-all cursor-pointer ${
                               isSelected
                                 ? 'bg-primary text-dark-slate shadow-[0_0_12px_rgba(102,200,28,0.4)]'
-                                : 'text-on-surface hover:bg-white/10'
+                                : 'text-slate-800 dark:text-on-surface hover:bg-slate-100 dark:hover:bg-white/10'
                             }`}
                           >
                             <div className="flex items-center gap-2 truncate">
                               <span className="font-extrabold">{st.fullName}</span>
                               <span
                                 className={`text-[10px] opacity-80 ${
-                                  isSelected ? 'text-dark-slate font-extrabold' : 'text-primary'
+                                  isSelected ? 'text-dark-slate font-extrabold' : 'text-primary-dark dark:text-primary'
                                 }`}
                               >
                                 ({st.packageName})
@@ -392,7 +392,7 @@ const AddScheduleModal = ({
               <button
                 type="button"
                 onClick={() => setIsStartDropdownOpen(!isStartDropdownOpen)}
-                className="w-full bg-surface-bright/50 border border-white/10 hover:border-primary/50 rounded-xl px-3.5 py-2.5 text-sm font-extrabold text-primary flex items-center justify-between transition-colors cursor-pointer"
+                className="w-full bg-slate-50 dark:bg-surface-bright/50 border border-slate-200 dark:border-white/10 hover:border-primary/50 rounded-xl px-3.5 py-2.5 text-sm font-extrabold text-primary flex items-center justify-between transition-colors cursor-pointer"
               >
                 <span>{startTime}</span>
                 <ChevronDown
@@ -410,7 +410,7 @@ const AddScheduleModal = ({
                     onClick={() => setIsStartDropdownOpen(false)}
                   ></div>
 
-                  <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-[#181d26] border border-primary/30 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.9)] max-h-52 overflow-y-auto no-scrollbar p-1.5 space-y-0.5 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-white dark:bg-[#181d26] border border-slate-200 dark:border-primary/30 rounded-2xl shadow-2xl max-h-52 overflow-y-auto no-scrollbar p-1.5 space-y-0.5 animate-in fade-in zoom-in-95 duration-150">
                     {TIME_OPTIONS.map((time) => {
                       const isSelected = time === startTime;
                       return (
@@ -424,7 +424,7 @@ const AddScheduleModal = ({
                           className={`w-full px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center justify-between transition-all cursor-pointer ${
                             isSelected
                               ? 'bg-primary text-dark-slate shadow-[0_0_12px_rgba(102,200,28,0.4)]'
-                              : 'text-on-surface hover:bg-white/10 hover:text-primary'
+                              : 'text-slate-800 dark:text-on-surface hover:bg-slate-100 dark:hover:bg-white/10 hover:text-primary'
                           }`}
                         >
                           <span>{time}</span>
@@ -447,7 +447,7 @@ const AddScheduleModal = ({
               <button
                 type="button"
                 onClick={() => setIsEndDropdownOpen(!isEndDropdownOpen)}
-                className="w-full bg-surface-bright/50 border border-white/10 hover:border-primary/50 rounded-xl px-3.5 py-2.5 text-sm font-extrabold text-primary flex items-center justify-between transition-colors cursor-pointer"
+                className="w-full bg-slate-50 dark:bg-surface-bright/50 border border-slate-200 dark:border-white/10 hover:border-primary/50 rounded-xl px-3.5 py-2.5 text-sm font-extrabold text-primary flex items-center justify-between transition-colors cursor-pointer"
               >
                 <span>{endTime}</span>
                 <ChevronDown
@@ -465,7 +465,7 @@ const AddScheduleModal = ({
                     onClick={() => setIsEndDropdownOpen(false)}
                   ></div>
 
-                  <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-[#181d26] border border-primary/30 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.9)] max-h-52 overflow-y-auto no-scrollbar p-1.5 space-y-0.5 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-white dark:bg-[#181d26] border border-slate-200 dark:border-primary/30 rounded-2xl shadow-2xl max-h-52 overflow-y-auto no-scrollbar p-1.5 space-y-0.5 animate-in fade-in zoom-in-95 duration-150">
                     {TIME_OPTIONS.map((time) => {
                       const isSelected = time === endTime;
                       return (
@@ -479,7 +479,7 @@ const AddScheduleModal = ({
                           className={`w-full px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center justify-between transition-all cursor-pointer ${
                             isSelected
                               ? 'bg-primary text-dark-slate shadow-[0_0_12px_rgba(102,200,28,0.4)]'
-                              : 'text-on-surface hover:bg-white/10 hover:text-primary'
+                              : 'text-slate-800 dark:text-on-surface hover:bg-slate-100 dark:hover:bg-white/10 hover:text-primary'
                           }`}
                         >
                           <span>{time}</span>
@@ -504,17 +504,17 @@ const AddScheduleModal = ({
               value={workoutName}
               onChange={(e) => setWorkoutName(e.target.value)}
               placeholder="Ví dụ: Tập Lưng & Bụng Cá Nhân Hóa"
-              className="w-full bg-surface-bright/50 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm font-bold text-on-surface placeholder:text-white/30 focus:border-primary outline-none transition-colors"
+              className="w-full bg-slate-50 dark:bg-surface-bright/50 border border-slate-200 dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-900 dark:text-on-surface placeholder:text-slate-400 dark:placeholder:text-white/30 focus:border-primary outline-none transition-colors"
               required
             />
           </div>
 
           {/* Submit Action */}
-          <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5 sm:gap-3 pt-3">
+          <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5 sm:gap-3 pt-3 border-t border-slate-200 dark:border-white/10">
             <button
               type="button"
               onClick={onClose}
-              className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-white/10 text-on-surface-variant hover:text-white text-xs font-bold transition-colors cursor-pointer text-center"
+              className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-300 dark:border-white/10 text-slate-700 hover:text-slate-900 dark:text-on-surface-variant dark:hover:text-white text-xs font-bold transition-colors cursor-pointer text-center"
             >
               Hủy
             </button>

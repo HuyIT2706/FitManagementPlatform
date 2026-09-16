@@ -118,7 +118,7 @@ const ExerciseLibraryGrid = ({
                   className={`group relative h-52 sm:h-56 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${
                     isChecked
                       ? 'border-2 border-primary shadow-[0_0_16px_rgba(102,200,28,0.35)]'
-                      : 'border border-white/10 hover:border-primary/50'
+                      : 'border border-slate-200 dark:border-white/10 hover:border-primary/50'
                   }`}
                 >
                   {/* Setup Image (Default) */}
@@ -139,12 +139,12 @@ const ExerciseLibraryGrid = ({
                   <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       {exercise.level && (
-                        <span className="bg-black/75 backdrop-blur-md text-white/90 text-[10px] font-semibold px-2.5 py-0.5 rounded-full border border-white/10 capitalize">
+                        <span className="bg-black/75 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-white/20 capitalize shadow-xs">
                           {exercise.level}
                         </span>
                       )}
                       {exercise.equipment && (
-                        <span className="bg-primary/90 text-dark-slate font-bold text-[10px] px-2.5 py-0.5 rounded-full capitalize shadow-[0_0_8px_rgba(102,200,28,0.4)]">
+                        <span className="bg-primary text-dark-slate font-bold text-[10px] px-2.5 py-0.5 rounded-full capitalize shadow-xs">
                           {exercise.equipment}
                         </span>
                       )}

@@ -29,66 +29,66 @@ const HistoryNutritionDetails = ({
         return {
           icon: (
             <span
-              className="material-symbols-outlined text-[26px] sm:text-[28px] text-amber-300 drop-shadow-[0_2px_10px_rgba(245,158,11,0.5)]"
+              className="material-symbols-outlined text-[26px] sm:text-[28px] text-amber-600 dark:text-amber-300 drop-shadow-[0_2px_10px_rgba(245,158,11,0.3)]"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
               breakfast_dining
             </span>
           ),
           badgeBg:
-            'bg-gradient-to-br from-amber-500/25 via-orange-500/15 to-transparent border-amber-400/40 text-amber-300 shadow-[0_0_18px_rgba(245,158,11,0.25)]',
+            'bg-amber-500/15 dark:bg-gradient-to-br dark:from-amber-500/25 dark:via-orange-500/15 dark:to-transparent border border-amber-500/30 dark:border-amber-400/40 text-amber-700 dark:text-amber-300 shadow-xs',
           cardHover:
             'hover:border-amber-400/50 hover:shadow-[0_0_24px_rgba(245,158,11,0.12)]',
-          calColor: 'text-amber-300',
+          calColor: 'text-amber-700 dark:text-amber-300',
         };
       case 'LUNCH':
         return {
           icon: (
             <span
-              className="material-symbols-outlined text-[26px] sm:text-[28px] text-orange-300 drop-shadow-[0_2px_10px_rgba(249,115,22,0.5)]"
+              className="material-symbols-outlined text-[26px] sm:text-[28px] text-orange-600 dark:text-orange-300 drop-shadow-[0_2px_10px_rgba(249,115,22,0.3)]"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
               lunch_dining
             </span>
           ),
           badgeBg:
-            'bg-gradient-to-br from-orange-500/25 via-rose-500/15 to-transparent border-orange-400/40 text-orange-300 shadow-[0_0_18px_rgba(249,115,22,0.25)]',
+            'bg-orange-500/15 dark:bg-gradient-to-br dark:from-orange-500/25 dark:via-rose-500/15 dark:to-transparent border border-orange-500/30 dark:border-orange-400/40 text-orange-700 dark:text-orange-300 shadow-xs',
           cardHover:
             'hover:border-orange-400/50 hover:shadow-[0_0_24px_rgba(249,115,22,0.12)]',
-          calColor: 'text-orange-300',
+          calColor: 'text-orange-700 dark:text-orange-300',
         };
       case 'DINNER':
         return {
           icon: (
             <span
-              className="material-symbols-outlined text-[26px] sm:text-[28px] text-indigo-300 drop-shadow-[0_2px_10px_rgba(99,102,241,0.5)]"
+              className="material-symbols-outlined text-[26px] sm:text-[28px] text-indigo-600 dark:text-indigo-300 drop-shadow-[0_2px_10px_rgba(99,102,241,0.3)]"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
               dinner_dining
             </span>
           ),
           badgeBg:
-            'bg-gradient-to-br from-indigo-500/25 via-purple-500/15 to-transparent border-indigo-400/40 text-indigo-300 shadow-[0_0_18px_rgba(99,102,241,0.25)]',
+            'bg-indigo-500/15 dark:bg-gradient-to-br dark:from-indigo-500/25 dark:via-purple-500/15 dark:to-transparent border border-indigo-500/30 dark:border-indigo-400/40 text-indigo-700 dark:text-indigo-300 shadow-xs',
           cardHover:
             'hover:border-indigo-400/50 hover:shadow-[0_0_24px_rgba(99,102,241,0.12)]',
-          calColor: 'text-indigo-300',
+          calColor: 'text-indigo-700 dark:text-indigo-300',
         };
       case 'SNACK':
       default:
         return {
           icon: (
             <span
-              className="material-symbols-outlined text-[26px] sm:text-[28px] text-emerald-300 drop-shadow-[0_2px_10px_rgba(16,185,129,0.5)]"
+              className="material-symbols-outlined text-[26px] sm:text-[28px] text-emerald-600 dark:text-emerald-300 drop-shadow-[0_2px_10px_rgba(16,185,129,0.3)]"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
               nutrition
             </span>
           ),
           badgeBg:
-            'bg-gradient-to-br from-emerald-500/25 via-teal-500/15 to-transparent border-emerald-400/40 text-emerald-300 shadow-[0_0_18px_rgba(16,185,129,0.25)]',
+            'bg-emerald-500/15 dark:bg-gradient-to-br dark:from-emerald-500/25 dark:via-teal-500/15 dark:to-transparent border border-emerald-500/30 dark:border-emerald-400/40 text-emerald-700 dark:text-emerald-300 shadow-xs',
           cardHover:
             'hover:border-emerald-400/50 hover:shadow-[0_0_24px_rgba(16,185,129,0.12)]',
-          calColor: 'text-emerald-300',
+          calColor: 'text-emerald-700 dark:text-emerald-300',
         };
     }
   };
@@ -115,9 +115,9 @@ const HistoryNutritionDetails = ({
               {consumedCalo} / {targetCalo} kcal
             </span>
           </div>
-          <div className="w-full md:w-64 h-2 sm:h-2.5 bg-surface-bright rounded-full overflow-hidden">
+          <div className="w-full md:w-64 h-2 sm:h-2.5 bg-slate-200 dark:bg-surface-bright rounded-full overflow-hidden">
             <div
-              className="h-full bg-green-light rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(102,200,28,0.5)]"
+              className="h-full bg-green-light rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(22,163,74,0.3)] dark:shadow-[0_0_8px_rgba(102,200,28,0.5)]"
               style={{ width: `${totalCaloPercent}%` }}
             ></div>
           </div>
@@ -126,7 +126,7 @@ const HistoryNutritionDetails = ({
 
       {/* Macro Summary Row */}
       <div className="grid grid-cols-3 gap-2 sm:gap-4">
-        <div className="flex flex-col items-center p-2.5 sm:p-3.5 bg-surface-bright/30 rounded-xl sm:rounded-2xl border border-white/5 text-center">
+        <div className="flex flex-col items-center p-2.5 sm:p-3.5 bg-slate-100/70 dark:bg-surface-bright/30 rounded-xl sm:rounded-2xl border border-slate-200/80 dark:border-white/5 text-center">
           <span className="text-[11px] sm:text-xs text-on-surface-variant mb-0.5 sm:mb-1 font-medium truncate w-full">Đạm (Protein)</span>
           <span className="text-sm sm:text-base md:text-lg font-bold text-[#0086C9]">
             {consumedProtein}{' '}
@@ -135,7 +135,7 @@ const HistoryNutritionDetails = ({
           <span className="text-[10px] sm:text-[11px] text-[#0086C9] font-semibold mt-0.5">{proteinPercent}%</span>
         </div>
 
-        <div className="flex flex-col items-center p-2.5 sm:p-3.5 bg-surface-bright/30 rounded-xl sm:rounded-2xl border border-white/5 text-center">
+        <div className="flex flex-col items-center p-2.5 sm:p-3.5 bg-slate-100/70 dark:bg-surface-bright/30 rounded-xl sm:rounded-2xl border border-slate-200/80 dark:border-white/5 text-center">
           <span className="text-[11px] sm:text-xs text-on-surface-variant mb-0.5 sm:mb-1 font-medium truncate w-full">
             Tinh bột (Carbs)
           </span>
@@ -146,7 +146,7 @@ const HistoryNutritionDetails = ({
           <span className="text-[10px] sm:text-[11px] text-[#EF6820] font-semibold mt-0.5">{carbsPercent}%</span>
         </div>
 
-        <div className="flex flex-col items-center p-2.5 sm:p-3.5 bg-surface-bright/30 rounded-xl sm:rounded-2xl border border-white/5 text-center">
+        <div className="flex flex-col items-center p-2.5 sm:p-3.5 bg-slate-100/70 dark:bg-surface-bright/30 rounded-xl sm:rounded-2xl border border-slate-200/80 dark:border-white/5 text-center">
           <span className="text-[11px] sm:text-xs text-on-surface-variant mb-0.5 sm:mb-1 font-medium truncate w-full">Chất béo (Fat)</span>
           <span className="text-sm sm:text-base md:text-lg font-bold text-[#F63D68]">
             {consumedFat}{' '}
@@ -187,7 +187,7 @@ const HistoryNutritionDetails = ({
                       </h4>
                       <span
                         className={`font-body-md text-xs font-bold ${
-                          hasItems ? 'text-green-light' : 'text-on-surface-variant/70'
+                          hasItems ? 'text-green-light' : 'text-slate-800 dark:text-on-surface-variant'
                         }`}
                       >
                         {mealDetails.totalCalories} kcal
@@ -209,17 +209,17 @@ const HistoryNutritionDetails = ({
                       {mealDetails.items.map((item, idx) => (
                         <span
                           key={idx}
-                          className="text-[11px] sm:text-xs bg-surface-bright/40 border border-white/10 text-on-surface px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg font-medium capitalize flex items-center gap-1"
+                          className="text-[11px] sm:text-xs bg-slate-100 dark:bg-surface-bright/40 border border-slate-200 dark:border-white/10 text-on-surface px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg font-bold capitalize flex items-center gap-1"
                         >
                           {item.foodName}{' '}
-                          <span className="text-on-surface-variant/70 text-[10px] sm:text-[11px]">
+                          <span className="text-slate-700 dark:text-on-surface-variant font-medium text-[10px] sm:text-[11px]">
                             ({item.weightInGram}g)
                           </span>
                         </span>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-xs text-on-surface-variant/50 italic">
+                    <p className="text-xs text-slate-700 dark:text-on-surface-variant font-medium italic">
                       Chưa ghi nhận món ăn nào trong ngày này
                     </p>
                   )}

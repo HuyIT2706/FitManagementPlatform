@@ -43,7 +43,7 @@ const HistoryStreakHeroCard = ({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-4 sm:mt-6">
         {/* Calorie Compliance Card */}
-        <div className="bg-surface-bright/40 border border-white/5 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl">
+        <div className="bg-slate-100/70 dark:bg-surface-bright/40 border border-slate-200/80 dark:border-white/5 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl">
           <span className="text-xs text-on-surface-variant block mb-1 font-medium">
             Tuân thủ Calo
           </span>
@@ -53,9 +53,9 @@ const HistoryStreakHeroCard = ({
             </span>
             <span className="text-xs text-on-surface-variant mb-0.5 sm:mb-1">Ngày đạt chỉ tiêu</span>
           </div>
-          <div className="w-full h-2 bg-surface-dim rounded-full mt-2 overflow-hidden">
+          <div className="w-full h-2 bg-slate-200 dark:bg-surface-dim rounded-full mt-2 overflow-hidden">
             <div
-              className="h-full bg-green-light rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(102,200,28,0.5)]"
+              className="h-full bg-green-light rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(22,163,74,0.3)] dark:shadow-[0_0_8px_rgba(102,200,28,0.5)]"
               style={{ width: `${compliancePercentage}%` }}
             ></div>
           </div>
@@ -63,27 +63,27 @@ const HistoryStreakHeroCard = ({
 
         {/* Conditional PT Check-in Card (Only shown if student has a PT) */}
         {hasPt ? (
-          <div className="bg-surface-bright/40 border border-white/5 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl">
+          <div className="bg-slate-100/70 dark:bg-surface-bright/40 border border-slate-200/80 dark:border-white/5 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl">
             <span className="text-xs text-on-surface-variant block mb-1 font-medium">
               Check-in PT
             </span>
             <div className="flex items-end gap-2">
-              <span className="text-xl sm:text-2xl font-headline-md font-bold text-blue-400">
+              <span className="text-xl sm:text-2xl font-headline-md font-bold text-blue-500 dark:text-blue-400">
                 {checkedInPtSessions}
               </span>
               <span className="text-xs text-on-surface-variant mb-0.5 sm:mb-1">
                 /{totalPtSessions} Buổi đã check-in
               </span>
             </div>
-            <div className="w-full h-2 bg-surface-dim rounded-full mt-2 overflow-hidden">
+            <div className="w-full h-2 bg-slate-200 dark:bg-surface-dim rounded-full mt-2 overflow-hidden">
               <div
-                className="h-full bg-blue-400 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(96,165,250,0.5)]"
+                className="h-full bg-blue-500 dark:bg-blue-400 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"
                 style={{ width: `${ptAttendancePercent}%` }}
               ></div>
             </div>
           </div>
         ) : (
-          <div className="bg-surface-bright/40 border border-white/5 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl">
+          <div className="bg-slate-100/70 dark:bg-surface-bright/40 border border-slate-200/80 dark:border-white/5 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl">
             <span className="text-xs text-on-surface-variant block mb-1 font-medium">
               Tự tập luyện
             </span>
@@ -93,9 +93,9 @@ const HistoryStreakHeroCard = ({
               </span>
               <span className="text-xs text-on-surface-variant mb-0.5 sm:mb-1">Ngày kiên trì</span>
             </div>
-            <div className="w-full h-2 bg-surface-dim rounded-full mt-2 overflow-hidden">
+            <div className="w-full h-2 bg-slate-200 dark:bg-surface-dim rounded-full mt-2 overflow-hidden">
               <div
-                className="h-full bg-green-light rounded-full shadow-[0_0_8px_rgba(102,200,28,0.5)]"
+                className="h-full bg-green-light rounded-full shadow-[0_0_8px_rgba(22,163,74,0.3)] dark:shadow-[0_0_8px_rgba(102,200,28,0.5)]"
                 style={{ width: '100%' }}
               ></div>
             </div>

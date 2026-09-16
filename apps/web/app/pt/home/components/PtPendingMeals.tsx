@@ -51,20 +51,20 @@ const PtPendingMeals = ({
               </div>
 
               {/* Meal Photo & Macros Breakdown */}
-              <div className="bg-surface-bright/40 rounded-2xl p-4 border border-white/5 flex flex-col md:flex-row gap-4 items-start md:items-center">
-                <div className="w-full md:w-36 h-28 rounded-xl overflow-hidden shrink-0 border border-white/10">
+              <div className="bg-slate-50 dark:bg-surface-bright/40 rounded-2xl p-4 border border-slate-200 dark:border-white/5 flex flex-col md:flex-row gap-4 items-start md:items-center">
+                <div className="w-full md:w-36 h-28 rounded-xl overflow-hidden shrink-0 border border-slate-200 dark:border-white/10">
                   <img src={mealImg} alt="Meal photo" className="w-full h-full object-cover" />
                 </div>
                 <div className="space-y-2 grow">
                   <p className="text-sm text-on-surface font-semibold">{meal.foodDescription}</p>
                   <div className="flex flex-wrap gap-2">
-                    <span className="bg-surface-bright text-xs text-[#0086C9] font-bold px-2.5 py-1 rounded-lg border border-[#0086C9]/20">
+                    <span className="bg-white dark:bg-surface-bright text-xs text-[#0086C9] font-bold px-2.5 py-1 rounded-lg border border-[#0086C9]/20">
                       P: {meal.proteinGrams}g
                     </span>
-                    <span className="bg-surface-bright text-xs text-[#EF6820] font-bold px-2.5 py-1 rounded-lg border border-[#EF6820]/20">
+                    <span className="bg-white dark:bg-surface-bright text-xs text-[#EF6820] font-bold px-2.5 py-1 rounded-lg border border-[#EF6820]/20">
                       C: {meal.carbsGrams}g
                     </span>
-                    <span className="bg-surface-bright text-xs text-[#F63D68] font-bold px-2.5 py-1 rounded-lg border border-[#F63D68]/20">
+                    <span className="bg-white dark:bg-surface-bright text-xs text-[#F63D68] font-bold px-2.5 py-1 rounded-lg border border-[#F63D68]/20">
                       F: {meal.fatGrams}g
                     </span>
                   </div>
@@ -84,7 +84,7 @@ const PtPendingMeals = ({
                       value={feedbackTexts[meal.id] || ''}
                       onChange={(e) => onFeedbackTextChange(meal.id, e.target.value)}
                       placeholder="Gửi lời nhắn cho học viên..."
-                      className="w-full bg-surface-bright/30 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary outline-none"
+                      className="w-full bg-slate-50 dark:bg-surface-bright/30 border border-slate-300 dark:border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-on-surface placeholder:text-slate-500 dark:placeholder:text-on-surface-variant/50 focus:border-primary outline-none"
                     />
                   </div>
 
@@ -100,14 +100,14 @@ const PtPendingMeals = ({
                     <button
                       type="button"
                       onClick={() => onApproveMeal(meal.id)}
-                      className="flex-1 bg-surface-bright/40 text-on-surface font-bold text-xs py-3 rounded-xl border border-white/10 hover:bg-surface-bright transition-colors cursor-pointer"
+                      className="flex-1 bg-slate-100 dark:bg-surface-bright/40 text-on-surface font-bold text-xs py-3 rounded-xl border border-slate-300 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-surface-bright transition-colors cursor-pointer"
                     >
                       Nhắc Nhở Sửa Bữa
                     </button>
                   </div>
                 </div>
               ) : (
-                <div className="p-3 bg-green-light/10 border border-green-light/30 rounded-xl flex items-center gap-2 text-green-light text-xs font-bold">
+                <div className="p-3 bg-green-50 dark:bg-green-light/10 border border-green-200 dark:border-green-light/30 rounded-xl flex items-center gap-2 text-green-700 dark:text-green-light text-xs font-bold">
                   <CheckCircle2 size={18} className="shrink-0" />
                   Đã duyệt bữa ăn và gửi lời nhắn cho học viên!
                 </div>

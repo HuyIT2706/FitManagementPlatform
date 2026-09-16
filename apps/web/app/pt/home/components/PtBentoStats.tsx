@@ -49,10 +49,10 @@ const PtBentoStats = ({
 
       <div className="bento-card rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border border-orange-500/30 bg-orange-500/10 flex flex-col justify-between">
         <div className="flex justify-between items-start gap-1">
-          <span className="text-orange-400 text-[11px] sm:text-xs font-semibold truncate">Cảnh báo</span>
-          <AlertTriangle size={18} className="text-orange-400 shrink-0" />
+          <span className="text-orange-700 dark:text-orange-400 text-[11px] sm:text-xs font-semibold truncate">Cảnh báo</span>
+          <AlertTriangle size={18} className="text-orange-600 dark:text-orange-400 shrink-0" />
         </div>
-        <div className="font-stat-lg text-xl sm:text-2xl md:text-3xl font-bold text-orange-400 mt-2 truncate">
+        <div className="font-stat-lg text-xl sm:text-2xl md:text-3xl font-bold text-orange-700 dark:text-orange-400 mt-2 truncate">
           {warningsCount}
         </div>
       </div>

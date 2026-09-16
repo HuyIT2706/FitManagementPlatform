@@ -84,7 +84,7 @@ const WorkoutPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background text-on-surface pb-32 pt-2 md:pt-0 dark">
+    <div className="min-h-screen bg-background text-on-surface pb-32">
       <Header userData={userData} onLogout={handleLogout} />
 
       <main className="max-w-7xl mx-auto px-container-padding mt-4 md:mt-8 space-y-gutter">

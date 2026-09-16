@@ -75,7 +75,7 @@ const StudentWorkoutTab = ({
                   e.target.value === "" ? 0 : Number(e.target.value),
                 )
               }
-              className="w-full bg-surface-bright border border-white/10 rounded-xl px-3 py-2.5 text-on-surface font-semibold focus:border-primary outline-none"
+              className="w-full bg-slate-50 dark:bg-surface-bright border border-slate-300 dark:border-white/10 rounded-xl px-3 py-2.5 text-on-surface font-semibold focus:border-primary outline-none"
             />
           </div>
 
@@ -92,7 +92,7 @@ const StudentWorkoutTab = ({
                   e.target.value === "" ? 0 : Number(e.target.value),
                 )
               }
-              className="w-full bg-surface-bright border border-white/10 rounded-xl px-3 py-2.5 text-on-surface font-semibold focus:border-primary outline-none"
+              className="w-full bg-slate-50 dark:bg-surface-bright border border-slate-300 dark:border-white/10 rounded-xl px-3 py-2.5 text-on-surface font-semibold focus:border-primary outline-none"
             />
           </div>
 
@@ -105,7 +105,7 @@ const StudentWorkoutTab = ({
               value={newExDay}
               onChange={(e) => onExDayChange(e.target.value)}
               placeholder="Ví dụ: Thứ 2, Thứ 5"
-              className="w-full bg-surface-bright border border-white/10 rounded-xl px-3 py-2.5 text-on-surface font-semibold focus:border-primary outline-none"
+              className="w-full bg-slate-50 dark:bg-surface-bright border border-slate-300 dark:border-white/10 rounded-xl px-3 py-2.5 text-on-surface font-semibold focus:border-primary outline-none"
             />
           </div>
 
@@ -140,7 +140,7 @@ const StudentWorkoutTab = ({
         </div>
 
         {assignedExercises.length === 0 ? (
-          <div className="p-6 sm:p-8 text-center border border-dashed border-white/10 rounded-2xl space-y-2">
+          <div className="p-6 sm:p-8 text-center border border-dashed border-slate-300 dark:border-white/10 rounded-2xl space-y-2">
             <p className="text-xs sm:text-sm font-medium text-on-surface-variant">
               Chưa có bài tập nào trong giáo án cá nhân hóa.
             </p>
@@ -154,10 +154,10 @@ const StudentWorkoutTab = ({
             {assignedExercises.map((ex, idx) => (
               <div
                 key={ex.id || idx}
-                className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-surface-bright/40 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4"
+                className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-surface-bright/40 border border-slate-200 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4"
               >
                 <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1">
-                  <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl overflow-hidden border border-white/15 shrink-0 bg-surface-bright/80 flex items-center justify-center">
+                  <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200 dark:border-white/15 shrink-0 bg-slate-100 dark:bg-surface-bright/80 flex items-center justify-center">
                     {ex.imageUrl || ex.setupImageUrl || ex.startImageUrl ? (
                       <img
                         src={
@@ -187,7 +187,7 @@ const StudentWorkoutTab = ({
                 <button
                   type="button"
                   onClick={() => onRemoveExercise(ex.id)}
-                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30 flex items-center justify-center shrink-0 self-end sm:self-center transition-all cursor-pointer shadow-sm hover:scale-105"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20 border border-red-500/30 flex items-center justify-center shrink-0 self-end sm:self-center transition-all cursor-pointer shadow-xs hover:scale-105"
                   title="Xóa bài tập này"
                 >
                   <span className="material-symbols-outlined text-[18px]">

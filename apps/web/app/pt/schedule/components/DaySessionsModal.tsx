@@ -25,20 +25,20 @@ export const DaySessionsModal: React.FC<DaySessionsModalProps> = ({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-[#121620] border border-white/15 rounded-2xl sm:rounded-[32px] p-3.5 sm:p-6 md:p-8 max-w-2xl md:max-w-3xl w-full space-y-4 sm:space-y-6 shadow-2xl relative cursor-default animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]"
+        className="bg-white dark:bg-[#121620] border border-slate-200 dark:border-white/15 rounded-2xl sm:rounded-[32px] p-3.5 sm:p-6 md:p-8 max-w-2xl md:max-w-3xl w-full space-y-4 sm:space-y-6 shadow-2xl relative cursor-default animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]"
       >
         {/* Header */}
-        <div className="flex items-center justify-between gap-2.5 sm:gap-3 border-b border-white/10 pb-3 sm:pb-4">
+        <div className="flex items-center justify-between gap-2.5 sm:gap-3 border-b border-slate-200 dark:border-white/10 pb-3 sm:pb-4">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-primary/20 text-primary border border-primary/40 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(102,200,28,0.2)]">
               <Calendar size={20} />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                <h3 className="text-base sm:text-xl font-bold text-white tracking-tight truncate">
+                <h3 className="text-base sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight truncate">
                   Lịch Dạy Ngày {dateStr}
                 </h3>
-                <span className="text-[11px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/30 shrink-0">
+                <span className="text-[11px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary-dark dark:text-primary border border-primary/30 shrink-0">
                   {slots.length} ca
                 </span>
               </div>
@@ -50,7 +50,7 @@ export const DaySessionsModal: React.FC<DaySessionsModalProps> = ({
             suppressHydrationWarning
             onClick={onClose}
             aria-label="Đóng"
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-white/70 hover:text-white flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 shrink-0"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/20 border border-slate-200 dark:border-white/15 text-slate-700 hover:text-slate-900 dark:text-white/70 dark:hover:text-white flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 shrink-0"
           >
             <X size={18} />
           </button>
@@ -59,7 +59,7 @@ export const DaySessionsModal: React.FC<DaySessionsModalProps> = ({
         {/* Sessions list */}
         <div className="space-y-4">
           {slots.length > 0 ? (
-            <div className="relative pl-6 sm:pl-8 border-l-2 border-outline-variant/30 space-y-3 sm:space-y-5">
+            <div className="relative pl-6 sm:pl-8 border-l-2 border-slate-200 dark:border-outline-variant/30 space-y-3 sm:space-y-5">
               {slots.map((slot) => (
                 <PtScheduleSlotCard
                   key={slot.id}
@@ -70,8 +70,8 @@ export const DaySessionsModal: React.FC<DaySessionsModalProps> = ({
               ))}
             </div>
           ) : (
-            <div className="p-6 sm:p-8 rounded-2xl bg-white/[0.02] border border-white/10 text-center space-y-2">
-              <p className="text-xs sm:text-sm font-semibold text-white/70">
+            <div className="p-6 sm:p-8 rounded-2xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/10 text-center space-y-2">
+              <p className="text-xs sm:text-sm font-semibold text-slate-600 dark:text-white/70">
                 Chưa có ca dạy nào trong ngày này.
               </p>
             </div>
@@ -79,7 +79,7 @@ export const DaySessionsModal: React.FC<DaySessionsModalProps> = ({
         </div>
 
         {/* Actions */}
-        <div className="pt-2 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 border-t border-white/10">
+        <div className="pt-2 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 border-t border-slate-200 dark:border-white/10">
           <button
             type="button"
             suppressHydrationWarning
@@ -87,9 +87,9 @@ export const DaySessionsModal: React.FC<DaySessionsModalProps> = ({
               onClose();
               onOpenAddModal(selectedDate);
             }}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-primary text-dark-slate font-extrabold text-xs shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:opacity-90 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary text-white font-extrabold text-xs shadow-md hover:opacity-90 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
           >
-            <PlusCircle size={15} />
+            <PlusCircle size={15} className="text-white" />
             Thêm Ca Cho Ngày Này
           </button>
 
@@ -97,7 +97,7 @@ export const DaySessionsModal: React.FC<DaySessionsModalProps> = ({
             type="button"
             suppressHydrationWarning
             onClick={onClose}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-xs transition-colors cursor-pointer text-center"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 border border-slate-300 dark:border-white/15 text-slate-800 dark:text-white font-bold text-xs transition-colors cursor-pointer text-center"
           >
             Đóng
           </button>

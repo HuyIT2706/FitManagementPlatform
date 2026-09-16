@@ -194,7 +194,7 @@ const StudentNutritionTab = ({
 
         {/* Macro Inputs */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 text-xs">
-          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-surface-bright/40 border border-white/10 space-y-1 sm:space-y-1.5 hover:border-primary/30 transition-all">
+          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-surface-bright/40 border border-slate-200 dark:border-white/10 space-y-1 sm:space-y-1.5 hover:border-primary/30 transition-all">
             <span className="font-semibold text-on-surface-variant text-[11px] sm:text-xs truncate block">
               Target Calo (Kcal)
             </span>
@@ -207,12 +207,12 @@ const StudentNutritionTab = ({
                   e.target.value === "" ? 0 : Number(e.target.value),
                 )
               }
-              className="w-full bg-surface-bright/60 border border-primary/40 rounded-xl px-2.5 sm:px-3 py-1.5 sm:py-2 text-primary font-extrabold text-sm sm:text-base outline-none focus:border-primary focus:bg-surface-bright transition-all"
+              className="w-full bg-white dark:bg-surface-bright/60 border border-primary/40 rounded-xl px-2.5 sm:px-3 py-1.5 sm:py-2 text-primary-dark dark:text-primary font-extrabold text-sm sm:text-base outline-none focus:border-primary transition-all"
             />
           </div>
 
-          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-surface-bright/40 border border-white/10 space-y-1 sm:space-y-1.5 hover:border-amber-400/30 transition-all">
-            <span className="font-semibold text-amber-400 text-[11px] sm:text-xs truncate block">
+          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-surface-bright/40 border border-slate-200 dark:border-white/10 space-y-1 sm:space-y-1.5 hover:border-amber-400/30 transition-all">
+            <span className="font-semibold text-amber-700 dark:text-amber-400 text-[11px] sm:text-xs truncate block">
               Protein (Grams)
             </span>
             <input
@@ -224,12 +224,12 @@ const StudentNutritionTab = ({
                   e.target.value === "" ? 0 : Number(e.target.value),
                 )
               }
-              className="w-full bg-surface-bright/60 border border-amber-400/40 rounded-xl px-2.5 sm:px-3 py-1.5 sm:py-2 text-amber-400 font-extrabold text-sm sm:text-base outline-none focus:border-amber-400 focus:bg-surface-bright transition-all"
+              className="w-full bg-white dark:bg-surface-bright/60 border border-amber-400/40 rounded-xl px-2.5 sm:px-3 py-1.5 sm:py-2 text-amber-700 dark:text-amber-400 font-extrabold text-sm sm:text-base outline-none focus:border-amber-400 transition-all"
             />
           </div>
 
-          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-surface-bright/40 border border-white/10 space-y-1 sm:space-y-1.5 hover:border-blue-400/30 transition-all">
-            <span className="font-semibold text-blue-400 text-[11px] sm:text-xs truncate block">Carbs (Grams)</span>
+          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-surface-bright/40 border border-slate-200 dark:border-white/10 space-y-1 sm:space-y-1.5 hover:border-blue-400/30 transition-all">
+            <span className="font-semibold text-blue-700 dark:text-blue-400 text-[11px] sm:text-xs truncate block">Carbs (Grams)</span>
             <input
               type="number"
               placeholder="0"
@@ -239,12 +239,12 @@ const StudentNutritionTab = ({
                   e.target.value === "" ? 0 : Number(e.target.value),
                 )
               }
-              className="w-full bg-surface-bright/60 border border-blue-400/40 rounded-xl px-2.5 sm:px-3 py-1.5 sm:py-2 text-blue-400 font-extrabold text-sm sm:text-base outline-none focus:border-blue-400 focus:bg-surface-bright transition-all"
+              className="w-full bg-white dark:bg-surface-bright/60 border border-blue-400/40 rounded-xl px-2.5 sm:px-3 py-1.5 sm:py-2 text-blue-700 dark:text-blue-400 font-extrabold text-sm sm:text-base outline-none focus:border-blue-400 transition-all"
             />
           </div>
 
-          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-surface-bright/40 border border-white/10 space-y-1 sm:space-y-1.5 hover:border-rose-400/30 transition-all">
-            <span className="font-semibold text-rose-400 text-[11px] sm:text-xs truncate block">Fat (Grams)</span>
+          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-surface-bright/40 border border-slate-200 dark:border-white/10 space-y-1 sm:space-y-1.5 hover:border-rose-400/30 transition-all">
+            <span className="font-semibold text-rose-700 dark:text-rose-400 text-[11px] sm:text-xs truncate block">Fat (Grams)</span>
             <input
               type="number"
               placeholder="0"
@@ -254,15 +254,15 @@ const StudentNutritionTab = ({
                   e.target.value === "" ? 0 : Number(e.target.value),
                 )
               }
-              className="w-full bg-surface-bright/60 border border-rose-400/40 rounded-xl px-2.5 sm:px-3 py-1.5 sm:py-2 text-rose-400 font-extrabold text-sm sm:text-base outline-none focus:border-rose-400 focus:bg-surface-bright transition-all"
+              className="w-full bg-white dark:bg-surface-bright/60 border border-rose-400/40 rounded-xl px-2.5 sm:px-3 py-1.5 sm:py-2 text-rose-700 dark:text-rose-400 font-extrabold text-sm sm:text-base outline-none focus:border-rose-400 transition-all"
             />
           </div>
         </div>
 
         {/* Coach Advice / Note Section */}
-        <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-surface-bright/30 border border-white/10 space-y-2 hover:border-white/20 transition-all">
+        <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-surface-bright/30 border border-slate-200 dark:border-white/10 space-y-2 hover:border-primary/30 transition-all">
           <div className="flex items-center justify-between">
-            <label className="font-extrabold text-primary flex items-center gap-1.5 text-xs">
+            <label className="font-extrabold text-primary-dark dark:text-primary flex items-center gap-1.5 text-xs">
               <StickyNote size={15} />
               Ghi Chú & Lời Dặn Dò Của HLV
             </label>
@@ -275,13 +275,13 @@ const StudentNutritionTab = ({
             value={nutritionNote}
             onChange={(e) => onNutritionNoteChange(e.target.value)}
             placeholder="Ví dụ: Nhớ uống đủ 2.5L nước mỗi ngày, ăn chậm nhai kỹ và hạn chế nạp tinh bột nhanh sau 20h tối..."
-            className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-2.5 sm:p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-primary/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all text-xs no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            className="w-full bg-white dark:bg-surface-bright/50 border border-slate-300 dark:border-white/10 rounded-xl p-2.5 sm:p-3 text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary/60 outline-none resize-none font-medium leading-relaxed transition-all text-xs no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
           />
         </div>
 
         {/* 4 Meal Slots Prescribed Plan */}
         <div className="space-y-3 sm:space-y-4 pt-2">
-          <div className="flex items-center justify-between border-b border-white/10 pb-2">
+          <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-2">
             <h4 className="text-sm font-bold text-on-surface flex items-center gap-2">
               Phân Chia Thực Đơn Chi Tiết 4 Bữa
             </h4>
@@ -289,15 +289,15 @@ const StudentNutritionTab = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 text-xs">
             {/* Breakfast */}
-            <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-surface-bright/30 border border-white/10 space-y-2.5 hover:border-amber-400/30 transition-all">
+            <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-surface-bright/30 border border-slate-200 dark:border-white/10 space-y-2.5 hover:border-amber-400/40 transition-all">
               <div className="flex items-center justify-between">
-                <label className="font-extrabold text-amber-400 flex items-center gap-2 text-xs">
+                <label className="font-extrabold text-amber-700 dark:text-amber-400 flex items-center gap-2 text-xs">
                   Bữa Sáng
                 </label>
                 <button
                   type="button"
                   onClick={() => handleOpenFoodModal("breakfast")}
-                  className="px-2.5 py-1 rounded-lg bg-amber-400/10 border border-amber-400/30 text-amber-400 text-[11px] font-bold flex items-center gap-1 hover:bg-amber-400/20 transition-all cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-[11px] font-bold flex items-center gap-1 hover:bg-amber-500/25 transition-all cursor-pointer"
                 >
                   <Plus size={13} />
                   Chọn món
@@ -308,20 +308,20 @@ const StudentNutritionTab = ({
                 value={breakfastText}
                 onChange={(e) => onBreakfastTextChange(e.target.value)}
                 placeholder="Ví dụ: (+) 100g Yến mạch (389 kcal)&#10;(+) 2 Quả trứng luộc..."
-                className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-amber-400/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                className="w-full bg-white dark:bg-surface-bright/50 border border-slate-300 dark:border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/50 focus:border-amber-400/60 outline-none resize-none font-medium leading-relaxed transition-all no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
               />
             </div>
 
             {/* Lunch */}
-            <div className="p-4 rounded-2xl bg-surface-bright/30 border border-white/10 space-y-2.5 hover:border-orange-400/30 transition-all">
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-surface-bright/30 border border-slate-200 dark:border-white/10 space-y-2.5 hover:border-orange-400/40 transition-all">
               <div className="flex items-center justify-between">
-                <label className="font-extrabold text-orange-400 flex items-center gap-2 text-xs">
+                <label className="font-extrabold text-orange-700 dark:text-orange-400 flex items-center gap-2 text-xs">
                   Bữa Trưa
                 </label>
                 <button
                   type="button"
                   onClick={() => handleOpenFoodModal("lunch")}
-                  className="px-2.5 py-1 rounded-lg bg-orange-400/10 border border-orange-400/30 text-orange-400 text-[11px] font-bold flex items-center gap-1 hover:bg-orange-400/20 transition-all cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg bg-orange-500/15 border border-orange-500/30 text-orange-800 dark:text-orange-300 text-[11px] font-bold flex items-center gap-1 hover:bg-orange-500/25 transition-all cursor-pointer"
                 >
                   <Plus size={13} />
                   Chọn món
@@ -332,20 +332,20 @@ const StudentNutritionTab = ({
                 value={lunchText}
                 onChange={(e) => onLunchTextChange(e.target.value)}
                 placeholder="Ví dụ: (+) 150g Ức gà áp chảo (248 kcal)&#10;(+) 150g Cơm gạo lứt..."
-                className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-orange-400/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                className="w-full bg-white dark:bg-surface-bright/50 border border-slate-300 dark:border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/50 focus:border-orange-400/60 outline-none resize-none font-medium leading-relaxed transition-all no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
               />
             </div>
 
             {/* Dinner */}
-            <div className="p-4 rounded-2xl bg-surface-bright/30 border border-white/10 space-y-2.5 hover:border-indigo-400/30 transition-all">
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-surface-bright/30 border border-slate-200 dark:border-white/10 space-y-2.5 hover:border-indigo-400/40 transition-all">
               <div className="flex items-center justify-between">
-                <label className="font-extrabold text-indigo-400 flex items-center gap-2 text-xs">
+                <label className="font-extrabold text-indigo-700 dark:text-indigo-400 flex items-center gap-2 text-xs">
                   Bữa Tối
                 </label>
                 <button
                   type="button"
                   onClick={() => handleOpenFoodModal("dinner")}
-                  className="px-2.5 py-1 rounded-lg bg-indigo-400/10 border border-indigo-400/30 text-indigo-400 text-[11px] font-bold flex items-center gap-1 hover:bg-indigo-400/20 transition-all cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg bg-indigo-500/15 border border-indigo-500/30 text-indigo-800 dark:text-indigo-300 text-[11px] font-bold flex items-center gap-1 hover:bg-indigo-500/25 transition-all cursor-pointer"
                 >
                   <Plus size={13} />
                   Chọn món
@@ -356,20 +356,20 @@ const StudentNutritionTab = ({
                 value={dinnerText}
                 onChange={(e) => onDinnerTextChange(e.target.value)}
                 placeholder="Ví dụ: (+) 150g Thăn bò nướng (375 kcal)&#10;(+) 150g Khoai lang..."
-                className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-indigo-400/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                className="w-full bg-white dark:bg-surface-bright/50 border border-slate-300 dark:border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/50 focus:border-indigo-400/60 outline-none resize-none font-medium leading-relaxed transition-all no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
               />
             </div>
 
             {/* Snack */}
-            <div className="p-4 rounded-2xl bg-surface-bright/30 border border-white/10 space-y-2.5 hover:border-emerald-400/30 transition-all">
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-surface-bright/30 border border-slate-200 dark:border-white/10 space-y-2.5 hover:border-emerald-400/40 transition-all">
               <div className="flex items-center justify-between">
-                <label className="font-extrabold text-emerald-400 flex items-center gap-2 text-xs">
+                <label className="font-extrabold text-emerald-700 dark:text-emerald-400 flex items-center gap-2 text-xs">
                   Bữa Phụ
                 </label>
                 <button
                   type="button"
                   onClick={() => handleOpenFoodModal("snack")}
-                  className="px-2.5 py-1 rounded-lg bg-emerald-400/10 border border-emerald-400/30 text-emerald-400 text-[11px] font-bold flex items-center gap-1 hover:bg-emerald-400/20 transition-all cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-[11px] font-bold flex items-center gap-1 hover:bg-emerald-500/25 transition-all cursor-pointer"
                 >
                   <Plus size={13} />
                   Chọn món
@@ -380,7 +380,7 @@ const StudentNutritionTab = ({
                 value={snackText}
                 onChange={(e) => onSnackTextChange(e.target.value)}
                 placeholder="Ví dụ: (+) 1 Quả táo (52 kcal)&#10;(+) 1 Muỗng Whey Protein Isolate..."
-                className="w-full bg-surface-bright/50 border border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/40 focus:border-emerald-400/60 focus:bg-surface-bright/80 outline-none resize-none font-medium leading-relaxed transition-all no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                className="w-full bg-white dark:bg-surface-bright/50 border border-slate-300 dark:border-white/10 rounded-xl p-3 text-on-surface placeholder:text-on-surface-variant/50 focus:border-emerald-400/60 outline-none resize-none font-medium leading-relaxed transition-all no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
               />
             </div>
           </div>

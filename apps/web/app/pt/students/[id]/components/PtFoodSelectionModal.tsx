@@ -140,16 +140,16 @@ const PtFoodSelectionModal = ({
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-[#121814] border border-primary/30 rounded-2xl sm:rounded-3xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-[0_0_30px_rgba(102,200,28,0.15)] overflow-hidden relative text-left">
+      <div className="bg-white dark:bg-[#121814] border border-slate-200 dark:border-primary/30 rounded-2xl sm:rounded-3xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl dark:shadow-[0_0_30px_rgba(102,200,28,0.15)] overflow-hidden relative text-left text-slate-900 dark:text-white">
         {/* Header */}
-        <div className="p-4 sm:p-5 md:p-6 border-b border-white/10 flex items-center justify-between bg-black/40">
+        <div className="p-4 sm:p-5 md:p-6 border-b border-slate-200 dark:border-white/10 flex items-center justify-between bg-slate-50 dark:bg-black/40">
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 pr-2">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-primary/20 text-primary border border-primary/30 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-primary/20 text-primary-dark dark:text-primary border border-primary/30 flex items-center justify-center shrink-0">
               <UtensilsCrossed size={18} className="sm:w-5 sm:h-5" />
             </div>
             <div className="min-w-0">
-              <h3 className="text-base sm:text-lg font-bold text-white truncate">Thực đơn: {targetMealName}</h3>
-              <p className="text-[11px] sm:text-xs text-white/60 truncate">
+              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">Thực đơn: {targetMealName}</h3>
+              <p className="text-[11px] sm:text-xs text-slate-600 dark:text-white/60 truncate">
                 Tìm kiếm món ăn & tính toán Macro (Calo, Protein, Carbs, Fat) chính xác
               </p>
             </div>
@@ -157,14 +157,14 @@ const PtFoodSelectionModal = ({
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/5 hover:bg-white/15 text-white/70 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/15 text-slate-500 hover:text-slate-800 dark:text-white/70 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
           >
             <X size={18} />
           </button>
         </div>
 
         {/* Filter and Search */}
-        <div className="p-3.5 sm:p-5 border-b border-white/10 space-y-3 sm:space-y-4 bg-surface-bright/20">
+        <div className="p-3.5 sm:p-5 border-b border-slate-200 dark:border-white/10 space-y-3 sm:space-y-4 bg-slate-50/50 dark:bg-surface-bright/20">
           {/* Search Input */}
           <div>
             <AppSearchInput
@@ -185,7 +185,7 @@ const PtFoodSelectionModal = ({
                 className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                   selectedFilter === filter.id
                     ? 'bg-primary text-dark-slate shadow-[0_0_12px_rgba(102,200,28,0.3)] scale-105'
-                    : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white'
+                    : 'bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-white/70 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-transparent'
                 }`}
               >
                 {filter.label}
@@ -200,12 +200,12 @@ const PtFoodSelectionModal = ({
             <AppLoading size="sm" message="Đang tìm món ăn..." />
           ) : foods.length === 0 ? (
             selectedFilter === 'HISTORY' ? (
-              <div className="text-center py-10 sm:py-12 text-white/50 space-y-3">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto text-primary">
+              <div className="text-center py-10 sm:py-12 text-slate-500 dark:text-white/50 space-y-3">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center mx-auto text-primary">
                   <History size={24} className="sm:w-7 sm:h-7" />
                 </div>
-                <h4 className="text-sm font-bold text-white">Chưa có món ăn nào trong lịch sử</h4>
-                <p className="text-xs text-white/60 max-w-sm mx-auto px-4">
+                <h4 className="text-sm font-bold text-slate-900 dark:text-white">Chưa có món ăn nào trong lịch sử</h4>
+                <p className="text-xs text-slate-600 dark:text-white/60 max-w-sm mx-auto px-4">
                   Mỗi khi bạn chọn thêm một món ăn vào thực đơn, món đó sẽ được tự động ghi nhớ tại đây để tra cứu và chọn lại nhanh chóng.
                 </p>
                 <button
@@ -220,8 +220,8 @@ const PtFoodSelectionModal = ({
                 </button>
               </div>
             ) : (
-              <div className="text-center py-10 sm:py-12 text-white/50 space-y-2">
-                <UtensilsCrossed size={36} className="mx-auto text-white/20" />
+              <div className="text-center py-10 sm:py-12 text-slate-500 dark:text-white/50 space-y-2">
+                <UtensilsCrossed size={36} className="mx-auto text-slate-300 dark:text-white/20" />
                 <p className="text-sm font-medium">Không tìm thấy thực phẩm phù hợp</p>
               </div>
             )
@@ -230,10 +230,10 @@ const PtFoodSelectionModal = ({
               <div
                 key={food.id}
                 onClick={() => setSelectedFood(food)}
-                className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-surface-bright/20 border border-white/10 hover:border-primary/40 hover:bg-surface-bright/40 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 group"
+                className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-surface-bright/20 border border-slate-200 dark:border-white/10 hover:border-primary/40 hover:bg-slate-100 dark:hover:bg-surface-bright/40 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 group"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border border-white/15 shrink-0 bg-black/60 shadow-sm">
+                  <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border border-slate-200 dark:border-white/15 shrink-0 bg-slate-100 dark:bg-black/60 shadow-sm">
                     <img
                       src={
                         food.imageUrl ||
@@ -246,15 +246,15 @@ const PtFoodSelectionModal = ({
 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <h4 className="font-bold text-on-surface text-xs leading-snug line-clamp-2 capitalize text-white">
+                      <h4 className="font-bold text-slate-900 dark:text-white text-xs leading-snug line-clamp-2 capitalize">
                         {food.name}
                       </h4>
                       {food.source && (
                         <CheckCircle2 size={14} className="text-[#0095F6] shrink-0" />
                       )}
                     </div>
-                    <p className="text-[11px] sm:text-xs text-on-surface-variant mt-0.5 text-white/60">
-                      100g, <strong className="text-primary font-bold">{food.caloriesPer100g} kcal</strong> • {food.proteinPer100g}g P • {food.carbsPer100g}g C • {food.fatPer100g}g F
+                    <p className="text-[11px] sm:text-xs text-slate-600 dark:text-white/60 mt-0.5">
+                      100g, <strong className="text-primary-dark dark:text-primary font-bold">{food.caloriesPer100g} kcal</strong> • {food.proteinPer100g}g P • {food.carbsPer100g}g C • {food.fatPer100g}g F
                     </p>
                   </div>
                 </div>
@@ -265,7 +265,7 @@ const PtFoodSelectionModal = ({
                     e.stopPropagation();
                     setSelectedFood(food);
                   }}
-                  className="px-3 py-1.5 rounded-xl border border-primary/40 bg-primary/10 text-primary text-xs font-bold flex items-center justify-center gap-1 hover:bg-primary hover:text-dark-slate transition-all w-full sm:w-auto shrink-0 cursor-pointer"
+                  className="px-3 py-1.5 rounded-xl border border-primary/40 bg-primary/10 text-primary-dark dark:text-primary text-xs font-bold flex items-center justify-center gap-1 hover:bg-primary hover:text-dark-slate transition-all w-full sm:w-auto shrink-0 cursor-pointer"
                 >
                   <Plus size={14} />
                   Chọn món
@@ -277,9 +277,9 @@ const PtFoodSelectionModal = ({
 
         {/* Pagination Footer */}
         {!loading && totalPages > 1 && (
-          <div className="p-3 sm:p-4 border-t border-white/10 bg-black/40 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-3 text-xs">
-            <span className="text-white/60 font-medium text-center sm:text-left">
-              Trang <strong className="text-white">{currentPage}</strong> / {totalPages} ({totalCount} món)
+          <div className="p-3 sm:p-4 border-t border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-black/40 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-3 text-xs">
+            <span className="text-slate-600 dark:text-white/60 font-medium text-center sm:text-left">
+              Trang <strong className="text-slate-900 dark:text-white">{currentPage}</strong> / {totalPages} ({totalCount} món)
             </span>
 
             <div className="flex items-center gap-2">
@@ -287,7 +287,7 @@ const PtFoodSelectionModal = ({
                 type="button"
                 disabled={currentPage <= 1 || loading}
                 onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/15 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 font-bold transition-all cursor-pointer"
+                className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-white/15 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 font-bold transition-all cursor-pointer"
               >
                 <ChevronLeft size={16} />
                 Trước
@@ -296,7 +296,7 @@ const PtFoodSelectionModal = ({
                 type="button"
                 disabled={currentPage >= totalPages || loading}
                 onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                className="px-3 py-1.5 rounded-xl bg-primary/20 border border-primary/30 text-primary hover:bg-primary/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 font-bold transition-all cursor-pointer"
+                className="px-3 py-1.5 rounded-xl bg-primary/20 border border-primary/30 text-primary-dark dark:text-primary hover:bg-primary/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 font-bold transition-all cursor-pointer"
               >
                 Sau
                 <ChevronRight size={16} />
@@ -313,12 +313,12 @@ const PtFoodSelectionModal = ({
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="bg-[#121620] border border-primary/40 w-full max-w-md rounded-2xl sm:rounded-3xl p-4 sm:p-6 space-y-4 sm:space-y-6 text-white shadow-2xl relative animate-in zoom-in-95 duration-200 text-left max-h-[90vh] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+              className="bg-white dark:bg-[#121620] border border-slate-200 dark:border-primary/40 w-full max-w-md rounded-2xl sm:rounded-3xl p-4 sm:p-6 space-y-4 sm:space-y-6 text-slate-900 dark:text-white shadow-2xl relative animate-in zoom-in-95 duration-200 text-left max-h-[90vh] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             >
               {/* Header */}
-              <div className="flex justify-between items-start gap-3 border-b border-white/10 pb-3">
+              <div className="flex justify-between items-start gap-3 border-b border-slate-200 dark:border-white/10 pb-3">
                 <div className="flex items-center gap-3 min-w-0 pr-2">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border border-white/15 shrink-0 bg-black/60">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border border-slate-200 dark:border-white/15 shrink-0 bg-slate-100 dark:bg-black/60">
                     <img
                       src={
                         selectedFood.imageUrl ||
@@ -329,16 +329,16 @@ const PtFoodSelectionModal = ({
                     />
                   </div>
                   <div className="min-w-0">
-                    <h3 className="font-bold text-sm sm:text-base leading-tight capitalize text-white truncate">
+                    <h3 className="font-bold text-sm sm:text-base leading-tight capitalize text-slate-900 dark:text-white truncate">
                       {selectedFood.name}
                     </h3>
-                    <p className="text-[11px] sm:text-xs text-white/60 mt-0.5 truncate">Chỉ định định lượng cho {targetMealName}</p>
+                    <p className="text-[11px] sm:text-xs text-slate-600 dark:text-white/60 mt-0.5 truncate">Chỉ định định lượng cho {targetMealName}</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setSelectedFood(null)}
-                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white flex items-center justify-center transition-colors border border-white/10 cursor-pointer shrink-0"
+                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/20 text-slate-500 hover:text-slate-800 dark:text-white/70 dark:hover:text-white flex items-center justify-center transition-colors border border-slate-200 dark:border-white/10 cursor-pointer shrink-0"
                 >
                   <X size={16} />
                 </button>
@@ -346,47 +346,47 @@ const PtFoodSelectionModal = ({
 
               {/* Weight Input */}
               <div className="space-y-1.5 sm:space-y-2">
-                <label className="block text-xs font-semibold text-white/70">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-white/70">
                   Trọng lượng khẩu phần chỉ định (Gram):
                 </label>
                 <div className="relative">
                   <input
                     type="number"
                     placeholder="0"
-                    className="w-full bg-white/[0.05] border border-primary/50 rounded-2xl p-3 sm:p-4 text-2xl sm:text-3xl font-extrabold text-center text-primary focus:outline-none focus:border-primary transition-colors"
+                    className="w-full bg-slate-50 dark:bg-white/[0.05] border border-slate-300 dark:border-primary/50 rounded-2xl p-3 sm:p-4 text-2xl sm:text-3xl font-extrabold text-center text-primary-dark dark:text-primary focus:outline-none focus:border-primary transition-colors"
                     value={weight === 0 ? '' : weight}
                     onChange={(e) => setWeight(e.target.value === '' ? '' : Number(e.target.value))}
                     autoFocus
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-white/50">
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400 dark:text-white/50">
                     g
                   </span>
                 </div>
               </div>
 
               {/* Real-time Calculated Nutrition Macros */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-white/[0.04] border border-white/10 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl">
                 <div className="text-center p-1">
-                  <p className="text-[10px] font-bold text-white/50 mb-1">CALO</p>
-                  <p className="font-extrabold text-sm text-primary">
+                  <p className="text-[10px] font-bold text-slate-500 dark:text-white/50 mb-1">CALO</p>
+                  <p className="font-extrabold text-sm text-primary-dark dark:text-primary">
                     {weight ? Math.round((selectedFood.caloriesPer100g * Number(weight)) / 100) : 0}
                   </p>
                 </div>
-                <div className="text-center p-1 border-l border-white/10">
-                  <p className="text-[10px] font-bold text-white/50 mb-1">PROTEIN</p>
-                  <p className="font-bold text-sm text-amber-400">
+                <div className="text-center p-1 border-l border-slate-200 dark:border-white/10">
+                  <p className="text-[10px] font-bold text-slate-500 dark:text-white/50 mb-1">PROTEIN</p>
+                  <p className="font-bold text-sm text-amber-700 dark:text-amber-400">
                     {weight ? Math.round((selectedFood.proteinPer100g * Number(weight)) / 100) : 0}g
                   </p>
                 </div>
-                <div className="text-center p-1 sm:border-l border-white/10 border-t sm:border-t-0">
-                  <p className="text-[10px] font-bold text-white/50 mb-1">CARBS</p>
-                  <p className="font-bold text-sm text-blue-400">
+                <div className="text-center p-1 sm:border-l border-slate-200 dark:border-white/10 border-t sm:border-t-0">
+                  <p className="text-[10px] font-bold text-slate-500 dark:text-white/50 mb-1">CARBS</p>
+                  <p className="font-bold text-sm text-blue-700 dark:text-blue-400">
                     {weight ? Math.round((selectedFood.carbsPer100g * Number(weight)) / 100) : 0}g
                   </p>
                 </div>
-                <div className="text-center p-1 border-l border-white/10 border-t sm:border-t-0">
-                  <p className="text-[10px] font-bold text-white/50 mb-1">FAT</p>
-                  <p className="font-bold text-sm text-rose-400">
+                <div className="text-center p-1 border-l border-slate-200 dark:border-white/10 border-t sm:border-t-0">
+                  <p className="text-[10px] font-bold text-slate-500 dark:text-white/50 mb-1">FAT</p>
+                  <p className="font-bold text-sm text-rose-700 dark:text-rose-400">
                     {weight ? Math.round((selectedFood.fatPer100g * Number(weight)) / 100) : 0}g
                   </p>
                 </div>
@@ -397,7 +397,7 @@ const PtFoodSelectionModal = ({
                 <button
                   type="button"
                   onClick={() => setSelectedFood(null)}
-                  className="w-full sm:flex-1 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl border border-white/10 text-white/70 hover:text-white font-bold text-xs cursor-pointer"
+                  className="w-full sm:flex-1 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-100 hover:bg-slate-200 dark:bg-transparent text-slate-700 dark:text-white/70 hover:text-slate-900 dark:hover:text-white font-bold text-xs cursor-pointer"
                 >
                   Hủy
                 </button>

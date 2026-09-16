@@ -275,7 +275,7 @@ const PTSchedulePage = () => {
   const selectedStudentObj = studentsList.find((s) => s.id === filterStudentId);
 
   return (
-    <div className="min-h-screen bg-background pb-32 pt-2 md:pt-0 dark text-on-surface">
+    <div className="min-h-screen bg-background pb-32 text-on-surface">
       <Header userData={userData} onLogout={handleLogout} />
 
       <main className="max-w-6xl mx-auto px-container-padding mt-3 sm:mt-4 md:mt-8 space-y-4 sm:space-y-6">
@@ -308,22 +308,22 @@ const PTSchedulePage = () => {
           </div>
 
           {/* Sub Toolbar: Month Navigation + Custom Glassmorphism Filter Dropdown */}
-          <div className="pt-3 border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div className="pt-3 border-t border-slate-200 dark:border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
             {/* Month / Period Navigation Controls */}
             <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
-              <div className="flex items-center gap-1 bg-white/[0.04] border border-white/10 rounded-2xl p-1">
+              <div className="flex items-center gap-1 bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 rounded-2xl p-1">
                 <button
                   type="button"
                   suppressHydrationWarning
                   onClick={handlePrevMonth}
                   title="Tháng trước"
                   aria-label="Tháng trước"
-                  className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/15 text-white/70 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                  className="w-8 h-8 rounded-xl bg-slate-200/70 hover:bg-slate-300 dark:bg-white/5 dark:hover:bg-white/15 text-slate-700 hover:text-slate-900 dark:text-white/70 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer"
                 >
                   <ChevronLeft size={18} />
                 </button>
 
-                <span className="px-2 sm:px-3 text-xs sm:text-sm font-extrabold text-white whitespace-nowrap min-w-[105px] sm:min-w-[130px] text-center">
+                <span className="px-2 sm:px-3 text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white whitespace-nowrap min-w-[105px] sm:min-w-[130px] text-center">
                   {monthYearLabel}
                 </span>
 
@@ -333,7 +333,7 @@ const PTSchedulePage = () => {
                   onClick={handleNextMonth}
                   title="Tháng sau"
                   aria-label="Tháng sau"
-                  className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/15 text-white/70 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                  className="w-8 h-8 rounded-xl bg-slate-200/70 hover:bg-slate-300 dark:bg-white/5 dark:hover:bg-white/15 text-slate-700 hover:text-slate-900 dark:text-white/70 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer"
                 >
                   <ChevronRight size={18} />
                 </button>
@@ -344,7 +344,7 @@ const PTSchedulePage = () => {
                   type="button"
                   suppressHydrationWarning
                   onClick={handleGoToToday}
-                  className="px-3 sm:px-3.5 py-2 rounded-2xl bg-surface-bright text-on-surface border border-white/10 font-bold text-xs hover:border-primary/40 transition-colors flex items-center gap-1.5 cursor-pointer shrink-0"
+                  className="px-3 sm:px-3.5 py-2 rounded-2xl bg-white dark:bg-surface-bright text-on-surface border border-slate-300 dark:border-white/10 font-bold text-xs hover:border-primary/40 transition-colors flex items-center gap-1.5 cursor-pointer shrink-0"
                 >
                   <RotateCcw size={14} />
                   Hôm nay
@@ -359,7 +359,7 @@ const PTSchedulePage = () => {
                   type="button"
                   suppressHydrationWarning
                   onClick={() => setIsStudentDropdownOpen((prev) => !prev)}
-                  className="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 bg-white/[0.05] hover:bg-white/[0.08] border border-white/15 hover:border-primary/40 rounded-2xl px-3.5 sm:px-4 py-2.5 text-xs font-bold text-white transition-all cursor-pointer shadow-sm"
+                  className="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.05] dark:hover:bg-white/[0.08] border border-slate-300 dark:border-white/15 hover:border-primary/40 rounded-2xl px-3.5 sm:px-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white transition-all cursor-pointer shadow-xs"
                 >
                   <div className="flex items-center gap-2 truncate">
                     <Filter size={14} className="text-primary shrink-0" />
@@ -373,7 +373,7 @@ const PTSchedulePage = () => {
 
                 {/* Custom Popover Dropdown Menu */}
                 {isStudentDropdownOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-full sm:w-64 max-w-[calc(100vw-32px)] bg-[#121620]/95 backdrop-blur-xl border border-white/15 rounded-2xl p-1.5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1 max-h-60 overflow-y-auto [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+                  <div className="absolute right-0 top-full mt-2 w-full sm:w-64 max-w-[calc(100vw-32px)] bg-white dark:bg-[#121620]/95 backdrop-blur-xl border border-slate-200 dark:border-white/15 rounded-2xl p-1.5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1 max-h-60 overflow-y-auto [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
                     {/* Option All Students */}
                     <button
                       type="button"
@@ -384,15 +384,15 @@ const PTSchedulePage = () => {
                       }}
                       className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
                         !filterStudentId
-                          ? "bg-primary/20 text-primary border border-primary/30"
-                          : "text-white/80 hover:bg-white/10 hover:text-white"
+                          ? "bg-primary/20 text-primary-dark dark:text-primary border border-primary/30"
+                          : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"
                       }`}
                     >
                       <div className="flex items-center gap-2">
                         <Filter
                           size={13}
                           className={
-                            !filterStudentId ? "text-primary" : "text-white/40"
+                            !filterStudentId ? "text-primary" : "text-slate-400 dark:text-white/40"
                           }
                         />
                         <span>Tất cả học viên ({studentsList.length})</span>
@@ -416,12 +416,12 @@ const PTSchedulePage = () => {
                           }}
                           className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
                             isSelected
-                              ? "bg-primary/20 text-primary border border-primary/30"
-                              : "text-white/80 hover:bg-white/10 hover:text-white"
+                              ? "bg-primary/20 text-primary-dark dark:text-primary border border-primary/30"
+                              : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"
                           }`}
                         >
                           <div className="flex items-center gap-2 truncate">
-                            <span className="w-5 h-5 rounded-full bg-primary/20 text-primary text-[10px] font-black flex items-center justify-center shrink-0 border border-primary/30">
+                            <span className="w-5 h-5 rounded-full bg-primary/20 text-primary-dark dark:text-primary text-[10px] font-black flex items-center justify-center shrink-0 border border-primary/30">
                               {st.fullName ? st.fullName.charAt(0) : "H"}
                             </span>
                             <span className="truncate">{st.fullName}</span>

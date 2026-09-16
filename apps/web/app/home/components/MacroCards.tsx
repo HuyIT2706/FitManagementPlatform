@@ -30,7 +30,7 @@ const MacroCards = ({
               <span className="text-on-surface-variant text-xs sm:text-sm font-normal">/{targetProtein}g</span>
             </span>
           </div>
-          <div className="h-2 w-full bg-surface-bright rounded-full overflow-hidden">
+          <div className="h-2 w-full bg-slate-200 dark:bg-surface-bright rounded-full overflow-hidden">
             <div
               className="h-full bg-[#0086C9] rounded-full shadow-[0_0_10px_rgba(0,134,201,0.5)] transition-all duration-500"
               style={{ width: `${proteinPercentage}%` }}
@@ -53,7 +53,7 @@ const MacroCards = ({
               <span className="text-on-surface-variant text-xs sm:text-sm font-normal">/{targetCarbs}g</span>
             </span>
           </div>
-          <div className="h-2 w-full bg-surface-bright rounded-full overflow-hidden">
+          <div className="h-2 w-full bg-slate-200 dark:bg-surface-bright rounded-full overflow-hidden">
             <div
               className="h-full bg-[#EF6820] rounded-full shadow-[0_0_10px_rgba(239,104,32,0.5)] transition-all duration-500"
               style={{ width: `${carbsPercentage}%` }}
@@ -76,7 +76,7 @@ const MacroCards = ({
               <span className="text-on-surface-variant text-xs sm:text-sm font-normal">/{targetFat}g</span>
             </span>
           </div>
-          <div className="h-2 w-full bg-surface-bright rounded-full overflow-hidden">
+          <div className="h-2 w-full bg-slate-200 dark:bg-surface-bright rounded-full overflow-hidden">
             <div
               className="h-full bg-[#F63D68] rounded-full shadow-[0_0_10px_rgba(246,61,104,0.5)] transition-all duration-500"
               style={{ width: `${fatPercentage}%` }}

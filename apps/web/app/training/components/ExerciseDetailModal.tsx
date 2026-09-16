@@ -20,36 +20,36 @@ const ExerciseDetailModal = ({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-[#121620] border border-white/15 rounded-2xl sm:rounded-[32px] max-w-2xl w-full max-h-[90vh] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-4 sm:p-6 md:p-8 pb-8 sm:pb-10 space-y-4 sm:space-y-6 text-white shadow-[0_25px_70px_rgba(0,0,0,0.85)] relative animate-in zoom-in-95 duration-200 cursor-default"
+        className="bg-white dark:bg-[#121620] border border-slate-200 dark:border-white/15 rounded-2xl sm:rounded-[32px] max-w-2xl w-full max-h-[90vh] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-4 sm:p-6 md:p-8 pb-8 sm:pb-10 space-y-4 sm:space-y-6 text-slate-900 dark:text-white shadow-2xl relative animate-in zoom-in-95 duration-200 cursor-default"
       >
         {/* Header Close Button */}
         <button
           onClick={onClose}
           aria-label="Đóng bảng chi tiết"
-          className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white border border-white/15 flex items-center justify-center transition-all cursor-pointer z-30"
+          className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white/70 dark:hover:text-white border border-slate-200 dark:border-white/15 flex items-center justify-center transition-all cursor-pointer z-30"
         >
           <X size={18} className="sm:w-5 sm:h-5" />
         </button>
 
         {/* Title & Metadata Badges */}
         <div className="space-y-2 sm:space-y-3 pr-10 sm:pr-12">
-          <h3 className="font-extrabold text-xl sm:text-2xl md:text-3xl text-white font-headline-md tracking-tight">
+          <h3 className="font-extrabold text-xl sm:text-2xl md:text-3xl text-slate-900 dark:text-white font-headline-md tracking-tight">
             {activeExercise.name}
           </h3>
 
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap text-xs">
             {activeExercise.category && (
-              <span className="bg-primary/20 text-primary font-bold px-2.5 sm:px-3.5 py-0.5 sm:py-1 rounded-full border border-primary/40 capitalize text-[11px] sm:text-xs">
+              <span className="bg-primary/15 text-primary font-bold px-2.5 sm:px-3.5 py-0.5 sm:py-1 rounded-full border border-primary/30 capitalize text-[11px] sm:text-xs">
                 {activeExercise.category}
               </span>
             )}
             {activeExercise.level && (
-              <span className="bg-white/10 text-white/90 font-medium px-2.5 sm:px-3.5 py-0.5 sm:py-1 rounded-full border border-white/15 capitalize text-[11px] sm:text-xs">
+              <span className="bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-white/90 font-bold px-2.5 sm:px-3.5 py-0.5 sm:py-1 rounded-full border border-slate-200 dark:border-white/15 capitalize text-[11px] sm:text-xs">
                 Cấp độ: {activeExercise.level}
               </span>
             )}
             {activeExercise.equipment && (
-              <span className="bg-white/10 text-white/90 font-medium px-2.5 sm:px-3.5 py-0.5 sm:py-1 rounded-full border border-white/15 capitalize text-[11px] sm:text-xs">
+              <span className="bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-white/90 font-bold px-2.5 sm:px-3.5 py-0.5 sm:py-1 rounded-full border border-slate-200 dark:border-white/15 capitalize text-[11px] sm:text-xs">
                 Dụng cụ: {activeExercise.equipment}
               </span>
             )}
@@ -60,13 +60,13 @@ const ExerciseDetailModal = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {/* Setup Image */}
           <div className="space-y-1.5 sm:space-y-2">
-            <div className="flex items-center justify-between text-xs font-semibold text-white/70 px-1">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-white/70 px-1">
               <span>Tư thế Chuẩn bị</span>
-              <span className="text-[10px] text-white/40 uppercase tracking-widest font-mono">
+              <span className="text-[10px] text-slate-500 dark:text-white/40 uppercase tracking-widest font-mono">
                 SETUP
               </span>
             </div>
-            <div className="h-44 sm:h-52 rounded-2xl overflow-hidden border border-white/15 bg-black/80 relative shadow-inner">
+            <div className="h-44 sm:h-52 rounded-2xl overflow-hidden border border-slate-200 dark:border-white/15 bg-slate-900 relative shadow-inner">
               <img
                 src={
                   activeExercise.setupImageUrl ||
@@ -81,13 +81,13 @@ const ExerciseDetailModal = ({
 
           {/* Start Image */}
           <div className="space-y-1.5 sm:space-y-2">
-            <div className="flex items-center justify-between text-xs font-semibold text-primary px-1">
+            <div className="flex items-center justify-between text-xs font-bold text-primary px-1">
               <span>Tư thế Thực hiện</span>
-              <span className="text-[10px] text-primary/60 uppercase tracking-widest font-mono">
+              <span className="text-[10px] text-primary/70 uppercase tracking-widest font-mono">
                 ACTION
               </span>
             </div>
-            <div className="h-44 sm:h-52 rounded-2xl overflow-hidden border border-primary/40 bg-black/80 relative shadow-[0_0_20px_rgba(102,200,28,0.15)]">
+            <div className="h-44 sm:h-52 rounded-2xl overflow-hidden border border-primary/40 bg-slate-900 relative shadow-[0_0_20px_rgba(102,200,28,0.15)]">
               <img
                 src={
                   activeExercise.startImageUrl ||
@@ -104,8 +104,8 @@ const ExerciseDetailModal = ({
         {/* Bento Specs Section */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 pt-1 sm:pt-2">
           {activeExercise.primaryMuscles && activeExercise.primaryMuscles.length > 0 && (
-            <div className="bg-white/[0.04] border border-white/10 p-3 sm:p-4 rounded-2xl space-y-1">
-              <span className="text-[10px] sm:text-[11px] font-semibold text-white/50 uppercase tracking-wider block">
+            <div className="bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 p-3 sm:p-4 rounded-2xl space-y-1 shadow-xs">
+              <span className="text-[10px] sm:text-[11px] font-bold text-slate-600 dark:text-white/50 uppercase tracking-wider block">
                 Cơ chính tác động
               </span>
               <p className="text-xs sm:text-sm font-bold text-primary capitalize">
@@ -115,31 +115,31 @@ const ExerciseDetailModal = ({
           )}
 
           {activeExercise.secondaryMuscles && activeExercise.secondaryMuscles.length > 0 && (
-            <div className="bg-white/[0.04] border border-white/10 p-3 sm:p-4 rounded-2xl space-y-1">
-              <span className="text-[10px] sm:text-[11px] font-semibold text-white/50 uppercase tracking-wider block">
+            <div className="bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 p-3 sm:p-4 rounded-2xl space-y-1 shadow-xs">
+              <span className="text-[10px] sm:text-[11px] font-bold text-slate-600 dark:text-white/50 uppercase tracking-wider block">
                 Cơ phụ trợ
               </span>
-              <p className="text-xs sm:text-sm font-bold text-white/80 capitalize">
+              <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white/80 capitalize">
                 {activeExercise.secondaryMuscles.join(', ')}
               </p>
             </div>
           )}
 
           {activeExercise.force && (
-            <div className="bg-white/[0.04] border border-white/10 p-3 sm:p-4 rounded-2xl space-y-1">
-              <span className="text-[10px] sm:text-[11px] font-semibold text-white/50 uppercase tracking-wider block">
+            <div className="bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 p-3 sm:p-4 rounded-2xl space-y-1 shadow-xs">
+              <span className="text-[10px] sm:text-[11px] font-bold text-slate-600 dark:text-white/50 uppercase tracking-wider block">
                 Lực tác động
               </span>
-              <p className="text-xs sm:text-sm font-bold text-white capitalize">{activeExercise.force}</p>
+              <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white capitalize">{activeExercise.force}</p>
             </div>
           )}
 
           {activeExercise.mechanic && (
-            <div className="bg-white/[0.04] border border-white/10 p-3 sm:p-4 rounded-2xl space-y-1">
-              <span className="text-[10px] sm:text-[11px] font-semibold text-white/50 uppercase tracking-wider block">
+            <div className="bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 p-3 sm:p-4 rounded-2xl space-y-1 shadow-xs">
+              <span className="text-[10px] sm:text-[11px] font-bold text-slate-600 dark:text-white/50 uppercase tracking-wider block">
                 Cơ chế chuyển động
               </span>
-              <p className="text-xs sm:text-sm font-bold text-white capitalize">{activeExercise.mechanic}</p>
+              <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white capitalize">{activeExercise.mechanic}</p>
             </div>
           )}
         </div>
@@ -150,7 +150,7 @@ const ExerciseDetailModal = ({
             (step) => !step.toLowerCase().includes('lặp lại số lần')
           ).length > 0 && (
             <div className="space-y-2.5 sm:space-y-3 pt-1 sm:pt-2 pb-2 sm:pb-4">
-              <h4 className="font-bold text-[11px] sm:text-xs text-white/80 uppercase tracking-widest px-1">
+              <h4 className="font-bold text-[11px] sm:text-xs text-slate-800 dark:text-white/80 uppercase tracking-widest px-1">
                 Hướng dẫn thực hiện từng bước
               </h4>
               <div className="space-y-2 sm:space-y-2.5">
@@ -159,12 +159,12 @@ const ExerciseDetailModal = ({
                   .map((step, idx) => (
                     <div
                       key={idx}
-                      className="bg-white/[0.03] border border-white/10 p-3 sm:p-3.5 rounded-2xl flex items-start gap-2.5 sm:gap-3 text-xs leading-relaxed"
+                      className="bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 p-3 sm:p-3.5 rounded-2xl flex items-start gap-2.5 sm:gap-3 text-xs leading-relaxed"
                     >
                       <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary/20 text-primary border border-primary/40 font-bold text-[10px] sm:text-[11px] flex items-center justify-center shrink-0 mt-0.5">
                         {idx + 1}
                       </span>
-                      <p className="text-white/90 font-normal pt-0.5">{step}</p>
+                      <p className="text-slate-900 dark:text-white/90 font-medium pt-0.5">{step}</p>
                     </div>
                   ))}
               </div>

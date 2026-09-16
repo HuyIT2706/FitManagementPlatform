@@ -11,27 +11,27 @@ import {
 } from '../../../../utils/date';
 import type { PtScheduleMonthGridProps } from '../../../../interface';
 
-// Aesthetic pastel badge theme colors for different session cards
+// Aesthetic pastel badge theme colors for different session cards with high contrast in both light and dark
 const PILL_COLOR_THEMES = [
   {
-    bg: 'bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 border-purple-500/30',
-    dot: 'bg-purple-400',
+    bg: 'bg-purple-500/15 hover:bg-purple-500/25 text-purple-700 dark:text-purple-300 border-purple-500/30',
+    dot: 'bg-purple-500 dark:bg-purple-400',
   },
   {
-    bg: 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border-emerald-500/30',
-    dot: 'bg-emerald-400',
+    bg: 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 border-emerald-500/30',
+    dot: 'bg-emerald-500 dark:bg-emerald-400',
   },
   {
-    bg: 'bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border-amber-500/30',
-    dot: 'bg-amber-400',
+    bg: 'bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 border-amber-500/30',
+    dot: 'bg-amber-500 dark:bg-amber-400',
   },
   {
-    bg: 'bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border-blue-500/30',
-    dot: 'bg-blue-400',
+    bg: 'bg-blue-500/15 hover:bg-blue-500/25 text-blue-700 dark:text-blue-300 border-blue-500/30',
+    dot: 'bg-blue-500 dark:bg-blue-400',
   },
   {
-    bg: 'bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border-rose-500/30',
-    dot: 'bg-rose-400',
+    bg: 'bg-rose-500/15 hover:bg-rose-500/25 text-rose-700 dark:text-rose-300 border-rose-500/30',
+    dot: 'bg-rose-500 dark:bg-rose-400',
   },
 ];
 
@@ -122,14 +122,14 @@ export const PtScheduleMonthGrid: React.FC<PtScheduleMonthGridProps> = ({
   }, [monthInfo]);
 
   return (
-    <section className="bento-card rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 md:p-6 border border-white/10 shadow-2xl space-y-3 sm:space-y-4 overflow-hidden">
+    <section className="bento-card rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 md:p-6 border border-slate-200 dark:border-white/10 shadow-2xl space-y-3 sm:space-y-4 overflow-hidden">
       {/* Weekday Column Headers */}
       <div className="grid grid-cols-7 gap-1 sm:gap-1.5 md:gap-2 text-center">
         {WEEKDAY_NAMES_VI.map((name, idx) => (
           <div
             key={name}
             className={`py-1 sm:py-2 text-[10px] sm:text-xs md:text-sm font-bold uppercase tracking-wider ${
-              idx >= 5 ? 'text-amber-400/80' : 'text-white/60'
+              idx >= 5 ? 'text-amber-700 dark:text-amber-400/80' : 'text-slate-800 dark:text-white/60'
             }`}
           >
             {name}
@@ -160,8 +160,8 @@ export const PtScheduleMonthGrid: React.FC<PtScheduleMonthGridProps> = ({
                 isSelected
                   ? 'bg-primary/[0.08] border-primary shadow-[0_0_15px_rgba(102,200,28,0.25)] ring-1 ring-primary/40'
                   : cell.isCurrentMonth
-                    ? 'bg-white/[0.03] hover:bg-white/[0.06] border-white/10 hover:border-white/20'
-                    : 'bg-black/30 border-white/5 opacity-40 hover:opacity-70'
+                    ? 'bg-white dark:bg-white/[0.03] hover:bg-slate-50 dark:hover:bg-white/[0.06] border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20'
+                    : 'bg-slate-100/60 dark:bg-black/30 border-slate-200/60 dark:border-white/5 opacity-50 hover:opacity-80'
               } ${isToday && !isSelected ? 'border-primary/50 ring-1 ring-primary/30' : ''}`}
             >
               {/* Day Header: Day Number + Quick Add Button on hover */}
@@ -173,8 +173,8 @@ export const PtScheduleMonthGrid: React.FC<PtScheduleMonthGridProps> = ({
                       : isSelected
                         ? 'text-primary font-black scale-110'
                         : cell.isCurrentMonth
-                          ? 'text-white'
-                          : 'text-white/40'
+                          ? 'text-slate-900 dark:text-white'
+                          : 'text-slate-400 dark:text-white/40'
                   }`}
                 >
                   {cell.dayNumber}
@@ -191,7 +191,7 @@ export const PtScheduleMonthGrid: React.FC<PtScheduleMonthGridProps> = ({
                   }}
                   title={`Thêm ca dạy ngày ${cell.dayNumber}`}
                   aria-label={`Thêm ca dạy ngày ${cell.dayNumber}`}
-                  className="hidden sm:flex opacity-0 group-hover:opacity-100 w-5 h-5 rounded-full bg-white/10 hover:bg-primary hover:text-black text-white/70 items-center justify-center transition-all cursor-pointer"
+                  className="hidden sm:flex opacity-0 group-hover:opacity-100 w-5 h-5 rounded-full bg-slate-200 hover:bg-primary hover:text-black dark:bg-white/10 text-slate-700 dark:text-white/70 items-center justify-center transition-all cursor-pointer"
                 >
                   <Plus size={12} />
                 </button>
@@ -206,14 +206,14 @@ export const PtScheduleMonthGrid: React.FC<PtScheduleMonthGridProps> = ({
                       return (
                         <span
                           key={s.id}
-                          className={`w-1.5 h-1.5 rounded-full ${isDone ? 'bg-emerald-400' : 'bg-primary'}`}
+                          className={`w-1.5 h-1.5 rounded-full ${isDone ? 'bg-emerald-500 dark:bg-emerald-400' : 'bg-primary'}`}
                         />
                       );
                     })}
                   </div>
                 )}
                 {daySessions.length > 0 && (
-                  <span className="text-[8px] font-extrabold text-primary/90 leading-tight">
+                  <span className="text-[8px] font-extrabold text-primary-dark dark:text-primary/90 leading-tight">
                     {daySessions.length} ca
                   </span>
                 )}
@@ -238,16 +238,16 @@ export const PtScheduleMonthGrid: React.FC<PtScheduleMonthGridProps> = ({
                         if (onOpenDayDetails) onOpenDayDetails(cell.date);
                       }}
                       title={`${session.timeSlot} • ${session.studentName} (${session.workoutName})`}
-                      className={`px-1.5 py-0.5 md:py-1 rounded-lg md:rounded-xl border text-[10px] md:text-[11px] font-semibold flex items-center gap-1 truncate transition-all shadow-sm ${
+                      className={`px-1.5 py-0.5 md:py-1 rounded-lg md:rounded-xl border text-[10px] md:text-[11px] font-semibold flex items-center gap-1 truncate transition-all shadow-xs ${
                         isCheckedIn
-                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 line-through opacity-80'
-                          : theme?.bg || 'bg-purple-500/15 text-purple-300 border-purple-500/30'
+                          ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 line-through opacity-80'
+                          : theme?.bg || 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30'
                       }`}
                     >
                       {isCheckedIn ? (
-                        <CheckCircle2 size={11} className="text-emerald-400 shrink-0" />
+                        <CheckCircle2 size={11} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
                       ) : (
-                        <span className={`w-1.5 h-1.5 rounded-full ${theme?.dot || 'bg-purple-400'} shrink-0`} />
+                        <span className={`w-1.5 h-1.5 rounded-full ${theme?.dot || 'bg-purple-500 dark:bg-purple-400'} shrink-0`} />
                       )}
                       <span className="font-bold shrink-0">{startTime}</span>
                       <span className="truncate">{session.studentName || 'Học viên'}</span>
@@ -263,7 +263,7 @@ export const PtScheduleMonthGrid: React.FC<PtScheduleMonthGridProps> = ({
                       onSelectDate(cell.date);
                       if (onOpenDayDetails) onOpenDayDetails(cell.date);
                     }}
-                    className="text-[9px] md:text-[10px] font-bold text-primary/90 px-1.5 py-0.5 rounded-md bg-primary/10 border border-primary/20 text-center truncate hover:bg-primary/20 transition-colors"
+                    className="text-[9px] md:text-[10px] font-bold text-primary-dark dark:text-primary/90 px-1.5 py-0.5 rounded-md bg-primary/10 border border-primary/20 text-center truncate hover:bg-primary/20 transition-colors"
                   >
                     +{extraCount} ca nữa
                   </div>
@@ -273,7 +273,7 @@ export const PtScheduleMonthGrid: React.FC<PtScheduleMonthGridProps> = ({
               {/* Bottom active indicator bar if has sessions (Tablet & Desktop) */}
               {daySessions.length > 0 && (
                 <div className="hidden sm:flex items-center gap-1 justify-center pt-0.5">
-                  <span className="text-[9px] font-bold text-white/40">
+                  <span className="text-[9px] font-bold text-slate-500 dark:text-white/40">
                     {daySessions.length} ca
                   </span>
                 </div>
@@ -284,23 +284,23 @@ export const PtScheduleMonthGrid: React.FC<PtScheduleMonthGridProps> = ({
       </div>
 
       {/* Legend / Status Note below calendar */}
-      <div className="pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs text-white/60">
+      <div className="pt-3 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600 dark:text-white/60">
         <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_8px_rgba(102,200,28,0.6)]"></span>
             <span>Hôm nay</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-purple-400"></span>
+            <span className="w-2.5 h-2.5 rounded-full bg-purple-500 dark:bg-purple-400"></span>
             <span>Ca dạy đã xếp</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 dark:bg-emerald-400"></span>
             <span>Đã điểm danh</span>
           </div>
         </div>
 
-        <span className="text-[11px] font-medium text-white/40">
+        <span className="text-[11px] font-medium text-slate-500 dark:text-white/40">
           * Nhấp vào ngày bất kỳ để xem chi tiết và điểm danh trừ buổi
         </span>
       </div>

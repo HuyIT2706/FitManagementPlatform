@@ -206,24 +206,24 @@ const InBodyStockChart = ({
   }, [yMin, effectiveRange, plotHeight, padding.top]);
 
   return (
-    <div className="bento-card rounded-2xl sm:rounded-3xl border border-white/10 bg-[#0c120e]/80 backdrop-blur-xl p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl relative overflow-hidden">
+    <div className="bento-card rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0c120e]/80 backdrop-blur-xl p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl relative overflow-hidden">
       {/* Top Header & Ticker Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-white/10 pb-4">
         {/* Left: Financial Asset Ticker style info */}
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="text-xs uppercase tracking-widest text-white/60 font-black">
+            <span className="text-xs uppercase tracking-widest text-slate-600 dark:text-white/60 font-black">
               Biểu đồ phân tích InBody
             </span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full border bg-white/5 border-white/10 text-white/70 font-mono">
+            <span className="text-[10px] px-2 py-0.5 rounded-full border bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-700 dark:text-white/70 font-mono">
               {dataSeries.length} lần đo
             </span>
           </div>
 
           <div className="flex items-baseline gap-3 flex-wrap pt-0.5">
-            <span className="text-2xl sm:text-3xl font-black font-headline-md tracking-tight text-white">
+            <span className="text-2xl sm:text-3xl font-black font-headline-md tracking-tight text-slate-900 dark:text-white">
               {stats.current}
-              <span className="text-sm sm:text-base font-bold text-white/50 ml-1">
+              <span className="text-sm sm:text-base font-bold text-slate-500 dark:text-white/50 ml-1">
                 {metricConfig.unit}
               </span>
             </span>
@@ -232,10 +232,10 @@ const InBodyStockChart = ({
               <div
                 className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black tracking-wide border ${
                   stats.delta > 0
-                    ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                    ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
                     : stats.delta < 0
-                    ? 'bg-rose-500/15 text-rose-400 border-rose-500/30'
-                    : 'bg-white/10 text-white/70 border-white/20'
+                    ? 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30'
+                    : 'bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-white/70 border-slate-200 dark:border-white/20'
                 }`}
               >
                 {stats.delta > 0 ? (
@@ -258,14 +258,14 @@ const InBodyStockChart = ({
         </div>
 
         {/* Right: Metric Switcher Buttons (Like Stock Pairs BTC / ETH / SOL) */}
-        <div className="flex items-center gap-1.5 p-1 bg-black/40 rounded-2xl border border-white/10 self-start md:self-auto shrink-0">
+        <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-black/40 rounded-2xl border border-slate-200 dark:border-white/10 self-start md:self-auto shrink-0">
           <button
             type="button"
             onClick={() => onMetricChange('weight')}
             className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
               metric === 'weight'
                 ? 'bg-primary text-black shadow-[0_0_12px_rgba(16,185,129,0.5)]'
-                : 'text-white/60 hover:text-white hover:bg-white/5'
+                : 'text-slate-700 dark:text-white/60 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-white/5'
             }`}
           >
             Cân nặng
@@ -276,7 +276,7 @@ const InBodyStockChart = ({
             className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
               metric === 'fat'
                 ? 'bg-amber-400 text-black shadow-[0_0_12px_rgba(245,158,11,0.5)]'
-                : 'text-white/60 hover:text-white hover:bg-white/5'
+                : 'text-slate-700 dark:text-white/60 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-white/5'
             }`}
           >
             Body Fat
@@ -287,7 +287,7 @@ const InBodyStockChart = ({
             className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
               metric === 'muscle'
                 ? 'bg-blue-400 text-black shadow-[0_0_12px_rgba(96,165,250,0.5)]'
-                : 'text-white/60 hover:text-white hover:bg-white/5'
+                : 'text-slate-700 dark:text-white/60 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-white/5'
             }`}
           >
             Khối cơ
@@ -496,22 +496,22 @@ const InBodyStockChart = ({
                   transform: 'translate(-50%, -100%)',
                 }}
               >
-                <div className="bg-[#15201a]/95 border border-white/20 rounded-xl p-2.5 shadow-2xl backdrop-blur-md whitespace-nowrap min-w-[120px] text-center space-y-1">
-                  <div className="text-[10px] text-white/50 font-mono font-medium">
+                <div className="bg-white/95 dark:bg-[#15201a]/95 border border-slate-200 dark:border-white/20 rounded-xl p-2.5 shadow-xl dark:shadow-2xl backdrop-blur-md whitespace-nowrap min-w-[120px] text-center space-y-1">
+                  <div className="text-[10px] text-slate-500 dark:text-white/50 font-mono font-medium">
                     {activePoint.date}
                   </div>
-                  <div className="text-base font-black text-white flex items-center justify-center gap-1">
+                  <div className="text-base font-black text-slate-900 dark:text-white flex items-center justify-center gap-1">
                     <span style={{ color: metricConfig.color }}>{activePoint.value}</span>
-                    <span className="text-xs text-white/60 font-bold">{metricConfig.unit}</span>
+                    <span className="text-xs text-slate-500 dark:text-white/60 font-bold">{metricConfig.unit}</span>
                   </div>
                   {hoveredDelta !== null && (
                     <div
                       className={`text-[10px] font-bold flex items-center justify-center gap-0.5 ${
                         hoveredDelta > 0
-                          ? 'text-emerald-400'
+                          ? 'text-emerald-600 dark:text-emerald-400'
                           : hoveredDelta < 0
-                          ? 'text-rose-400'
-                          : 'text-white/50'
+                          ? 'text-rose-600 dark:text-rose-400'
+                          : 'text-slate-500 dark:text-white/50'
                       }`}
                     >
                       {hoveredDelta > 0 ? (
@@ -534,26 +534,26 @@ const InBodyStockChart = ({
 
       {/* Stock Sub-bar: High / Low / Trend summary */}
       {dataSeries.length > 1 && (
-        <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/10 text-xs">
-          <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 flex flex-col">
-            <span className="text-[10px] text-white/50 font-medium">Đỉnh (Cao nhất)</span>
-            <span className="text-sm font-bold text-white font-mono mt-0.5">
-              {stats.high} <span className="text-[10px] font-normal text-white/40">{metricConfig.unit}</span>
+        <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-200 dark:border-white/10 text-xs">
+          <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 flex flex-col">
+            <span className="text-[10px] text-slate-500 dark:text-white/50 font-medium">Đỉnh (Cao nhất)</span>
+            <span className="text-sm font-bold text-slate-900 dark:text-white font-mono mt-0.5">
+              {stats.high} <span className="text-[10px] font-normal text-slate-400 dark:text-white/40">{metricConfig.unit}</span>
             </span>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 flex flex-col">
-            <span className="text-[10px] text-white/50 font-medium">Đáy (Thấp nhất)</span>
-            <span className="text-sm font-bold text-white font-mono mt-0.5">
-              {stats.low} <span className="text-[10px] font-normal text-white/40">{metricConfig.unit}</span>
+          <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 flex flex-col">
+            <span className="text-[10px] text-slate-500 dark:text-white/50 font-medium">Đáy (Thấp nhất)</span>
+            <span className="text-sm font-bold text-slate-900 dark:text-white font-mono mt-0.5">
+              {stats.low} <span className="text-[10px] font-normal text-slate-400 dark:text-white/40">{metricConfig.unit}</span>
             </span>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 flex flex-col">
-            <span className="text-[10px] text-white/50 font-medium">Biến thiên tổng</span>
+          <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 flex flex-col">
+            <span className="text-[10px] text-slate-500 dark:text-white/50 font-medium">Biến thiên tổng</span>
             <span
               className={`text-sm font-bold font-mono mt-0.5 ${
-                stats.delta > 0 ? 'text-emerald-400' : stats.delta < 0 ? 'text-rose-400' : 'text-white'
+                stats.delta > 0 ? 'text-emerald-600 dark:text-emerald-400' : stats.delta < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white'
               }`}
             >
               {stats.delta > 0 ? `+${stats.delta.toFixed(1)}` : stats.delta.toFixed(1)}{' '}

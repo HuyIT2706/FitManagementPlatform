@@ -30,7 +30,7 @@ const PtStudentRosterQuick = ({ students }: PtStudentRosterQuickProps) => {
             >
               <div className="flex items-center justify-between gap-2.5">
                 <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border border-white/10 shrink-0">
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border border-slate-200 dark:border-white/10 shrink-0">
                     <img src={avatar} alt={student.fullName} className="w-full h-full object-cover" />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -49,7 +49,7 @@ const PtStudentRosterQuick = ({ students }: PtStudentRosterQuickProps) => {
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-white/5 flex items-center justify-center">
+              <div className="pt-2 border-t border-slate-200 dark:border-white/5 flex items-center justify-center">
                 <Link
                   href={`/pt/students/${student.id}`}
                   className="text-primary text-xs font-semibold hover:underline cursor-pointer"

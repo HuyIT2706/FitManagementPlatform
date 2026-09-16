@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   /* Fonts */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
@@ -62,14 +64,14 @@
   --color-on-background: var(--theme-on-background);
   --color-surface-variant: var(--theme-surface-variant);
   
-  /* Custom Bento Theme */
-  --color-bento-bg: #202939;
-  --color-bento-border: #324054;
+  /* Custom Bento Theme mapped to CSS Variables */
+  --color-bento-bg: var(--theme-bento-bg);
+  --color-bento-border: var(--theme-bento-border);
   --color-macro-protein: #0086C9;
   --color-macro-carbs: #EF6820;
   --color-macro-fats: #F63D68;
-  --color-green-light: #66C81C;
-  --color-dark-slate: #121926;
+  --color-green-light: var(--theme-green-light);
+  --color-dark-slate: var(--theme-dark-slate);
   
   --spacing-container-padding: 24px;
   --spacing-stack-sm: 8px;
@@ -84,10 +86,18 @@
 
 @layer utilities {
   .bento-card {
-    background-color: rgba(32, 41, 57, 0.7);
-    border: 1px solid #324054;
     backdrop-filter: blur(12px);
     border-radius: 1rem;
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .dark .bento-card {
+    background-color: rgba(32, 41, 57, 0.7);
+    border: 1px solid #324054;
+  }
+  :root:not(.dark) .bento-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
   }
   .progress-ring__circle {
     transition: stroke-dasharray 1.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -99,57 +109,105 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* View Transition for Circular Reveal Theme Toggle (0.4s) */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+  ::view-transition-old(root) {
+    z-index: 1;
+  }
+  ::view-transition-new(root) {
+    z-index: 9999;
+  }
+
+  /* High contrast fallbacks for light mode across all pages */
+  :root:not(.dark) [class*="border-white/"] {
+    border-color: #e2e8f0;
+  }
+  :root:not(.dark) [class*="bg-white/"] {
+    background-color: #f8fafc;
+  }
+  :root:not(.dark) [class*="text-white/"]:not([class*="bg-black"]):not([class*="bg-primary"]):not([class*="bg-emerald"]):not([class*="bg-slate-900"]):not([class*="bg-neutral-900"]) {
+    color: #0f172a;
+  }
+  :root:not(.dark) .text-on-surface-variant\/70,
+  :root:not(.dark) .text-on-surface-variant\/50 {
+    color: #475569;
+  }
+
+  /* Global Modal & Dialog Window Light Mode Overrides */
+  :root:not(.dark) [class*="fixed inset-0"][class*="bg-black/"] {
+    background-color: rgba(15, 23, 42, 0.45) !important;
+  }
+  :root:not(.dark) [class*="fixed inset-0"] input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+  :root:not(.dark) [class*="fixed inset-0"] select,
+  :root:not(.dark) [class*="fixed inset-0"] textarea {
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
+  }
+  :root:not(.dark) [class*="fixed inset-0"] input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):focus,
+  :root:not(.dark) [class*="fixed inset-0"] select:focus,
+  :root:not(.dark) [class*="fixed inset-0"] textarea:focus {
+    background-color: #ffffff;
+    border-color: #16a34a;
+    outline: none;
+  }
+  :root:not(.dark) [class*="fixed inset-0"] input:disabled {
+    background-color: #f1f5f9;
+    border-color: #e2e8f0;
+    color: #64748b;
+  }
+  :root:not(.dark) [class*="fixed inset-0"] select option {
+    background-color: #ffffff;
+    color: #0f172a;
+  }
 }
 
 @layer base {
   :root {
-    --theme-surface: #f9f9ff;
-    --theme-surface-dim: #d3daec;
-    --theme-surface-bright: #f9f9ff;
+    --theme-surface: #ffffff;
+    --theme-surface-dim: #f8fafc;
+    --theme-surface-bright: #e2e8f0;
     --theme-surface-container-lowest: #ffffff;
-    --theme-surface-container-low: #f1f3ff;
-    --theme-surface-container: #e8eeff;
-    --theme-surface-container-high: #e1e8fb;
-    --theme-surface-container-highest: #dce2f5;
-    --theme-on-surface: #151c29;
-    --theme-on-surface-variant: #404a38;
-    --theme-inverse-surface: #2a303e;
-    --theme-inverse-on-surface: #ecf0ff;
-    --theme-outline: #707a67;
-    --theme-outline-variant: #bfcab3;
-    --theme-surface-tint: #2e6c00;
-    --theme-primary: #2d6900;
+    --theme-surface-container-low: #f8fafc;
+    --theme-surface-container: #f1f5f9;
+    --theme-surface-container-high: #e2e8f0;
+    --theme-surface-container-highest: #cbd5e1;
+    --theme-on-surface: #0f172a;
+    --theme-on-surface-variant: #475569;
+    --theme-inverse-surface: #0f172a;
+    --theme-inverse-on-surface: #f8fafc;
+    --theme-outline: #94a3b8;
+    --theme-outline-variant: #e2e8f0;
+    --theme-surface-tint: #16a34a;
+    --theme-primary: #16a34a;
     --theme-on-primary: #ffffff;
-    --theme-primary-container: #3a8500;
-    --theme-on-primary-container: #f9ffed;
-    --theme-inverse-primary: #81dd4a;
-    --theme-secondary: #316b00;
+    --theme-primary-container: #dcfce7;
+    --theme-on-primary-container: #14532d;
+    --theme-inverse-primary: #86efac;
+    --theme-secondary: #0284c7;
     --theme-on-secondary: #ffffff;
-    --theme-secondary-container: #95fc51;
-    --theme-on-secondary-container: #347200;
-    --theme-tertiary: #396726;
+    --theme-secondary-container: #e0f2fe;
+    --theme-on-secondary-container: #0369a1;
+    --theme-tertiary: #d97706;
     --theme-on-tertiary: #ffffff;
-    --theme-tertiary-container: #51803c;
-    --theme-on-tertiary-container: #f8ffee;
-    --theme-error: #ba1a1a;
+    --theme-tertiary-container: #fef3c7;
+    --theme-on-tertiary-container: #78350f;
+    --theme-error: #ef4444;
     --theme-on-error: #ffffff;
-    --theme-error-container: #ffdad6;
-    --theme-on-error-container: #93000a;
-    --theme-primary-fixed: #9cfa63;
-    --theme-primary-fixed-dim: #81dd4a;
-    --theme-on-primary-fixed: #092100;
-    --theme-on-primary-fixed-variant: #215100;
-    --theme-secondary-fixed: #95fc51;
-    --theme-secondary-fixed-dim: #7ade35;
-    --theme-on-secondary-fixed: #0a2100;
-    --theme-on-secondary-fixed-variant: #235100;
-    --theme-tertiary-fixed: #bbf1a0;
-    --theme-tertiary-fixed-dim: #a0d586;
-    --theme-on-tertiary-fixed: #052100;
-    --theme-on-tertiary-fixed-variant: #245112;
-    --theme-background: #f9f9ff;
-    --theme-on-background: #151c29;
-    --theme-surface-variant: #dce2f5;
+    --theme-error-container: #fee2e2;
+    --theme-on-error-container: #991b1b;
+    --theme-background: #f8fafc;
+    --theme-on-background: #0f172a;
+    --theme-surface-variant: #e2e8f0;
+    --theme-green-light: #16a34a;
+    --theme-dark-slate: #ffffff;
+    --theme-bento-bg: #ffffff;
+    --theme-bento-border: #e2e8f0;
   }
 
   .dark {
@@ -200,6 +258,10 @@
     --theme-background: #0c1320;
     --theme-on-background: #dce2f5;
     --theme-surface-variant: #2e3543;
+    --theme-green-light: #66C81C;
+    --theme-dark-slate: #121926;
+    --theme-bento-bg: #202939;
+    --theme-bento-border: #324054;
   }
 
   /* Hide spin buttons on number inputs */

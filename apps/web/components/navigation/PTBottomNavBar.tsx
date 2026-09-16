@@ -11,15 +11,15 @@ const PTBottomNavBar = ({ activeTab }: PTBottomNavBarProps) => {
   return (
     <>
       <div className="md:hidden fixed bottom-10 left-1/2 -translate-x-1/2 w-[92%] max-w-md z-50 flex items-center justify-center gap-3">
-        <nav className="flex items-center justify-between rounded-full p-2 shadow-lg bg-white/10 backdrop-blur-xl border border-white/20">
+        <nav className="flex items-center justify-between rounded-full p-2 shadow-2xl bg-white/95 dark:bg-[#121926]/90 backdrop-blur-xl border border-slate-200 dark:border-white/20">
           {/* Trang chủ */}
           <Link
             href="/pt"
             prefetch={true}
             className={`flex items-center gap-2 rounded-full transition-colors ${
               activeTab === "home"
-                ? "bg-green-light/10 text-green-light px-4 py-2 font-bold"
-                : "w-10 h-10 shrink-0 flex items-center justify-center text-on-surface-variant/40 hover:bg-surface-bright/10"
+                ? "bg-green-light/15 text-green-light px-4 py-2 font-bold"
+                : "w-10 h-10 shrink-0 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50"
             }`}
           >
             <span
@@ -38,8 +38,8 @@ const PTBottomNavBar = ({ activeTab }: PTBottomNavBarProps) => {
               prefetch={true}
               className={`flex items-center gap-2 rounded-full transition-colors ${
                 activeTab === "schedule"
-                  ? "bg-green-light/10 text-green-light px-4 py-2 font-bold"
-                  : "w-10 h-10 flex items-center justify-center text-on-surface-variant/40 hover:bg-surface-bright/10"
+                  ? "bg-green-light/15 text-green-light px-4 py-2 font-bold"
+                  : "w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50"
               }`}
             >
               <span
@@ -59,8 +59,8 @@ const PTBottomNavBar = ({ activeTab }: PTBottomNavBarProps) => {
               prefetch={true}
               className={`flex items-center gap-2 rounded-full transition-colors ${
                 activeTab === "students"
-                  ? "bg-green-light/10 text-green-light px-4 py-2 font-bold"
-                  : "w-10 h-10 flex items-center justify-center text-on-surface-variant/40 hover:bg-surface-bright/10"
+                  ? "bg-green-light/15 text-green-light px-4 py-2 font-bold"
+                  : "w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50"
               }`}
             >
               <span
@@ -80,8 +80,8 @@ const PTBottomNavBar = ({ activeTab }: PTBottomNavBarProps) => {
               prefetch={true}
               className={`flex items-center gap-2 rounded-full transition-colors ${
                 activeTab === "profile"
-                  ? "bg-green-light/10 text-green-light px-4 py-2 font-bold"
-                  : "w-10 h-10 flex items-center justify-center text-on-surface-variant/40 hover:bg-surface-bright/10"
+                  ? "bg-green-light/15 text-green-light px-4 py-2 font-bold"
+                  : "w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50"
               }`}
             >
               <span
