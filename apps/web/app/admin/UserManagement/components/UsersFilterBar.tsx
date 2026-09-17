@@ -21,7 +21,7 @@ const AdminUsersFilterBar = ({
   ];
 
   return (
-    <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 sm:gap-4 bg-[#121a15] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white/10" suppressHydrationWarning>
+    <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 sm:gap-4 bg-white dark:bg-[#121a15] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-white/10 shadow-xs dark:shadow-none transition-colors duration-200" suppressHydrationWarning>
       {/* Search Bar */}
       <div className="grow max-w-md" suppressHydrationWarning>
         <AppSearchInput
@@ -44,8 +44,8 @@ const AdminUsersFilterBar = ({
             onClick={() => onRoleFilterChange(r.id)}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
               roleFilter === r.id
-                ? 'bg-[#10b981] text-[#003824] shadow-md shadow-[#10b981]/20'
-                : 'bg-white/5 border border-white/10 text-white/60 hover:text-white'
+                ? 'bg-[#10b981] text-[#003824] shadow-sm shadow-[#10b981]/20'
+                : 'bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-white/60 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-white/10'
             }`}
           >
             {r.label}
@@ -56,7 +56,7 @@ const AdminUsersFilterBar = ({
           type="button"
           suppressHydrationWarning
           onClick={onRefresh}
-          className="p-2 rounded-xl bg-white/5 border border-white/10 text-white/60 hover:text-white cursor-pointer ml-auto shrink-0"
+          className="p-2 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-white/60 hover:text-slate-900 dark:hover:text-white cursor-pointer ml-auto shrink-0"
           title="Làm mới"
         >
           <RefreshCw size={15} />

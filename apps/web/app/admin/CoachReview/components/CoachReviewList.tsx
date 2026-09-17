@@ -14,18 +14,18 @@ const CoachReviewList = ({
 }: CoachReviewListProps) => {
   return (
     <section className="space-y-3 sm:space-y-4" suppressHydrationWarning>
-      <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-        <FileText size={18} className="text-[#10b981] sm:w-5 sm:h-5 shrink-0" />
+      <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+        <FileText size={18} className="text-emerald-600 dark:text-[#10b981] sm:w-5 sm:h-5 shrink-0" />
         Danh sách Đơn Đăng Ký Trở Thành HLV PT ({applications.length})
       </h2>
 
       {loading ? (
         <AppLoading message="Đang tải danh sách đơn đăng ký HLV..." />
       ) : applications.length === 0 ? (
-        <div className="py-16 text-center bg-[#121a15] rounded-2xl border border-white/10" suppressHydrationWarning>
-          <Clock size={40} className="mx-auto text-white/30 mb-3" />
-          <p className="text-sm font-bold text-white/80">Không có đơn đăng ký nào phù hợp</p>
-          <p className="text-xs text-white/50 mt-1">Thay đổi bộ lọc hoặc tìm kiếm tên HLV khác.</p>
+        <div className="py-16 text-center bg-white dark:bg-[#121a15] rounded-2xl border border-slate-200 dark:border-white/10 shadow-xs" suppressHydrationWarning>
+          <Clock size={40} className="mx-auto text-slate-400 dark:text-white/30 mb-3" />
+          <p className="text-sm font-bold text-slate-800 dark:text-white/80">Không có đơn đăng ký nào phù hợp</p>
+          <p className="text-xs text-slate-500 dark:text-white/50 mt-1">Thay đổi bộ lọc hoặc tìm kiếm tên HLV khác.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4">

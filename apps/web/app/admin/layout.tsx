@@ -11,6 +11,8 @@ import {
   FileText,
   Users,
   Dumbbell,
+  Sun,
+  Moon,
 } from 'lucide-react';
 
 import { useState, useEffect } from 'react';
@@ -18,6 +20,8 @@ import AppLoading from '../../components/ui/AppLoading';
 import AccessDenied from '../../components/ui/AccessDenied';
 import apiClient from '../../api/axios';
 import type { UserData } from '../../interface';
+import { useTheme } from '../../context/ThemeContext';
+import AdminBottomNavBar from '../../components/navigation/AdminBottomNavBar';
 
 const AdminLayout = ({
   children,
@@ -25,6 +29,7 @@ const AdminLayout = ({
   children: React.ReactNode;
 }) => {
   const pathname = usePathname();
+  const { isDark, toggleTheme } = useTheme();
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const [currentUser, setCurrentUser] = useState<UserData | null>(null);
 
@@ -93,15 +98,15 @@ const AdminLayout = ({
   }
 
   return (
-    <div className="min-h-screen bg-[#090d0b] text-[#dde4dd] font-sans pb-24" suppressHydrationWarning>
+    <div className="min-h-screen bg-slate-50 dark:bg-[#090d0b] text-slate-900 dark:text-[#dde4dd] font-sans pb-12 transition-colors duration-200" suppressHydrationWarning>
       {/* Top Header */}
-      <header className="sticky top-0 z-30 bg-[#0e1511]/90 backdrop-blur-md border-b border-white/10 px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between" suppressHydrationWarning>
+      <header className="sticky top-0 z-30 bg-white/90 dark:bg-[#0e1511]/90 backdrop-blur-md border-b border-slate-200 dark:border-white/10 px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between shadow-xs transition-colors duration-200" suppressHydrationWarning>
         <Link
           href="/admin"
           className="flex items-center gap-2.5 sm:gap-3 group cursor-pointer hover:opacity-90 transition-all min-w-0"
           title="Về trang chủ Admin"
         >
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl overflow-hidden border border-white/15 bg-white/5 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.15)] shrink-0 group-hover:scale-105 transition-transform">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl overflow-hidden border border-slate-200 dark:border-white/15 bg-white/5 flex items-center justify-center shadow-xs dark:shadow-[0_0_15px_rgba(16,185,129,0.15)] shrink-0 group-hover:scale-105 transition-transform">
             <Image
               src={LogoApp}
               alt="NutriCore Logo"
@@ -110,18 +115,35 @@ const AdminLayout = ({
             />
           </div>
           <div className="min-w-0">
-            <h1 className="text-base sm:text-xl font-bold text-white tracking-wide group-hover:text-primary transition-colors truncate">
+            <h1 className="text-base sm:text-xl font-bold text-slate-900 dark:text-white tracking-wide group-hover:text-primary transition-colors truncate">
               NutriCore Admin
             </h1>
           </div>
         </Link>
 
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* Quick Theme Toggle (Sun / Moon) */}
+          <button
+            type="button"
+            suppressHydrationWarning
+            onClick={(e) => toggleTheme(e)}
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-700 dark:text-white/80 hover:bg-slate-200 dark:hover:bg-white/10 transition-all cursor-pointer shadow-xs"
+            title={isDark ? "Chuyển sang giao diện Sáng" : "Chuyển sang giao diện Tối"}
+            aria-label="Chuyển chế độ sáng tối"
+          >
+            {isDark ? (
+              <Sun size={16} className="text-amber-400" />
+            ) : (
+              <Moon size={16} className="text-indigo-500" />
+            )}
+          </button>
+
+          {/* Logout Button */}
           <button
             type="button"
             suppressHydrationWarning
             onClick={handleLogout}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-bold hover:bg-rose-500/20 transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-bold hover:bg-rose-500/20 transition-colors cursor-pointer"
           >
             <LogOut size={15} />
             <span className="hidden xs:inline sm:inline">Đăng xuất</span>
@@ -131,8 +153,8 @@ const AdminLayout = ({
 
       {/* Main Container */}
       <div className="max-w-7xl mx-auto px-3 sm:px-6 mt-4 sm:mt-6 space-y-4 sm:space-y-6">
-        {/* Navigation Tabs Bar */}
-        <section className="flex items-center gap-1.5 sm:gap-2 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl bg-white/5 border border-white/10 overflow-x-auto shadow-lg [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+        {/* Desktop Navigation Tabs Bar (Hidden on Mobile) */}
+        <section className="hidden md:flex items-center gap-1.5 sm:gap-2 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 overflow-x-auto shadow-sm dark:shadow-lg [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -143,7 +165,7 @@ const AdminLayout = ({
                 className={`flex-1 min-w-[140px] sm:min-w-[170px] py-2 sm:py-3 rounded-lg sm:rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer whitespace-nowrap ${
                   item.isActive
                     ? 'bg-[#10b981] text-[#003824] shadow-[0_0_15px_rgba(16,185,129,0.4)]'
-                    : 'text-white/60 hover:text-white hover:bg-white/5'
+                    : 'text-slate-600 dark:text-white/60 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5'
                 }`}
               >
                 <Icon size={15} className="shrink-0" />
@@ -156,6 +178,9 @@ const AdminLayout = ({
         {/* Page Content */}
         <main>{children}</main>
       </div>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <AdminBottomNavBar />
     </div>
   );
 };

@@ -115,7 +115,6 @@ const StudentWorkoutTab = ({
               onClick={onAddExercise}
               className="w-full bg-primary text-dark-slate hover:bg-primary/90 py-2.5 rounded-xl font-extrabold text-xs flex items-center justify-center gap-1 cursor-pointer transition-all shadow-[0_0_12px_rgba(102,200,28,0.2)]"
             >
-              <span className="material-symbols-outlined text-[16px]">add</span>
               Thêm Bài Tập
             </button>
           </div>

@@ -163,7 +163,10 @@ const PTSchedulePage = () => {
           newSession.scheduledDate || formatYYYYMMDD(addModalDefaultDate),
         timeSlot: newSession.timeSlot || "08:00 - 09:00",
       });
-      toast.success("Đã tạo ca dạy mới thành công!");
+      const studentName = newSession.studentName || "học viên";
+      const sessionDate =
+        newSession.scheduledDate || formatYYYYMMDD(addModalDefaultDate);
+      toast.success(`Đã thêm ca dạy ngày ${sessionDate} cho ${studentName}!`);
       mutateSchedule();
       mutatePt();
     } catch (err) {

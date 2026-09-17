@@ -11,15 +11,15 @@ const AdminGoalDistributionCard = ({
     goalDistribution.reduce((acc, g) => acc + g.count, 0) || 1;
 
   return (
-    <div className="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-[#121a15] border border-white/10 space-y-3 sm:space-y-4 shadow-xl" suppressHydrationWarning>
-      <div className="flex items-center gap-2 text-white">
-        <Target className="text-[#10b981] shrink-0" size={18} />
+    <div className="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white dark:bg-[#121a15] border border-slate-200 dark:border-white/10 space-y-3 sm:space-y-4 shadow-xs dark:shadow-xl transition-colors duration-200" suppressHydrationWarning>
+      <div className="flex items-center gap-2 text-slate-900 dark:text-white">
+        <Target className="text-emerald-600 dark:text-[#10b981] shrink-0" size={18} />
         <h3 className="font-bold text-sm sm:text-base">Phân Bổ Mục Tiêu Thể Hình Học Viên</h3>
       </div>
 
       <div className="space-y-3">
         {goalDistribution.length === 0 ? (
-          <p className="text-xs text-white/40 italic">Chưa có dữ liệu mục tiêu học viên</p>
+          <p className="text-xs text-slate-400 dark:text-white/40 italic">Chưa có dữ liệu mục tiêu học viên</p>
         ) : (
           goalDistribution.map((g) => {
             const label =
@@ -35,14 +35,14 @@ const AdminGoalDistributionCard = ({
             return (
               <div key={g.goal} className="space-y-1.5">
                 <div className="flex justify-between text-xs">
-                  <span className="font-medium text-white/80">{label}</span>
-                  <span className="font-bold text-[#10b981]">
+                  <span className="font-medium text-slate-700 dark:text-white/80">{label}</span>
+                  <span className="font-bold text-emerald-600 dark:text-[#10b981]">
                     {g.count} học viên ({percent}%)
                   </span>
                 </div>
-                <div className="h-2.5 bg-white/5 rounded-full overflow-hidden">
+                <div className="h-2.5 bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-[#10b981] rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                    className="h-full bg-emerald-500 dark:bg-[#10b981] rounded-full transition-all duration-500 shadow-xs dark:shadow-[0_0_8px_rgba(16,185,129,0.5)]"
                     style={{ width: `${percent}%` }}
                   />
                 </div>

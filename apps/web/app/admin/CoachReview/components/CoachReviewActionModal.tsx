@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { UserCheck, UserX } from 'lucide-react';
+import { UserCheck, UserX, X } from 'lucide-react';
 import type { CoachReviewActionModalProps } from '../../../../interface';
 
 const CoachReviewActionModal = ({
@@ -19,30 +19,42 @@ const CoachReviewActionModal = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4" suppressHydrationWarning>
-      <div className="bg-[#121a15] border border-white/10 rounded-2xl w-full max-w-md p-4 sm:p-6 space-y-3.5 sm:space-y-4 text-white shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
-        <h3 className="text-base sm:text-lg font-bold flex items-center gap-2">
-          {action === 'APPROVE' ? (
-            <>
-              <UserCheck className="text-[#10b981] shrink-0" size={20} />
-              <span>Xác nhận Phê duyệt HLV PT</span>
-            </>
-          ) : (
-            <>
-              <UserX className="text-rose-400 shrink-0" size={20} />
-              <span>Xác nhận Từ chối Đơn HLV</span>
-            </>
-          )}
-        </h3>
+    <div className="fixed inset-0 bg-black/50 dark:bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4" suppressHydrationWarning>
+      <div className="bg-white dark:bg-[#121a15] border border-slate-200 dark:border-white/10 rounded-2xl w-full max-w-md p-4 sm:p-6 space-y-3.5 sm:space-y-4 text-slate-900 dark:text-white shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between pb-1 border-b border-slate-100 dark:border-white/10">
+          <h3 className="text-base sm:text-lg font-bold flex items-center gap-2">
+            {action === 'APPROVE' ? (
+              <>
+                <UserCheck className="text-emerald-600 dark:text-[#10b981] shrink-0" size={20} />
+                <span>Xác nhận Phê duyệt HLV PT</span>
+              </>
+            ) : (
+              <>
+                <UserX className="text-rose-500 dark:text-rose-400 shrink-0" size={20} />
+                <span>Xác nhận Từ chối Đơn HLV</span>
+              </>
+            )}
+          </h3>
+          <button
+            type="button"
+            suppressHydrationWarning
+            onClick={onClose}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-white/40 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer shrink-0 -mr-1"
+            title="Đóng"
+            aria-label="Đóng"
+          >
+            <X size={18} />
+          </button>
+        </div>
 
-        <p className="text-xs text-white/70 leading-relaxed">
+        <p className="text-xs text-slate-600 dark:text-white/70 leading-relaxed">
           {action === 'APPROVE'
             ? `Bạn đang chuẩn bị phê duyệt tài khoản ${application.fullName} (${application.email}) thành Huấn luyện viên PT chính thức.`
             : `Bạn đang từ chối đơn đăng ký PT của ${application.fullName}. Vui lòng nhập lý do bên dưới để gửi thông báo.`}
         </p>
 
         <div>
-          <label className="block text-xs font-semibold text-white/80 mb-1">
+          <label className="block text-xs font-semibold text-slate-700 dark:text-white/80 mb-1">
             Ghi chú / Nhận xét của Admin:
           </label>
           <textarea
@@ -50,17 +62,17 @@ const CoachReviewActionModal = ({
             suppressHydrationWarning
             value={actionNote}
             onChange={(e) => onNoteChange(e.target.value)}
-            className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-white focus:border-[#10b981] outline-none"
+            className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-3 text-xs text-slate-900 dark:text-white focus:border-emerald-500 outline-none"
             placeholder="Nhập lý do hoặc nhận xét..."
           />
         </div>
 
-        <div className="flex flex-col-reverse sm:flex-row gap-2.5 sm:gap-3 pt-2 border-t border-white/10">
+        <div className="flex flex-col-reverse sm:flex-row gap-2.5 sm:gap-3 pt-2 border-t border-slate-200 dark:border-white/10">
           <button
             type="button"
             suppressHydrationWarning
             onClick={onClose}
-            className="w-full sm:flex-1 py-2.5 rounded-xl border border-white/10 text-white/70 text-xs font-bold hover:bg-white/5 cursor-pointer text-center"
+            className="w-full sm:flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 text-slate-700 dark:text-white/70 text-xs font-bold hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer text-center"
           >
             Hủy
           </button>

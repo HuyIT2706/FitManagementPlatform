@@ -13,7 +13,6 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import type { PTStudentSummary, PTSessionItem } from '@repo/types';
-import { toast } from '../../../../utils/toast';
 import { formatYYYYMMDD, formatDisplayDate, getCalendarMonthInfo } from '../../../../utils/date';
 
 interface AddScheduleModalProps {
@@ -103,7 +102,6 @@ const AddScheduleModal = ({
     };
 
     onAddSession(newSession);
-    toast.success(`Đã thêm ca dạy ngày ${sessionDate} cho ${studentObj.fullName}!`);
     onClose();
   };
 

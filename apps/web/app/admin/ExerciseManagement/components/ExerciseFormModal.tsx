@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { X } from 'lucide-react';
 import type { ExerciseFormModalProps } from '../../../../interface';
 
 const ExerciseFormModal = ({
@@ -27,33 +28,45 @@ const ExerciseFormModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4" suppressHydrationWarning>
-      <div className="bg-[#121a15] border border-white/10 rounded-2xl w-full max-w-lg p-4 sm:p-6 space-y-3.5 sm:space-y-4 text-white shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-        <h3 className="text-base sm:text-lg font-bold flex items-center gap-2">
-          {isEditing ? 'Chỉnh Sửa Bài Tập' : 'Thêm Bài Tập Mới'}
-        </h3>
+    <div className="fixed inset-0 bg-black/50 dark:bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4" suppressHydrationWarning>
+      <div className="bg-white dark:bg-[#121a15] border border-slate-200 dark:border-white/10 rounded-2xl w-full max-w-lg p-4 sm:p-6 space-y-3.5 sm:space-y-4 text-slate-900 dark:text-white shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex items-center justify-between pb-1 border-b border-slate-100 dark:border-white/10">
+          <h3 className="text-base sm:text-lg font-bold flex items-center gap-2">
+            {isEditing ? 'Chỉnh Sửa Bài Tập' : 'Thêm Bài Tập Mới'}
+          </h3>
+          <button
+            type="button"
+            suppressHydrationWarning
+            onClick={onClose}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-white/40 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer shrink-0 -mr-1"
+            title="Đóng"
+            aria-label="Đóng"
+          >
+            <X size={18} />
+          </button>
+        </div>
 
         <div className="space-y-3 text-xs">
           <div>
-            <label className="block text-white/80 font-bold mb-1">Tên bài tập (*)</label>
+            <label className="block text-slate-700 dark:text-white/80 font-bold mb-1">Tên bài tập (*)</label>
             <input
               type="text"
               suppressHydrationWarning
               value={name}
               onChange={(e) => onNameChange(e.target.value)}
               placeholder="Ví dụ: Barbell Bench Press"
-              className="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-xs text-white focus:border-[#10b981] outline-none"
+              className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-2.5 text-xs text-slate-900 dark:text-white focus:border-emerald-500 outline-none"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
             <div>
-              <label className="block text-white/80 font-bold mb-1">Nhóm cơ chính</label>
+              <label className="block text-slate-700 dark:text-white/80 font-bold mb-1">Nhóm cơ chính</label>
               <select
                 suppressHydrationWarning
                 value={category}
                 onChange={(e) => onCategoryChange(e.target.value)}
-                className="w-full bg-[#1c2720] border border-white/10 rounded-xl p-2.5 text-xs text-white focus:border-[#10b981] outline-none"
+                className="w-full bg-slate-50 dark:bg-[#1c2720] border border-slate-200 dark:border-white/10 rounded-xl p-2.5 text-xs text-slate-900 dark:text-white focus:border-emerald-500 outline-none"
               >
                 <option value="CHEST">Ngực (Chest)</option>
                 <option value="BACK">Lưng (Back)</option>
@@ -67,73 +80,73 @@ const ExerciseFormModal = ({
             </div>
 
             <div>
-              <label className="block text-white/80 font-bold mb-1">Thiết bị</label>
+              <label className="block text-slate-700 dark:text-white/80 font-bold mb-1">Thiết bị</label>
               <input
                 type="text"
                 suppressHydrationWarning
                 value={equipment}
                 onChange={(e) => onEquipmentChange(e.target.value)}
                 placeholder="Barbell, Dumbbell, Machine..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-xs text-white focus:border-[#10b981] outline-none"
+                className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-2.5 text-xs text-slate-900 dark:text-white focus:border-emerald-500 outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-white/80 font-bold mb-1">Cơ tác động (phân tách dấu phẩy)</label>
+            <label className="block text-slate-700 dark:text-white/80 font-bold mb-1">Cơ tác động (phân tách dấu phẩy)</label>
             <input
               type="text"
               suppressHydrationWarning
               value={primaryMuscles}
               onChange={(e) => onPrimaryMusclesChange(e.target.value)}
               placeholder="Ví dụ: Ngực trên, Tay sau, Vai trước"
-              className="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-xs text-white focus:border-[#10b981] outline-none"
+              className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-2.5 text-xs text-slate-900 dark:text-white focus:border-emerald-500 outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-white/80 font-bold mb-1">URL Ảnh Setup / Bắt Đầu</label>
+            <label className="block text-slate-700 dark:text-white/80 font-bold mb-1">URL Ảnh Setup / Bắt Đầu</label>
             <input
               type="text"
               suppressHydrationWarning
               value={setupUrl}
               onChange={(e) => onSetupUrlChange(e.target.value)}
               placeholder="https://..."
-              className="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-xs text-white focus:border-[#10b981] outline-none"
+              className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-2.5 text-xs text-slate-900 dark:text-white focus:border-emerald-500 outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-white/80 font-bold mb-1">URL Ảnh Động Tác / Kết Thúc</label>
+            <label className="block text-slate-700 dark:text-white/80 font-bold mb-1">URL Ảnh Động Tác / Kết Thúc</label>
             <input
               type="text"
               suppressHydrationWarning
               value={startUrl}
               onChange={(e) => onStartUrlChange(e.target.value)}
               placeholder="https://..."
-              className="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-xs text-white focus:border-[#10b981] outline-none"
+              className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-2.5 text-xs text-slate-900 dark:text-white focus:border-emerald-500 outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-white/80 font-bold mb-1">Hướng dẫn thực hiện (mỗi dòng 1 bước)</label>
+            <label className="block text-slate-700 dark:text-white/80 font-bold mb-1">Hướng dẫn thực hiện (mỗi dòng 1 bước)</label>
             <textarea
               rows={3}
               suppressHydrationWarning
               value={instructions}
               onChange={(e) => onInstructionsChange(e.target.value)}
               placeholder="Bước 1: Nằm trên ghế..."
-              className="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-xs text-white focus:border-[#10b981] outline-none"
+              className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-2.5 text-xs text-slate-900 dark:text-white focus:border-emerald-500 outline-none"
             />
           </div>
         </div>
 
-        <div className="flex flex-col-reverse sm:flex-row gap-2.5 sm:gap-3 pt-3 sm:pt-4 border-t border-white/10">
+        <div className="flex flex-col-reverse sm:flex-row gap-2.5 sm:gap-3 pt-3 sm:pt-4 border-t border-slate-200 dark:border-white/10">
           <button
             type="button"
             suppressHydrationWarning
             onClick={onClose}
-            className="w-full sm:flex-1 py-2.5 rounded-xl border border-white/10 text-white/70 text-xs font-bold hover:bg-white/5 cursor-pointer text-center"
+            className="w-full sm:flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 text-slate-700 dark:text-white/70 text-xs font-bold hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer text-center"
           >
             Hủy
           </button>
@@ -142,7 +155,7 @@ const ExerciseFormModal = ({
             suppressHydrationWarning
             onClick={onSubmit}
             disabled={submitting || !name.trim()}
-            className="w-full sm:flex-1 py-2.5 rounded-xl bg-[#10b981] text-[#003824] text-xs font-extrabold shadow-[0_0_12px_rgba(16,185,129,0.4)] hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 text-center"
+            className="w-full sm:flex-1 py-2.5 rounded-xl bg-[#10b981] text-[#003824] text-xs font-extrabold shadow-sm dark:shadow-[0_0_12px_rgba(16,185,129,0.4)] hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 text-center"
           >
             {submitting ? 'Đang lưu...' : isEditing ? 'Cập Nhật Bài Tập' : 'Tạo Bài Tập Mới'}
           </button>

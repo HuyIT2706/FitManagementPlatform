@@ -14,9 +14,9 @@ const CoachReviewFilterBar = ({
   const statusList: AdminFilterStatus[] = ['PENDING', 'APPROVED', 'REJECTED', 'ALL'];
 
   return (
-    <section className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 bg-[#121a15] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white/10" suppressHydrationWarning>
+    <section className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 bg-white dark:bg-[#121a15] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-white/10 shadow-xs dark:shadow-none transition-colors duration-200" suppressHydrationWarning>
       {/* Status Filter Tabs */}
-      <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 overflow-x-auto w-full sm:w-auto [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+      <div className="flex bg-slate-100 dark:bg-white/5 p-1 rounded-xl border border-slate-200 dark:border-white/10 overflow-x-auto w-full sm:w-auto [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
         {statusList.map((st) => (
           <button
             key={st}
@@ -26,13 +26,13 @@ const CoachReviewFilterBar = ({
             className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
               filterStatus === st
                 ? st === 'PENDING'
-                  ? 'bg-amber-400 text-dark-slate shadow-md'
+                  ? 'bg-amber-400 text-slate-950 shadow-sm'
                   : st === 'APPROVED'
-                    ? 'bg-[#10b981] text-[#003824] shadow-md'
+                    ? 'bg-[#10b981] text-[#003824] shadow-sm'
                     : st === 'REJECTED'
-                      ? 'bg-rose-500 text-white shadow-md'
-                      : 'bg-white text-black shadow-md'
-                : 'text-white/60 hover:text-white'
+                      ? 'bg-rose-500 text-white shadow-sm'
+                      : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                : 'text-slate-600 dark:text-white/60 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-white/5'
             }`}
           >
             {st === 'PENDING'

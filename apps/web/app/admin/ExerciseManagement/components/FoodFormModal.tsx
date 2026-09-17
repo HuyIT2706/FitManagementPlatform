@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { X } from 'lucide-react';
 import type { FoodFormModalProps } from '../../../../interface';
 
 const FoodFormModal = ({
@@ -29,111 +30,123 @@ const FoodFormModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4" suppressHydrationWarning>
-      <div className="bg-[#121a15] border border-white/10 rounded-2xl w-full max-w-lg p-4 sm:p-6 space-y-3.5 sm:space-y-4 text-white shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-        <h3 className="text-base sm:text-lg font-bold flex items-center gap-2">
-          {isEditing ? 'Chỉnh Sửa Món Ăn' : 'Thêm Món Ăn Mới'}
-        </h3>
+    <div className="fixed inset-0 bg-black/50 dark:bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4" suppressHydrationWarning>
+      <div className="bg-white dark:bg-[#121a15] border border-slate-200 dark:border-white/10 rounded-2xl w-full max-w-lg p-4 sm:p-6 space-y-3.5 sm:space-y-4 text-slate-900 dark:text-white shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex items-center justify-between pb-1 border-b border-slate-100 dark:border-white/10">
+          <h3 className="text-base sm:text-lg font-bold flex items-center gap-2">
+            {isEditing ? 'Chỉnh Sửa Món Ăn' : 'Thêm Món Ăn Mới'}
+          </h3>
+          <button
+            type="button"
+            suppressHydrationWarning
+            onClick={onClose}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-white/40 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer shrink-0 -mr-1"
+            title="Đóng"
+            aria-label="Đóng"
+          >
+            <X size={18} />
+          </button>
+        </div>
 
         <div className="space-y-3 text-xs">
           <div>
-            <label className="block text-white/80 font-bold mb-1">Tên món ăn / Thực phẩm (*)</label>
+            <label className="block text-slate-700 dark:text-white/80 font-bold mb-1">Tên món ăn / Thực phẩm (*)</label>
             <input
               type="text"
               suppressHydrationWarning
               value={name}
               onChange={(e) => onNameChange(e.target.value)}
               placeholder="Ví dụ: Ức gà áp chảo"
-              className="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-xs text-white focus:border-[#10b981] outline-none"
+              className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-2.5 text-xs text-slate-900 dark:text-white focus:border-emerald-500 outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-white/80 font-bold mb-1">Danh mục thực phẩm</label>
+            <label className="block text-slate-700 dark:text-white/80 font-bold mb-1">Danh mục thực phẩm</label>
             <input
               type="text"
               suppressHydrationWarning
               value={category}
               onChange={(e) => onCategoryChange(e.target.value)}
               placeholder="Ví dụ: Thịt & Cá, Rau củ, Tinh bột..."
-              className="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-xs text-white focus:border-[#10b981] outline-none"
+              className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-2.5 text-xs text-slate-900 dark:text-white focus:border-emerald-500 outline-none"
             />
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <div>
-              <label className="block text-[#10b981] font-bold mb-1">Calo (kcal)</label>
+              <label className="block text-emerald-600 dark:text-[#10b981] font-bold mb-1">Calo (kcal)</label>
               <input
                 type="number"
                 suppressHydrationWarning
                 value={calo}
                 onChange={(e) => onCaloChange(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl p-2 text-xs text-white focus:border-[#10b981] outline-none"
+                className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-2 text-xs text-slate-900 dark:text-white focus:border-emerald-500 outline-none"
               />
             </div>
             <div>
-              <label className="block text-rose-400 font-bold mb-1">Protein (g)</label>
+              <label className="block text-rose-600 dark:text-rose-400 font-bold mb-1">Protein (g)</label>
               <input
                 type="number"
                 suppressHydrationWarning
                 value={protein}
                 onChange={(e) => onProteinChange(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl p-2 text-xs text-white focus:border-[#10b981] outline-none"
+                className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-2 text-xs text-slate-900 dark:text-white focus:border-emerald-500 outline-none"
               />
             </div>
             <div>
-              <label className="block text-amber-400 font-bold mb-1">Carbs (g)</label>
+              <label className="block text-amber-600 dark:text-amber-400 font-bold mb-1">Carbs (g)</label>
               <input
                 type="number"
                 suppressHydrationWarning
                 value={carbs}
                 onChange={(e) => onCarbsChange(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl p-2 text-xs text-white focus:border-[#10b981] outline-none"
+                className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-2 text-xs text-slate-900 dark:text-white focus:border-emerald-500 outline-none"
               />
             </div>
             <div>
-              <label className="block text-blue-400 font-bold mb-1">Fat (g)</label>
+              <label className="block text-blue-600 dark:text-blue-400 font-bold mb-1">Fat (g)</label>
               <input
                 type="number"
                 suppressHydrationWarning
                 value={fat}
                 onChange={(e) => onFatChange(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl p-2 text-xs text-white focus:border-[#10b981] outline-none"
+                className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-2 text-xs text-slate-900 dark:text-white focus:border-emerald-500 outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-white/80 font-bold mb-1">Chất xơ (Fiber / 100g)</label>
+            <label className="block text-slate-700 dark:text-white/80 font-bold mb-1">Chất xơ (Fiber / 100g)</label>
             <input
               type="number"
               suppressHydrationWarning
               value={fiber}
               onChange={(e) => onFiberChange(e.target.value)}
               placeholder="0"
-              className="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-xs text-white focus:border-[#10b981] outline-none"
+              className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-2.5 text-xs text-slate-900 dark:text-white focus:border-emerald-500 outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-white/80 font-bold mb-1">URL Hình Ảnh Món Ăn</label>
+            <label className="block text-slate-700 dark:text-white/80 font-bold mb-1">URL Hình Ảnh Món Ăn</label>
             <input
               type="text"
               suppressHydrationWarning
               value={image}
               onChange={(e) => onImageChange(e.target.value)}
               placeholder="https://..."
-              className="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-xs text-white focus:border-[#10b981] outline-none"
+              className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-2.5 text-xs text-slate-900 dark:text-white focus:border-emerald-500 outline-none"
             />
           </div>
         </div>
 
-        <div className="flex flex-col-reverse sm:flex-row gap-2.5 sm:gap-3 pt-3 sm:pt-4 border-t border-white/10">
+        <div className="flex flex-col-reverse sm:flex-row gap-2.5 sm:gap-3 pt-3 sm:pt-4 border-t border-slate-200 dark:border-white/10">
           <button
             type="button"
             suppressHydrationWarning
             onClick={onClose}
-            className="w-full sm:flex-1 py-2.5 rounded-xl border border-white/10 text-white/70 text-xs font-bold hover:bg-white/5 cursor-pointer text-center"
+            className="w-full sm:flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 text-slate-700 dark:text-white/70 text-xs font-bold hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer text-center"
           >
             Hủy
           </button>
@@ -142,7 +155,7 @@ const FoodFormModal = ({
             suppressHydrationWarning
             onClick={onSubmit}
             disabled={submitting || !name.trim()}
-            className="w-full sm:flex-1 py-2.5 rounded-xl bg-[#10b981] text-[#003824] text-xs font-extrabold shadow-[0_0_12px_rgba(16,185,129,0.4)] hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 text-center"
+            className="w-full sm:flex-1 py-2.5 rounded-xl bg-[#10b981] text-[#003824] text-xs font-extrabold shadow-sm dark:shadow-[0_0_12px_rgba(16,185,129,0.4)] hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 text-center"
           >
             {submitting ? 'Đang lưu...' : isEditing ? 'Cập Nhật Món Ăn' : 'Tạo Món Ăn Mới'}
           </button>

@@ -41,9 +41,9 @@ const AdminAnalyticsOverview = () => {
 
   if (!data) {
     return (
-      <div className="py-16 text-center bg-[#121a15] rounded-2xl border border-white/10" suppressHydrationWarning>
-        <Activity size={40} className="mx-auto text-white/30 mb-3" />
-        <p className="text-sm font-bold text-white/80">Không có dữ liệu báo cáo</p>
+      <div className="py-16 text-center bg-white dark:bg-[#121a15] rounded-2xl border border-slate-200 dark:border-white/10 shadow-xs" suppressHydrationWarning>
+        <Activity size={40} className="mx-auto text-slate-400 dark:text-white/30 mb-3" />
+        <p className="text-sm font-bold text-slate-700 dark:text-white/80">Không có dữ liệu báo cáo</p>
       </div>
     );
   }
