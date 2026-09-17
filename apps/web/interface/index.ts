@@ -8,6 +8,8 @@ export * from "./IAddMeal";
 export * from "./IPt";
 export * from "./IPtSchedule";
 export * from "./IAdmin";
+export * from "./INotification";
+export * from "./IHeader";
 export type {
   MealItem,
   CalendarStripProps,

@@ -80,6 +80,15 @@ export interface AnalyticsOverviewData {
   totalWorkouts: number;
 }
 
+export interface AnalyticsPtPerformanceItem {
+  ptId: string;
+  fullName: string;
+  email: string;
+  avatarUrl?: string;
+  activeStudentsCount: number;
+  workoutCount: number;
+}
+
 export interface AnalyticsGoalDistributionItem {
   goal: string;
   count: number;
@@ -104,6 +113,7 @@ export interface AnalyticsRecentApplication {
 
 export interface AdminAnalyticsData {
   overview: AnalyticsOverviewData;
+  ptPerformance?: AnalyticsPtPerformanceItem[];
   goalDistribution: AnalyticsGoalDistributionItem[];
   recentUsers: AnalyticsRecentUser[];
   recentApplications: AnalyticsRecentApplication[];

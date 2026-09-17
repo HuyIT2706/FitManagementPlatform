@@ -151,14 +151,14 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Current Password */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-white/80">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-white/80">
               Mật khẩu hiện tại (*):
             </label>
             <div className="relative">
               <Lock
                 size={16}
                 className={`absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors ${
-                  currentPasswordError ? "text-rose-400" : "text-white/40"
+                  currentPasswordError ? "text-rose-500" : "text-slate-400 dark:text-white/40"
                 }`}
               />
               <input
@@ -171,24 +171,24 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
                   if (serverError) setServerError(null);
                 }}
                 placeholder="Nhập mật khẩu hiện tại..."
-                className={`w-full bg-white/[0.05] border rounded-xl pl-10 pr-11 py-2.5 text-sm text-white placeholder:text-white/30 outline-none transition-colors ${
+                className={`w-full bg-slate-50 dark:bg-white/[0.05] border rounded-xl pl-10 pr-11 py-2.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/30 outline-none transition-colors ${
                   currentPasswordError
                     ? "border-rose-500/80 focus:border-rose-500 bg-rose-500/[0.04]"
-                    : "border-white/15 focus:border-primary"
+                    : "border-slate-200 dark:border-white/15 focus:border-emerald-500 dark:focus:border-primary"
                 }`}
               />
               <button
                 type="button"
                 suppressHydrationWarning
                 onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors cursor-pointer"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:text-white/40 dark:hover:text-white transition-colors cursor-pointer"
               >
                 {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
             {currentPasswordError && (
-              <p className="text-[11px] font-medium text-rose-400 flex items-center gap-1.5 mt-1.5 animate-in fade-in duration-150">
-                <AlertCircle size={12} className="shrink-0 text-rose-400" />
+              <p className="text-[11px] font-medium text-rose-500 dark:text-rose-400 flex items-center gap-1.5 mt-1.5 animate-in fade-in duration-150">
+                <AlertCircle size={12} className="shrink-0 text-rose-500 dark:text-rose-400" />
                 <span>{currentPasswordError}</span>
               </p>
             )}
@@ -196,14 +196,14 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
 
           {/* New Password */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-white/80">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-white/80">
               Mật khẩu mới (Tối thiểu 6 ký tự) (*):
             </label>
             <div className="relative">
               <Lock
                 size={16}
                 className={`absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors ${
-                  newPasswordError ? "text-rose-400" : "text-white/40"
+                  newPasswordError ? "text-rose-500" : "text-slate-400 dark:text-white/40"
                 }`}
               />
               <input
@@ -215,24 +215,24 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
                   if (serverError) setServerError(null);
                 }}
                 placeholder="Nhập mật khẩu mới..."
-                className={`w-full bg-white/[0.05] border rounded-xl pl-10 pr-11 py-2.5 text-sm text-white placeholder:text-white/30 outline-none transition-colors ${
+                className={`w-full bg-slate-50 dark:bg-white/[0.05] border rounded-xl pl-10 pr-11 py-2.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/30 outline-none transition-colors ${
                   newPasswordError
                     ? "border-rose-500/80 focus:border-rose-500 bg-rose-500/[0.04]"
-                    : "border-white/15 focus:border-primary"
+                    : "border-slate-200 dark:border-white/15 focus:border-emerald-500 dark:focus:border-primary"
                 }`}
               />
               <button
                 type="button"
                 suppressHydrationWarning
                 onClick={() => setShowNewPassword(!showNewPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors cursor-pointer"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:text-white/40 dark:hover:text-white transition-colors cursor-pointer"
               >
                 {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
             {newPasswordError && (
-              <p className="text-[11px] font-medium text-rose-400 flex items-center gap-1.5 mt-1.5 animate-in fade-in duration-150">
-                <AlertCircle size={12} className="shrink-0 text-rose-400" />
+              <p className="text-[11px] font-medium text-rose-500 dark:text-rose-400 flex items-center gap-1.5 mt-1.5 animate-in fade-in duration-150">
+                <AlertCircle size={12} className="shrink-0 text-rose-500 dark:text-rose-400" />
                 <span>{newPasswordError}</span>
               </p>
             )}
@@ -240,14 +240,14 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
 
           {/* Confirm New Password */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-white/80">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-white/80">
               Xác nhận mật khẩu mới (*):
             </label>
             <div className="relative">
               <Lock
                 size={16}
                 className={`absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors ${
-                  confirmPasswordError ? "text-rose-400" : "text-white/40"
+                  confirmPasswordError ? "text-rose-500" : "text-slate-400 dark:text-white/40"
                 }`}
               />
               <input
@@ -259,24 +259,24 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
                   if (serverError) setServerError(null);
                 }}
                 placeholder="Nhập lại mật khẩu mới..."
-                className={`w-full bg-white/[0.05] border rounded-xl pl-10 pr-11 py-2.5 text-sm text-white placeholder:text-white/30 outline-none transition-colors ${
+                className={`w-full bg-slate-50 dark:bg-white/[0.05] border rounded-xl pl-10 pr-11 py-2.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/30 outline-none transition-colors ${
                   confirmPasswordError
                     ? "border-rose-500/80 focus:border-rose-500 bg-rose-500/[0.04]"
-                    : "border-white/15 focus:border-primary"
+                    : "border-slate-200 dark:border-white/15 focus:border-emerald-500 dark:focus:border-primary"
                 }`}
               />
               <button
                 type="button"
                 suppressHydrationWarning
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors cursor-pointer"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:text-white/40 dark:hover:text-white transition-colors cursor-pointer"
               >
                 {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
             {confirmPasswordError && (
-              <p className="text-[11px] font-medium text-rose-400 flex items-center gap-1.5 mt-1.5 animate-in fade-in duration-150">
-                <AlertCircle size={12} className="shrink-0 text-rose-400" />
+              <p className="text-[11px] font-medium text-rose-500 dark:text-rose-400 flex items-center gap-1.5 mt-1.5 animate-in fade-in duration-150">
+                <AlertCircle size={12} className="shrink-0 text-rose-500 dark:text-rose-400" />
                 <span>{confirmPasswordError}</span>
               </p>
             )}
@@ -284,8 +284,8 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
 
           {/* Server Error Alert Banner */}
           {serverError && (
-            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2 animate-in fade-in duration-150">
-              <AlertCircle size={15} className="shrink-0 text-rose-400" />
+            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 dark:text-rose-400 text-xs flex items-center gap-2 animate-in fade-in duration-150">
+              <AlertCircle size={15} className="shrink-0 text-rose-500 dark:text-rose-400" />
               <span>{serverError}</span>
             </div>
           )}
@@ -297,7 +297,7 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
               suppressHydrationWarning
               onClick={handleClose}
               disabled={loading}
-              className="flex-1 py-3 rounded-xl bg-white/5 border border-white/15 text-white/80 text-sm font-bold hover:bg-white/10 hover:text-white transition-all cursor-pointer"
+              className="flex-1 py-2.5 sm:py-3 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 hover:text-slate-900 dark:bg-white/5 dark:hover:bg-white/10 dark:border-white/15 dark:text-white/80 text-sm font-bold transition-all cursor-pointer"
             >
               Hủy
             </button>
@@ -305,7 +305,7 @@ const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
               type="submit"
               suppressHydrationWarning
               disabled={loading}
-              className="flex-1 py-3 rounded-xl bg-primary text-dark-slate text-sm font-extrabold shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
+              className="flex-1 py-2.5 sm:py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-primary dark:hover:bg-primary/90 text-white dark:text-dark-slate text-sm font-extrabold shadow-xs transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
             >
               {loading ? "Đang cập nhật..." : "Cập Nhật Mật Khẩu"}
             </button>

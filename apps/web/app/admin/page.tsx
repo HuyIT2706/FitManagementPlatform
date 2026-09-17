@@ -8,6 +8,7 @@ import type { AdminAnalyticsData } from '../../interface';
 import AdminAnalyticsHeader from './components/AdminAnalyticsHeader';
 import AdminAnalyticsHeroMetrics from './components/AdminAnalyticsHeroMetrics';
 import AdminGoalDistributionCard from './components/AdminGoalDistributionCard';
+import AdminPtPerformanceCard from './components/AdminPtPerformanceCard';
 import AdminRecentUsersCard from './components/AdminRecentUsersCard';
 import AdminRecentApplicationsCard from './components/AdminRecentApplicationsCard';
 import AppLoading from '../../components/ui/AppLoading';
@@ -48,7 +49,7 @@ const AdminAnalyticsOverview = () => {
     );
   }
 
-  const { overview, goalDistribution, recentUsers, recentApplications } = data;
+  const { overview, ptPerformance, goalDistribution, recentUsers, recentApplications } = data;
 
   return (
     <div className="space-y-4 sm:space-y-6 md:space-y-8" suppressHydrationWarning>
@@ -58,10 +59,13 @@ const AdminAnalyticsOverview = () => {
       {/* Component 2: 8 Bento Metric Cards */}
       <AdminAnalyticsHeroMetrics overview={overview} />
 
-      {/* Component 3: Goal Distribution Breakdown */}
-      <AdminGoalDistributionCard goalDistribution={goalDistribution} />
+      {/* Component 3 & 4: Goal Distribution & PT Performance */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <AdminGoalDistributionCard goalDistribution={goalDistribution} />
+        <AdminPtPerformanceCard ptPerformance={ptPerformance} />
+      </div>
 
-      {/* Component 4 & 5: Recent Activities Columns */}
+      {/* Component 5 & 6: Recent Activities Columns */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <AdminRecentUsersCard recentUsers={recentUsers} />
         <AdminRecentApplicationsCard recentApplications={recentApplications} />

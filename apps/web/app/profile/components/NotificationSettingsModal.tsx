@@ -3,19 +3,10 @@
 import { useState, useEffect } from "react";
 import { X, Check } from "lucide-react";
 import toast from "../../../utils/toast";
-
-interface NotificationSettingsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-interface NotificationOptions {
-  mealReminders: boolean;
-  waterReminders: boolean;
-  workoutSchedule: boolean;
-  ptReviews: boolean;
-  weeklyReport: boolean;
-}
+import type {
+  NotificationSettingsModalProps,
+  NotificationOptions,
+} from "../../../interface";
 
 const STORAGE_KEY = "fit_notification_settings";
 
@@ -144,14 +135,14 @@ const NotificationSettingsModal = ({
               <div
                 key={item.key}
                 onClick={() => handleToggle(item.key)}
-                className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-white/20 hover:bg-white/[0.06] transition-all cursor-pointer group select-none"
+                className="flex items-center justify-between p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 hover:bg-slate-100/70 dark:hover:bg-white/[0.06] transition-all cursor-pointer group select-none"
               >
                 <div className="flex items-center gap-3.5 pr-3">
                   <div className="space-y-0.5">
-                    <div className="text-sm font-bold text-white group-hover:text-primary transition-colors">
+                    <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-primary transition-colors">
                       {item.title}
                     </div>
-                    <p className="text-xs text-white/60 font-normal leading-relaxed">
+                    <p className="text-[11px] sm:text-xs text-slate-500 dark:text-white/60 font-normal leading-relaxed">
                       {item.desc}
                     </p>
                   </div>
@@ -159,17 +150,17 @@ const NotificationSettingsModal = ({
 
                 {/* iOS-style Smooth Switch Toggle */}
                 <div
-                  className={`w-12 h-6.5 flex items-center rounded-full p-1 transition-all duration-300 shrink-0 cursor-pointer ${
+                  className={`w-11 h-6 flex items-center rounded-full p-1 transition-all duration-300 shrink-0 cursor-pointer ${
                     isChecked
-                      ? "bg-primary shadow-[0_0_14px_rgba(102,200,28,0.45)]"
-                      : "bg-white/10 border border-white/15"
+                      ? "bg-emerald-600 dark:bg-primary shadow-xs"
+                      : "bg-slate-200 dark:bg-white/10 border border-slate-300 dark:border-white/15"
                   }`}
                 >
                   <div
-                    className={`w-4.5 h-4.5 rounded-full shadow-md transform transition-transform duration-300 ${
+                    className={`w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
                       isChecked
-                        ? "translate-x-5.5 bg-dark-slate"
-                        : "translate-x-0 bg-white/70"
+                        ? "translate-x-5 bg-white dark:bg-dark-slate"
+                        : "translate-x-0 bg-white dark:bg-white/70 shadow-xs"
                     }`}
                   />
                 </div>
@@ -183,14 +174,14 @@ const NotificationSettingsModal = ({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 rounded-xl bg-white/5 border border-white/15 text-white/80 text-sm font-bold hover:bg-white/10 hover:text-white transition-all cursor-pointer"
+            className="flex-1 py-2.5 sm:py-3 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 hover:text-slate-900 dark:bg-white/5 dark:hover:bg-white/10 dark:border-white/15 dark:text-white/80 text-sm font-bold transition-all cursor-pointer"
           >
             Hủy
           </button>
           <button
             type="button"
             onClick={handleSave}
-            className="flex-1 py-3 rounded-xl bg-primary text-dark-slate text-sm font-extrabold shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+            className="flex-1 py-2.5 sm:py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-primary dark:hover:bg-primary/90 text-white dark:text-dark-slate text-sm font-extrabold shadow-xs transition-all cursor-pointer flex items-center justify-center gap-1.5"
           >
             {isSaved ? (
               <>

@@ -1,14 +1,31 @@
 'use client';
 
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { type OnboardingState } from '../../../store/onboardingStore';
 import { Bell } from 'lucide-react';
+import {
+  registerServiceWorker,
+  subscribeToPushNotifications,
+} from '../../../utils/pushNotification';
 
 interface StepNotifyProps {
   store: OnboardingState;
 }
 
 const StepNotify = ({ store }: StepNotifyProps) => {
+  useEffect(() => {
+    registerServiceWorker();
+  }, []);
+
+  const handleToggle = async () => {
+    const nextVal = !store.pushNotifications;
+    store.setPushNotifications(nextVal);
+    if (nextVal) {
+      await subscribeToPushNotifications();
+    }
+  };
+
   return (
     <div className="flex flex-col flex-1 h-full pb-20">
       <div className="flex items-center gap-2 mb-2">
@@ -22,13 +39,14 @@ const StepNotify = ({ store }: StepNotifyProps) => {
       <div className="w-full bg-white/5 p-6 rounded-3xl border border-white/10 flex items-center justify-between">
         <div>
           <h3 className="font-bold text-lg mb-1">Nhận thông báo</h3>
-          <p className="text-sm text-white/50">Cho phép đẩy thông báo ứng dụng</p>
+          <p className="text-sm text-white/50">Cho phép đẩy thông báo ứng dụng ra màn hình</p>
         </div>
         <button
           type="button"
           suppressHydrationWarning
-          onClick={() => store.setPushNotifications(!store.pushNotifications)}
+          onClick={handleToggle}
           className={`w-14 h-8 rounded-full p-1 transition-colors cursor-pointer ${store.pushNotifications ? 'bg-[#10b981]' : 'bg-white/20'}`}
+          aria-label="Bật tắt nhận thông báo"
         >
           <motion.div
             className="w-6 h-6 bg-white rounded-full shadow-md"

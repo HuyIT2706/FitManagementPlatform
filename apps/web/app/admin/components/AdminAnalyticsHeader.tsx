@@ -17,7 +17,7 @@ const AdminAnalyticsHeader = ({ onRefresh }: AdminAnalyticsHeaderProps) => {
         type="button"
         suppressHydrationWarning
         onClick={onRefresh}
-        className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-white/70 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 text-xs font-bold transition-colors cursor-pointer shrink-0 shadow-xs"
+        className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-3xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-white/70 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 text-xs font-bold transition-colors cursor-pointer shrink-0 shadow-xs"
       >
         <RefreshCw size={14} className="sm:w-3.5 sm:h-3.5" />
         <span className="hidden xs:inline sm:inline">Làm Mới</span>

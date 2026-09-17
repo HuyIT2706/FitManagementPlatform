@@ -22,6 +22,7 @@ import apiClient from '../../api/axios';
 import type { UserData } from '../../interface';
 import { useTheme } from '../../context/ThemeContext';
 import AdminBottomNavBar from '../../components/navigation/AdminBottomNavBar';
+import NotificationBellDropdown from '../../components/notifications/NotificationBellDropdown';
 
 const AdminLayout = ({
   children,
@@ -58,25 +59,21 @@ const AdminLayout = ({
     {
       label: 'Tổng Quan Hệ Thống',
       href: '/admin',
-      icon: BarChart3,
       isActive: pathname === '/admin',
     },
     {
       label: 'Xét Duyệt Đơn PT',
       href: '/admin/CoachReview',
-      icon: FileText,
       isActive: pathname.startsWith('/admin/CoachReview'),
     },
     {
       label: 'Quản Lý Người Dùng',
       href: '/admin/UserManagement',
-      icon: Users,
       isActive: pathname.startsWith('/admin/UserManagement'),
     },
     {
       label: 'Thư Viện Bài Tập & Món Ăn',
       href: '/admin/ExerciseManagement',
-      icon: Dumbbell,
       isActive: pathname.startsWith('/admin/ExerciseManagement'),
     },
   ];
@@ -122,6 +119,11 @@ const AdminLayout = ({
         </Link>
 
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* Notification Bell Dropdown */}
+          <NotificationBellDropdown
+            buttonClassName="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-700 dark:text-white/80 hover:bg-slate-200 dark:hover:bg-white/10 transition-all cursor-pointer shadow-xs relative"
+          />
+
           {/* Quick Theme Toggle (Sun / Moon) */}
           <button
             type="button"
@@ -154,21 +156,19 @@ const AdminLayout = ({
       {/* Main Container */}
       <div className="max-w-7xl mx-auto px-3 sm:px-6 mt-4 sm:mt-6 space-y-4 sm:space-y-6">
         {/* Desktop Navigation Tabs Bar (Hidden on Mobile) */}
-        <section className="hidden md:flex items-center gap-1.5 sm:gap-2 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 overflow-x-auto shadow-sm dark:shadow-lg [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+        <section className="hidden md:flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-2 rounded-3xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 overflow-x-auto shadow-sm dark:shadow-lg [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
           {navItems.map((item) => {
-            const Icon = item.icon;
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 prefetch={true}
-                className={`flex-1 min-w-[140px] sm:min-w-[170px] py-2 sm:py-3 rounded-lg sm:rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer whitespace-nowrap ${
+                className={`flex-1 min-w-[120px] sm:min-w-[150px] py-2.5 sm:py-3 rounded-2xl sm:rounded-3xl font-bold text-xs sm:text-[13px] flex items-center justify-center transition-all cursor-pointer whitespace-nowrap ${
                   item.isActive
                     ? 'bg-[#10b981] text-[#003824] shadow-[0_0_15px_rgba(16,185,129,0.4)]'
                     : 'text-slate-600 dark:text-white/60 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5'
                 }`}
               >
-                <Icon size={15} className="shrink-0" />
                 <span>{item.label}</span>
               </Link>
             );

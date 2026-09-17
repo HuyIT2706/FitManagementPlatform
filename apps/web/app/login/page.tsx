@@ -299,7 +299,7 @@ const LoginContent = () => {
                 type="email"
                 required
                 suppressHydrationWarning
-                placeholder="name@example.com"
+                placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full h-11 px-4 rounded-xl bg-surface-container border border-outline-variant focus:border-primary outline-none text-xs text-on-surface"
@@ -315,7 +315,7 @@ const LoginContent = () => {
                   type={showPassword ? 'text' : 'password'}
                   required
                   suppressHydrationWarning
-                  placeholder="Mật khẩu bảo mật"
+                  placeholder="Mật khẩu"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full h-11 px-4 pr-12 rounded-xl bg-surface-container border border-outline-variant focus:border-primary outline-none text-xs text-on-surface"

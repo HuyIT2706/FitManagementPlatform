@@ -18,6 +18,7 @@ import StepMeal from './components/StepMeal';
 import StepDiet from './components/StepDiet';
 import StepHealth from './components/StepHealth';
 import StepNotify from './components/StepNotify';
+import { subscribeToPushNotifications } from '../../utils/pushNotification';
 
 const steps = 11;
 
@@ -166,6 +167,16 @@ const OnboardingPage = () => {
         };
 
         await apiClient.patch('/users/onboarding', payload);
+
+        // Kích hoạt nhận Web Push Notification nếu người dùng cho phép
+        if (formData.pushNotifications) {
+          try {
+            await subscribeToPushNotifications();
+          } catch (pushErr) {
+            console.warn('Lỗi hoặc người dùng từ chối cấp quyền thông báo đẩy:', pushErr);
+          }
+        }
+
         window.location.href = '/';
       } catch (err) {
         console.error(err);

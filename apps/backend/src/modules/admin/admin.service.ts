@@ -5,10 +5,14 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Role } from '@prisma/client';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class AdminService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   // ==========================================
   // 1. PT APPLICATIONS
@@ -80,6 +84,19 @@ export class AdminService {
       },
     });
 
+    // Gửi thông báo đến ứng viên PT
+    try {
+      await this.notificationsService.sendNotification({
+        userId: app.userId,
+        title: '🎉 Phê Duyệt Hồ Sơ HLV Chuyên Nghiệp',
+        message: 'Chúc mừng! Đơn đăng ký Huấn luyện viên của bạn đã được Admin phê duyệt thành công. Bạn đã có thể bắt đầu nhận học viên.',
+        type: 'PT_APPLICATION',
+        linkUrl: '/pt',
+      });
+    } catch (err) {
+      console.error('Failed to send approval notification:', err);
+    }
+
     return {
       success: true,
       applicationId: id,
@@ -107,6 +124,19 @@ export class AdminService {
           adminNote || 'Hồ sơ chưa đạt đủ điều kiện chứng chỉ chuyên môn',
       },
     });
+
+    // Gửi thông báo từ chối đến ứng viên
+    try {
+      await this.notificationsService.sendNotification({
+        userId: app.userId,
+        title: '📋 Kết Quả Xét Duyệt Hồ Sơ HLV',
+        message: `Hồ sơ đăng ký HLV của bạn chưa được phê duyệt. Lý do: ${updatedApp.adminNote || 'Chưa đạt yêu cầu'}`,
+        type: 'PT_APPLICATION',
+        linkUrl: '/profile',
+      });
+    } catch (err) {
+      console.error('Failed to send rejection notification:', err);
+    }
 
     return {
       success: true,
@@ -619,6 +649,7 @@ export class AdminService {
       totalWorkouts,
       recentUsers,
       recentApplications,
+      ptUsers,
     ] = await Promise.all([
       this.prisma.user.count({ where: { role: 'USER' } }),
       this.prisma.user.count({ where: { role: 'PT' } }),
@@ -651,6 +682,19 @@ export class AdminService {
           },
         },
       }),
+      this.prisma.user.findMany({
+        where: { role: 'PT' },
+        select: {
+          id: true,
+          fullName: true,
+          email: true,
+          avatarUrl: true,
+          trainerProfiles: {
+            where: { status: 'APPROVED' },
+            select: { id: true },
+          },
+        },
+      }),
     ]);
 
     // Calculate goal distribution among users
@@ -665,6 +709,29 @@ export class AdminService {
       count: g._count.id,
     }));
 
+    // Calculate PT Performance
+    const ptPerformance = await Promise.all(
+      ptUsers.map(async (pt) => {
+        const workoutCount = await this.prisma.workoutSchedule.count({
+          where: {
+            student: {
+              studentProfiles: {
+                some: { trainerId: pt.id, status: 'APPROVED' },
+              },
+            },
+          },
+        });
+        return {
+          ptId: pt.id,
+          fullName: pt.fullName,
+          email: pt.email,
+          avatarUrl: pt.avatarUrl || undefined,
+          activeStudentsCount: pt.trainerProfiles.length,
+          workoutCount,
+        };
+      }),
+    );
+
     return {
       overview: {
         totalUsers,
@@ -676,6 +743,7 @@ export class AdminService {
         totalMealLogs,
         totalWorkouts,
       },
+      ptPerformance,
       goalDistribution,
       recentUsers: recentUsers.map((u) => ({
         ...u,

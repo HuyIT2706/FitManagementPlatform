@@ -18,9 +18,14 @@ import type {
   UpdateStudentSessionsDto,
 } from '@repo/types';
 
+import { NotificationsService } from '../notifications/notifications.service';
+
 @Injectable()
 export class PtService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   async getDashboardData(ptUserId: string): Promise<PTDashboardData> {
     const [ptUser, approvedProfiles] = await Promise.all([
@@ -989,6 +994,25 @@ export class PtService {
       where: { id: studentId },
       select: { fullName: true },
     });
+
+    // 6. Gửi Web Push Notification & Lưu vào Hộp thư của Học viên
+    try {
+      const studentProfile = await this.prisma.studentProfile.findFirst({
+        where: { studentId: studentId, status: 'APPROVED' },
+        include: { trainer: { select: { fullName: true } } },
+      });
+      const ptName = studentProfile?.trainer?.fullName || 'HLV cá nhân';
+
+      await this.notificationsService.sendNotification({
+        userId: studentId,
+        title: 'Điểm Danh & Trừ Buổi Tập',
+        message: `HLV ${ptName} đã điểm danh (Trừ 1 buổi). Số buổi còn lại: ${updatedPkg.remainingSessions}/${activePkg.totalSessions} buổi.`,
+        type: 'SESSION_DEDUCT',
+        linkUrl: '/training',
+      });
+    } catch (pushError) {
+      console.error('Failed to dispatch session deduction notification:', pushError);
+    }
 
     return {
       success: true,

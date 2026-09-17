@@ -7,14 +7,12 @@ import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { Bell, LogOut, User, ChevronDown, ShieldCheck, Sun, Moon } from 'lucide-react';
 import LogoApp from '../../assets/imgs/logoApp.jpg';
-import type { UserData } from '../../interface';
+import type { UserData, HeaderProps } from '../../interface';
 import { getAvatarUrl } from '../../utils/avatar';
 import { useTheme } from '../../context/ThemeContext';
+import NotificationBellDropdown from '../notifications/NotificationBellDropdown';
 
-export interface HeaderProps {
-  userData?: UserData | null;
-  onLogout: () => void;
-}
+export type { HeaderProps };
 
 const Header = ({ userData, onLogout }: HeaderProps) => {
   const router = useRouter();
@@ -150,14 +148,8 @@ const Header = ({ userData, onLogout }: HeaderProps) => {
 
         {/* Right Section: Notification Bell + User Profile Capsule with Dropdown */}
         <div className="flex gap-3 items-center shrink-0">
-          {/* Circular Badge Notification Bell Button */}
-          <button
-            type="button"
-            className="w-10 h-10 rounded-full bg-green-50 dark:bg-green-light/10 border border-green-200 dark:border-green-light/30 text-green-600 dark:text-green-light hover:bg-green-100 dark:hover:bg-green-light/20 flex items-center justify-center transition-all cursor-pointer shadow-xs hover:scale-105 active:scale-95"
-            aria-label="Thông báo"
-          >
-            <Bell size={18} />
-          </button>
+          {/* Circular Badge Notification Bell Button with Popover */}
+          <NotificationBellDropdown />
 
           {/* User Info Capsule Button with Popover Dropdown */}
           {userData && (
@@ -302,13 +294,7 @@ const Header = ({ userData, onLogout }: HeaderProps) => {
             )}
           </button>
 
-          <button
-            type="button"
-            className="w-8 h-8 rounded-full bg-green-50 dark:bg-green-light/10 border border-green-200 dark:border-green-light/30 text-green-600 dark:text-green-light flex items-center justify-center transition-all cursor-pointer hover:bg-green-100 dark:hover:bg-green-light/20 shadow-sm"
-            aria-label="Thông báo"
-          >
-            <Bell size={15} />
-          </button>
+          <NotificationBellDropdown buttonClassName="w-8 h-8 rounded-full bg-green-50 dark:bg-green-light/10 border border-green-200 dark:border-green-light/30 text-green-600 dark:text-green-light flex items-center justify-center transition-all cursor-pointer hover:bg-green-100 dark:hover:bg-green-light/20 shadow-sm relative" />
 
           {userData && (
             <div ref={mobileMenuRef} className="relative">
