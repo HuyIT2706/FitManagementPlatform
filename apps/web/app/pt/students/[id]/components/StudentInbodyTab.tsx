@@ -3,27 +3,7 @@
 import type { InBodyHistoryPoint } from '@repo/types';
 import TransformationJourneySlider from '../../../../profile/components/TransformationJourneySlider';
 import InBodyStockChart from './InBodyStockChart';
-
-interface StudentInbodyTabProps {
-  studentId: string;
-  inbodyWeight: number;
-  inbodyHeight: number;
-  inbodyFat: number;
-  inbodyMuscle: number;
-  targetWeight?: number;
-  goal?: string;
-  chartMetric: 'weight' | 'fat' | 'muscle';
-  isEditingInBody: boolean;
-  historyPoints: InBodyHistoryPoint[];
-  saving: boolean;
-  onChartMetricChange: (metric: 'weight' | 'fat' | 'muscle') => void;
-  onToggleEditInBody: (editing: boolean) => void;
-  onInbodyWeightChange: (val: number) => void;
-  onInbodyHeightChange: (val: number) => void;
-  onInbodyFatChange: (val: number) => void;
-  onInbodyMuscleChange: (val: number) => void;
-  onSaveInBody: () => void;
-}
+import type { StudentInbodyTabProps } from '../../../../../interface';
 
 const StudentInbodyTab = ({
   studentId,

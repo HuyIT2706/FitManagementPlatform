@@ -35,7 +35,7 @@ const PILL_COLOR_THEMES = [
   },
 ];
 
-export const PtScheduleMonthGrid: React.FC<PtScheduleMonthGridProps> = ({
+const PtScheduleMonthGrid = ({
   viewDate,
   selectedDate,
   onSelectDate,
@@ -44,7 +44,7 @@ export const PtScheduleMonthGrid: React.FC<PtScheduleMonthGridProps> = ({
   onOpenAddModal,
   onOpenDayDetails,
   filterStudentId,
-}) => {
+}: PtScheduleMonthGridProps) => {
   const today = new Date();
   const monthInfo = getCalendarMonthInfo(viewDate);
 

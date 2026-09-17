@@ -51,3 +51,15 @@ export interface ProfileSettingsListProps {
   onLogout: () => void;
   onEditProfile?: () => void;
 }
+
+export interface EditProfileModalProps {
+  isOpen: boolean;
+  userData: UserDataHome | null;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+export interface ChangePasswordModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}

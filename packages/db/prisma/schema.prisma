@@ -313,6 +313,7 @@ model ExerciseLibrary {
 
   @@index([name])
   @@index([category])
+  @@index([primaryMuscles], type: Gin)
   @@map("exercise_libraries")
 }
 

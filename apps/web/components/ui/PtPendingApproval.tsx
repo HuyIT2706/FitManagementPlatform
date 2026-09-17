@@ -4,12 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import { Clock, RotateCcw, LogOut, ShieldAlert, CheckCircle } from 'lucide-react';
 import LogoApp from '../../assets/imgs/logoApp.jpg';
-import type { UserData } from '../../interface';
-
-export interface PtPendingApprovalProps {
-  currentUser?: UserData | null;
-  onLogout?: () => void;
-}
+import type { UserData, PtPendingApprovalProps } from '../../interface';
 
 const PtPendingApproval = ({
   currentUser,

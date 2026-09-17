@@ -3,12 +3,7 @@
 
 import { Copy, Check } from 'lucide-react';
 import { useState } from 'react';
-
-interface PtQrCodeCardProps {
-  ptCode: string;
-  qrUrl: string;
-  onCopyPtCode: () => void;
-}
+import type { PtQrCodeCardProps } from '../../../../interface';
 
 const PtQrCodeCard = ({ ptCode, qrUrl, onCopyPtCode }: PtQrCodeCardProps) => {
   const [copied, setCopied] = useState(false);

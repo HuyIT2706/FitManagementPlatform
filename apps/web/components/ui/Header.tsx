@@ -5,14 +5,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
-import { Bell, LogOut, User, ChevronDown, ShieldCheck, Sun, Moon } from 'lucide-react';
+import { Bell, LogOut, User, ChevronDown, ShieldCheck, Sun, Moon, Home, Calendar, Users, BookOpen, Dumbbell, History } from 'lucide-react';
 import LogoApp from '../../assets/imgs/logoApp.jpg';
 import type { UserData, HeaderProps } from '../../interface';
 import { getAvatarUrl } from '../../utils/avatar';
 import { useTheme } from '../../context/ThemeContext';
 import NotificationBellDropdown from '../notifications/NotificationBellDropdown';
-
-export type { HeaderProps };
 
 const Header = ({ userData, onLogout }: HeaderProps) => {
   const router = useRouter();
@@ -61,17 +59,17 @@ const Header = ({ userData, onLogout }: HeaderProps) => {
   const isAdmin = userData?.role === 'ADMIN' || pathname.startsWith('/admin');
 
   const ptNavItems = [
-    { label: 'Trang chủ', href: '/pt', icon: 'home', isActive: pathname === '/pt' },
-    { label: 'Lịch dạy', href: '/pt/schedule', icon: 'calendar_today', isActive: pathname.startsWith('/pt/schedule') },
-    { label: 'Học viên', href: '/pt/students', icon: 'group', isActive: pathname.startsWith('/pt/students') },
-    { label: 'Tôi', href: '/pt/profile', icon: 'person', isActive: pathname.startsWith('/pt/profile') },
+    { label: 'Trang chủ', href: '/pt', icon: Home, isActive: pathname === '/pt' },
+    { label: 'Lịch dạy', href: '/pt/schedule', icon: Calendar, isActive: pathname.startsWith('/pt/schedule') },
+    { label: 'Học viên', href: '/pt/students', icon: Users, isActive: pathname.startsWith('/pt/students') },
+    { label: 'Tôi', href: '/pt/profile', icon: User, isActive: pathname.startsWith('/pt/profile') },
   ];
 
   const userNavItems = [
-    { label: 'Nhật ký', href: '/home', icon: 'style', isActive: pathname === '/home' || pathname.startsWith('/add-meal') },
-    { label: 'Tập luyện', href: '/training', icon: 'directions_run', isActive: pathname.startsWith('/training') },
-    { label: 'Lịch sử', href: '/history', icon: 'explore', isActive: pathname.startsWith('/history') },
-    { label: 'Tôi', href: '/profile', icon: 'person', isActive: pathname.startsWith('/profile') },
+    { label: 'Nhật ký', href: '/home', icon: BookOpen, isActive: pathname === '/home' || pathname.startsWith('/add-meal') },
+    { label: 'Tập luyện', href: '/training', icon: Dumbbell, isActive: pathname.startsWith('/training') },
+    { label: 'Lịch sử', href: '/history', icon: History, isActive: pathname.startsWith('/history') },
+    { label: 'Tôi', href: '/profile', icon: User, isActive: pathname.startsWith('/profile') },
   ];
 
   const navItems = isAdmin ? [] : isPt ? ptNavItems : userNavItems;
@@ -116,6 +114,7 @@ const Header = ({ userData, onLogout }: HeaderProps) => {
           <nav className="absolute left-1/2 -translate-x-1/2 flex items-center justify-between w-[320px] md:w-[360px] lg:w-[420px]">
             {navItems.map((item) => {
               const isActive = item.isActive;
+              const Icon = item.icon;
               return (
                 <Link
                   key={item.href}
@@ -126,12 +125,7 @@ const Header = ({ userData, onLogout }: HeaderProps) => {
                       : 'text-slate-900 dark:text-on-surface-variant hover:text-primary dark:hover:text-on-surface font-semibold'
                   }`}
                 >
-                  <span
-                    className="material-symbols-outlined text-[18px] transition-transform group-hover:scale-110"
-                    style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
-                  >
-                    {item.icon}
-                  </span>
+                  <Icon className="w-[18px] h-[18px] transition-transform group-hover:scale-110 shrink-0" />
                   <span>{item.label}</span>
 
                   {/* Active highlight pill */}

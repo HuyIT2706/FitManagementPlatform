@@ -26,23 +26,19 @@ export interface PushSubscriptionPayload {
 export class NotificationsService implements OnModuleInit {
   private readonly logger = new Logger(NotificationsService.name);
 
-  // VAPID Keys for Web Push Notifications
-  public readonly vapidPublicKey =
-    'BJznxhmzusTKjOPidEXnMdtFyES4cU8i00t9ZwGBJk1UZizbIByNIrVxZggR72LRzbm3JYfsYt907OzFfoRLR2I';
-  private readonly vapidPrivateKey = 'iTdcAwDueONNxBd6yF4wYswGSX5QfiG9tjUI--hmEL8';
-  private readonly vapidSubject = 'mailto:support@nutricore.vn';
+  public readonly vapidPublicKey = process.env.VAPID_PUBLIC_KEY!;
+  private readonly vapidPrivateKey = process.env.VAPID_PRIVATE_KEY!;
+  private readonly vapidSubject = process.env.VAPID_SUBJECT!;
 
   constructor(private readonly prisma: PrismaService) {}
 
   async onModuleInit() {
-    // 1. Initialize web-push VAPID details
     webpush.setVapidDetails(
       this.vapidSubject,
       this.vapidPublicKey,
       this.vapidPrivateKey,
     );
 
-    // 2. Ensure database tables exist
     try {
       await this.prisma.$executeRawUnsafe(`
         CREATE TABLE IF NOT EXISTS notifications (
@@ -83,9 +79,6 @@ export class NotificationsService implements OnModuleInit {
     }
   }
 
-  // ====================================================
-  // 1. SAVE DEVICE PUSH SUBSCRIPTION
-  // ====================================================
   async savePushSubscription(userId: string, subscription: PushSubscriptionPayload) {
     if (!subscription?.endpoint || !subscription?.keys?.p256dh || !subscription?.keys?.auth) {
       throw new Error('Push subscription data is incomplete');
@@ -110,20 +103,16 @@ export class NotificationsService implements OnModuleInit {
     return { success: true, message: 'Đăng ký nhận thông báo đẩy thành công!' };
   }
 
-  // ====================================================
-  // 2. SEND NOTIFICATION & WEB PUSH TO USER
-  // ====================================================
   async sendNotification(data: {
     userId: string;
     title: string;
     message: string;
-    type?: string; // SESSION_DEDUCT | MEAL_REMINDER | WATER_REMINDER | WORKOUT_REMINDER | PT_REQUEST | PT_APPLICATION
+    type?: string;
     linkUrl?: string;
   }) {
     const { userId, title, message, type = 'INFO', linkUrl = '/home' } = data;
     const notifId = randomUUID();
 
-    // 1. Lưu vào bảng notifications để hiển thị trong Notification Bell
     try {
       await this.prisma.$executeRawUnsafe(
         `
@@ -141,7 +130,6 @@ export class NotificationsService implements OnModuleInit {
       this.logger.error(`Failed to store notification for user ${userId}:`, err);
     }
 
-    // 2. Truy vấn danh sách subscription của user để bắn Web Push ra màn hình
     try {
       const subscriptions = (await this.prisma.$queryRawUnsafe(
         `
@@ -177,7 +165,6 @@ export class NotificationsService implements OnModuleInit {
               payload,
             );
           } catch (pushErr: any) {
-            // Nếu subscription hết hạn (410 Gone / 404 Not Found), tự động dọn dẹp
             if (pushErr.statusCode === 410 || pushErr.statusCode === 404) {
               await this.prisma.$executeRawUnsafe(
                 `DELETE FROM push_subscriptions WHERE endpoint = $1;`,
@@ -196,9 +183,6 @@ export class NotificationsService implements OnModuleInit {
     return { success: true, notificationId: notifId };
   }
 
-  // ====================================================
-  // 3. GET NOTIFICATIONS LIST FOR BELL DROPDOWN
-  // ====================================================
   async getNotifications(userId: string, limit = 20) {
     try {
       const rows = (await this.prisma.$queryRawUnsafe(
@@ -243,9 +227,6 @@ export class NotificationsService implements OnModuleInit {
     }
   }
 
-  // ====================================================
-  // 4. MARK AS READ
-  // ====================================================
   async markAsRead(notificationId: string, userId: string) {
     await this.prisma.$executeRawUnsafe(
       `

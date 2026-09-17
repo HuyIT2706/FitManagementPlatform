@@ -84,7 +84,6 @@ export class AdminService {
       },
     });
 
-    // Gửi thông báo đến ứng viên PT
     try {
       await this.notificationsService.sendNotification({
         userId: app.userId,
@@ -125,7 +124,6 @@ export class AdminService {
       },
     });
 
-    // Gửi thông báo từ chối đến ứng viên
     try {
       await this.notificationsService.sendNotification({
         userId: app.userId,

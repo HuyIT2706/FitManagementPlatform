@@ -25,3 +25,19 @@ export interface BMIPreviewResult {
   bmiColor: string;
   bmiDescription: string;
 }
+
+export interface OnboardingStepProps {
+  store: any;
+}
+
+export type StepAgeProps = OnboardingStepProps;
+export type StepGenderProps = OnboardingStepProps;
+export type StepWeightProps = OnboardingStepProps;
+export type StepHeightProps = OnboardingStepProps;
+export type StepActivityProps = OnboardingStepProps;
+export type StepBMIProps = OnboardingStepProps;
+export type StepCalorieOffsetProps = OnboardingStepProps;
+export type StepMealProps = OnboardingStepProps;
+export type StepDietProps = OnboardingStepProps;
+export type StepHealthProps = OnboardingStepProps;
+export type StepNotifyProps = OnboardingStepProps;

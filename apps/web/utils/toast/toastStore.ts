@@ -31,7 +31,7 @@ export const toastStore = {
       id,
       duration,
     };
-    toasts = [newItem, ...toasts].slice(0, 5); // Keep max 5 toasts
+    toasts = [newItem, ...toasts].slice(0, 5);
     notify();
 
     setTimeout(() => {
@@ -41,7 +41,7 @@ export const toastStore = {
     return id;
   },
 
-  addToast(message: string, type: ToastType = 'info', duration = 2500): string {
+  addToast(message: string, type: ToastType = 'info', duration = 1000): string {
     return this.add({ message, type, duration });
   },
 

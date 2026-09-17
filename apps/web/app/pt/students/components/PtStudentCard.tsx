@@ -3,19 +3,7 @@
 
 import Link from 'next/link';
 import { getAvatarUrl } from '../../../../utils/avatar';
-
-export interface StudentListItem {
-  id: string;
-  name: string;
-  pkg: string;
-  remaining: number;
-  total: number;
-  avatar: string;
-}
-
-interface PtStudentCardProps {
-  student: StudentListItem;
-}
+import type { PtStudentCardProps } from '../../../../interface';
 
 const PtStudentCard = ({ student }: PtStudentCardProps) => {
   const avatar = getAvatarUrl(student.avatar);
@@ -25,7 +13,7 @@ const PtStudentCard = ({ student }: PtStudentCardProps) => {
       <div className="flex items-center justify-between gap-2.5">
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
           <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border border-slate-200 dark:border-white/10 shrink-0">
-            <img src={avatar} alt={student.name} className="w-full h-full object-cover" />
+            <img src={avatar} alt={student.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
           </div>
           <div className="min-w-0 flex-1">
             <h4 className="font-bold text-on-surface text-sm sm:text-base group-hover:text-primary transition-colors truncate">

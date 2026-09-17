@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3100';
+
 const apiClient = axios.create({
-  baseURL: 'http://localhost:3100',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -43,7 +45,7 @@ async function getFreshToken(): Promise<string | null> {
   refreshTokenPromise = (async () => {
     try {
       const res = await axios.post(
-        'http://localhost:3100/auth/refresh',
+        `${API_BASE_URL}/auth/refresh`,
         {},
         { withCredentials: true }
       );

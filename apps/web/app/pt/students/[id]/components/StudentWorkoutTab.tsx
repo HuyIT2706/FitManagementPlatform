@@ -1,24 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import type { AssignedExerciseItem } from "@repo/types";
-
-interface StudentWorkoutTabProps {
-  assignedExercises: AssignedExerciseItem[];
-  newExName: string;
-  newExCategory: string;
-  newExSets: number;
-  newExReps: number;
-  newExDay: string;
-  saving: boolean;
-  onOpenExerciseModal: () => void;
-  onExSetsChange: (val: number) => void;
-  onExRepsChange: (val: number) => void;
-  onExDayChange: (val: string) => void;
-  onAddExercise: () => void;
-  onRemoveExercise: (id: string) => void;
-  onSaveWorkout: () => void;
-}
+import { ChevronDown, Trash2 } from "lucide-react";
+import type { StudentWorkoutTabProps } from "../../../../../interface";
 
 const StudentWorkoutTab = ({
   assignedExercises,
@@ -56,9 +40,7 @@ const StudentWorkoutTab = ({
               <span className="text-primary truncate font-bold">
                 {newExName || "Chọn bài tập"}
               </span>
-              <span className="material-symbols-outlined text-primary text-[18px] shrink-0">
-                expand_more
-              </span>
+              <ChevronDown className="w-4 h-4 text-primary shrink-0" />
             </button>
           </div>
 
@@ -189,9 +171,7 @@ const StudentWorkoutTab = ({
                   className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20 border border-red-500/30 flex items-center justify-center shrink-0 self-end sm:self-center transition-all cursor-pointer shadow-xs hover:scale-105"
                   title="Xóa bài tập này"
                 >
-                  <span className="material-symbols-outlined text-[18px]">
-                    delete
-                  </span>
+                  <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             ))}

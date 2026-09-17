@@ -65,10 +65,6 @@ export interface CoachReviewActionModalProps {
   onSubmit: () => void;
 }
 
-// ----------------------------------------------------
-// Dashboard & Analytics Interfaces
-// ----------------------------------------------------
-
 export interface AnalyticsOverviewData {
   totalUsers: number;
   totalPts: number;
@@ -139,9 +135,9 @@ export interface AdminRecentApplicationsCardProps {
   recentApplications: AnalyticsRecentApplication[];
 }
 
-// ----------------------------------------------------
-// Content Library (Exercises & Foods) Interfaces
-// ----------------------------------------------------
+export interface AdminPtPerformanceCardProps {
+  ptPerformance?: AnalyticsPtPerformanceItem[];
+}
 
 export interface AdminExerciseItem {
   id: string;
@@ -274,10 +270,6 @@ export interface LibraryPaginationProps {
   totalPages: number;
   onPageChange: (page: number) => void;
 }
-
-// ----------------------------------------------------
-// User Management Interfaces
-// ----------------------------------------------------
 
 export interface AdminUserItem {
   id: string;

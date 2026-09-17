@@ -3,12 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import LogoApp from '../../assets/imgs/logoApp.jpg';
-
-export interface AppLoadingProps {
-  message?: string;
-  size?: 'sm' | 'md' | 'lg';
-  fullScreen?: boolean;
-}
+import type { AppLoadingProps } from '../../interface';
 
 const AppLoading = ({
   message = 'Đang tải dữ liệu...',

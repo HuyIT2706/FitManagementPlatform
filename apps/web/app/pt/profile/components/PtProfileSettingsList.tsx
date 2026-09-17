@@ -4,11 +4,7 @@ import { useState } from 'react';
 import { User, Lock, LogOut, ChevronRight, Sun, Moon } from 'lucide-react';
 import ChangePasswordModal from './ChangePasswordModal';
 import { useTheme } from '../../../../context/ThemeContext';
-
-interface PtProfileSettingsListProps {
-  onLogout: () => void;
-  onOpenEditProfile?: () => void;
-}
+import type { PtProfileSettingsListProps } from '../../../../interface';
 
 const PtProfileSettingsList = ({
   onLogout,

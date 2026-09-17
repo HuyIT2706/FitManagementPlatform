@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Coffee, Sun, Moon, Apple } from 'lucide-react';
 import type { HistoryNutritionDetailsProps } from '../../../interface';
 import { formatDisplayDate } from '../../../utils/date';
 
@@ -28,12 +28,7 @@ const HistoryNutritionDetails = ({
       case 'BREAKFAST':
         return {
           icon: (
-            <span
-              className="material-symbols-outlined text-[26px] sm:text-[28px] text-amber-600 dark:text-amber-300 drop-shadow-[0_2px_10px_rgba(245,158,11,0.3)]"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              breakfast_dining
-            </span>
+            <Coffee className="w-6 h-6 sm:w-7 sm:h-7 text-amber-600 dark:text-amber-300 drop-shadow-[0_2px_10px_rgba(245,158,11,0.3)]" />
           ),
           badgeBg:
             'bg-amber-500/15 dark:bg-gradient-to-br dark:from-amber-500/25 dark:via-orange-500/15 dark:to-transparent border border-amber-500/30 dark:border-amber-400/40 text-amber-700 dark:text-amber-300 shadow-xs',
@@ -44,12 +39,7 @@ const HistoryNutritionDetails = ({
       case 'LUNCH':
         return {
           icon: (
-            <span
-              className="material-symbols-outlined text-[26px] sm:text-[28px] text-orange-600 dark:text-orange-300 drop-shadow-[0_2px_10px_rgba(249,115,22,0.3)]"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              lunch_dining
-            </span>
+            <Sun className="w-6 h-6 sm:w-7 sm:h-7 text-orange-600 dark:text-orange-300 drop-shadow-[0_2px_10px_rgba(249,115,22,0.3)]" />
           ),
           badgeBg:
             'bg-orange-500/15 dark:bg-gradient-to-br dark:from-orange-500/25 dark:via-rose-500/15 dark:to-transparent border border-orange-500/30 dark:border-orange-400/40 text-orange-700 dark:text-orange-300 shadow-xs',
@@ -60,12 +50,7 @@ const HistoryNutritionDetails = ({
       case 'DINNER':
         return {
           icon: (
-            <span
-              className="material-symbols-outlined text-[26px] sm:text-[28px] text-indigo-600 dark:text-indigo-300 drop-shadow-[0_2px_10px_rgba(99,102,241,0.3)]"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              dinner_dining
-            </span>
+            <Moon className="w-6 h-6 sm:w-7 sm:h-7 text-indigo-600 dark:text-indigo-300 drop-shadow-[0_2px_10px_rgba(99,102,241,0.3)]" />
           ),
           badgeBg:
             'bg-indigo-500/15 dark:bg-gradient-to-br dark:from-indigo-500/25 dark:via-purple-500/15 dark:to-transparent border border-indigo-500/30 dark:border-indigo-400/40 text-indigo-700 dark:text-indigo-300 shadow-xs',
@@ -77,12 +62,7 @@ const HistoryNutritionDetails = ({
       default:
         return {
           icon: (
-            <span
-              className="material-symbols-outlined text-[26px] sm:text-[28px] text-emerald-600 dark:text-emerald-300 drop-shadow-[0_2px_10px_rgba(16,185,129,0.3)]"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              nutrition
-            </span>
+            <Apple className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-600 dark:text-emerald-300 drop-shadow-[0_2px_10px_rgba(16,185,129,0.3)]" />
           ),
           badgeBg:
             'bg-emerald-500/15 dark:bg-gradient-to-br dark:from-emerald-500/25 dark:via-teal-500/15 dark:to-transparent border border-emerald-500/30 dark:border-emerald-400/40 text-emerald-700 dark:text-emerald-300 shadow-xs',

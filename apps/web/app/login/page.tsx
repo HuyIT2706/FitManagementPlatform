@@ -3,6 +3,7 @@
 import { ArrowLeft, Eye, EyeOff, User, Dumbbell, Award, Briefcase, Info, Upload } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 import LogoApp from '../../assets/imgs/logoApp.jpg';
@@ -13,6 +14,7 @@ import { handleRoleRedirect } from '../../utils/authRedirect';
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID';
 
 const LoginContent = () => {
+  const router = useRouter();
   const [authMode, setAuthMode] = useState<'LOGIN' | 'REGISTER'>('LOGIN');
   const [role, setRole] = useState<'USER' | 'PT'>('USER');
 
@@ -45,7 +47,7 @@ const LoginContent = () => {
             );
             return;
           }
-          handleRoleRedirect(res.data);
+          handleRoleRedirect(res.data, router);
         })
         .catch(() => {
           localStorage.removeItem('jwt_token');
@@ -73,7 +75,7 @@ const LoginContent = () => {
         const data = response.data;
         localStorage.setItem('jwt_token', data.access_token);
 
-        handleRoleRedirect(data.user);
+        handleRoleRedirect(data.user, router);
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Đã có lỗi xảy ra';
         setError(msg);
@@ -108,7 +110,7 @@ const LoginContent = () => {
           return;
         }
 
-        handleRoleRedirect(data.user);
+        handleRoleRedirect(data.user, router);
       } else {
         // Register Mode
         const payload = {

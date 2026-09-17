@@ -1,18 +1,6 @@
 import React from 'react';
 import { Settings2, X } from 'lucide-react';
-
-interface EditSessionModalProps {
-  isOpen: boolean;
-  packageName: string;
-  totalSessions: number;
-  remainingSessions: number;
-  saving: boolean;
-  onClose: () => void;
-  onPackageNameChange: (val: string) => void;
-  onTotalSessionsChange: (val: number) => void;
-  onRemainingSessionsChange: (val: number) => void;
-  onSaveSessions: () => void;
-}
+import type { EditSessionModalProps } from '../../../../../interface';
 
 const EditSessionModal = ({
   isOpen,

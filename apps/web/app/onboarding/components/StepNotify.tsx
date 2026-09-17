@@ -8,10 +8,7 @@ import {
   registerServiceWorker,
   subscribeToPushNotifications,
 } from '../../../utils/pushNotification';
-
-interface StepNotifyProps {
-  store: OnboardingState;
-}
+import type { StepNotifyProps } from '../../../interface';
 
 const StepNotify = ({ store }: StepNotifyProps) => {
   useEffect(() => {

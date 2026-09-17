@@ -5,11 +5,7 @@ import { KeyRound, Bell, LogOut, ChevronRight, User, HeartPulse, X, Sun, Moon } 
 import ChangePasswordModal from './ChangePasswordModal';
 import NotificationSettingsModal from './NotificationSettingsModal';
 import { useTheme } from '../../../context/ThemeContext';
-
-interface ProfileSettingsListProps {
-  onLogout: () => void;
-  onEditProfile?: () => void;
-}
+import type { ProfileSettingsListProps } from '../../../interface';
 
 const ProfileSettingsList = ({
   onLogout,

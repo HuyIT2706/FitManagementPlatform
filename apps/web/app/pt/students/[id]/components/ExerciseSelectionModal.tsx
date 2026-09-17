@@ -6,14 +6,7 @@ import { X, Dumbbell, ExternalLink, Check, PlayCircle, ChevronLeft, ChevronRight
 import AppLoading from '../../../../../components/ui/AppLoading';
 import AppSearchInput from '../../../../../components/ui/AppSearchInput';
 import apiClient from '../../../../../api/axios';
-import type { ExerciseItem, ExercisePaginatedResponse } from '../../../../../interface';
-
-interface ExerciseSelectionModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSelectExercise: (exercise: ExerciseItem) => void;
-  currentSelectedName?: string;
-}
+import type { ExerciseItem, ExercisePaginatedResponse, ExerciseSelectionModalProps } from '../../../../../interface';
 
 const ExerciseSelectionModal = ({
   isOpen,

@@ -995,7 +995,6 @@ export class PtService {
       select: { fullName: true },
     });
 
-    // 6. Gửi Web Push Notification & Lưu vào Hộp thư của Học viên
     try {
       const studentProfile = await this.prisma.studentProfile.findFirst({
         where: { studentId: studentId, status: 'APPROVED' },

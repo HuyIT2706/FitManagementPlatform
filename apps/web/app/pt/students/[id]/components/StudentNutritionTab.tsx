@@ -2,31 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { Plus, StickyNote } from "lucide-react";
-import type { FoodItem } from "@repo/types";
 import PtFoodSelectionModal from "./PtFoodSelectionModal";
-
-interface StudentNutritionTabProps {
-  targetCalories: number;
-  targetProtein: number;
-  targetCarbs: number;
-  targetFat: number;
-  breakfastText: string;
-  lunchText: string;
-  dinnerText: string;
-  snackText: string;
-  nutritionNote: string;
-  saving: boolean;
-  onTargetCaloriesChange: (val: number) => void;
-  onTargetProteinChange: (val: number) => void;
-  onTargetCarbsChange: (val: number) => void;
-  onTargetFatChange: (val: number) => void;
-  onBreakfastTextChange: (val: string) => void;
-  onLunchTextChange: (val: string) => void;
-  onDinnerTextChange: (val: string) => void;
-  onSnackTextChange: (val: string) => void;
-  onNutritionNoteChange: (val: string) => void;
-  onSaveNutrition: () => void;
-}
+import type { FoodItem } from "@repo/types";
+import type { StudentNutritionTabProps } from "../../../../../interface";
 
 const StudentNutritionTab = ({
   targetCalories,

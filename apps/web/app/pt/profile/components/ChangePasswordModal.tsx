@@ -4,11 +4,7 @@ import { useState, useMemo } from "react";
 import { X, Eye, EyeOff, AlertCircle } from "lucide-react";
 import apiClient from "../../../../api/axios";
 import { toast } from "../../../../utils/toast";
-
-interface ChangePasswordModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+import type { ChangePasswordModalProps } from "../../../../interface";
 
 const ChangePasswordModal = ({ isOpen, onClose }: ChangePasswordModalProps) => {
   const [currentPassword, setCurrentPassword] = useState("");

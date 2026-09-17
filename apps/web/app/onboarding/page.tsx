@@ -168,7 +168,6 @@ const OnboardingPage = () => {
 
         await apiClient.patch('/users/onboarding', payload);
 
-        // Kích hoạt nhận Web Push Notification nếu người dùng cho phép
         if (formData.pushNotifications) {
           try {
             await subscribeToPushNotifications();

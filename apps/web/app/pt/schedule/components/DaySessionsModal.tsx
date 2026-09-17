@@ -5,7 +5,7 @@ import { X, Calendar, PlusCircle } from "lucide-react";
 import type { DaySessionsModalProps } from "../../../../interface";
 import PtScheduleSlotCard from "./PtScheduleSlotCard";
 
-export const DaySessionsModal: React.FC<DaySessionsModalProps> = ({
+const DaySessionsModal = ({
   isOpen,
   onClose,
   selectedDate,
@@ -13,7 +13,7 @@ export const DaySessionsModal: React.FC<DaySessionsModalProps> = ({
   checkedSessions,
   onCheckIn,
   onOpenAddModal,
-}) => {
+}: DaySessionsModalProps) => {
   if (!isOpen) return null;
 
   const dateStr = `${selectedDate.getDate()}/${selectedDate.getMonth() + 1}/${selectedDate.getFullYear()}`;

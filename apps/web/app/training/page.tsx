@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import Header from '../../components/ui/Header';
 import BottomNavBar from '../../components/navigation/BottomNavBar';
 import AppLoading from '../../components/ui/AppLoading';
@@ -16,9 +18,14 @@ import TrainingVipBanner from './components/TrainingVipBanner';
 import ExerciseLibraryGrid from './components/ExerciseLibraryGrid';
 import AssignedMealPlanCard from './components/AssignedMealPlanCard';
 import AssignedWorkoutPlanCard from './components/AssignedWorkoutPlanCard';
-import ExerciseDetailModal from './components/ExerciseDetailModal';
+
+const ExerciseDetailModal = dynamic(
+  () => import('./components/ExerciseDetailModal'),
+  { ssr: false }
+);
 
 const WorkoutPage = () => {
+  const router = useRouter();
   const { data: userData, isLoading: userLoading } = useCurrentUser();
   const { data: assignedMealPlan } = useAssignedMealPlan();
   const { data: assignedWorkoutPlan } = useAssignedWorkoutPlan();
@@ -76,7 +83,7 @@ const WorkoutPage = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('jwt_token');
-    window.location.href = '/login';
+    router.replace('/login');
   };
 
   if (userLoading && !userData) {

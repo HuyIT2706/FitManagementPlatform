@@ -1,7 +1,6 @@
 import apiClient from '../api/axios';
 import { toast } from './toast';
 
-// Chuyển đổi base64 VAPID Key sang Uint8Array
 function urlBase64ToUint8Array(base64String: string) {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
@@ -14,7 +13,6 @@ function urlBase64ToUint8Array(base64String: string) {
   return outputArray;
 }
 
-// 1. Đăng ký Service Worker
 export async function registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {
   if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
     return null;
@@ -31,7 +29,6 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
   }
 }
 
-// 2. Kiểm tra trạng thái cấp quyền thông báo
 export function getNotificationPermissionStatus(): NotificationPermission | 'unsupported' {
   if (typeof window === 'undefined' || !('Notification' in window)) {
     return 'unsupported';
@@ -39,7 +36,6 @@ export function getNotificationPermissionStatus(): NotificationPermission | 'uns
   return Notification.permission;
 }
 
-// 3. Xin quyền & Đăng ký Push Manager gửi lên Backend
 export async function subscribeToPushNotifications(): Promise<boolean> {
   if (
     typeof window === 'undefined' ||
@@ -51,14 +47,12 @@ export async function subscribeToPushNotifications(): Promise<boolean> {
   }
 
   try {
-    // 1. Yêu cầu quyền từ người dùng
     const permission = await Notification.requestPermission();
     if (permission !== 'granted') {
       toast.info('Bạn đã từ chối nhận thông báo đẩy. Bạn có thể bật lại trong cài đặt trình duyệt.');
       return false;
     }
 
-    // 2. Khởi tạo & Chờ Service Worker sẵn sàng
     await registerServiceWorker();
     const registration = await navigator.serviceWorker.ready;
     if (!registration) {
@@ -66,7 +60,6 @@ export async function subscribeToPushNotifications(): Promise<boolean> {
       return false;
     }
 
-    // 3. Lấy VAPID public key từ Backend
     const keyRes = await apiClient.get<{ publicKey: string }>('/notifications/vapid-public-key');
     const vapidPublicKey = keyRes.data?.publicKey;
     if (!vapidPublicKey) {
@@ -75,7 +68,6 @@ export async function subscribeToPushNotifications(): Promise<boolean> {
 
     const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
 
-    // 4. Đăng ký Push Manager
     let subscription = await registration.pushManager.getSubscription();
     if (!subscription) {
       subscription = await registration.pushManager.subscribe({
@@ -84,7 +76,6 @@ export async function subscribeToPushNotifications(): Promise<boolean> {
       });
     }
 
-    // 5. Gửi thông tin subscription lên Backend lưu vào DB
     const subJson = subscription.toJSON();
     await apiClient.post('/notifications/subscribe', {
       endpoint: subJson.endpoint,
@@ -99,4 +90,3 @@ export async function subscribeToPushNotifications(): Promise<boolean> {
     return false;
   }
 }
-

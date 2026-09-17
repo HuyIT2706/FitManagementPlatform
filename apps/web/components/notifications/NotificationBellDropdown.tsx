@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   Bell,
@@ -13,7 +12,6 @@ import {
   UserPlus,
   Award,
   BellRing,
-  ExternalLink,
   Sparkles,
 } from 'lucide-react';
 import apiClient from '../../api/axios';
@@ -26,11 +24,10 @@ import type {
   NotificationItem,
   NotificationBellDropdownProps,
 } from '../../interface';
-export type { NotificationItem, NotificationBellDropdownProps };
 
-export const NotificationBellDropdown: React.FC<NotificationBellDropdownProps> = ({
+const NotificationBellDropdown = ({
   buttonClassName,
-}) => {
+}: NotificationBellDropdownProps) => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -40,13 +37,11 @@ export const NotificationBellDropdown: React.FC<NotificationBellDropdownProps> =
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // 1. Khởi tạo Service Worker và kiểm tra quyền thông báo
   useEffect(() => {
     registerServiceWorker();
     setPermissionStatus(getNotificationPermissionStatus());
   }, []);
 
-  // 2. Fetch danh sách thông báo
   const fetchNotifications = async () => {
     try {
       setLoading(true);
@@ -56,8 +51,7 @@ export const NotificationBellDropdown: React.FC<NotificationBellDropdownProps> =
       }>('/notifications');
       setNotifications(res.data.notifications || []);
       setUnreadCount(res.data.unreadCount || 0);
-    } catch (err) {
-      // User might not be logged in or endpoint error
+    } catch {
     } finally {
       setLoading(false);
     }
@@ -65,13 +59,10 @@ export const NotificationBellDropdown: React.FC<NotificationBellDropdownProps> =
 
   useEffect(() => {
     fetchNotifications();
-
-    // Polling định kỳ mỗi 45 giây để cập nhật thông báo mới
     const interval = setInterval(fetchNotifications, 45000);
     return () => clearInterval(interval);
   }, []);
 
-  // 3. Đóng dropdown khi click ra ngoài
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -82,7 +73,6 @@ export const NotificationBellDropdown: React.FC<NotificationBellDropdownProps> =
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // 4. Lọc thông báo
   const filteredNotifications = useMemo(() => {
     if (filter === 'UNREAD') {
       return notifications.filter((n) => !n.isRead);
@@ -90,7 +80,6 @@ export const NotificationBellDropdown: React.FC<NotificationBellDropdownProps> =
     return notifications;
   }, [notifications, filter]);
 
-  // 5. Đánh dấu đã đọc 1 thông báo
   const handleItemClick = async (notif: NotificationItem) => {
     if (!notif.isRead) {
       try {
@@ -109,7 +98,6 @@ export const NotificationBellDropdown: React.FC<NotificationBellDropdownProps> =
     }
   };
 
-  // 6. Đánh dấu tất cả đã đọc
   const handleMarkAllAsRead = async () => {
     try {
       await apiClient.patch('/notifications/read-all');
@@ -120,7 +108,6 @@ export const NotificationBellDropdown: React.FC<NotificationBellDropdownProps> =
     }
   };
 
-  // 7. Bật thông báo Web Push
   const handleEnablePush = async () => {
     const success = await subscribeToPushNotifications();
     if (success) {
@@ -128,7 +115,6 @@ export const NotificationBellDropdown: React.FC<NotificationBellDropdownProps> =
     }
   };
 
-  // 8. Định dạng thời gian tương đối
   const formatTimeAgo = (dateStr: string) => {
     try {
       const diffMs = Date.now() - new Date(dateStr).getTime();
@@ -145,7 +131,6 @@ export const NotificationBellDropdown: React.FC<NotificationBellDropdownProps> =
     }
   };
 
-  // 9. Render icon theo loại thông báo
   const renderNotifIcon = (type: string) => {
     switch (type) {
       case 'SESSION_DEDUCT':
@@ -195,7 +180,6 @@ export const NotificationBellDropdown: React.FC<NotificationBellDropdownProps> =
 
   return (
     <div ref={dropdownRef} className="relative inline-block text-left" suppressHydrationWarning>
-      {/* Nút Chuông Thông Báo */}
       <button
         type="button"
         onClick={() => {
@@ -217,13 +201,11 @@ export const NotificationBellDropdown: React.FC<NotificationBellDropdownProps> =
         )}
       </button>
 
-      {/* Popover Dropdown Danh Sách Thông Báo */}
       {isOpen && (
         <div
           className="absolute right-0 top-full mt-2 w-[320px] xs:w-[360px] sm:w-[400px] bg-white dark:bg-[#121a15] backdrop-blur-2xl border border-slate-200 dark:border-white/15 rounded-2xl sm:rounded-3xl shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 overflow-hidden flex flex-col max-h-[82vh]"
           suppressHydrationWarning
         >
-          {/* Header Popover */}
           <div className="p-3.5 sm:p-4 border-b border-slate-200 dark:border-white/10 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <h4 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white">
@@ -248,7 +230,6 @@ export const NotificationBellDropdown: React.FC<NotificationBellDropdownProps> =
             )}
           </div>
 
-          {/* Web Push Permission Banner */}
           {permissionStatus !== 'granted' && permissionStatus !== 'unsupported' && (
             <div className="p-3 bg-emerald-500/10 border-b border-emerald-500/20 flex items-center justify-between gap-2 text-xs">
               <div className="flex items-center gap-2 text-emerald-700 dark:text-[#10b981] min-w-0">
@@ -267,7 +248,6 @@ export const NotificationBellDropdown: React.FC<NotificationBellDropdownProps> =
             </div>
           )}
 
-          {/* Tabs Filter */}
           <div className="px-3.5 pt-2.5 pb-1.5 flex items-center gap-2 border-b border-slate-200 dark:border-white/5">
             <button
               type="button"
@@ -293,7 +273,6 @@ export const NotificationBellDropdown: React.FC<NotificationBellDropdownProps> =
             </button>
           </div>
 
-          {/* Notifications List (Ẩn thanh cuộn mặc định, cuộn mượt mà) */}
           <div className="overflow-y-auto max-h-[50vh] divide-y divide-slate-100 dark:divide-white/5 [&&::-webkit-scrollbar]:hidden [scrollbar-width:none] [-ms-overflow-style:none]">
             {filteredNotifications.length === 0 ? (
               <div className="py-10 text-center space-y-2">
@@ -318,10 +297,8 @@ export const NotificationBellDropdown: React.FC<NotificationBellDropdownProps> =
                       : 'bg-transparent'
                   }`}
                 >
-                  {/* Type Icon */}
                   {renderNotifIcon(notif.type)}
 
-                  {/* Body Content */}
                   <div className="min-w-0 flex-1 space-y-1">
                     <div className="flex items-center justify-between gap-1.5">
                       <h5
@@ -342,7 +319,6 @@ export const NotificationBellDropdown: React.FC<NotificationBellDropdownProps> =
                     </p>
                   </div>
 
-                  {/* Unread indicator dot */}
                   {!notif.isRead && (
                     <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 mt-1.5 shadow-xs" />
                   )}

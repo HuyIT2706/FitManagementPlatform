@@ -4,23 +4,14 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Award } from 'lucide-react';
-import type { UserDataHome } from '../../../../interface';
 import apiClient from '../../../../api/axios';
 import { toast } from '../../../../utils/toast';
 import { getAvatarUrl } from '../../../../utils/avatar';
+import type { UserDataHome, PtProfileCardProps } from '../../../../interface';
 
 const EditPtProfileModal = dynamic(() => import('./EditPtProfileModal'), {
   ssr: false,
 });
-
-interface PtProfileCardProps {
-  userData: UserDataHome | null;
-  totalStudents: number;
-  completedHours: number;
-  onProfileUpdated?: () => void;
-  isEditOpen?: boolean;
-  setIsEditOpen?: (val: boolean) => void;
-}
 
 const PtProfileCard = ({
   userData,

@@ -1,24 +1,7 @@
 "use client";
 
 import { X, Check } from "lucide-react";
-import type { UserDataHome } from "../../../../interface";
-
-interface EditPtProfileModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  userData: UserDataHome | null;
-  fullName: string;
-  setFullName: (val: string) => void;
-  bio: string;
-  setBio: (val: string) => void;
-  experienceYears: number;
-  setExperienceYears: (val: number) => void;
-  specialties: string[];
-  setSpecialties: (val: string[]) => void;
-  availableSpecialties: string[];
-  saving: boolean;
-  onSave: () => void;
-}
+import type { UserDataHome, EditPtProfileModalProps } from "../../../../interface";
 
 const EditPtProfileModal = ({
   isOpen,

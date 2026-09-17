@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, UserX } from 'lucide-react';
 import Header from '../../../../components/ui/Header';
 import PTBottomNavBar from '../../../../components/navigation/PTBottomNavBar';
 import AppLoading from '../../../../components/ui/AppLoading';
@@ -377,7 +377,7 @@ const PTStudentDetailPage = () => {
         <Header userData={userData} onLogout={handleLogout} />
         <main className="max-w-xl mx-auto px-container-padding mt-12 space-y-6 text-center">
           <div className="bento-card p-8 rounded-3xl border border-white/10 space-y-4">
-            <span className="material-symbols-outlined text-amber-400 text-5xl">person_off</span>
+            <UserX className="w-12 h-12 text-amber-400 mx-auto" />
             <h3 className="text-xl font-bold text-white">Không tìm thấy học viên</h3>
             <p className="text-sm text-on-surface-variant">
               {error || 'Học viên này có thể không tồn tại hoặc đã bị hủy liên kết.'}

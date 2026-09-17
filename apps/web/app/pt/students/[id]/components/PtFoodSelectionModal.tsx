@@ -10,13 +10,7 @@ import toast from '../../../../../utils/toast';
 import type { FoodItem, FoodPaginatedResponse } from '@repo/types';
 import { QUICK_FILTERS } from '../../../../../components/nutrition/FoodSelector';
 import { getRecentFoods, saveRecentFood } from '../../../../../utils/recentFoods';
-
-interface PtFoodSelectionModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  targetMealName: string;
-  onAddFoodToMeal: (food: FoodItem, weightInGrams: number, macroText: string) => void;
-}
+import type { PtFoodSelectionModalProps } from '../../../../../interface';
 
 const PtFoodSelectionModal = ({
   isOpen,

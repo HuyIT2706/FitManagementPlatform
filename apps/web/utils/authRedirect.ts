@@ -27,13 +27,15 @@ export const getRoleRedirectPath = (
   return '/home';
 };
 
-/**
- * Automatically redirects the browser to the appropriate dashboard path for the user.
- */
 export const handleRoleRedirect = (
-  user?: Pick<UserData, 'role' | 'onboardingCompleted'> | null
+  user?: Pick<UserData, 'role' | 'onboardingCompleted'> | null,
+  router?: { replace: (url: string) => void }
 ): void => {
   const targetPath = getRoleRedirectPath(user);
+  if (router) {
+    router.replace(targetPath);
+    return;
+  }
   if (typeof window !== 'undefined' && window.location.pathname !== targetPath) {
     window.location.href = targetPath;
   }
@@ -46,16 +48,17 @@ export const handleRoleRedirect = (
  */
 export const guardRoleAccess = (
   user: Pick<UserData, 'role' | 'onboardingCompleted'> | null | undefined,
-  allowedRoles: UserRole[]
+  allowedRoles: UserRole[],
+  router?: { replace: (url: string) => void }
 ): boolean => {
   if (!user || !user.role) {
-    handleRoleRedirect(null);
+    handleRoleRedirect(null, router);
     return false;
   }
 
   const isAllowed = allowedRoles.includes(user.role as UserRole);
   if (!isAllowed) {
-    handleRoleRedirect(user);
+    handleRoleRedirect(user, router);
     return false;
   }
 

@@ -2,14 +2,8 @@
 'use client';
 
 import { UserCheck, UserX, Clock } from 'lucide-react';
-import type { PTPendingStudentRequest } from '@repo/types';
 import { getAvatarUrl } from '../../../../utils/avatar';
-
-interface PtPendingStudentRequestsProps {
-  requests?: PTPendingStudentRequest[];
-  onApproveRequest: (requestId: string) => void;
-  onRejectRequest: (requestId: string) => void;
-}
+import type { PtPendingStudentRequestsProps } from '../../../../interface';
 
 const PtPendingStudentRequests = ({
   requests = [],

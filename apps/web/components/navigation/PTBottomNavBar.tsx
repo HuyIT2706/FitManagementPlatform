@@ -2,10 +2,8 @@
 
 import Link from "next/link";
 import React from "react";
-
-interface PTBottomNavBarProps {
-  activeTab: "home" | "schedule" | "students" | "profile";
-}
+import { Home, Calendar, Users, User, Plus } from "lucide-react";
+import type { PTBottomNavBarProps } from "../../interface";
 
 const PTBottomNavBar = ({ activeTab }: PTBottomNavBarProps) => {
   return (
@@ -22,12 +20,7 @@ const PTBottomNavBar = ({ activeTab }: PTBottomNavBarProps) => {
                 : "w-10 h-10 shrink-0 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50"
             }`}
           >
-            <span
-              className="material-symbols-outlined"
-              style={activeTab === "home" ? { fontVariationSettings: "'FILL' 1" } : {}}
-            >
-              home
-            </span>
+            <Home className="w-5 h-5 shrink-0" />
             {activeTab === "home" && <span className="font-headline-md text-base">Trang chủ</span>}
           </Link>
 
@@ -42,12 +35,7 @@ const PTBottomNavBar = ({ activeTab }: PTBottomNavBarProps) => {
                   : "w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50"
               }`}
             >
-              <span
-                className="material-symbols-outlined"
-                style={activeTab === "schedule" ? { fontVariationSettings: "'FILL' 1" } : {}}
-              >
-                calendar_today
-              </span>
+              <Calendar className="w-5 h-5 shrink-0" />
               {activeTab === "schedule" && (
                 <span className="font-headline-md text-base">Lịch dạy</span>
               )}
@@ -63,12 +51,7 @@ const PTBottomNavBar = ({ activeTab }: PTBottomNavBarProps) => {
                   : "w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50"
               }`}
             >
-              <span
-                className="material-symbols-outlined"
-                style={activeTab === "students" ? { fontVariationSettings: "'FILL' 1" } : {}}
-              >
-                group
-              </span>
+              <Users className="w-5 h-5 shrink-0" />
               {activeTab === "students" && (
                 <span className="font-headline-md text-base">Học viên</span>
               )}
@@ -84,12 +67,7 @@ const PTBottomNavBar = ({ activeTab }: PTBottomNavBarProps) => {
                   : "w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50"
               }`}
             >
-              <span
-                className="material-symbols-outlined"
-                style={activeTab === "profile" ? { fontVariationSettings: "'FILL' 1" } : {}}
-              >
-                person
-              </span>
+              <User className="w-5 h-5 shrink-0" />
               {activeTab === "profile" && <span className="font-headline-md text-base">Tôi</span>}
             </Link>
           </div>
@@ -101,7 +79,7 @@ const PTBottomNavBar = ({ activeTab }: PTBottomNavBarProps) => {
           aria-label="Tạo ca dạy / Giao bài"
           className="w-14 h-14 shrink-0 rounded-full bg-primary text-white flex items-center justify-center shadow-[0_0_15px_rgba(102,200,28,0.4)] active:scale-95 transition-transform cursor-pointer"
         >
-          <span className="material-symbols-outlined text-3xl font-bold">add</span>
+          <Plus className="w-7 h-7 font-bold" />
         </Link>
       </div>
 

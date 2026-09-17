@@ -2,22 +2,7 @@
 
 import React, { useRef } from 'react';
 import { Search, X } from 'lucide-react';
-
-export interface AppSearchInputProps {
-  value: string;
-  onChange: (value: string, e?: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder?: string;
-  onClear?: () => void;
-  onSubmit?: () => void;
-  className?: string;
-  inputClassName?: string;
-  size?: 'sm' | 'md' | 'lg';
-  variant?: 'default' | 'filled' | 'glass';
-  disabled?: boolean;
-  autoFocus?: boolean;
-  showClearButton?: boolean;
-  id?: string;
-}
+import type { AppSearchInputProps } from '../../interface';
 
 const AppSearchInput = ({
   value,

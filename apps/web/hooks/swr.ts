@@ -65,7 +65,7 @@ export const useExerciseLibrary = (
   return useSWR<ExercisePaginatedResponse>(
     `/workout/exercises${query}`,
     swrFetcher,
-    { ...DEFAULT_SWR_OPTIONS, ...options }
+    { ...DEFAULT_SWR_OPTIONS, keepPreviousData: true, ...options }
   );
 };
 

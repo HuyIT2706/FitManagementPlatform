@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { Utensils } from 'lucide-react';
+import { Utensils, Coffee, Sun, Moon, Apple } from 'lucide-react';
 import type { AssignedMealPlanCardProps } from '../../../interface';
 
 const AssignedMealPlanCard = ({
@@ -17,12 +17,7 @@ const AssignedMealPlanCard = ({
     if (key.includes('twilight') || key.includes('sáng') || key.includes('breakfast')) {
       return {
         icon: (
-          <span
-            className="material-symbols-outlined text-[24px] sm:text-[26px] text-amber-300 drop-shadow-[0_2px_10px_rgba(245,158,11,0.5)]"
-            style={{ fontVariationSettings: "'FILL' 1" }}
-          >
-            breakfast_dining
-          </span>
+          <Coffee className="w-6 h-6 sm:w-7 sm:h-7 text-amber-300 drop-shadow-[0_2px_10px_rgba(245,158,11,0.5)]" />
         ),
         badgeBg:
           'bg-gradient-to-br from-amber-500/25 via-orange-500/15 to-transparent border-amber-400/40 text-amber-300 shadow-[0_0_18px_rgba(245,158,11,0.25)]',
@@ -31,12 +26,7 @@ const AssignedMealPlanCard = ({
     if (key.includes('sunny') || key.includes('trưa') || key.includes('lunch')) {
       return {
         icon: (
-          <span
-            className="material-symbols-outlined text-[24px] sm:text-[26px] text-orange-300 drop-shadow-[0_2px_10px_rgba(249,115,22,0.5)]"
-            style={{ fontVariationSettings: "'FILL' 1" }}
-          >
-            lunch_dining
-          </span>
+          <Sun className="w-6 h-6 sm:w-7 sm:h-7 text-orange-300 drop-shadow-[0_2px_10px_rgba(249,115,22,0.5)]" />
         ),
         badgeBg:
           'bg-gradient-to-br from-orange-500/25 via-rose-500/15 to-transparent border-orange-400/40 text-orange-300 shadow-[0_0_18px_rgba(249,115,22,0.25)]',
@@ -45,12 +35,7 @@ const AssignedMealPlanCard = ({
     if (key.includes('dark') || key.includes('tối') || key.includes('dinner')) {
       return {
         icon: (
-          <span
-            className="material-symbols-outlined text-[24px] sm:text-[26px] text-indigo-300 drop-shadow-[0_2px_10px_rgba(99,102,241,0.5)]"
-            style={{ fontVariationSettings: "'FILL' 1" }}
-          >
-            dinner_dining
-          </span>
+          <Moon className="w-6 h-6 sm:w-7 sm:h-7 text-indigo-300 drop-shadow-[0_2px_10px_rgba(99,102,241,0.5)]" />
         ),
         badgeBg:
           'bg-gradient-to-br from-indigo-500/25 via-purple-500/15 to-transparent border-indigo-400/40 text-indigo-300 shadow-[0_0_18px_rgba(99,102,241,0.25)]',
@@ -58,12 +43,7 @@ const AssignedMealPlanCard = ({
     }
     return {
       icon: (
-        <span
-          className="material-symbols-outlined text-[24px] sm:text-[26px] text-emerald-300 drop-shadow-[0_2px_10px_rgba(16,185,129,0.5)]"
-          style={{ fontVariationSettings: "'FILL' 1" }}
-        >
-          nutrition
-        </span>
+        <Apple className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-300 drop-shadow-[0_2px_10px_rgba(16,185,129,0.5)]" />
       ),
       badgeBg:
         'bg-gradient-to-br from-emerald-500/25 via-teal-500/15 to-transparent border-emerald-400/40 text-emerald-300 shadow-[0_0_18px_rgba(16,185,129,0.25)]',

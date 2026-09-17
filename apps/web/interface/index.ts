@@ -10,6 +10,7 @@ export * from "./IPtSchedule";
 export * from "./IAdmin";
 export * from "./INotification";
 export * from "./IHeader";
+export * from "./IUi";
 export type {
   MealItem,
   CalendarStripProps,

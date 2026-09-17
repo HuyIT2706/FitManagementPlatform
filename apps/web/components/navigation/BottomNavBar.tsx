@@ -1,9 +1,7 @@
 import React from "react";
 import Link from "next/link";
-
-interface BottomNavBarProps {
-  activeTab: 'diary' | 'workout' | 'history' | 'profile';
-}
+import { BookOpen, Dumbbell, History, User, Plus } from "lucide-react";
+import type { BottomNavBarProps } from "../../interface";
 
 const BottomNavBar = ({ activeTab }: BottomNavBarProps) => {
   return (
@@ -12,23 +10,23 @@ const BottomNavBar = ({ activeTab }: BottomNavBarProps) => {
         <nav className="flex items-center justify-between rounded-full p-2 shadow-2xl bg-white/95 dark:bg-[#121926]/90 backdrop-blur-xl border border-slate-200 dark:border-white/20">
           
           <Link href="/home" prefetch={true} className={`flex items-center gap-2 rounded-full transition-colors ${activeTab === 'diary' ? 'bg-green-light/15 text-green-light font-bold px-4 py-2' : 'w-10 h-10 shrink-0 justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50'}`}>
-            <span className="material-symbols-outlined" style={activeTab === 'diary' ? { fontVariationSettings: "'FILL' 1" } : {}}>style</span>
+            <BookOpen className="w-5 h-5 shrink-0" />
             {activeTab === 'diary' && <span className="font-headline-md text-lg">Nhật ký</span>}
           </Link>
 
           <div className="flex items-center">
             <Link href="/training" prefetch={true} className={`flex items-center gap-2 rounded-full transition-colors ${activeTab === 'workout' ? 'bg-green-light/15 text-green-light font-bold px-4 py-2' : 'w-10 h-10 justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50'}`}>
-              <span className="material-symbols-outlined" style={activeTab === 'workout' ? { fontVariationSettings: "'FILL' 1" } : {}}>directions_run</span>
+              <Dumbbell className="w-5 h-5 shrink-0" />
               {activeTab === 'workout' && <span className="font-headline-md text-lg">Tập luyện</span>}
             </Link>
             
             <Link href="/history" prefetch={true} className={`flex items-center gap-2 rounded-full transition-colors ${activeTab === 'history' ? 'bg-green-light/15 text-green-light font-bold px-4 py-2' : 'w-10 h-10 justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50'}`}>
-              <span className="material-symbols-outlined" style={activeTab === 'history' ? { fontVariationSettings: "'FILL' 1" } : {}}>explore</span>
+              <History className="w-5 h-5 shrink-0" />
               {activeTab === 'history' && <span className="font-headline-md text-lg">Lịch sử</span>}
             </Link>
             
             <Link href="/profile" prefetch={true} className={`flex items-center gap-2 rounded-full transition-colors ${activeTab === 'profile' ? 'bg-green-light/15 text-green-light font-bold px-4 py-2' : 'w-10 h-10 justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50'}`}>
-              <span className="material-symbols-outlined" style={activeTab === 'profile' ? { fontVariationSettings: "'FILL' 1" } : {}}>person</span>
+              <User className="w-5 h-5 shrink-0" />
               {activeTab === 'profile' && <span className="font-headline-md text-lg">Tôi</span>}
             </Link>
           </div>
@@ -40,7 +38,7 @@ const BottomNavBar = ({ activeTab }: BottomNavBarProps) => {
           aria-label="Thêm bữa ăn nhanh"
           className="w-14 h-14 shrink-0 rounded-full bg-primary text-white flex items-center justify-center shadow-[0_0_15px_rgba(102,200,28,0.4)] active:scale-95 transition-transform"
         >
-          <span className="material-symbols-outlined text-3xl font-bold">add</span>
+          <Plus className="w-7 h-7 font-bold" />
         </Link>
       </div>
       {/* Add space for fixed bottom nav on mobile */}

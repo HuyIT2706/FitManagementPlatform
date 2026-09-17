@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Header from '../../components/ui/Header';
 import BottomNavBar from '../../components/navigation/BottomNavBar';
 import AppLoading from '../../components/ui/AppLoading';
@@ -21,6 +22,7 @@ import MacroCards from './components/MacroCards';
 import DailyMealGrid from './components/DailyMealGrid';
 
 const Home = () => {
+  const router = useRouter();
   const { data: userData, isLoading: userLoading } = useCurrentUser();
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
   const [currentMonday, setCurrentMonday] = useState<Date>(() => getMonday(new Date()));
@@ -30,9 +32,9 @@ const Home = () => {
 
   useEffect(() => {
     if (userData && userData.role === 'USER' && userData.onboardingCompleted === false) {
-      window.location.href = '/onboarding';
+      router.replace('/onboarding');
     }
-  }, [userData]);
+  }, [userData, router]);
 
   const handleSelectDate = (date: Date) => {
     setSelectedDate(date);
@@ -58,7 +60,7 @@ const Home = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('jwt_token');
-    window.location.href = '/login';
+    router.replace('/login');
   };
 
   if (userLoading && !userData) {

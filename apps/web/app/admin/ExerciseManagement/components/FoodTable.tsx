@@ -46,7 +46,7 @@ const FoodTable = ({
                     <div className="flex items-center gap-2.5 sm:gap-3 min-w-[150px] sm:min-w-0">
                       <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl overflow-hidden bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 shrink-0 flex items-center justify-center text-slate-400 dark:text-white/40">
                         {f.imageUrl ? (
-                          <img src={f.imageUrl} alt={f.name} className="w-full h-full object-cover" />
+                          <img src={f.imageUrl} alt={f.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                         ) : (
                           <Utensils size={18} className="sm:w-5 sm:h-5" />
                         )}

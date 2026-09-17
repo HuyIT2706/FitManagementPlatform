@@ -125,6 +125,8 @@ const ExerciseLibraryGrid = ({
                   <img
                     src={setupImg}
                     alt={`${exercise.name} Setup`}
+                    loading="lazy"
+                    decoding="async"
                     className="absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:opacity-0"
                   />
 
@@ -132,6 +134,8 @@ const ExerciseLibraryGrid = ({
                   <img
                     src={startImg}
                     alt={`${exercise.name} Start`}
+                    loading="lazy"
+                    decoding="async"
                     className="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100"
                   />
 

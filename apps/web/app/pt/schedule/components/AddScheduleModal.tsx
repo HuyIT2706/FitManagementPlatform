@@ -14,15 +14,7 @@ import {
 } from 'lucide-react';
 import type { PTStudentSummary, PTSessionItem } from '@repo/types';
 import { formatYYYYMMDD, formatDisplayDate, getCalendarMonthInfo } from '../../../../utils/date';
-
-interface AddScheduleModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  students: PTStudentSummary[];
-  onAddSession: (newSession: PTSessionItem) => void;
-  defaultStartTime?: string;
-  defaultDate?: Date;
-}
+import type { AddScheduleModalProps } from '../../../../interface';
 
 const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
   const hour = Math.floor(i / 2)

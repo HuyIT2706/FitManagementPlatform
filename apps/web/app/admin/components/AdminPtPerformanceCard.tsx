@@ -2,15 +2,11 @@
 
 import React from 'react';
 import { UserCheck, Award, Dumbbell, Users } from 'lucide-react';
-import type { AnalyticsPtPerformanceItem } from '../../../interface';
+import type { AdminPtPerformanceCardProps } from '../../../interface';
 
-interface AdminPtPerformanceCardProps {
-  ptPerformance?: AnalyticsPtPerformanceItem[];
-}
-
-export const AdminPtPerformanceCard: React.FC<AdminPtPerformanceCardProps> = ({
+const AdminPtPerformanceCard = ({
   ptPerformance = [],
-}) => {
+}: AdminPtPerformanceCardProps) => {
   return (
     <div className="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white dark:bg-[#121a15] border border-slate-200 dark:border-white/10 space-y-4 shadow-xs dark:shadow-none transition-colors duration-200">
       {/* Card Header */}

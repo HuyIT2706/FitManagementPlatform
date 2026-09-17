@@ -3,17 +3,7 @@
 
 import { Settings2 } from 'lucide-react';
 import { getAvatarUrl } from '../../../../../utils/avatar';
-
-interface StudentHeaderHeroProps {
-  fullName: string;
-  avatarUrl?: string;
-  email: string;
-  phone?: string;
-  packageName: string;
-  remainingSessions: number;
-  totalSessions: number;
-  onOpenEditSessionModal: () => void;
-}
+import type { StudentHeaderHeroProps } from '../../../../../interface';
 
 const StudentHeaderHero = ({
   fullName,

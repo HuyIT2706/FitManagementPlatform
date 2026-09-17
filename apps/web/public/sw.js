@@ -1,4 +1,3 @@
-// NutriCore Service Worker for Web Push Notifications
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
@@ -7,7 +6,6 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(self.clients.claim());
 });
 
-// 1. Lắng nghe sự kiện Push từ Server
 self.addEventListener('push', (event) => {
   let data = {
     title: 'NutriCore Thông Báo',
@@ -51,7 +49,6 @@ self.addEventListener('push', (event) => {
   event.waitUntil(self.registration.showNotification(title, options));
 });
 
-// 2. Lắng nghe khi người dùng bấm vào thông báo
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
@@ -68,14 +65,12 @@ self.addEventListener('notificationclick', (event) => {
     self.clients
       .matchAll({ type: 'window', includeUncontrolled: true })
       .then((clientList) => {
-        // Nếu đã mở tab rồi thì focus vào tab đó
         for (const client of clientList) {
           if ('focus' in client) {
             client.navigate(targetUrl);
             return client.focus();
           }
         }
-        // Nếu chưa mở tab nào thì mở cửa sổ mới
         if (self.clients.openWindow) {
           return self.clients.openWindow(targetUrl);
         }

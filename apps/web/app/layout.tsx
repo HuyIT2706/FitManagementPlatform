@@ -1,8 +1,22 @@
-/* eslint-disable @next/next/no-page-custom-font */
 import type { Metadata } from "next";
+import { Plus_Jakarta_Sans, Inter } from "next/font/google";
 import "../assets/css/globals.css";
 import { ToastContainer } from "../utils/toast";
 import { ThemeProvider } from "../context/ThemeContext";
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin", "vietnamese"],
+  weight: ["700", "800"],
+  variable: "--font-plus-jakarta-sans",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "NutriCore",
@@ -25,7 +39,11 @@ const RootLayout = ({
   children: React.ReactNode;
 }>) => {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html
+      lang="vi"
+      className={`dark ${plusJakartaSans.variable} ${inter.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -41,10 +59,8 @@ const RootLayout = ({
             `,
           }}
         />
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
-      <body suppressHydrationWarning className="bg-background text-on-surface">
+      <body suppressHydrationWarning className="bg-background text-on-surface font-sans">
         <ThemeProvider>
           {children}
           <ToastContainer />

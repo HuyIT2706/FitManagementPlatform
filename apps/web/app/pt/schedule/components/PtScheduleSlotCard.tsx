@@ -4,7 +4,6 @@
 import { Clock, Dumbbell, CheckCircle2, PlusCircle } from 'lucide-react';
 import type { ScheduleSlot, PtScheduleSlotCardProps } from '../../../../interface';
 import { getAvatarUrl } from '../../../../utils/avatar';
-export type { ScheduleSlot, PtScheduleSlotCardProps };
 
 const PtScheduleSlotCard = ({
   slot,

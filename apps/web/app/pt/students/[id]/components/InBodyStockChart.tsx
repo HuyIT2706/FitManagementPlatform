@@ -3,12 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import type { InBodyHistoryPoint } from '@repo/types';
 import { TrendingDown, TrendingUp, Minus, ArrowUpRight, ArrowDownRight } from 'lucide-react';
-
-interface InBodyStockChartProps {
-  historyPoints: InBodyHistoryPoint[];
-  metric: 'weight' | 'fat' | 'muscle';
-  onMetricChange: (metric: 'weight' | 'fat' | 'muscle') => void;
-}
+import type { InBodyStockChartProps } from '../../../../../interface';
 
 const InBodyStockChart = ({
   historyPoints,
