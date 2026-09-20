@@ -2,7 +2,7 @@
 'use client';
 
 import { Clock, Dumbbell, CheckCircle2, PlusCircle } from 'lucide-react';
-import type { ScheduleSlot, PtScheduleSlotCardProps } from '../../../../interface';
+import type { PtScheduleSlotCardProps } from '../../../../interface';
 import { getAvatarUrl } from '../../../../utils/avatar';
 
 const PtScheduleSlotCard = ({

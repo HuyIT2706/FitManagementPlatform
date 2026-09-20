@@ -8,7 +8,7 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
-import { NotificationsService, PushSubscriptionPayload } from './notifications.service';
+import { NotificationsService } from './notifications.service';
 import { JwtGuard } from '../auth/jwt.guard';
 import type { RequestWithUser } from '@repo/types';
 
@@ -48,10 +48,7 @@ export class NotificationsController {
 
   @UseGuards(JwtGuard)
   @Patch(':id/read')
-  async markAsRead(
-    @Request() req: RequestWithUser,
-    @Param('id') id: string,
-  ) {
+  async markAsRead(@Request() req: RequestWithUser, @Param('id') id: string) {
     return this.notificationsService.markAsRead(id, req.user.sub);
   }
 
@@ -61,4 +58,3 @@ export class NotificationsController {
     return this.notificationsService.markAllAsRead(req.user.sub);
   }
 }
-

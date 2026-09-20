@@ -9,7 +9,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import LogoApp from "../../assets/imgs/logoApp.jpg";
-import type { UserData, AccessDeniedProps } from "../../interface";
+import type { AccessDeniedProps } from "../../interface";
 
 const AccessDenied = ({
   requiredRole = "ADMIN",

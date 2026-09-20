@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import type { InBodyHistoryPoint } from '@repo/types';
 import { TrendingDown, TrendingUp, Minus, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import type { InBodyStockChartProps } from '../../../../../interface';
 

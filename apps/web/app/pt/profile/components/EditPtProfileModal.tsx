@@ -1,7 +1,7 @@
 "use client";
 
 import { X, Check } from "lucide-react";
-import type { UserDataHome, EditPtProfileModalProps } from "../../../../interface";
+import type { EditPtProfileModalProps } from "../../../../interface";
 
 const EditPtProfileModal = ({
   isOpen,

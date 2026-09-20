@@ -34,7 +34,6 @@ const NotificationBellDropdown = ({
   const [unreadCount, setUnreadCount] = useState(0);
   const [filter, setFilter] = useState<'ALL' | 'UNREAD'>('ALL');
   const [permissionStatus, setPermissionStatus] = useState<string>('default');
-  const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,7 +43,6 @@ const NotificationBellDropdown = ({
 
   const fetchNotifications = async () => {
     try {
-      setLoading(true);
       const res = await apiClient.get<{
         notifications: NotificationItem[];
         unreadCount: number;
@@ -52,8 +50,7 @@ const NotificationBellDropdown = ({
       setNotifications(res.data.notifications || []);
       setUnreadCount(res.data.unreadCount || 0);
     } catch {
-    } finally {
-      setLoading(false);
+      // Silently ignore network or unauthorized errors for polling
     }
   };
 

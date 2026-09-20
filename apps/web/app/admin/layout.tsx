@@ -7,10 +7,6 @@ import Image from 'next/image';
 import LogoApp from '../../assets/imgs/logoApp.jpg';
 import {
   LogOut,
-  BarChart3,
-  FileText,
-  Users,
-  Dumbbell,
   Sun,
   Moon,
 } from 'lucide-react';

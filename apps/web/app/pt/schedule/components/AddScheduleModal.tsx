@@ -12,7 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import type { PTStudentSummary, PTSessionItem } from '@repo/types';
+import type { PTSessionItem } from '@repo/types';
 import { formatYYYYMMDD, formatDisplayDate, getCalendarMonthInfo } from '../../../../utils/date';
 import type { AddScheduleModalProps } from '../../../../interface';
 

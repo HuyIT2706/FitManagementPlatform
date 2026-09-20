@@ -88,7 +88,8 @@ export class AdminService {
       await this.notificationsService.sendNotification({
         userId: app.userId,
         title: '🎉 Phê Duyệt Hồ Sơ HLV Chuyên Nghiệp',
-        message: 'Chúc mừng! Đơn đăng ký Huấn luyện viên của bạn đã được Admin phê duyệt thành công. Bạn đã có thể bắt đầu nhận học viên.',
+        message:
+          'Chúc mừng! Đơn đăng ký Huấn luyện viên của bạn đã được Admin phê duyệt thành công. Bạn đã có thể bắt đầu nhận học viên.',
         type: 'PT_APPLICATION',
         linkUrl: '/pt',
       });

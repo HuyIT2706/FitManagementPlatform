@@ -1010,7 +1010,10 @@ export class PtService {
         linkUrl: '/training',
       });
     } catch (pushError) {
-      console.error('Failed to dispatch session deduction notification:', pushError);
+      console.error(
+        'Failed to dispatch session deduction notification:',
+        pushError,
+      );
     }
 
     return {

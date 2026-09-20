@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import apiClient from "../../../api/axios";
 import { toast } from "../../../utils/toast";
-import type { UserDataHome, EditProfileModalProps } from "../../../interface";
+import type { EditProfileModalProps } from "../../../interface";
 
 const EditProfileModal = ({
   isOpen,

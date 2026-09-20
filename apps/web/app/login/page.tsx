@@ -53,7 +53,7 @@ const LoginContent = () => {
           localStorage.removeItem('jwt_token');
         });
     }
-  }, []);
+  }, [router]);
 
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {

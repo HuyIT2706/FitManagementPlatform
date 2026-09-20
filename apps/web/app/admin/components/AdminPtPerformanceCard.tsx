@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { UserCheck, Award, Dumbbell, Users } from 'lucide-react';
+import { Award, Dumbbell, Users } from 'lucide-react';
 import type { AdminPtPerformanceCardProps } from '../../../interface';
 
 const AdminPtPerformanceCard = ({
@@ -58,6 +58,7 @@ const AdminPtPerformanceCard = ({
                 </div>
 
                 {pt.avatarUrl ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
                   <img
                     src={pt.avatarUrl}
                     alt={pt.fullName}

@@ -84,9 +84,10 @@ export async function subscribeToPushNotifications(): Promise<boolean> {
 
     toast.success('Đã bật thông báo đẩy ra màn hình thành công!');
     return true;
-  } catch (err: any) {
-    console.error('Failed to subscribe push notification:', err);
-    toast.error('Lỗi khi bật thông báo đẩy: ' + (err?.message || 'Không xác định'));
+  } catch (err) {
+    const error = err instanceof Error ? err : new Error(String(err));
+    console.error('Failed to subscribe push notification:', error);
+    toast.error('Lỗi khi bật thông báo đẩy: ' + (error.message || 'Không xác định'));
     return false;
   }
 }

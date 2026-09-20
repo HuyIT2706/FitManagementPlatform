@@ -22,6 +22,32 @@ export interface PushSubscriptionPayload {
   };
 }
 
+export interface PushSubscriptionRecord {
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+}
+
+export interface NotificationRecord {
+  id: string;
+  userId: string;
+  title: string;
+  message: string;
+  type: string;
+  isRead: boolean;
+  linkUrl: string | null;
+  createdAt: string | Date;
+}
+
+export interface UnreadCountRecord {
+  unreadCount: number;
+}
+
+export interface WebPushErrorLike {
+  statusCode?: number;
+  message?: string;
+}
+
 @Injectable()
 export class NotificationsService implements OnModuleInit {
   private readonly logger = new Logger(NotificationsService.name);
@@ -43,7 +69,7 @@ export class NotificationsService implements OnModuleInit {
       await this.prisma.$executeRawUnsafe(`
         CREATE TABLE IF NOT EXISTS notifications (
           id TEXT PRIMARY KEY,
-          user_id TEXT NOT NULL,
+          user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
           title TEXT NOT NULL,
           message TEXT NOT NULL,
           type TEXT DEFAULT 'INFO',
@@ -56,13 +82,35 @@ export class NotificationsService implements OnModuleInit {
       await this.prisma.$executeRawUnsafe(`
         CREATE TABLE IF NOT EXISTS push_subscriptions (
           id TEXT PRIMARY KEY,
-          user_id TEXT NOT NULL,
+          user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
           endpoint TEXT UNIQUE NOT NULL,
           p256dh TEXT NOT NULL,
           auth TEXT NOT NULL,
           created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
           updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
         );
+      `);
+
+      // Ensure foreign key constraints exist on already created tables
+      await this.prisma.$executeRawUnsafe(`
+        DO $$
+        BEGIN
+          IF NOT EXISTS (
+            SELECT 1 FROM pg_constraint WHERE conname = 'fk_notifications_user'
+          ) THEN
+            ALTER TABLE notifications 
+            ADD CONSTRAINT fk_notifications_user 
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+          END IF;
+
+          IF NOT EXISTS (
+            SELECT 1 FROM pg_constraint WHERE conname = 'fk_push_subscriptions_user'
+          ) THEN
+            ALTER TABLE push_subscriptions 
+            ADD CONSTRAINT fk_push_subscriptions_user 
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+          END IF;
+        END $$;
       `);
 
       await this.prisma.$executeRawUnsafe(`
@@ -73,14 +121,23 @@ export class NotificationsService implements OnModuleInit {
         CREATE INDEX IF NOT EXISTS idx_push_subs_user ON push_subscriptions(user_id);
       `);
 
-      this.logger.log('Notifications and PushSubscriptions tables verified.');
+      this.logger.log(
+        'Notifications and PushSubscriptions tables verified with foreign keys.',
+      );
     } catch (err) {
       this.logger.error('Error creating notification tables:', err);
     }
   }
 
-  async savePushSubscription(userId: string, subscription: PushSubscriptionPayload) {
-    if (!subscription?.endpoint || !subscription?.keys?.p256dh || !subscription?.keys?.auth) {
+  async savePushSubscription(
+    userId: string,
+    subscription: PushSubscriptionPayload,
+  ) {
+    if (
+      !subscription?.endpoint ||
+      !subscription?.keys?.p256dh ||
+      !subscription?.keys?.auth
+    ) {
       throw new Error('Push subscription data is incomplete');
     }
 
@@ -127,16 +184,21 @@ export class NotificationsService implements OnModuleInit {
         linkUrl,
       );
     } catch (err) {
-      this.logger.error(`Failed to store notification for user ${userId}:`, err);
+      this.logger.error(
+        `Failed to store notification for user ${userId}:`,
+        err,
+      );
     }
 
     try {
-      const subscriptions = (await this.prisma.$queryRawUnsafe(
+      const subscriptions = await this.prisma.$queryRawUnsafe<
+        PushSubscriptionRecord[]
+      >(
         `
         SELECT endpoint, p256dh, auth FROM push_subscriptions WHERE user_id = $1;
         `,
         userId,
-      )) as Array<{ endpoint: string; p256dh: string; auth: string }>;
+      );
 
       if (subscriptions && subscriptions.length > 0) {
         const payload = JSON.stringify({
@@ -164,14 +226,18 @@ export class NotificationsService implements OnModuleInit {
               },
               payload,
             );
-          } catch (pushErr: any) {
+          } catch (err) {
+            const pushErr = err as WebPushErrorLike;
             if (pushErr.statusCode === 410 || pushErr.statusCode === 404) {
               await this.prisma.$executeRawUnsafe(
                 `DELETE FROM push_subscriptions WHERE endpoint = $1;`,
                 sub.endpoint,
               );
             } else {
-              this.logger.warn(`Push failed for endpoint ${sub.endpoint}:`, pushErr.message);
+              this.logger.warn(
+                `Push failed for endpoint ${sub.endpoint}:`,
+                pushErr.message,
+              );
             }
           }
         }
@@ -185,7 +251,7 @@ export class NotificationsService implements OnModuleInit {
 
   async getNotifications(userId: string, limit = 20) {
     try {
-      const rows = (await this.prisma.$queryRawUnsafe(
+      const rows = await this.prisma.$queryRawUnsafe<NotificationRecord[]>(
         `
         SELECT id, user_id as "userId", title, message, type, is_read as "isRead", link_url as "linkUrl", created_at as "createdAt"
         FROM notifications
@@ -195,16 +261,18 @@ export class NotificationsService implements OnModuleInit {
         `,
         userId,
         limit,
-      )) as Array<any>;
+      );
 
-      const unreadCountRow = (await this.prisma.$queryRawUnsafe(
+      const unreadCountRow = await this.prisma.$queryRawUnsafe<
+        UnreadCountRecord[]
+      >(
         `
         SELECT COUNT(*)::int as "unreadCount"
         FROM notifications
         WHERE user_id = $1 AND is_read = FALSE;
         `,
         userId,
-      )) as Array<{ unreadCount: number }>;
+      );
 
       const unreadCount = unreadCountRow[0]?.unreadCount || 0;
 

@@ -1,6 +1,5 @@
 'use client';
 
-import type { InBodyHistoryPoint } from '@repo/types';
 import TransformationJourneySlider from '../../../../profile/components/TransformationJourneySlider';
 import InBodyStockChart from './InBodyStockChart';
 import type { StudentInbodyTabProps } from '../../../../../interface';

@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { type OnboardingState } from '../../../store/onboardingStore';
 import { Bell } from 'lucide-react';
 import {
   registerServiceWorker,

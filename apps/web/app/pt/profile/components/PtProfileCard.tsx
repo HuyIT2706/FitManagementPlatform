@@ -7,7 +7,7 @@ import { Award } from 'lucide-react';
 import apiClient from '../../../../api/axios';
 import { toast } from '../../../../utils/toast';
 import { getAvatarUrl } from '../../../../utils/avatar';
-import type { UserDataHome, PtProfileCardProps } from '../../../../interface';
+import type { PtProfileCardProps } from '../../../../interface';
 
 const EditPtProfileModal = dynamic(() => import('./EditPtProfileModal'), {
   ssr: false,

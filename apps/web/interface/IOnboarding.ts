@@ -1,3 +1,5 @@
+import type { OnboardingState } from '../store/onboardingStore';
+
 export interface OnboardingFormData {
   birthYear: number;
   gender: string | null;
@@ -27,7 +29,7 @@ export interface BMIPreviewResult {
 }
 
 export interface OnboardingStepProps {
-  store: any;
+  store: OnboardingState;
 }
 
 export type StepAgeProps = OnboardingStepProps;

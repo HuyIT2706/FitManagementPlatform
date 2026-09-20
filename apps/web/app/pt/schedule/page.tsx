@@ -374,10 +374,8 @@ const PTSchedulePage = () => {
                   </div>
                 </button>
 
-                {/* Custom Popover Dropdown Menu */}
                 {isStudentDropdownOpen && (
                   <div className="absolute right-0 top-full mt-2 w-full sm:w-64 max-w-[calc(100vw-32px)] bg-white dark:bg-[#121620]/95 backdrop-blur-xl border border-slate-200 dark:border-white/15 rounded-2xl p-1.5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1 max-h-60 overflow-y-auto [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
-                    {/* Option All Students */}
                     <button
                       type="button"
                       suppressHydrationWarning
@@ -404,8 +402,6 @@ const PTSchedulePage = () => {
                         <Check size={14} className="text-primary" />
                       )}
                     </button>
-
-                    {/* Option List Individual Students */}
                     {studentsList.map((st) => {
                       const isSelected = filterStudentId === st.id;
                       return (
