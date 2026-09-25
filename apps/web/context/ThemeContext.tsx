@@ -88,7 +88,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
             clipPath: clipPath,
           },
           {
-            duration: 500, // Exactly 0.4s as requested
+            duration: 500,
             easing: 'ease-in-out',
             pseudoElement: '::view-transition-new(root)',
           },
