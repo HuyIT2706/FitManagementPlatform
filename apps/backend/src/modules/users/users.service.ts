@@ -1,5 +1,5 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import type { Gender, ActivityLevel } from '@repo/db';
+import type { Gender, ActivityLevel } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { OnboardingDto } from './dto/onboarding.dto';
 
