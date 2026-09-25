@@ -11,7 +11,9 @@ import apiClient from '../../api/axios';
 import type { UserDataHome } from '../../interface';
 import { handleRoleRedirect } from '../../utils/authRedirect';
 
-const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID';
+const GOOGLE_CLIENT_ID =
+  process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+  '2771936805-gthc100eb3sgthfdei24555999s5t86s.apps.googleusercontent.com';
 
 const LoginContent = () => {
   const router = useRouter();
