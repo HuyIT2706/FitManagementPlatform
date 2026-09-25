@@ -18,11 +18,12 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   private setRefreshTokenCookie(res: Response, refreshToken: string) {
+    const isProd = process.env.NODE_ENV === 'production';
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
   }
 
@@ -98,7 +99,12 @@ export class AuthController {
   ) {
     const userId = req.user.sub;
     await this.authService.logout(userId);
-    res.clearCookie('refresh_token');
+    const isProd = process.env.NODE_ENV === 'production';
+    res.clearCookie('refresh_token', {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
+    });
     return { message: 'Logged out successfully' };
   }
 
