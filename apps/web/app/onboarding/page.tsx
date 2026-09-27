@@ -23,11 +23,11 @@ import { subscribeToPushNotifications } from '../../utils/pushNotification';
 const steps = 11;
 
 const OnboardingPage = () => {
+  const store = useOnboardingStore();
   const [currentStep, setCurrentStep] = useState(1);
   const [isClient, setIsClient] = useState(false);
-  const store = useOnboardingStore();
   const [formData, setFormData] = useState<OnboardingFormData>({
-    birthYear: store.birthYear || 2000,
+    birthYear: store.birthYear || 2002,
     gender: store.gender,
     weight: store.weight,
     targetWeight: store.targetWeight,
@@ -42,7 +42,10 @@ const OnboardingPage = () => {
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+    if (store.currentStep && store.currentStep >= 1 && store.currentStep <= steps) {
+      setCurrentStep(store.currentStep);
+    }
+  }, [store.currentStep]);
 
   useEffect(() => {
     setFormData({
@@ -149,7 +152,9 @@ const OnboardingPage = () => {
     }
 
     if (currentStep < steps) {
-      setCurrentStep((prev) => prev + 1);
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+      store.setCurrentStep(nextStep);
     } else {
       try {
         const payload = {
@@ -176,6 +181,13 @@ const OnboardingPage = () => {
           }
         }
 
+        store.resetOnboarding();
+        try {
+          localStorage.removeItem('nutricore_onboarding_storage');
+        } catch {
+          // ignore
+        }
+
         window.location.href = '/';
       } catch (err) {
         console.error(err);
@@ -186,7 +198,9 @@ const OnboardingPage = () => {
 
   const handleBack = () => {
     if (currentStep > 1) {
-      setCurrentStep((prev) => prev - 1);
+      const prevStep = currentStep - 1;
+      setCurrentStep(prevStep);
+      store.setCurrentStep(prevStep);
     }
   };
 
