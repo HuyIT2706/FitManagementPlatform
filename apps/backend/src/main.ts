@@ -10,23 +10,22 @@ dns.setDefaultResultOrder('ipv4first');
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const allowedOrigins = process.env.CLIENT_URL
-    ? process.env.CLIENT_URL.split(',').map((url) => url.trim().replace(/\/$/, ''))
-    : ['http://localhost:3000', 'https://nutricore-olive.vercel.app'];
+  const allowedOrigins: (string | RegExp)[] = [
+    'http://localhost:3000',
+    'https://nutricore-olive.vercel.app',
+    /\.vercel\.app$/,
+  ];
+  if (process.env.CLIENT_URL) {
+    process.env.CLIENT_URL.split(',').forEach((url) => {
+      const trimmed = url.trim().replace(/\/$/, '');
+      if (trimmed && !allowedOrigins.includes(trimmed)) {
+        allowedOrigins.push(trimmed);
+      }
+    });
+  }
 
   app.enableCors({
-    origin: (origin, callback) => {
-      if (
-        !origin ||
-        allowedOrigins.includes(origin) ||
-        allowedOrigins.includes('*') ||
-        origin.endsWith('.vercel.app')
-      ) {
-        callback(null, true);
-      } else {
-        callback(null, false);
-      }
-    },
+    origin: allowedOrigins,
     credentials: true,
   });
   app.use(compression());
