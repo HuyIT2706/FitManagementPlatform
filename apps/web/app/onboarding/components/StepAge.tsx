@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { type OnboardingState } from '../../../store/onboardingStore';
-import { Calendar, AlertCircle, Minus, Plus, CheckCircle2 } from 'lucide-react';
+import { Calendar, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 interface StepAgeProps {
   store: OnboardingState;
@@ -41,13 +41,6 @@ const StepAge = ({ store }: StepAgeProps) => {
     }
   };
 
-  const handleAdjust = (delta: number) => {
-    const base = isCompleteYear ? numericYear : 2002;
-    const next = Math.min(Math.max(base + delta, minYear), maxYear);
-    setInputVal(next.toString());
-    store.setBirthYear(next);
-  };
-
   return (
     <div className="flex flex-col flex-1 h-full pb-4 sm:pb-6">
       <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
@@ -55,7 +48,7 @@ const StepAge = ({ store }: StepAgeProps) => {
         <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white">Năm sinh của bạn?</h2>
       </div>
       <p className="text-white/60 text-xs sm:text-sm md:text-base mb-4 sm:mb-6">
-        Nhập trực tiếp năm sinh của bạn (Độ tuổi hợp lệ: <strong className="text-[#10b981]">13 - 65 tuổi</strong>).
+        Nhập năm sinh để chúng tôi tính toán độ tuổi và chế độ phù hợp.
       </p>
 
       <div className="w-full my-auto flex flex-col items-center">
@@ -74,47 +67,19 @@ const StepAge = ({ store }: StepAgeProps) => {
             Năm sinh
           </span>
 
-          <div className="flex items-center justify-center gap-3 w-full">
-            <button
-              type="button"
-              suppressHydrationWarning
-              onClick={(e) => {
-                e.stopPropagation();
-                handleAdjust(-1);
-              }}
-              className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
-              aria-label="Giảm 1 năm"
-            >
-              <Minus size={18} />
-            </button>
-
-            <div className="flex flex-col items-center">
-              <input
-                ref={inputRef}
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                maxLength={4}
-                value={inputVal}
-                onChange={handleInputChange}
-                onFocus={(e) => e.target.select()}
-                placeholder="2002"
-                className="w-36 sm:w-44 text-center text-5xl sm:text-6xl font-extrabold text-[#10b981] bg-transparent outline-none tracking-wider placeholder:text-white/20 border-b-2 border-[#10b981]/50 focus:border-[#10b981] transition-colors"
-              />
-            </div>
-
-            <button
-              type="button"
-              suppressHydrationWarning
-              onClick={(e) => {
-                e.stopPropagation();
-                handleAdjust(1);
-              }}
-              className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
-              aria-label="Tăng 1 năm"
-            >
-              <Plus size={18} />
-            </button>
+          <div className="flex flex-col items-center justify-center w-full">
+            <input
+              ref={inputRef}
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={4}
+              value={inputVal}
+              onChange={handleInputChange}
+              onFocus={(e) => e.target.select()}
+              placeholder="2002"
+              className="w-44 sm:w-52 text-center text-5xl sm:text-6xl font-extrabold text-[#10b981] bg-transparent outline-none tracking-wider placeholder:text-white/20 border-b-2 border-[#10b981]/50 focus:border-[#10b981] transition-colors pb-1"
+            />
           </div>
 
           {/* Age Status Pill */}
@@ -140,27 +105,6 @@ const StepAge = ({ store }: StepAgeProps) => {
               </span>
             )}
           </div>
-        </div>
-
-        {/* Quick Helper Slider for easy dragging if user prefers */}
-        <div className="w-full max-w-sm mt-6 space-y-2 px-3">
-          <div className="flex justify-between text-xs text-white/40">
-            <span>{minYear} (65 tuổi)</span>
-            <span>{maxYear} (13 tuổi)</span>
-          </div>
-          <input
-            type="range"
-            min={minYear}
-            max={maxYear}
-            step={1}
-            value={isCompleteYear && isValidAge ? numericYear : 2002}
-            onChange={(e) => {
-              const val = parseInt(e.target.value, 10);
-              setInputVal(val.toString());
-              store.setBirthYear(val);
-            }}
-            className="w-full h-2 bg-white/15 rounded-lg appearance-none cursor-pointer accent-[#10b981]"
-          />
         </div>
       </div>
 
