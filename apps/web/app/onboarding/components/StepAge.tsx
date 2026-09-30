@@ -55,7 +55,7 @@ const StepAge = ({ store }: StepAgeProps) => {
         {/* Main Year Input Card */}
         <div
           onClick={() => inputRef.current?.focus()}
-          className={`relative flex flex-col items-center justify-center p-6 sm:p-8 rounded-3xl bg-white/5 border transition-all duration-200 w-full max-w-sm cursor-text ${
+          className={`relative flex flex-col mt-5 items-center justify-center p-6 sm:p-8 rounded-3xl bg-white/5 border transition-all duration-200 w-full max-w-sm cursor-text ${
             isCompleteYear && isValidAge
               ? 'border-[#10b981]/50 shadow-[0_0_30px_rgba(16,185,129,0.15)]'
               : isCompleteYear && !isValidAge
@@ -110,7 +110,7 @@ const StepAge = ({ store }: StepAgeProps) => {
 
       {/* Validation Warning Notice */}
       {isCompleteYear && !isValidAge && (
-        <div className="w-full max-w-sm mx-auto bg-rose-500/10 border border-rose-500/30 p-3.5 rounded-2xl flex items-center gap-3 text-rose-400 text-xs sm:text-sm mt-auto">
+        <div className="w-full max-w-sm mx-auto  bg-rose-500/10 border border-rose-500/30 p-3.5 rounded-2xl flex items-center gap-3 text-rose-400 text-xs sm:text-sm mt-auto">
           <AlertCircle size={18} className="shrink-0" />
           <p>
             Độ tuổi hợp lệ từ <strong>13 đến 65 tuổi</strong> ({minYear} - {maxYear}).

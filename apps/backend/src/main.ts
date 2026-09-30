@@ -10,11 +10,12 @@ dns.setDefaultResultOrder('ipv4first');
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const allowedOrigins: (string | RegExp)[] = [
+  const defaultOrigins: (string | RegExp)[] = [
     'http://localhost:3000',
-    'https://nutricore-olive.vercel.app',
     /\.vercel\.app$/,
   ];
+  const allowedOrigins: (string | RegExp)[] = [...defaultOrigins];
+
   if (process.env.CLIENT_URL) {
     process.env.CLIENT_URL.split(',').forEach((url) => {
       const trimmed = url.trim().replace(/\/$/, '');
