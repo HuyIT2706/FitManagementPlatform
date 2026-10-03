@@ -17,7 +17,7 @@ const StepHeight = ({ store }: StepHeightProps) => {
         <Ruler className="text-[#10b981] shrink-0" size={24} />
         <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white">Chiều cao hiện tại</h2>
       </div>
-      <p className="text-white/60 text-xs sm:text-sm md:text-base mb-4 sm:mb-6">
+      <p className="text-emerald-100/70 text-xs sm:text-sm md:text-base mb-4 sm:mb-6">
         Thông tin này giúp tính chỉ số BMI & Calo (Hợp lệ: 100cm - 200cm).
       </p>
 
@@ -34,9 +34,9 @@ const StepHeight = ({ store }: StepHeightProps) => {
               store.setHeight(isNaN(val) ? 0 : val);
             }}
             placeholder="170"
-            className="bg-transparent text-5xl sm:text-6xl md:text-7xl font-extrabold w-36 sm:w-44 text-center outline-none border-b-2 border-[#10b981]"
+            className="bg-transparent text-5xl sm:text-6xl md:text-7xl font-extrabold w-36 sm:w-44 text-center outline-none border-b-2 border-[#10b981] text-[#10b981]"
           />
-          <span className="text-xl sm:text-2xl pb-2 sm:pb-4 ml-2 font-semibold">cm</span>
+          <span className="text-xl sm:text-2xl pb-2 sm:pb-4 ml-2 font-semibold text-[#10b981]">cm</span>
         </div>
 
         {height > 0 && !isHeightValid && (

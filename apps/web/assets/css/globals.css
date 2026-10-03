@@ -123,18 +123,18 @@
     z-index: 9999;
   }
 
-  /* High contrast fallbacks for light mode across all pages */
-  :root:not(.dark) [class*="border-white/"] {
+  /* High contrast fallbacks for light mode across all pages (never inside dark scopes, dark cards, or onboarding) */
+  :root:not(.dark) [class*="border-white/"]:not(.dark *):not([class*="bg-[#0e1511]"] *):not([class*="bg-[#090d0b]"] *):not([class*="bg-[#121926]"] *) {
     border-color: #e2e8f0;
   }
-  :root:not(.dark) [class*="bg-white/"] {
+  :root:not(.dark) [class*="bg-white/"]:not(.dark *):not([class*="bg-[#0e1511]"] *):not([class*="bg-[#090d0b]"] *):not([class*="bg-[#121926]"] *) {
     background-color: #f8fafc;
   }
-  :root:not(.dark) [class*="text-white/"]:not([class*="bg-black"]):not([class*="bg-primary"]):not([class*="bg-emerald"]):not([class*="bg-slate-900"]):not([class*="bg-neutral-900"]) {
+  :root:not(.dark) [class*="text-white/"]:not(.dark *):not([class*="bg-[#0e1511]"] *):not([class*="bg-[#090d0b]"] *):not([class*="bg-[#121926]"] *):not([class*="bg-black"]):not([class*="bg-primary"]):not([class*="bg-emerald"]):not([class*="bg-slate-900"]):not([class*="bg-neutral-900"]) {
     color: #0f172a;
   }
-  :root:not(.dark) .text-on-surface-variant\/70,
-  :root:not(.dark) .text-on-surface-variant\/50 {
+  :root:not(.dark) .text-on-surface-variant\/70:not(.dark *),
+  :root:not(.dark) .text-on-surface-variant\/50:not(.dark *) {
     color: #475569;
   }
 

@@ -21,7 +21,7 @@ const StepWeight = ({ store }: StepWeightProps) => {
           <Scale className="text-[#10b981] shrink-0" size={24} />
           <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white">Chỉ số cơ thể</h2>
         </div>
-        <p className="text-white/60 text-xs sm:text-sm md:text-base">
+        <p className="text-emerald-100/70 text-xs sm:text-sm md:text-base">
           Xác định điểm xuất phát và đích đến của bạn (Hợp lệ: 30kg - 150kg).
         </p>
       </div>
@@ -29,13 +29,13 @@ const StepWeight = ({ store }: StepWeightProps) => {
       <div className="space-y-4 sm:space-y-6">
         {/* Current Weight Input */}
         <div
-          className={`bg-white/5 p-4 sm:p-6 rounded-2xl sm:rounded-3xl border transition-all flex flex-col items-center ${
+          className={`bg-[#131d17] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border transition-all flex flex-col items-center ${
             weight > 0 && !isWeightValid
-              ? 'border-rose-500/80 bg-rose-500/5'
-              : 'border-white/10'
+              ? 'border-rose-500/80 bg-rose-500/10'
+              : 'border-emerald-500/20'
           }`}
         >
-          <span className="text-white/60 text-xs sm:text-sm font-semibold uppercase tracking-wider mb-2">
+          <span className="text-emerald-300/80 text-xs sm:text-sm font-semibold uppercase tracking-wider mb-2">
             Hiện tại
           </span>
           <div className="flex items-end text-[#10b981]">
@@ -50,9 +50,9 @@ const StepWeight = ({ store }: StepWeightProps) => {
                 store.setWeight(isNaN(val) ? 0 : val);
               }}
               placeholder="70"
-              className="bg-transparent text-5xl font-bold w-36 text-center outline-none border-b-2 border-[#10b981]"
+              className="bg-transparent text-5xl font-bold w-36 text-center outline-none border-b-2 border-[#10b981] text-[#10b981]"
             />
-            <span className="text-lg pb-2 ml-1">kg</span>
+            <span className="text-lg pb-2 ml-1 text-[#10b981]">kg</span>
           </div>
           {weight > 0 && !isWeightValid && (
             <div className="flex items-center gap-1.5 text-xs text-rose-400 mt-3 font-semibold">
@@ -64,13 +64,13 @@ const StepWeight = ({ store }: StepWeightProps) => {
 
         {/* Target Weight Input */}
         <div
-          className={`bg-white/5 p-4 sm:p-6 rounded-2xl sm:rounded-3xl border transition-all flex flex-col items-center ${
+          className={`bg-[#131d17] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border transition-all flex flex-col items-center ${
             targetWeight > 0 && !isTargetWeightValid
-              ? 'border-rose-500/80 bg-rose-500/5'
-              : 'border-white/10'
+              ? 'border-rose-500/80 bg-rose-500/10'
+              : 'border-emerald-500/20'
           }`}
         >
-          <span className="text-white/60 text-xs sm:text-sm font-semibold uppercase tracking-wider mb-2">
+          <span className="text-emerald-300/80 text-xs sm:text-sm font-semibold uppercase tracking-wider mb-2">
             Mục tiêu
           </span>
           <div className="flex items-end text-[#10b981]">
@@ -85,9 +85,9 @@ const StepWeight = ({ store }: StepWeightProps) => {
                 store.setTargetWeight(isNaN(val) ? 0 : val);
               }}
               placeholder="65"
-              className="bg-transparent text-5xl font-bold w-36 text-center outline-none border-b-2 border-[#10b981]"
+              className="bg-transparent text-5xl font-bold w-36 text-center outline-none border-b-2 border-[#10b981] text-[#10b981]"
             />
-            <span className="text-lg pb-2 ml-1">kg</span>
+            <span className="text-lg pb-2 ml-1 text-[#10b981]">kg</span>
           </div>
           {targetWeight > 0 && !isTargetWeightValid && (
             <div className="flex items-center gap-1.5 text-xs text-rose-400 mt-3 font-semibold">

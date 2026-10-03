@@ -33,7 +33,7 @@ const StepDiet = ({ store }: StepDietProps) => {
         <ShieldCheck className="text-[#10b981]" size={28} />
         <h2 className="text-3xl font-bold">Hạn chế ăn uống hoặc Dị ứng</h2>
       </div>
-      <p className="text-white/60 text-base mb-8">Vui lòng chọn để chúng tôi loại trừ các thực phẩm gây dị ứng khỏi thực đơn của bạn.</p>
+      <p className="text-emerald-100/70 text-base mb-8">Vui lòng chọn để chúng tôi loại trừ các thực phẩm gây dị ứng khỏi thực đơn của bạn.</p>
 
       <div className="space-y-3">
         {options.map((opt) => {
@@ -47,7 +47,7 @@ const StepDiet = ({ store }: StepDietProps) => {
               className={`w-full flex items-center justify-between p-5 rounded-2xl border-2 transition-all cursor-pointer ${
                 isSelected
                   ? 'border-[#10b981] bg-[#10b981]/15 text-[#10b981]'
-                  : 'border-white/10 bg-white/5 text-white hover:border-white/20'
+                  : 'border-emerald-500/20 bg-[#131d17] text-white hover:border-emerald-500/40'
               }`}
             >
               <span className="font-bold text-base">{opt.label}</span>

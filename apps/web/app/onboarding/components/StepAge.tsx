@@ -47,7 +47,7 @@ const StepAge = ({ store }: StepAgeProps) => {
         <Calendar className="text-[#10b981] shrink-0" size={24} />
         <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white">Năm sinh của bạn?</h2>
       </div>
-      <p className="text-white/60 text-xs sm:text-sm md:text-base mb-4 sm:mb-6">
+      <p className="text-emerald-100/70 text-xs sm:text-sm md:text-base mb-4 sm:mb-6">
         Nhập năm sinh để chúng tôi tính toán độ tuổi và chế độ phù hợp.
       </p>
 
@@ -55,15 +55,15 @@ const StepAge = ({ store }: StepAgeProps) => {
         {/* Main Year Input Card */}
         <div
           onClick={() => inputRef.current?.focus()}
-          className={`relative flex flex-col mt-5 items-center justify-center p-6 sm:p-8 rounded-3xl bg-white/5 border transition-all duration-200 w-full max-w-sm cursor-text ${
+          className={`relative flex flex-col mt-5 items-center justify-center p-6 sm:p-8 rounded-3xl bg-[#131d17] border transition-all duration-200 w-full max-w-sm cursor-text ${
             isCompleteYear && isValidAge
               ? 'border-[#10b981]/50 shadow-[0_0_30px_rgba(16,185,129,0.15)]'
               : isCompleteYear && !isValidAge
                 ? 'border-rose-500/50 shadow-[0_0_30px_rgba(244,63,94,0.15)]'
-                : 'border-white/10 hover:border-white/20'
+                : 'border-emerald-500/20 hover:border-emerald-500/40'
           }`}
         >
-          <span className="text-xs uppercase tracking-wider text-white/50 font-semibold mb-3">
+          <span className="text-xs uppercase tracking-wider text-emerald-300/80 font-semibold mb-3">
             Năm sinh
           </span>
 

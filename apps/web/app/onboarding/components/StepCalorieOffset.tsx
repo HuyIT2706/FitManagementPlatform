@@ -80,7 +80,7 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
           {isLosing ? 'Mức độ Thâm hụt Calo' : 'Mức độ Thặng dư Calo'}
         </h2>
       </div>
-      <p className="text-white/60 text-xs sm:text-sm md:text-base mb-3 sm:mb-5">
+      <p className="text-emerald-100/70 text-xs sm:text-sm md:text-base mb-3 sm:mb-5">
         Chọn tốc độ {isLosing ? 'giảm cân' : 'tăng cân'} phù hợp nhất với cơ địa & lối sống của bạn.
       </p>
 
@@ -88,7 +88,7 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((n) => (
-              <div key={n} className="p-4 sm:p-5 rounded-2xl border border-white/10 bg-white/5 animate-pulse h-20 sm:h-24" />
+              <div key={n} className="p-4 sm:p-5 rounded-2xl border border-emerald-500/20 bg-[#131d17] animate-pulse h-20 sm:h-24" />
             ))}
           </div>
         ) : (
@@ -107,7 +107,7 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
                   className={`w-full text-left p-4 sm:p-5 rounded-2xl border-2 transition-all cursor-pointer relative ${
                     isSelected
                       ? 'border-[#10b981] bg-[#10b981]/15 shadow-[0_0_15px_rgba(16,185,129,0.2)]'
-                      : 'border-white/10 bg-white/5 hover:border-white/20'
+                      : 'border-emerald-500/20 bg-[#131d17] hover:border-emerald-500/40'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1.5">
@@ -124,7 +124,7 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-white/70 leading-relaxed">{opt.desc}</p>
+                  <p className="text-sm text-emerald-100/70 leading-relaxed">{opt.desc}</p>
                 </button>
               );
             })}
@@ -141,7 +141,7 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
               className={`w-full text-left p-5 rounded-2xl border-2 transition-all cursor-pointer relative space-y-3 ${
                 isCustom
                   ? 'border-[#10b981] bg-[#10b981]/15 shadow-[0_0_15px_rgba(16,185,129,0.2)]'
-                  : 'border-white/10 bg-white/5 hover:border-white/20'
+                  : 'border-emerald-500/20 bg-[#131d17] hover:border-emerald-500/40'
               }`}
             >
               <div className="flex items-center justify-between">

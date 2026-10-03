@@ -39,7 +39,7 @@ const StepGender = ({ store }: StepGenderProps) => {
         <Users className="text-[#10b981]" size={28} />
         <h2 className="text-3xl font-bold">Giới tính của bạn</h2>
       </div>
-      <p className="text-white/60 text-base mb-10">
+      <p className="text-emerald-100/70 text-base mb-10">
         Để chúng tôi biết cá nhân hóa chương trình tập luyện phù hợp nhất.
       </p>
 
@@ -55,12 +55,12 @@ const StepGender = ({ store }: StepGenderProps) => {
               className={`flex-1 flex flex-col items-center justify-center p-8 rounded-3xl border-2 transition-all cursor-pointer ${
                 isSelected
                   ? 'border-[#10b981] bg-[#10b981]/15 text-[#10b981] shadow-[0_0_25px_rgba(16,185,129,0.2)]'
-                  : 'border-white/10 bg-white/5 text-white hover:border-white/20'
+                  : 'border-emerald-500/20 bg-[#131d17] text-white hover:border-emerald-500/40'
               }`}
             >
               <div className="mb-4">{opt.icon(isSelected)}</div>
               <span className="font-bold text-xl mb-1">{opt.label}</span>
-              <span className="text-xs text-white/50">{opt.sub}</span>
+              <span className="text-xs text-emerald-300/70">{opt.sub}</span>
             </button>
           );
         })}

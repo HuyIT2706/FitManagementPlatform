@@ -42,6 +42,7 @@ const OnboardingPage = () => {
 
   useEffect(() => {
     setIsClient(true);
+    document.documentElement.classList.add('dark');
     if (store.currentStep && store.currentStep >= 1 && store.currentStep <= steps) {
       setCurrentStep(store.currentStep);
     }
@@ -207,7 +208,7 @@ const OnboardingPage = () => {
   if (!isClient) return null;
 
   return (
-    <div className="bg-[#0e1511] text-[#dde4dd] min-h-screen flex flex-col font-sans">
+    <div className="dark bg-[#0e1511] text-[#dde4dd] min-h-screen flex flex-col font-sans">
       <div className="w-full max-w-xl mx-auto flex flex-col flex-1 min-h-screen">
         {/* Header & Progress */}
         <header className="p-3.5 sm:p-4 flex items-center justify-between sticky top-0 z-20 bg-[#0e1511]/95 backdrop-blur-md">

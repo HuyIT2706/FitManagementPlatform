@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Inter } from "next/font/google";
 import "../assets/css/globals.css";
 import { ToastContainer } from "../utils/toast";
@@ -18,6 +18,13 @@ const inter = Inter({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#090d0b",
+  colorScheme: "dark",
+  width: "device-width",
+  initialScale: 1,
+};
+
 export const metadata: Metadata = {
   title: "NutriCore",
   description: "NutriCore - Nền tảng Quản lý Dinh dưỡng & Thể hình",
@@ -31,6 +38,11 @@ export const metadata: Metadata = {
     ],
   },
   manifest: "/site.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "NutriCore",
+  },
 };
 
 const RootLayout = ({

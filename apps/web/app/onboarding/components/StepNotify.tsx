@@ -28,14 +28,14 @@ const StepNotify = ({ store }: StepNotifyProps) => {
         <Bell className="text-[#10b981]" size={28} />
         <h2 className="text-3xl font-bold">Không bỏ lỡ nhịp độ</h2>
       </div>
-      <p className="text-white/60 text-base mb-10 leading-relaxed">
+      <p className="text-emerald-100/70 text-base mb-10 leading-relaxed">
         Cho phép NutriCore gửi thông báo nhắc nhở uống nước, theo dõi lịch tập và dinh dưỡng mỗi ngày.
       </p>
 
-      <div className="w-full bg-white/5 p-6 rounded-3xl border border-white/10 flex items-center justify-between">
+      <div className="w-full bg-[#131d17] p-6 rounded-3xl border border-emerald-500/20 flex items-center justify-between">
         <div>
-          <h3 className="font-bold text-lg mb-1">Nhận thông báo</h3>
-          <p className="text-sm text-white/50">Cho phép đẩy thông báo ứng dụng ra màn hình</p>
+          <h3 className="font-bold text-lg mb-1 text-white">Nhận thông báo</h3>
+          <p className="text-sm text-emerald-100/60">Cho phép đẩy thông báo ứng dụng ra màn hình</p>
         </div>
         <button
           type="button"

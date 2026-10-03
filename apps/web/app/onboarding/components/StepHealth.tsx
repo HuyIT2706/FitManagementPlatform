@@ -71,7 +71,7 @@ const StepHealth = ({ store }: StepHealthProps) => {
       </div>
 
       {/* Tabs */}
-      <div className="flex bg-white/5 p-1 rounded-xl mb-4 border border-white/10 shrink-0">
+      <div className="flex bg-[#131d17] p-1 rounded-xl mb-4 border border-emerald-500/20 shrink-0">
         <button
           type="button"
           onClick={() => setActiveTab('PARQ')}
@@ -99,9 +99,9 @@ const StepHealth = ({ store }: StepHealthProps) => {
       <div className="overflow-y-auto flex-1 pr-1 space-y-4 no-scrollbar">
         {activeTab === 'PARQ' ? (
           <div>
-            <div className="mb-4 p-3 rounded-xl bg-white/5 border border-white/10 flex items-start gap-2.5">
+            <div className="mb-4 p-3 rounded-xl bg-[#131d17] border border-emerald-500/20 flex items-start gap-2.5">
               <ShieldAlert className="text-[#10b981] shrink-0 mt-0.5" size={20} />
-              <p className="text-xs text-white/70">
+              <p className="text-xs text-emerald-100/80">
                 Bộ câu hỏi **PAR-Q+** giúp phát hiện sớm các rủi ro sức khỏe trước khi bắt đầu lộ trình tập luyện thể thao an toàn.
               </p>
             </div>
@@ -113,7 +113,7 @@ const StepHealth = ({ store }: StepHealthProps) => {
                 return (
                   <div
                     key={q.id}
-                    className="p-3.5 rounded-xl border border-white/10 bg-white/5 flex flex-col md:flex-row md:items-center justify-between gap-3"
+                    className="p-3.5 rounded-xl border border-emerald-500/20 bg-[#131d17] flex flex-col md:flex-row md:items-center justify-between gap-3"
                   >
                     <span className="text-sm font-medium text-white/90 leading-snug">{q.label}</span>
                     <div className="flex gap-2 shrink-0 self-end md:self-auto">
@@ -176,7 +176,7 @@ const StepHealth = ({ store }: StepHealthProps) => {
           </div>
         ) : (
           <div className="space-y-3">
-            <p className="text-xs text-white/60 mb-2">Chọn thêm các bệnh lý nếu có để nhận gợi ý bài tập phù hợp:</p>
+            <p className="text-xs text-emerald-100/70 mb-2">Chọn thêm các bệnh lý nếu có để nhận gợi ý bài tập phù hợp:</p>
             {options.map((opt) => {
               const isSelected = store.healthConditions.includes(opt.id);
               return (
@@ -187,14 +187,14 @@ const StepHealth = ({ store }: StepHealthProps) => {
                   className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all text-left cursor-pointer ${
                     isSelected
                       ? 'border-[#10b981] bg-[#10b981]/15'
-                      : 'border-white/10 bg-white/5 hover:border-white/20'
+                      : 'border-emerald-500/20 bg-[#131d17] hover:border-emerald-500/40'
                   }`}
                 >
                   <div>
                     <span className={`text-base font-bold block mb-0.5 ${isSelected ? 'text-[#10b981]' : 'text-white'}`}>
                       {opt.label}
                     </span>
-                    <span className="text-xs text-white/60">{opt.desc}</span>
+                    <span className="text-xs text-emerald-100/70">{opt.desc}</span>
                   </div>
                   <div
                     className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ml-3 transition-colors ${
