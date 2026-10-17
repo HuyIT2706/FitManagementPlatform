@@ -4,7 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { Role } from '@prisma/client';
+import { Role, type FoodLibrary } from '@prisma/client';
 import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
@@ -515,7 +515,7 @@ export class AdminService {
     `;
 
     const [foods, countRes] = await Promise.all([
-      this.prisma.$queryRawUnsafe<any[]>(dataSql, ...queryParams),
+      this.prisma.$queryRawUnsafe<FoodLibrary[]>(dataSql, ...queryParams),
       this.prisma.$queryRawUnsafe<{ total: number }[]>(
         countSql,
         ...countParams,

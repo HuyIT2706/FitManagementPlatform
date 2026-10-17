@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, UtensilsCrossed, Plus, CheckCircle2, Check, ChevronLeft, ChevronRight, History } from 'lucide-react';
 import AppLoading from '../../../../../components/ui/AppLoading';
 import AppSearchInput from '../../../../../components/ui/AppSearchInput';
@@ -22,17 +22,19 @@ const PtFoodSelectionModal = ({
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('HISTORY');
   const [foods, setFoods] = useState<FoodItem[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
   const [weight, setWeight] = useState<number | ''>(100);
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalCount, setTotalCount] = useState<number>(0);
+  const latestRequestId = useRef(0);
 
   // Auto detect initial filter when modal opens
   useEffect(() => {
     if (isOpen) {
+      setLoading(true);
       const recents = getRecentFoods();
       if (recents.length > 0) {
         setSelectedFilter('HISTORY');
@@ -49,7 +51,7 @@ const PtFoodSelectionModal = ({
     const timer = setTimeout(() => {
       setDebouncedQuery(query);
       setCurrentPage(1);
-    }, 400);
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [query]);
@@ -57,45 +59,57 @@ const PtFoodSelectionModal = ({
   useEffect(() => {
     if (!isOpen) return;
 
+    const currentReq = ++latestRequestId.current;
+
     // If on HISTORY tab
     if (selectedFilter === 'HISTORY') {
       const recents = getRecentFoods();
       if (!debouncedQuery || debouncedQuery.trim() === '') {
-        setFoods(recents);
-        setTotalPages(1);
-        setTotalCount(recents.length);
-        setLoading(false);
+        if (currentReq === latestRequestId.current) {
+          setFoods(recents);
+          setTotalPages(1);
+          setTotalCount(recents.length);
+          setLoading(false);
+        }
       } else {
         const q = debouncedQuery.toLowerCase().trim();
         const filtered = recents.filter((f) => f.name.toLowerCase().includes(q));
-        setFoods(filtered);
-        setTotalPages(1);
-        setTotalCount(filtered.length);
-        setLoading(false);
+        if (currentReq === latestRequestId.current) {
+          setFoods(filtered);
+          setTotalPages(1);
+          setTotalCount(filtered.length);
+          setLoading(false);
+        }
       }
       return;
     }
 
     setLoading(true);
+    const catParam = selectedFilter !== 'ALL' && selectedFilter !== 'HISTORY' ? `&category=${selectedFilter}` : '';
     apiClient
       .get<FoodPaginatedResponse | FoodItem[]>(
-        `/nutrition/foods?q=${encodeURIComponent(debouncedQuery)}&page=${currentPage}&limit=8`
+        `/nutrition/foods?q=${encodeURIComponent(debouncedQuery)}&page=${currentPage}&limit=8${catParam}`
       )
       .then((res) => {
-        if (res.data && 'data' in res.data && Array.isArray(res.data.data)) {
-          setFoods(res.data.data);
-          setTotalPages(res.data.totalPages || 1);
-          setTotalCount(res.data.total || 0);
-        } else if (Array.isArray(res.data)) {
-          setFoods(res.data);
-          setTotalPages(1);
-          setTotalCount(res.data.length);
+        if (currentReq === latestRequestId.current) {
+          if (res.data && 'data' in res.data && Array.isArray(res.data.data)) {
+            setFoods(res.data.data);
+            setTotalPages(res.data.totalPages || 1);
+            setTotalCount(res.data.total || 0);
+          } else if (Array.isArray(res.data)) {
+            setFoods(res.data);
+            setTotalPages(1);
+            setTotalCount(res.data.length);
+          }
         }
-        setLoading(false);
       })
       .catch((error) => {
         console.error('Error fetching foods for PT modal:', error);
-        setLoading(false);
+      })
+      .finally(() => {
+        if (currentReq === latestRequestId.current) {
+          setLoading(false);
+        }
       });
   }, [isOpen, debouncedQuery, currentPage, selectedFilter]);
 
@@ -103,13 +117,6 @@ const PtFoodSelectionModal = ({
 
   const handleFilterClick = (filter: (typeof QUICK_FILTERS)[0]) => {
     setSelectedFilter(filter.id);
-    if (filter.id === 'HISTORY') {
-      setQuery('');
-      setDebouncedQuery('');
-    } else {
-      setQuery(filter.query);
-      setDebouncedQuery(filter.query);
-    }
     setCurrentPage(1);
   };
 
@@ -131,6 +138,8 @@ const PtFoodSelectionModal = ({
       setWeight(100);
     }
   };
+
+  const isSearching = loading || query !== debouncedQuery;
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
@@ -164,6 +173,15 @@ const PtFoodSelectionModal = ({
             <AppSearchInput
               value={query}
               onChange={(val) => setQuery(val)}
+              onClear={() => {
+                setQuery('');
+                setDebouncedQuery('');
+                setCurrentPage(1);
+              }}
+              onSubmit={() => {
+                setDebouncedQuery(query);
+                setCurrentPage(1);
+              }}
               placeholder="Tìm kiếm món ăn, thực phẩm (Ví dụ: ức gà, trứng, yến mạch)..."
               variant="filled"
             />
@@ -190,7 +208,7 @@ const PtFoodSelectionModal = ({
 
         {/* Food List */}
         <div className="p-3 sm:p-5 overflow-y-auto flex-1 space-y-2.5 sm:space-y-3 [&&::-webkit-scrollbar]:w-1.5 [&&::-webkit-scrollbar-thumb]:bg-primary/40 [&&::-webkit-scrollbar-thumb]:rounded-full [&&::-webkit-scrollbar-track]:bg-black/20">
-          {loading ? (
+          {isSearching ? (
             <AppLoading size="sm" message="Đang tìm món ăn..." />
           ) : foods.length === 0 ? (
             selectedFilter === 'HISTORY' ? (

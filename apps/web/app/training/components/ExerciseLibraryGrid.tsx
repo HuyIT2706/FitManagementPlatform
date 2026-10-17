@@ -47,7 +47,7 @@ const ExerciseLibraryGrid = ({
               Thư viện bài tập
             </h3>
             <p className="text-xs sm:text-sm text-on-surface-variant font-medium mt-0.5">
-              {totalExercises} bài tập khả dụng
+              {exerciseLoading ? 'Đang tìm kiếm...' : `${totalExercises} bài tập khả dụng`}
             </p>
           </div>
 

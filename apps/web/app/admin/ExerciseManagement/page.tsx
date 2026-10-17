@@ -324,6 +324,9 @@ const AdminContentLibraryManagement = () => {
       .finally(() => setSubmitting(false));
   };
 
+  const isExSearching = exLoading || exSearch !== debouncedExSearch;
+  const isFoodSearching = foodLoading || foodSearch !== debouncedFoodSearch;
+
   return (
     <div className="space-y-6">
       {/* Top Tab Navigation & Add Action */}
@@ -349,7 +352,7 @@ const AdminContentLibraryManagement = () => {
 
           <ExerciseTable
             exercises={exercises}
-            loading={exLoading}
+            loading={isExSearching}
             onEdit={handleOpenEditExModal}
             onDelete={setExToDelete}
           />
@@ -376,7 +379,7 @@ const AdminContentLibraryManagement = () => {
 
           <FoodTable
             foods={foods}
-            loading={foodLoading}
+            loading={isFoodSearching}
             onEdit={handleOpenEditFoodModal}
             onDelete={setFoodToDelete}
           />

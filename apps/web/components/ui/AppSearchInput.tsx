@@ -79,6 +79,7 @@ const AppSearchInput = ({
 
   return (
     <div
+      suppressHydrationWarning
       className={`group relative flex items-center rounded-2xl transition-all duration-300 ${sizeConfig.container} ${variantConfig} ${
         disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''
       } ${className}`}
@@ -99,7 +100,8 @@ const AppSearchInput = ({
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         disabled={disabled}
-        autoFocus={autoFocus}
+        autoFocus={autoFocus ? true : undefined}
+        suppressHydrationWarning
         className={`w-full h-full bg-transparent text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-white/40 focus:outline-none font-medium ${sizeConfig.inputPl} ${sizeConfig.inputPr} ${inputClassName}`}
       />
 

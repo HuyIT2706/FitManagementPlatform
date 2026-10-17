@@ -13,6 +13,7 @@ import {
   Award,
   BellRing,
   Sparkles,
+  X,
 } from 'lucide-react';
 import apiClient from '../../api/axios';
 import {
@@ -61,13 +62,17 @@ const NotificationBellDropdown = ({
   }, []);
 
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setIsOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, []);
 
   const filteredNotifications = useMemo(() => {
@@ -199,33 +204,54 @@ const NotificationBellDropdown = ({
       </button>
 
       {isOpen && (
-        <div
-          className="absolute right-0 top-full mt-2 w-[320px] xs:w-[360px] sm:w-[400px] bg-white dark:bg-[#121a15] backdrop-blur-2xl border border-slate-200 dark:border-white/15 rounded-2xl sm:rounded-3xl shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 overflow-hidden flex flex-col max-h-[82vh]"
-          suppressHydrationWarning
-        >
-          <div className="p-3.5 sm:p-4 border-b border-slate-200 dark:border-white/10 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <h4 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white">
-                Thông Báo
-              </h4>
-              {unreadCount > 0 && (
-                <span className="px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[10px] font-bold border border-rose-500/20">
-                  {unreadCount} mới
-                </span>
-              )}
-            </div>
+        <>
+          {/* Mobile Overlay Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-xs z-40 sm:hidden"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsOpen(false);
+            }}
+            aria-hidden="true"
+          />
 
-            {unreadCount > 0 && (
-              <button
-                type="button"
-                onClick={handleMarkAllAsRead}
-                className="text-[11px] font-bold text-emerald-600 dark:text-[#10b981] hover:underline flex items-center gap-1 cursor-pointer"
-              >
-                <CheckCheck size={14} />
-                Đã đọc hết
-              </button>
-            )}
-          </div>
+          <div
+            className="fixed sm:absolute top-16 sm:top-full left-3 right-3 sm:left-auto sm:right-0 sm:mt-2 mx-auto sm:mx-0 w-auto sm:w-[400px] max-w-[420px] sm:max-w-none bg-white dark:bg-[#121a15] backdrop-blur-2xl border border-slate-200 dark:border-white/15 rounded-2xl sm:rounded-3xl shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 overflow-hidden flex flex-col max-h-[80vh] sm:max-h-[82vh]"
+            suppressHydrationWarning
+          >
+            <div className="p-3.5 sm:p-4 border-b border-slate-200 dark:border-white/10 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <h4 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white">
+                  Thông Báo
+                </h4>
+                {unreadCount > 0 && (
+                  <span className="px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[10px] font-bold border border-rose-500/20">
+                    {unreadCount} mới
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                {unreadCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleMarkAllAsRead}
+                    className="text-[11px] font-bold text-emerald-600 dark:text-[#10b981] hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <CheckCheck size={14} />
+                    <span>Đã đọc hết</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                  className="w-7 h-7 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer sm:hidden"
+                  aria-label="Đóng thông báo"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
 
           {permissionStatus !== 'granted' && permissionStatus !== 'unsupported' && (
             <div className="p-3 bg-emerald-500/10 border-b border-emerald-500/20 flex items-center justify-between gap-2 text-xs">
@@ -324,7 +350,8 @@ const NotificationBellDropdown = ({
             )}
           </div>
         </div>
-      )}
+      </>
+    )}
     </div>
   );
 };

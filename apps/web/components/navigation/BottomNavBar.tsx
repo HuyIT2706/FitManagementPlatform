@@ -1,9 +1,14 @@
-import React from "react";
+'use client';
+
+import React, { useState } from "react";
 import Link from "next/link";
 import { BookOpen, Dumbbell, History, User, Plus } from "lucide-react";
 import type { BottomNavBarProps } from "../../interface";
+import { QuickActionBottomSheet } from "./QuickActionBottomSheet";
 
 const BottomNavBar = ({ activeTab }: BottomNavBarProps) => {
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
   return (
     <>
       <div className="md:hidden fixed bottom-10 left-1/2 -translate-x-1/2 w-[92%] max-w-md z-50 flex items-center justify-center gap-3">
@@ -32,15 +37,20 @@ const BottomNavBar = ({ activeTab }: BottomNavBarProps) => {
           </div>
         </nav>
         
-        <Link
-          href="/add-meal"
-          prefetch={true}
+        <button
+          type="button"
+          onClick={() => setIsSheetOpen(true)}
           aria-label="Thêm bữa ăn nhanh"
-          className="w-14 h-14 shrink-0 rounded-full bg-primary text-white flex items-center justify-center shadow-[0_0_15px_rgba(102,200,28,0.4)] active:scale-95 transition-transform"
+          className="w-14 h-14 shrink-0 rounded-full bg-primary text-white flex items-center justify-center shadow-[0_0_15px_rgba(102,200,28,0.4)] active:scale-95 transition-transform cursor-pointer"
         >
           <Plus className="w-7 h-7 font-bold" />
-        </Link>
+        </button>
       </div>
+
+      <QuickActionBottomSheet
+        isOpen={isSheetOpen}
+        onClose={() => setIsSheetOpen(false)}
+      />
       {/* Add space for fixed bottom nav on mobile */}
       <div className="h-32 md:hidden"></div>
     </>

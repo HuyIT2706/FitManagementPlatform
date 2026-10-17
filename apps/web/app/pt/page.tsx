@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '../../components/ui/Header';
 import PTBottomNavBar from '../../components/navigation/PTBottomNavBar';
 import AppLoading from '../../components/ui/AppLoading';
@@ -19,6 +19,14 @@ import PtStudentRosterQuick from './home/components/PtStudentRosterQuick';
 const PTPage = () => {
   const { data: userData, isLoading: userLoading } = useCurrentUser();
   const { data: ptData, isLoading: ptLoading, mutate: mutatePt } = usePtDashboard();
+
+  useEffect(() => {
+    const token = localStorage.getItem('jwt_token');
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
+  }, []);
 
   const [checkedSessions, setCheckedSessions] = useState<Record<string, boolean>>({});
 

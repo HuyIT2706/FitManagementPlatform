@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { X, Dumbbell, ExternalLink, Check, PlayCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import AppLoading from '../../../../../components/ui/AppLoading';
 import AppSearchInput from '../../../../../components/ui/AppSearchInput';
@@ -18,9 +18,11 @@ const ExerciseSelectionModal = ({
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedMuscle, setSelectedMuscle] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalExercises, setTotalExercises] = useState<number>(0);
+  const latestRequestId = useRef(0);
 
   const muscleCategories = [
     { key: 'ALL', label: 'Tất cả' },
@@ -33,27 +35,42 @@ const ExerciseSelectionModal = ({
   ];
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+      setCurrentPage(1);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  useEffect(() => {
     if (!isOpen) return;
 
+    const currentReq = ++latestRequestId.current;
     setLoading(true);
     const muscleQuery = selectedMuscle === 'ALL' ? '' : `&muscle=${encodeURIComponent(selectedMuscle)}`;
-    const searchQueryStr = searchQuery.trim() ? `&search=${encodeURIComponent(searchQuery.trim())}` : '';
+    const searchQueryStr = debouncedSearchQuery.trim() ? `&search=${encodeURIComponent(debouncedSearchQuery.trim())}` : '';
 
     apiClient
       .get<ExercisePaginatedResponse>(
         `/workout/exercises?page=${currentPage}&limit=8${muscleQuery}${searchQueryStr}`
       )
       .then((res) => {
-        setExercises(res.data.data || []);
-        setTotalPages(res.data.totalPages || 1);
-        setTotalExercises(res.data.total || 0);
-        setLoading(false);
+        if (currentReq === latestRequestId.current) {
+          setExercises(res.data.data || []);
+          setTotalPages(res.data.totalPages || 1);
+          setTotalExercises(res.data.total || 0);
+        }
       })
       .catch((err) => {
         console.error('Error fetching DB exercises in modal:', err);
-        setLoading(false);
+      })
+      .finally(() => {
+        if (currentReq === latestRequestId.current) {
+          setLoading(false);
+        }
       });
-  }, [isOpen, selectedMuscle, searchQuery, currentPage]);
+  }, [isOpen, selectedMuscle, debouncedSearchQuery, currentPage]);
 
   if (!isOpen) return null;
 
@@ -66,6 +83,8 @@ const ExerciseSelectionModal = ({
     setSearchQuery(query);
     setCurrentPage(1);
   };
+
+  const isSearching = loading || searchQuery !== debouncedSearchQuery;
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
@@ -115,7 +134,7 @@ const ExerciseSelectionModal = ({
 
         {/* Exercise List */}
         <div className="p-3 sm:p-5 overflow-y-auto flex-1 space-y-2.5 sm:space-y-3 [&&::-webkit-scrollbar]:w-1.5 [&&::-webkit-scrollbar-thumb]:bg-primary/40 [&&::-webkit-scrollbar-thumb]:rounded-full [&&::-webkit-scrollbar-track]:bg-black/20">
-          {loading ? (
+          {isSearching ? (
             <AppLoading size="sm" message="Đang lấy danh sách bài tập..." />
           ) : exercises.length === 0 ? (
             <div className="text-center py-12 text-slate-500 dark:text-white/50 space-y-2">

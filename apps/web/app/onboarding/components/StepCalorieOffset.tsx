@@ -40,7 +40,7 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
         if (res.data?.calorieOffsetOptions && Array.isArray(res.data.calorieOffsetOptions)) {
           setOptions(res.data.calorieOffsetOptions);
 
-          // Check if current stored offset is a custom value
+          // Only determine custom mode initially if not already explicitly toggled
           const currentOffset = store.caloriesOffset;
           if (currentOffset !== undefined && currentOffset !== null) {
             const matchesPreset = res.data.calorieOffsetOptions.some(
@@ -48,7 +48,7 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
             );
             if (!matchesPreset) {
               setIsCustom(true);
-              setCustomInput(String(Math.abs(currentOffset)));
+              setCustomInput((prev) => prev || String(Math.abs(currentOffset)));
             }
           }
         }
@@ -57,19 +57,20 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
         console.error('Error fetching calorie offset options from BE:', err);
       })
       .finally(() => setLoading(false));
-  }, [store.weight, store.targetWeight, store.height, store.gender, store.activityLevel, store.birthYear, store.caloriesOffset]);
+  }, [store.weight, store.targetWeight, store.height, store.gender, store.activityLevel, store.birthYear]);
 
   const currentOffset = store.caloriesOffset ?? (isLosing ? -400 : 400);
 
-  const handleCustomInputChange = (val: string) => {
-    setCustomInput(val);
-    const num = Math.abs(parseInt(val, 10));
+  const handleCustomInputChange = (rawVal: string) => {
+    const cleaned = rawVal.replace(/\D/g, '').slice(0, 4);
+    setCustomInput(cleaned);
+    const num = parseInt(cleaned, 10);
     if (!isNaN(num) && num > 0) {
       store.setCaloriesOffset(isLosing ? -num : num);
     }
   };
 
-  const customNum = Math.abs(parseInt(customInput, 10)) || 0;
+  const customNum = parseInt(customInput, 10) || 0;
   const weeklyRate = ((customNum * 7) / 7700).toFixed(2);
 
   return (
@@ -163,13 +164,12 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
                   <div className="flex items-center gap-3">
                     <div className="relative flex-1">
                       <input
-                        type="number"
-                        min="50"
-                        max="2000"
-                        step="50"
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         value={customInput}
                         onChange={(e) => handleCustomInputChange(e.target.value)}
-                        placeholder="Ví dụ: 600"
+                        placeholder={isLosing ? 'Ví dụ: 500' : 'Ví dụ: 400'}
                         className="w-full bg-[#121620] border border-white/20 focus:border-[#10b981] rounded-xl px-4 py-3 text-white font-extrabold text-base outline-none pr-28 transition-all"
                       />
                       <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-white/50 pointer-events-none">
@@ -190,10 +190,22 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
                     </div>
                   )}
 
+                  {/* Range guidance helper */}
+                  {customNum > 0 && customNum < 100 && (
+                    <p className="text-[11px] text-amber-300 font-medium">
+                      ℹ️ Mức {isLosing ? 'thâm hụt' : 'thặng dư'} dưới 100 kcal/ngày có tiến độ rất chậm. Phổ biến nhất là 300 - 700 kcal/ngày.
+                    </p>
+                  )}
+
                   {/* Warning if deficit is very high */}
                   {isLosing && customNum > 1000 && (
                     <p className="text-[11px] text-amber-400 font-medium">
                       ⚠️ Mức thâm hụt trên 1000 kcal/ngày là rất lớn, cần đảm bảo đủ chất dinh dưỡng và tham khảo ý kiến HLV/bác sĩ.
+                    </p>
+                  )}
+                  {!isLosing && customNum > 1000 && (
+                    <p className="text-[11px] text-amber-400 font-medium">
+                      ⚠️ Mức thặng dư trên 1000 kcal/ngày có thể dẫn đến tăng mỡ nhanh chóng, hãy cân nhắc mức hợp lý hơn (300 - 500 kcal).
                     </p>
                   )}
                 </div>

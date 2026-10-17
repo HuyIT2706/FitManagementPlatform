@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect} from 'react';
 import Header from '../../components/ui/Header';
 import BottomNavBar from '../../components/navigation/BottomNavBar';
 import AppLoading from '../../components/ui/AppLoading';
@@ -16,6 +16,13 @@ const HistoryPage = () => {
   const { data: userData, isLoading: userLoading } = useCurrentUser();
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
   const [currentMonth, setCurrentMonth] = useState<Date>(() => new Date());
+
+  useEffect(() => {
+    const token = localStorage.getItem('jwt_token');
+    if (!token) {
+      window.location.href = '/login';
+    }
+  }, []);
 
   const selectedDateStr = formatYYYYMMDD(selectedDate);
   const { data: dailyData, isLoading: dailyLoading } = useDailyNutrition(selectedDateStr);

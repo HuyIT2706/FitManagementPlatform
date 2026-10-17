@@ -41,6 +41,11 @@ const OnboardingPage = () => {
   });
 
   useEffect(() => {
+    const token = localStorage.getItem('jwt_token');
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
     setIsClient(true);
     document.documentElement.classList.add('dark');
     if (store.currentStep && store.currentStep >= 1 && store.currentStep <= steps) {

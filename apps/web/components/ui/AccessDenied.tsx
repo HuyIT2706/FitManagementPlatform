@@ -18,6 +18,18 @@ const AccessDenied = ({
   title,
   message,
 }: AccessDeniedProps) => {
+  // If user is not logged in at all, immediately redirect to login page instead of showing access denied error
+  React.useEffect(() => {
+    if (!currentUser) {
+      localStorage.removeItem("jwt_token");
+      window.location.href = "/login";
+    }
+  }, [currentUser]);
+
+  if (!currentUser) {
+    return null;
+  }
+
   const currentRole = currentUser?.role;
 
   const currentRoleLabel =

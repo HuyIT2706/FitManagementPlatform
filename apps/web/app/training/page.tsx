@@ -39,6 +39,13 @@ const WorkoutPage = () => {
   const [checkedExercises, setCheckedExercises] = useState<Record<string, boolean>>({});
   const [activeExercise, setActiveExercise] = useState<ExerciseItem | null>(null);
 
+  useEffect(() => {
+    const token = localStorage.getItem('jwt_token');
+    if (!token) {
+      router.replace('/login');
+    }
+  }, [router]);
+
   // Debounce search query by 300ms to avoid overwhelming the backend API
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -48,12 +55,15 @@ const WorkoutPage = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const { data: exerciseData, isLoading: exerciseLoading } = useExerciseLibrary(
+  const { data: exerciseData, isLoading: exerciseLoading, isValidating: exerciseValidating } = useExerciseLibrary(
     currentPage,
     pageSize,
     selectedMuscle,
     debouncedSearchQuery
   );
+
+  const isDebouncing = searchQuery !== debouncedSearchQuery;
+  const isExerciseSearching = exerciseLoading || exerciseValidating || isDebouncing;
 
   const exercises = exerciseData?.data || [];
   const totalPages = exerciseData?.totalPages || 1;
@@ -115,7 +125,7 @@ const WorkoutPage = () => {
           exercises={exercises}
           selectedMuscle={selectedMuscle}
           searchQuery={searchQuery}
-          exerciseLoading={exerciseLoading}
+          exerciseLoading={isExerciseSearching}
           currentPage={currentPage}
           totalPages={totalPages}
           totalExercises={totalExercises}

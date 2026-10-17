@@ -7,7 +7,7 @@ import {
   Get,
   Post,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
+import { UsersService, type UpdateProfileDto } from './users.service';
 import { OnboardingDto } from './dto/onboarding.dto';
 import { JwtGuard } from '../auth/jwt.guard';
 import type { RequestWithUser } from '@repo/types';
@@ -26,7 +26,7 @@ export class UsersController {
   @Patch('me')
   async updateProfile(
     @Request() req: RequestWithUser,
-    @Body() dto: Record<string, any>,
+    @Body() dto: UpdateProfileDto,
   ) {
     return this.usersService.updateProfile(req.user.sub, dto);
   }

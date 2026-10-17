@@ -1,8 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { Plus, CheckCircle2, ChevronLeft, ChevronRight, X, History } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Plus, CheckCircle2, ChevronLeft, ChevronRight, X, History, Search } from 'lucide-react';
 import AppLoading from '../ui/AppLoading';
 import AppSearchInput from '../ui/AppSearchInput';
 import apiClient from '../../api/axios';
@@ -12,13 +12,13 @@ import { useMealBuilderStore } from '../../services/useMealBuilderStore';
 import { getRecentFoods, saveRecentFood } from '../../utils/recentFoods';
 
 export const QUICK_FILTERS = [
-  { id: 'HISTORY', label: 'Lịch sử', query: '' },
-  { id: 'ALL', label: 'Tất cả', query: '' },
-  { id: 'MEAT', label: 'Thịt & Cá', query: 'thịt' },
-  { id: 'EGG', label: 'Trứng & Sữa', query: 'trứng' },
-  { id: 'VEG', label: 'Rau củ', query: 'rau' },
-  { id: 'RICE', label: 'Cơm & Tinh bột', query: 'cơm' },
-  { id: 'FRUIT', label: 'Trái cây', query: 'quả' },
+  { id: 'HISTORY', label: 'Lịch sử' },
+  { id: 'ALL', label: 'Tất cả' },
+  { id: 'MEAT', label: 'Thịt & Cá' },
+  { id: 'EGG', label: 'Trứng & Sữa' },
+  { id: 'VEG', label: 'Rau củ' },
+  { id: 'RICE', label: 'Cơm & Tinh bột' },
+  { id: 'FRUIT', label: 'Trái cây' },
 ];
 
 const FoodSelector = ({
@@ -32,53 +32,62 @@ const FoodSelector = ({
   const [selectedFilter, setSelectedFilter] = useState('ALL');
 
   const [foods, setFoods] = useState<FoodItem[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
   const [weight, setWeight] = useState<number | ''>(100);
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalCount, setTotalCount] = useState<number>(0);
+  const latestRequestId = useRef(0);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedQuery(query);
       setCurrentPage(1);
-    }, 400);
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [query]);
 
   const fetchFoods = useCallback(async (q: string = '', page: number = 1, filterId: string = 'ALL') => {
+    const currentReq = ++latestRequestId.current;
     setLoading(true);
     try {
       if (filterId === 'HISTORY' && (!q || q.trim() === '')) {
         const localHistory = getRecentFoods();
         if (localHistory.length > 0) {
-          setFoods(localHistory);
-          setTotalPages(1);
-          setTotalCount(localHistory.length);
-          setLoading(false);
+          if (currentReq === latestRequestId.current) {
+            setFoods(localHistory);
+            setTotalPages(1);
+            setTotalCount(localHistory.length);
+            setLoading(false);
+          }
           return;
         }
       }
       const isHistoryParam = filterId === 'HISTORY' && (!q || q.trim() === '') ? '&isHistory=true' : '';
+      const catParam = filterId !== 'ALL' && filterId !== 'HISTORY' ? `&category=${filterId}` : '';
       const res = await apiClient.get<FoodPaginatedResponse | FoodItem[]>(
-        `/nutrition/foods?q=${encodeURIComponent(q)}&page=${page}&limit=8${isHistoryParam}`
+        `/nutrition/foods?q=${encodeURIComponent(q)}&page=${page}&limit=8${isHistoryParam}${catParam}`
       );
-      if (res.data && 'data' in res.data && Array.isArray(res.data.data)) {
-        setFoods(res.data.data);
-        setTotalPages(res.data.totalPages || 1);
-        setTotalCount(res.data.total || 0);
-      } else if (Array.isArray(res.data)) {
-        setFoods(res.data);
-        setTotalPages(1);
-        setTotalCount(res.data.length);
+      if (currentReq === latestRequestId.current) {
+        if (res.data && 'data' in res.data && Array.isArray(res.data.data)) {
+          setFoods(res.data.data);
+          setTotalPages(res.data.totalPages || 1);
+          setTotalCount(res.data.total || 0);
+        } else if (Array.isArray(res.data)) {
+          setFoods(res.data);
+          setTotalPages(1);
+          setTotalCount(res.data.length);
+        }
       }
     } catch (error) {
       console.error('Error fetching foods:', error);
     } finally {
-      setLoading(false);
+      if (currentReq === latestRequestId.current) {
+        setLoading(false);
+      }
     }
   }, []);
 
@@ -88,7 +97,6 @@ const FoodSelector = ({
 
   const handleFilterClick = (filter: (typeof QUICK_FILTERS)[0]) => {
     setSelectedFilter(filter.id);
-    setQuery(filter.query);
     setCurrentPage(1);
   };
 
@@ -106,15 +114,32 @@ const FoodSelector = ({
     }
   };
 
+  const isSearching = loading || query !== debouncedQuery;
+
+  const searchPlaceholder =
+    selectedFilter === 'VEG'
+      ? 'Tìm trong nhóm Rau củ (Ví dụ: cải ngọt, xà lách, súp lơ)...'
+      : selectedFilter === 'MEAT'
+        ? 'Tìm trong nhóm Thịt & Cá (Ví dụ: ức gà, cá hồi, thịt bò)...'
+        : selectedFilter === 'EGG'
+          ? 'Tìm trong nhóm Trứng & Sữa (Ví dụ: trứng gà, sữa chua, whey)...'
+          : selectedFilter === 'RICE'
+            ? 'Tìm trong nhóm Cơm & Tinh bột (Ví dụ: cơm trắng, yến mạch, khoai)...'
+            : selectedFilter === 'FRUIT'
+              ? 'Tìm trong nhóm Trái cây (Ví dụ: chuối, táo, bơ, dưa hấu)...'
+              : 'Tìm kiếm món ăn theo tên hoặc danh mục...';
+
   return (
     <div className="space-y-4">
       {title && (
         <div className="px-1 flex items-center justify-between">
           <h3 className="font-bold text-lg text-on-surface">{title}</h3>
           <span className="text-xs text-on-surface-variant font-medium">
-            {selectedFilter === 'ALL' && !query
+            {isSearching
+              ? 'Đang tìm kiếm...'
+              : selectedFilter === 'HISTORY' && !query
               ? `${totalCount} món đã từng ăn`
-              : `${totalCount} món phù hợp`}
+              : `${totalCount} món khả dụng`}
           </span>
         </div>
       )}
@@ -124,7 +149,16 @@ const FoodSelector = ({
         <AppSearchInput
           value={query}
           onChange={(val) => setQuery(val)}
-          placeholder="Tìm kiếm món ăn theo tên hoặc danh mục..."
+          onClear={() => {
+            setQuery('');
+            setDebouncedQuery('');
+            setCurrentPage(1);
+          }}
+          onSubmit={() => {
+            setDebouncedQuery(query);
+            setCurrentPage(1);
+          }}
+          placeholder={searchPlaceholder}
           variant="glass"
         />
       </div>
@@ -145,7 +179,7 @@ const FoodSelector = ({
                   : 'bg-surface-bright/40 text-on-surface-variant border border-white/10 hover:bg-surface-bright hover:text-on-surface'
               }`}
             >
-              {filter.id === 'ALL' && <History size={13} className={isActive ? 'text-dark-slate' : 'text-primary'} />}
+              {filter.id === 'HISTORY' && <History size={13} className={isActive ? 'text-dark-slate' : 'text-primary'} />}
               {filter.label}
             </button>
           );
@@ -154,21 +188,57 @@ const FoodSelector = ({
 
       {/* Food Cards List */}
       <div className="space-y-2 sm:space-y-2.5 pt-1">
-        {loading ? (
+        {isSearching ? (
           <AppLoading size="sm" message="Đang tải danh sách món ăn..." />
         ) : foods.length === 0 ? (
-          <div className="text-center py-8 sm:py-10 px-4 rounded-2xl bg-surface-bright/10 border border-white/5 space-y-2">
-            <History size={32} className="mx-auto text-on-surface-variant/40 mb-1" />
-            <p className="text-sm font-bold text-on-surface">
-              {selectedFilter === 'ALL' && !query
-                ? 'Bạn chưa có lịch sử món ăn'
-                : 'Không tìm thấy món ăn phù hợp'}
-            </p>
-            <p className="text-xs text-on-surface-variant max-w-xs mx-auto">
-              {selectedFilter === 'ALL' && !query
-                ? 'Hãy gõ tên món vào ô tìm kiếm hoặc chọn danh mục phía trên để thêm món mới nhé!'
-                : 'Thử tìm kiếm với từ khóa khác hoặc xóa bộ lọc.'}
-            </p>
+          <div className="text-center py-8 sm:py-10 px-4 rounded-2xl bg-surface-bright/10 border border-white/5 space-y-3">
+            {selectedFilter === 'HISTORY' && !query ? (
+              <History size={32} className="mx-auto text-on-surface-variant/40 mb-1" />
+            ) : (
+              <Search size={32} className="mx-auto text-on-surface-variant/40 mb-1" />
+            )}
+            <div className="space-y-1">
+              <p className="text-sm font-bold text-on-surface">
+                {selectedFilter === 'HISTORY' && !query
+                  ? 'Bạn chưa có lịch sử món ăn'
+                  : 'Không tìm thấy món ăn phù hợp'}
+              </p>
+              <p className="text-xs text-on-surface-variant max-w-xs mx-auto">
+                {selectedFilter === 'HISTORY' && !query
+                  ? 'Hãy gõ tên món vào ô tìm kiếm hoặc chọn danh mục phía trên để thêm món mới nhé!'
+                  : 'Thử tìm kiếm với từ khóa khác hoặc xóa bộ lọc.'}
+              </p>
+            </div>
+
+            {(query || selectedFilter !== 'ALL') && (
+              <div className="flex items-center justify-center gap-2 pt-1 flex-wrap">
+                {query && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setQuery('');
+                      setDebouncedQuery('');
+                      setCurrentPage(1);
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-bold text-white transition-colors cursor-pointer"
+                  >
+                    Xóa từ khóa tìm kiếm
+                  </button>
+                )}
+                {selectedFilter !== 'ALL' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedFilter('ALL');
+                      setCurrentPage(1);
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 text-xs font-bold transition-colors cursor-pointer"
+                  >
+                    Xem tất cả danh mục
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         ) : (
           foods.map((food) => (

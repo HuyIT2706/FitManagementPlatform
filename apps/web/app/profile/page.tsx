@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '../../components/ui/Header';
 import BottomNavBar from '../../components/navigation/BottomNavBar';
 import AppLoading from '../../components/ui/AppLoading';
@@ -18,6 +18,13 @@ const ProfilePage = () => {
   const { data: userData, isLoading: loading, mutate } = useCurrentUser();
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
+  useEffect(() => {
+    const token = localStorage.getItem('jwt_token');
+    if (!token) {
+      window.location.href = '/login';
+    }
+  }, []);
+
   const fetchUserData = () => {
     mutate();
   };
@@ -29,6 +36,14 @@ const ProfilePage = () => {
 
   if (loading && !userData) {
     return <AppLoading fullScreen size="lg" message="Đang nạp hồ sơ cá nhân..." />;
+  }
+
+  if (!loading && !userData) {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('jwt_token');
+      window.location.href = '/login';
+    }
+    return null;
   }
 
   // Pure View: Display metrics directly from Backend response

@@ -16,14 +16,67 @@ export class NutritionService {
     query?: string,
     page: number = 1,
     limit: number = 8,
+    category?: string,
   ): Promise<FoodPaginatedResponse> {
     const pageNum = Math.max(1, Number(page) || 1);
     const limitNum = Math.max(1, Number(limit) || 8);
     const skip = (pageNum - 1) * limitNum;
 
     const trimmed = (query || '').trim();
+    const catKey = (category || '').trim().toUpperCase();
 
-    if (!trimmed) {
+    const SMART_CATEGORY_FILTERS: Record<
+      string,
+      { includeKeywords: string[]; excludeKeywords: string[]; startsWithKeywords: string[] }
+    > = {
+      VEG: {
+        includeKeywords: [
+          'rau', 'cải', 'muống', 'xà lách', 'súp lơ', 'cà rốt', 'bí đỏ', 'bí đao', 'bí xanh',
+          'cà chua', 'bắp cải', 'cải thìa', 'cải ngọt', 'mồng tơi', 'rau ngót', 'su hào',
+          'su su', 'đậu bắp', 'dưa chuột', 'dưa leo', 'măng', 'nấm', 'cần tây', 'bông cải',
+          'ớt chuông', 'củ dền', 'củ cải', 'mướp', 'bầu', 'hoa chuối', 'giá đỗ', 'ngó sen',
+        ],
+        excludeKeywords: ['bánh', 'kẹo', 'chè', 'snack', 'nem rán', 'chả giò', 'bún', 'phở', 'miến'],
+        startsWithKeywords: ['rau', 'cải', 'củ', 'xà lách', 'súp lơ', 'bông cải', 'cà chua', 'dưa chuột', 'bí'],
+      },
+      MEAT: {
+        includeKeywords: [
+          'thịt', 'cá', 'gà', 'bò', 'heo', 'lợn', 'tôm', 'cua', 'mực', 'lươn', 'vịt', 'ngan',
+          'cừu', 'ức gà', 'cá hồi', 'cá thu', 'cá basa', 'cá lóc', 'cá rô', 'cá ngừ', 'bê',
+          'chả lụa', 'giò lụa', 'hải sản',
+        ],
+        excludeKeywords: ['bánh bao', 'bánh mì', 'bánh canh', 'bánh quy', 'kẹo', 'snack'],
+        startsWithKeywords: ['thịt', 'ức gà', 'cá', 'gà', 'bò', 'tôm', 'mực', 'lươn', 'chả lụa'],
+      },
+      EGG: {
+        includeKeywords: [
+          'trứng', 'sữa', 'phô mai', 'pho mát', 'cheese', 'sữa chua', 'yogurt', 'whey', 'váng sữa',
+        ],
+        excludeKeywords: ['bánh', 'kẹo', 'chè', 'trà sữa'],
+        startsWithKeywords: ['trứng', 'sữa', 'sữa chua', 'phô mai', 'whey'],
+      },
+      RICE: {
+        includeKeywords: [
+          'cơm', 'gạo', 'yến mạch', 'khoai lang', 'khoai tây', 'bánh mì', 'bún', 'phở', 'miến',
+          'ngô', 'bắp', 'nui', 'mì ý', 'spaghetti', 'bánh canh',
+        ],
+        excludeKeywords: ['bánh ngọt', 'kẹo', 'snack', 'bánh quy'],
+        startsWithKeywords: ['cơm', 'gạo', 'yến mạch', 'khoai', 'bún', 'phở'],
+      },
+      FRUIT: {
+        includeKeywords: [
+          'chuối', 'táo', 'cam', 'quýt', 'xoài', 'dưa hấu', 'ổi', 'nho', 'dứa', 'thơm', 'khóm',
+          'bơ', 'lê', 'thanh long', 'đu đủ', 'dâu', 'bưởi', 'đào', 'mận', 'kiwi', 'chôm chôm',
+          'sầu riêng', 'vải', 'nhãn', 'măng cụt', 'lựu', 'mãng cầu', 'chanh leo', 'quả', 'trái',
+        ],
+        excludeKeywords: ['bánh', 'kẹo', 'nước ngọt', 'mứt', 'chè'],
+        startsWithKeywords: ['chuối', 'táo', 'cam', 'xoài', 'dưa hấu', 'ổi', 'nho', 'bơ', 'thanh long'],
+      },
+    };
+
+    const activeCatRule = SMART_CATEGORY_FILTERS[catKey] || null;
+
+    if (!trimmed && !activeCatRule) {
       const [data, total] = await Promise.all([
         this.prisma.foodLibrary.findMany({
           skip,
@@ -45,31 +98,61 @@ export class NutritionService {
     // Smart Vietnamese Food Search:
     // Normalize typos and common synonyms
     let normalized = trimmed.toLowerCase();
-    normalized = normalized.replace(/ứ\s*gà/gi, 'ức gà');
-    normalized = normalized.replace(/\bứ\b/gi, 'ức');
-    normalized = normalized.replace(/(?:không|khong|k|ko)\s+da\b/gi, 'bỏ da');
+    normalized = normalized.replace(/(^|\s+)ứ\s*gà(?=\s|$)/gi, '$1ức gà');
+    normalized = normalized.replace(/(?:không|khong|k|ko)\s+da(?=\s|$)/gi, 'bỏ da');
     normalized = normalized.replace(
-      /(?:không|khong|k|ko)\s+đường\b/gi,
+      /(?:không|khong|k|ko)\s+đường(?=\s|$)/gi,
       'không đường',
     );
 
     const words = normalized.split(/\s+/).filter(Boolean);
 
-    if (words.length === 0) {
-      return {
-        data: [],
-        total: 0,
-        page: pageNum,
-        limit: limitNum,
-        totalPages: 1,
-      };
-    }
-
     try {
-      const conditions = words.map(
-        (w) => Prisma.sql`unaccent(name) ILIKE unaccent(${'%' + w + '%'})`,
-      );
-      const whereClause = Prisma.join(conditions, ' AND ');
+      const allConditions: Prisma.Sql[] = [];
+
+      if (words.length > 0) {
+        const queryConds = words.map(
+          (w) => Prisma.sql`unaccent(name) ILIKE unaccent(${'%' + w + '%'})`,
+        );
+        allConditions.push(Prisma.sql`(${Prisma.join(queryConds, ' AND ')})`);
+      }
+
+      if (activeCatRule) {
+        const incConds = activeCatRule.includeKeywords.map(
+          (k) => Prisma.sql`unaccent(name) ILIKE unaccent(${'%' + k + '%'})`,
+        );
+        const excConds = activeCatRule.excludeKeywords.map(
+          (k) => Prisma.sql`unaccent(name) NOT ILIKE unaccent(${'%' + k + '%'})`,
+        );
+        allConditions.push(
+          Prisma.sql`(${Prisma.join(incConds, ' OR ')}) AND (${Prisma.join(excConds, ' AND ')})`,
+        );
+      }
+
+      const whereClause = Prisma.join(allConditions, ' AND ');
+
+      let orderClause = Prisma.sql`name ASC`;
+      if (normalized) {
+        orderClause = Prisma.sql`
+          CASE
+            WHEN unaccent(name) ILIKE unaccent(${normalized + '%'}) THEN 0
+            WHEN unaccent(name) ILIKE unaccent(${'%' + normalized + '%'}) THEN 1
+            ELSE 2
+          END,
+          name ASC
+        `;
+      } else if (activeCatRule) {
+        const startsConds = activeCatRule.startsWithKeywords.map(
+          (k) => Prisma.sql`unaccent(name) ILIKE unaccent(${k + '%'})`,
+        );
+        orderClause = Prisma.sql`
+          CASE
+            WHEN ${Prisma.join(startsConds, ' OR ')} THEN 0
+            ELSE 1
+          END,
+          name ASC
+        `;
+      }
 
       const [data, totalResult] = await Promise.all([
         this.prisma.$queryRaw<FoodItem[]>(
@@ -77,13 +160,7 @@ export class NutritionService {
             SELECT id, name, "caloriesPer100g", "proteinPer100g", "carbsPer100g", "fatPer100g", "fiberPer100g", "category", "imageUrl"
             FROM food_libraries
             WHERE ${whereClause}
-            ORDER BY
-              CASE
-                WHEN unaccent(name) ILIKE unaccent(${normalized + '%'}) THEN 0
-                WHEN unaccent(name) ILIKE unaccent(${'%' + normalized + '%'}) THEN 1
-                ELSE 2
-              END,
-              name ASC
+            ORDER BY ${orderClause}
             LIMIT ${limitNum} OFFSET ${skip}
           `,
         ),
@@ -107,12 +184,34 @@ export class NutritionService {
       };
     } catch (err) {
       console.warn('Smart unaccent search fallback to Prisma findMany:', err);
-      const where: Prisma.FoodLibraryWhereInput = {
-        name: {
-          contains: normalized,
-          mode: 'insensitive',
-        },
-      };
+      const where: Prisma.FoodLibraryWhereInput = {};
+      const andConditions: Prisma.FoodLibraryWhereInput[] = [];
+
+      if (normalized) {
+        andConditions.push({
+          name: {
+            contains: normalized,
+            mode: 'insensitive',
+          },
+        });
+      }
+
+      if (activeCatRule) {
+        andConditions.push({
+          OR: activeCatRule.includeKeywords.map((k) => ({
+            name: { contains: k, mode: 'insensitive' as const },
+          })),
+        });
+        activeCatRule.excludeKeywords.forEach((k) => {
+          andConditions.push({
+            name: { not: { contains: k } },
+          });
+        });
+      }
+
+      if (andConditions.length > 0) {
+        where.AND = andConditions;
+      }
 
       const [data, total] = await Promise.all([
         this.prisma.foodLibrary.findMany({

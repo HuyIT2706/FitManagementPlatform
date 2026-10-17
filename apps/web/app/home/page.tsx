@@ -31,6 +31,11 @@ const Home = () => {
   const { data: dailyData, isLoading: dailyLoading } = useDailyNutrition(selectedDateStr);
 
   useEffect(() => {
+    const token = localStorage.getItem('jwt_token');
+    if (!token) {
+      router.replace('/login');
+      return;
+    }
     if (userData && userData.role === 'USER' && userData.onboardingCompleted === false) {
       router.replace('/onboarding');
     }

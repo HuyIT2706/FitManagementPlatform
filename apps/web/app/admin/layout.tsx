@@ -31,6 +31,12 @@ const AdminLayout = ({
   const [currentUser, setCurrentUser] = useState<UserData | null>(null);
 
   useEffect(() => {
+    const token = localStorage.getItem('jwt_token');
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
+
     apiClient
       .get<UserData>('/users/me')
       .then((res) => {
@@ -42,7 +48,8 @@ const AdminLayout = ({
         }
       })
       .catch(() => {
-        setIsAuthorized(false);
+        localStorage.removeItem('jwt_token');
+        window.location.href = '/login';
       });
   }, []);
 

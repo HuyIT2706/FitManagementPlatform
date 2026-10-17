@@ -127,8 +127,7 @@ const PtCoachBindCard = ({ assignedPt, onBindSuccess }: PtCoachBindCardProps) =>
         </p>
       ) : (
         <p className="text-xs text-on-surface-variant font-medium">
-          Nhập Mã PT duy nhất của Coach (ví dụ:{' '}
-          <strong className="text-primary font-mono">PT-CHIEN / PT-HUY066</strong>) hoặc Mã Mời từ Gmail để kết nối 1-1.
+          Nhập Mã PT duy nhất của Coach hoặc Mã Mời từ Gmail để kết nối 1-1.
         </p>
       )}
 

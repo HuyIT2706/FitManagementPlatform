@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AppLoading from '../../components/ui/AppLoading';
 import apiClient from '../../api/axios';
@@ -16,6 +16,13 @@ const AddMealContent = () => {
   const searchParams = useSearchParams();
   const mealType = searchParams.get('type') || 'BREAKFAST';
   const dateParam = searchParams.get('date');
+
+  useEffect(() => {
+    const token = localStorage.getItem('jwt_token');
+    if (!token) {
+      router.replace('/login');
+    }
+  }, [router]);
 
   const { addedItems, removeItem, clearItems, getTotalCalories } = useMealBuilderStore();
 

@@ -21,6 +21,7 @@ export class NutritionController {
   async searchFoods(
     @Request() req: RequestWithUser,
     @Query('q') query?: string,
+    @Query('category') category?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Query('isHistory') isHistory?: string,
@@ -32,7 +33,7 @@ export class NutritionController {
         limit,
       );
     }
-    return this.nutritionService.searchFoods(query, page, limit);
+    return this.nutritionService.searchFoods(query, page, limit, category);
   }
 
   @Post('meals')

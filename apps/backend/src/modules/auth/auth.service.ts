@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import * as bcrypt from 'bcryptjs';
 
 export class RegisterDto {
@@ -27,6 +28,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
+    private notificationsService: NotificationsService,
   ) {}
 
   async getTokens(userId: string, email: string, role: string) {
@@ -92,6 +94,28 @@ export class AuthService {
 
     const tokens = await this.getTokens(user.id, user.email, user.role);
     await this.updateRefreshTokenHash(user.id, tokens.refreshToken);
+
+    if (isPtRegister) {
+      try {
+        const admins = await this.prisma.user.findMany({
+          where: { role: 'ADMIN' },
+          select: { id: true },
+        });
+
+        const ptName = user.fullName || user.email;
+        for (const admin of admins) {
+          await this.notificationsService.sendNotification({
+            userId: admin.id,
+            title: '📋 Đơn Đăng Ký HLV Mới',
+            message: `HLV ${ptName} vừa gửi hồ sơ ứng tuyển, vui lòng vào duyệt.`,
+            type: 'PT_APPLICATION',
+            linkUrl: '/admin/CoachReview',
+          });
+        }
+      } catch (err) {
+        console.error('Failed to notify admins of new PT application:', err);
+      }
+    }
 
     return {
       access_token: tokens.accessToken,
