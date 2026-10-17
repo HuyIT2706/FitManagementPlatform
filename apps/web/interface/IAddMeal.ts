@@ -7,10 +7,13 @@ export interface AddedMealBuilderItem {
 
 export interface AddMealHeaderProps {
   mealTitle: string;
+  mealShortName?: string;
+  displayDate?: string;
   addedItemsCount: number;
   isSaving: boolean;
   onBack: () => void;
   onSaveMeal: () => void;
+  onOpenMealDatePicker?: () => void;
 }
 
 export interface SelectedFoodSummaryProps {
