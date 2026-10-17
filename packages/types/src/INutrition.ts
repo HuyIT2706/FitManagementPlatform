@@ -22,6 +22,7 @@ export interface FoodItem {
   conAxitPer100g?: number | null;
   source?: string | null;
   imageUrl?: string | null;
+  category?: string | null;
   isRecent?: boolean;
 }
 
@@ -112,4 +113,24 @@ export interface DailyNutritionData {
   mealSlots?: MealSlotConfig[];
   meals?: MealData[];
   mealSummary?: Record<string, MealSummaryItem>;
+}
+
+export interface SmartParsedFoodItem extends FoodItem {
+  suggestedWeight: number;
+  calculatedCalories: number;
+  calculatedProtein: number;
+  calculatedCarbs: number;
+  calculatedFat: number;
+}
+
+export interface SmartParsedGroup {
+  query: string;
+  detectedWeight: number;
+  matchedFoods: SmartParsedFoodItem[];
+}
+
+export interface SmartParseResponse {
+  parsedCount: number;
+  items: SmartParsedGroup[];
+  allFoods: SmartParsedFoodItem[];
 }

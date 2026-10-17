@@ -14,6 +14,10 @@ import SelectedFoodSummary from './components/SelectedFoodSummary';
 import MealDatePickerBottomSheet, {
   type MealOption,
 } from './components/MealDateDown';
+import { SmartFoodInputView } from './components/SmartFoodInputView';
+import { SmartFoodResultsView } from './components/FoodResultsView';
+import type { SmartParsedFoodItem, SmartParseResponse, FoodPaginatedResponse } from '../../interface';
+import { parseVietnameseFoodTokens } from '../../utils/smartFoodParser';
 import { formatYYYYMMDD } from '../../utils/date';
 
 const AddMealContent = () => {
@@ -22,10 +26,20 @@ const AddMealContent = () => {
 
   const initialType = searchParams.get('type') || 'BREAKFAST';
   const initialDate = searchParams.get('date') || formatYYYYMMDD(new Date());
+  const initialMode = searchParams.get('mode');
 
   const [currentMealType, setCurrentMealType] = useState<string>(initialType);
   const [currentDateStr, setCurrentDateStr] = useState<string>(initialDate);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+
+  const [viewMode, setViewMode] = useState<'standard' | 'smart-input' | 'smart-results'>(
+    initialMode === 'smart-voice' || initialMode === 'smart-text' ? 'smart-input' : 'standard'
+  );
+  const [smartInputTab, setSmartInputTab] = useState<'voice' | 'text'>(
+    initialMode === 'smart-text' ? 'text' : 'voice'
+  );
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [smartResults, setSmartResults] = useState<SmartParsedFoodItem[]>([]);
 
   const { data: userData } = useCurrentUser();
   const { data: dailyData } = useDailyNutrition(currentDateStr);
@@ -40,8 +54,16 @@ const AddMealContent = () => {
   useEffect(() => {
     const t = searchParams.get('type');
     const d = searchParams.get('date');
+    const m = searchParams.get('mode');
     if (t) setCurrentMealType(t);
     if (d) setCurrentDateStr(d);
+    if (m === 'smart-voice') {
+      setViewMode('smart-input');
+      setSmartInputTab('voice');
+    } else if (m === 'smart-text') {
+      setViewMode('smart-input');
+      setSmartInputTab('text');
+    }
   }, [searchParams]);
 
   const { addedItems, removeItem, clearItems, getTotalCalories } = useMealBuilderStore();
@@ -191,10 +213,138 @@ const AddMealContent = () => {
     }
   };
 
+  const handleSmartAnalyze = async (rawText: string) => {
+    setIsAnalyzing(true);
+    try {
+      const res = await apiClient.post<SmartParseResponse>('/nutrition/smart-parse', {
+        text: rawText,
+      });
+      if (res.data?.allFoods && res.data.allFoods.length > 0) {
+        setSmartResults(res.data.allFoods);
+        setViewMode('smart-results');
+      } else {
+        const tokens = parseVietnameseFoodTokens(rawText);
+        if (tokens.length > 0) {
+          const fallbackResults: SmartParsedFoodItem[] = [];
+          for (const token of tokens) {
+            try {
+              const searchRes = await apiClient.get<FoodPaginatedResponse>(
+                `/nutrition/foods?q=${encodeURIComponent(token.query)}&limit=6`
+              );
+              const list = searchRes.data?.data || [];
+              for (const f of list) {
+                const cal = Math.round((f.caloriesPer100g * token.weight) / 100);
+                fallbackResults.push({
+                  ...f,
+                  suggestedWeight: token.weight,
+                  calculatedCalories: cal,
+                  calculatedProtein: Math.round(((f.proteinPer100g * token.weight) / 100) * 10) / 10,
+                  calculatedCarbs: Math.round(((f.carbsPer100g * token.weight) / 100) * 10) / 10,
+                  calculatedFat: Math.round(((f.fatPer100g * token.weight) / 100) * 10) / 10,
+                });
+              }
+            } catch {}
+          }
+          if (fallbackResults.length > 0) {
+            setSmartResults(fallbackResults);
+            setViewMode('smart-results');
+            return;
+          }
+        }
+        toast.info('Chưa tìm thấy món tương ứng trong thư viện. Bạn có thể tìm kiếm thủ công.');
+        setSmartResults([]);
+        setViewMode('smart-results');
+      }
+    } catch (error) {
+      console.error('Smart parse error:', error);
+      const tokens = parseVietnameseFoodTokens(rawText);
+      const fallbackResults: SmartParsedFoodItem[] = [];
+      for (const token of tokens) {
+        try {
+          const searchRes = await apiClient.get<FoodPaginatedResponse>(
+            `/nutrition/foods?q=${encodeURIComponent(token.query)}&limit=6`
+          );
+          const list = searchRes.data?.data || [];
+          for (const f of list) {
+            const cal = Math.round((f.caloriesPer100g * token.weight) / 100);
+            fallbackResults.push({
+              ...f,
+              suggestedWeight: token.weight,
+              calculatedCalories: cal,
+              calculatedProtein: Math.round(((f.proteinPer100g * token.weight) / 100) * 10) / 10,
+              calculatedCarbs: Math.round(((f.carbsPer100g * token.weight) / 100) * 10) / 10,
+              calculatedFat: Math.round(((f.fatPer100g * token.weight) / 100) * 10) / 10,
+            });
+          }
+        } catch {}
+      }
+      if (fallbackResults.length > 0) {
+        setSmartResults(fallbackResults);
+        setViewMode('smart-results');
+      } else {
+        toast.error('Không thể tìm món, vui lòng thử lại hoặc tìm kiếm thủ công.');
+      }
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   const totalAddedCalories = getTotalCalories();
   const mealTitle = mealFullTitleMap[currentMealType] || 'Bữa ăn';
   const mealShortName = mealShortNameMap[currentMealType] || 'Bữa ăn';
   const displayShortDate = formatDisplayShortDate(currentDateStr);
+
+  if (viewMode === 'smart-input') {
+    return (
+      <>
+        <SmartFoodInputView
+          initialTab={smartInputTab}
+          onBack={() => {
+            if (initialMode) {
+              router.back();
+            } else {
+              setViewMode('standard');
+            }
+          }}
+          onAnalyze={handleSmartAnalyze}
+          isAnalyzing={isAnalyzing}
+          onManualSearch={() => setViewMode('standard')}
+        />
+        <MealDatePickerBottomSheet
+          isOpen={isDatePickerOpen}
+          onClose={() => setIsDatePickerOpen(false)}
+          selectedMeal={currentMealType}
+          selectedDate={currentDateStr}
+          mealOptions={mealOptionsWithCurrent}
+          onApply={handleApplyMealDate}
+        />
+      </>
+    );
+  }
+
+  if (viewMode === 'smart-results') {
+    return (
+      <>
+        <SmartFoodResultsView
+          mealShortName={mealShortName}
+          displayDate={displayShortDate}
+          onOpenMealDatePicker={() => setIsDatePickerOpen(true)}
+          onBack={() => setViewMode('smart-input')}
+          onReopenSmartInput={() => setViewMode('smart-input')}
+          results={smartResults}
+          onFinish={() => setViewMode('standard')}
+        />
+        <MealDatePickerBottomSheet
+          isOpen={isDatePickerOpen}
+          onClose={() => setIsDatePickerOpen(false)}
+          selectedMeal={currentMealType}
+          selectedDate={currentDateStr}
+          mealOptions={mealOptionsWithCurrent}
+          onApply={handleApplyMealDate}
+        />
+      </>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-on-surface">
@@ -208,13 +358,17 @@ const AddMealContent = () => {
         onBack={() => router.back()}
         onSaveMeal={handleSaveMeal}
         onOpenMealDatePicker={() => setIsDatePickerOpen(true)}
+        onOpenSmartInput={() => {
+          setSmartInputTab('voice');
+          setViewMode('smart-input');
+        }}
       />
 
       {/* Bottom Sheet for changing meal and past date */}
       <MealDatePickerBottomSheet
         isOpen={isDatePickerOpen}
         onClose={() => setIsDatePickerOpen(false)}
-        selectedMeal={currentMealType}
+        selectedMeal={currentMealType}		
         selectedDate={currentDateStr}
         mealOptions={mealOptionsWithCurrent}
         onApply={handleApplyMealDate}
@@ -228,7 +382,7 @@ const AddMealContent = () => {
           onRemoveItem={handleRemoveItem}
         />
 
-        {/* Reusable Food Selector Component */}
+        {/* Reusable Food Selector Component */}        
         <section>
           <FoodSelector />
         </section>

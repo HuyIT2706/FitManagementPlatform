@@ -14,6 +14,7 @@ export interface AddMealHeaderProps {
   onBack: () => void;
   onSaveMeal: () => void;
   onOpenMealDatePicker?: () => void;
+  onOpenSmartInput?: () => void;
 }
 
 export interface SelectedFoodSummaryProps {

@@ -3,7 +3,13 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import type { FoodItem, FoodPaginatedResponse } from '@repo/types';
+import type {
+  FoodItem,
+  FoodPaginatedResponse,
+  SmartParsedFoodItem,
+  SmartParsedGroup,
+  SmartParseResponse,
+} from '@repo/types';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogMealDto } from './dto/log-meal.dto';
@@ -111,9 +117,12 @@ export class NutritionService {
       const allConditions: Prisma.Sql[] = [];
 
       if (words.length > 0) {
-        const queryConds = words.map(
-          (w) => Prisma.sql`unaccent(name) ILIKE unaccent(${'%' + w + '%'})`,
-        );
+        const queryConds = words.map((w) => {
+          if (w.length <= 3) {
+            return Prisma.sql`(name ~* ${'(^|[^a-zA-Z0-9à-ỹ])' + w + '([^a-zA-Z0-9à-ỹ]|$)'} OR unaccent(name) ~* ${'(^|[^a-zA-Z0-9])' + w + '([^a-zA-Z0-9]|$)'})`;
+          }
+          return Prisma.sql`unaccent(name) ILIKE unaccent(${'%' + w + '%'})`;
+        });
         allConditions.push(Prisma.sql`(${Prisma.join(queryConds, ' AND ')})`);
       }
 
@@ -135,9 +144,11 @@ export class NutritionService {
       if (normalized) {
         orderClause = Prisma.sql`
           CASE
-            WHEN unaccent(name) ILIKE unaccent(${normalized + '%'}) THEN 0
-            WHEN unaccent(name) ILIKE unaccent(${'%' + normalized + '%'}) THEN 1
-            ELSE 2
+            WHEN name ILIKE ${normalized + '%'} THEN 0
+            WHEN name ~* ${'(^|[^a-zA-Z0-9à-ỹ])' + normalized + '([^a-zA-Z0-9à-ỹ]|$)'} THEN 1
+            WHEN unaccent(name) ILIKE unaccent(${normalized + '%'}) THEN 2
+            WHEN unaccent(name) ILIKE unaccent(${'%' + normalized + '%'}) THEN 3
+            ELSE 4
           END,
           name ASC
         `;
@@ -605,5 +616,141 @@ export class NutritionService {
           { id: 'SNACK', name: 'Bữa Phụ', icon: 'icecream' },
         ];
     }
+  }
+
+  parseSmartFoodText(rawText: string): Array<{ query: string; weight: number }> {
+    if (!rawText || typeof rawText !== 'string') return [];
+
+    let text = rawText.trim().toLowerCase();
+
+    // 1. Normalize voice-to-text artifacts:
+    text = text.replace(/(\d+)[.,]000(?!\d)/g, '$1g');
+    text = text.replace(/(\d+)\s*k\b/gi, '$1g');
+    text = text.replace(/(\d+)\s*(?:gam|gram|gr)\b/gi, '$1g');
+
+    text = text.replace(/(\d+(?:[.,]\d+)?)\s*(?:kg|kí|ký)\b/gi, (_, p1) => {
+      const val = parseFloat(p1.replace(',', '.'));
+      return `${Math.round(val * 1000)}g`;
+    });
+
+    text = text.replace(/(\d+)\s*(?:lạng|lang)\b/gi, (_, p1) => `${Number(p1) * 100}g `);
+    text = text.replace(/(?:^|\s+)nửa lạng(?=\s+|$)/gi, ' 50g ');
+
+    text = text.replace(/(\d+)\s*(?:bát|chén)\b/gi, (_, p1) => `${Number(p1) * 150}g `);
+    text = text.replace(/(?:^|\s+)nửa (?:bát|chén)(?=\s+|$)/gi, ' 75g ');
+
+    text = text.replace(/(\d+)\s*(?:quả|hột|trái)\b/gi, (_, p1) => `${Number(p1) * 50}g `);
+    text = text.replace(/(\d+)\s*đĩa\b/gi, (_, p1) => `${Number(p1) * 200}g `);
+    text = text.replace(/(\d+)\s*tô\b/gi, (_, p1) => `${Number(p1) * 350}g `);
+    text = text.replace(/(\d+)\s*(?:ly|cốc|hộp)\b/gi, (_, p1) => `${Number(p1) * 200}g `);
+
+    // Normalize connectives & punctuation to delimiter '|'
+    text = text.replace(/[,;+&\n]/g, ' | ');
+    text = text.replace(/(?:^|\s+)(?:và|kèm|với|cùng)(?=\s+|$)/gi, ' | ');
+
+    // Split by explicit delimiters first
+    const subPhrases = text.split('|').map((s) => s.trim()).filter(Boolean);
+
+    const cleanName = (s: string) =>
+      s
+        .replace(/^(?:\||\s|và|kèm|với)+|(?:\||\s|và|kèm|với)+$/gi, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+    const results: Array<{ query: string; weight: number }> = [];
+
+    for (const phrase of subPhrases) {
+      // Case 1: Prefix format: e.g. "200g cơm trắng 100g ức gà sống"
+      if (/^\d+\s*g\b/i.test(phrase)) {
+        const regex = /(\d+)\s*g\s*([^0-9]+)/gi;
+        let match: RegExpExecArray | null;
+        let matchedAny = false;
+        while ((match = regex.exec(phrase)) !== null) {
+          matchedAny = true;
+          const w = parseInt(match[1] || '100', 10);
+          const name = cleanName(match[2] || '');
+          if (name) {
+            results.push({ query: name, weight: w });
+          }
+        }
+        if (!matchedAny) {
+          const name = cleanName(phrase);
+          if (name) results.push({ query: name, weight: 100 });
+        }
+      }
+      // Case 2: Suffix format: e.g. "cơm trắng 180g ức gà sống 180g"
+      else if (/\d+\s*g\b/i.test(phrase)) {
+        const regex = /([^0-9]+?)\s*(\d+)\s*g/gi;
+        let match: RegExpExecArray | null;
+        let matchedAny = false;
+        while ((match = regex.exec(phrase)) !== null) {
+          matchedAny = true;
+          const name = cleanName(match[1] || '');
+          const w = parseInt(match[2] || '100', 10);
+          if (name) {
+            results.push({ query: name, weight: w });
+          }
+        }
+        if (!matchedAny) {
+          const name = cleanName(phrase);
+          if (name) results.push({ query: name, weight: 100 });
+        }
+      }
+      // Case 3: Food name without specific weight: e.g. "cá", "cơm trắng"
+      else {
+        const name = cleanName(phrase);
+        if (name && isNaN(Number(name))) {
+          results.push({ query: name, weight: 100 });
+        }
+      }
+    }
+
+    return results;
+  }
+
+  async smartParseFoodInput(rawText: string): Promise<SmartParseResponse> {
+    const parsedItems = this.parseSmartFoodText(rawText);
+    if (parsedItems.length === 0) {
+      return { parsedCount: 0, items: [], allFoods: [] };
+    }
+
+    const itemsResult: SmartParsedGroup[] = [];
+    const allFoodsMap = new Map<string, SmartParsedFoodItem>();
+
+    for (const item of parsedItems) {
+      const searchRes = await this.searchFoods(item.query, 1, 6);
+      const foodList = searchRes.data || [];
+
+      const calculatedFoods: SmartParsedFoodItem[] = foodList.map((f: FoodItem) => {
+        const cal = Math.round((f.caloriesPer100g * item.weight) / 100);
+        const pro = Math.round(((f.proteinPer100g * item.weight) / 100) * 10) / 10;
+        const carbs = Math.round(((f.carbsPer100g * item.weight) / 100) * 10) / 10;
+        const fat = Math.round(((f.fatPer100g * item.weight) / 100) * 10) / 10;
+        const enriched: SmartParsedFoodItem = {
+          ...f,
+          suggestedWeight: item.weight,
+          calculatedCalories: cal,
+          calculatedProtein: pro,
+          calculatedCarbs: carbs,
+          calculatedFat: fat,
+        };
+        if (!allFoodsMap.has(f.id)) {
+          allFoodsMap.set(f.id, enriched);
+        }
+        return enriched;
+      });
+
+      itemsResult.push({
+        query: item.query,
+        detectedWeight: item.weight,
+        matchedFoods: calculatedFoods,
+      });
+    }
+
+    return {
+      parsedCount: parsedItems.length,
+      items: itemsResult,
+      allFoods: Array.from(allFoodsMap.values()),
+    };
   }
 }

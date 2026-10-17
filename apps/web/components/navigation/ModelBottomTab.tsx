@@ -27,8 +27,8 @@ export const QuickActionBottomSheet = ({
   onClose,
 }: QuickActionBottomSheetProps) => {
   const router = useRouter();
-  const [waterAmount, setWaterAmount] = useState<number>(0);
-  const [showWaterSuccess, setShowWaterSuccess] = useState<boolean>(false);
+  const [waterInput, setWaterInput] = useState<string>('');
+  const [totalWaterToday, setTotalWaterToday] = useState<number>(0);
 
   const handleActionClick = (path?: string, label?: string) => {
     if (path) {
@@ -39,13 +39,16 @@ export const QuickActionBottomSheet = ({
     }
   };
 
-  const handleQuickWater = (ml: number) => {
-    setWaterAmount((prev) => prev + ml);
-    setShowWaterSuccess(true);
-    toast.success(`Đã ghi nhận uống thêm ${ml}ml nước! Cố gắng đạt 2000ml hôm nay nhé.`);
-    setTimeout(() => {
-      setShowWaterSuccess(false);
-    }, 2000);
+  const handleSaveWater = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const ml = parseInt(waterInput, 10);
+    if (!ml || isNaN(ml) || ml <= 0) {
+      toast.error('Vui lòng nhập lượng nước hợp lệ (ml)');
+      return;
+    }
+    setTotalWaterToday((prev) => prev + ml);
+    toast.success(`Đã ghi nhận uống ${ml}ml nước! Hôm nay bạn đã uống ${totalWaterToday + ml}ml.`);
+    setWaterInput('');
   };
 
   return (
@@ -105,7 +108,7 @@ export const QuickActionBottomSheet = ({
               {/* 2. Nhập nhiều món */}
               <button
                 type="button"
-                onClick={() => handleActionClick('/add-meal', 'Nhập nhiều món')}
+                onClick={() => handleActionClick('/add-meal?mode=smart-text', 'Nhập nhiều món')}
                 className="flex flex-col items-center justify-center p-3.5 sm:p-4 rounded-2xl bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/25 hover:scale-[1.03] transition-all text-center cursor-pointer group"
               >
                 <div className="w-11 h-11 rounded-2xl bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-2.5 shadow-sm group-hover:scale-110 transition-transform">
@@ -119,7 +122,7 @@ export const QuickActionBottomSheet = ({
               {/* 3. Nhập bằng giọng nói */}
               <button
                 type="button"
-                onClick={() => handleActionClick(undefined, 'Nhập bằng giọng nói')}
+                onClick={() => handleActionClick('/add-meal?mode=smart-voice', 'Nhập bằng giọng nói')}
                 className="flex flex-col items-center justify-center p-3.5 sm:p-4 rounded-2xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/25 hover:scale-[1.03] transition-all text-center cursor-pointer group"
               >
                 <div className="w-11 h-11 rounded-2xl bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-2.5 shadow-sm group-hover:scale-110 transition-transform">
@@ -137,12 +140,12 @@ export const QuickActionBottomSheet = ({
                 Công cụ khác
               </h3>
 
-              <div className="grid grid-cols-2 gap-2.5">
+              <div className="grid grid-cols-2 gap-2.5 items-stretch">
                 {/* Tạo thực phẩm */}
                 <button
                   type="button"
                   onClick={() => handleActionClick('/add-meal', 'Tạo thực phẩm')}
-                  className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/[0.08] transition-all text-left cursor-pointer"
+                  className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/[0.08] transition-all text-left cursor-pointer h-full"
                 >
                   <div className="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-500 flex items-center justify-center shrink-0">
                     <Apple size={18} />
@@ -156,7 +159,7 @@ export const QuickActionBottomSheet = ({
                 <button
                   type="button"
                   onClick={() => handleActionClick(undefined, 'Tạo công thức')}
-                  className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/[0.08] transition-all text-left cursor-pointer"
+                  className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/[0.08] transition-all text-left cursor-pointer h-full"
                 >
                   <div className="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-500 flex items-center justify-center shrink-0">
                     <ChefHat size={18} />
@@ -170,7 +173,7 @@ export const QuickActionBottomSheet = ({
                 <button
                   type="button"
                   onClick={() => handleActionClick(undefined, 'Tạo thực đơn')}
-                  className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/[0.08] transition-all text-left cursor-pointer"
+                  className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/[0.08] transition-all text-left cursor-pointer h-full"
                 >
                   <div className="w-9 h-9 rounded-xl bg-orange-500/15 text-orange-500 flex items-center justify-center shrink-0">
                     <ClipboardList size={18} />
@@ -181,41 +184,51 @@ export const QuickActionBottomSheet = ({
                 </button>
 
                 {/* Uống nước */}
-                <div className="flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-left">
-                  <div className="flex items-center gap-2.5 min-w-0 pr-1">
-                    <div className="w-9 h-9 rounded-xl bg-sky-500/15 text-sky-400 flex items-center justify-center shrink-0">
-                      <Droplets size={18} />
-                    </div>
-                    <div className="min-w-0">
-                      <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white block truncate">
+                <div className="flex flex-col justify-between p-2.5 sm:p-3 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-left h-full">
+                  <div
+                    onClick={() => document.getElementById('water-quick-input')?.focus()}
+                    className="flex items-center justify-between mb-2 cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2 min-w-0 pr-1">
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-sky-500/15 text-sky-400 flex items-center justify-center shrink-0">
+                        <Droplets size={16} />
+                      </div>
+                      <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white truncate">
                         Uống nước
                       </span>
-                      {waterAmount > 0 && (
-                        <span className="text-[10px] text-sky-400 font-bold block">
-                          +{waterAmount}ml
-                        </span>
-                      )}
                     </div>
+                    {totalWaterToday > 0 && (
+                      <span className="text-[10px] text-sky-400 font-extrabold shrink-0">
+                        {totalWaterToday}ml
+                      </span>
+                    )}
                   </div>
 
-                  <div className="flex items-center gap-1 shrink-0">
+                  <form onSubmit={handleSaveWater} className="flex items-center gap-1.5 w-full">
+                    <div className="relative flex-1 min-w-0">
+                      <input
+                        id="water-quick-input"
+                        type="number"
+                        inputMode="numeric"
+                        min="1"
+                        max="5000"
+                        value={waterInput}
+                        onChange={(e) => setWaterInput(e.target.value)}
+                        placeholder="250"
+                        className="w-full px-2.5 py-1.5 text-xs font-bold bg-white dark:bg-white/10 border border-slate-200 dark:border-white/15 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/30 focus:outline-hidden focus:border-sky-400 text-right pr-6 shadow-xs"
+                      />
+                      <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400 dark:text-white/40 pointer-events-none">
+                        ml
+                      </span>
+                    </div>
                     <button
-                      type="button"
-                      onClick={() => handleQuickWater(250)}
-                      className="px-2 py-1 rounded-lg bg-sky-500/20 text-sky-400 hover:bg-sky-500/30 text-[11px] font-extrabold transition-all"
-                      title="Uống thêm 250ml"
+                      type="submit"
+                      disabled={!waterInput || parseInt(waterInput, 10) <= 0}
+                      className="px-2.5 py-1.5 rounded-xl bg-sky-500 hover:bg-sky-600 active:scale-95 text-white text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shrink-0 shadow-xs"
                     >
-                      +250
+                      Lưu
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => handleQuickWater(500)}
-                      className="px-2 py-1 rounded-lg bg-sky-500/20 text-sky-400 hover:bg-sky-500/30 text-[11px] font-extrabold transition-all"
-                      title="Uống thêm 500ml"
-                    >
-                      +500
-                    </button>
-                  </div>
+                  </form>
                 </div>
               </div>
             </div>

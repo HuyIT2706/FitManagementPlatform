@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { NutritionService } from './nutrition.service';
 import { LogMealDto } from './dto/log-meal.dto';
+import { SmartParseFoodDto } from './dto/smart-parse.dto';
 import { JwtGuard } from '../auth/jwt.guard';
 import type { RequestWithUser } from '@repo/types';
 
@@ -34,6 +35,11 @@ export class NutritionController {
       );
     }
     return this.nutritionService.searchFoods(query, page, limit, category);
+  }
+
+  @Post('smart-parse')
+  async smartParseFood(@Body() dto: SmartParseFoodDto) {
+    return this.nutritionService.smartParseFoodInput(dto.text);
   }
 
   @Post('meals')

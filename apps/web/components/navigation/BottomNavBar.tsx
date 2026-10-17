@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { BookOpen, Dumbbell, History, User, Plus } from "lucide-react";
 import type { BottomNavBarProps } from "../../interface";
-import { QuickActionBottomSheet } from "./QuickActionBottomSheet";
+import { QuickActionBottomSheet } from "./ModelBottomTab";
 
 const BottomNavBar = ({ activeTab }: BottomNavBarProps) => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);

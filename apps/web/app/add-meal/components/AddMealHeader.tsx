@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ChevronDown, UtensilsCrossed } from "lucide-react";
+import { ArrowLeft, ChevronDown, UtensilsCrossed, Sparkles } from "lucide-react";
 import type { AddMealHeaderProps } from "../../../interface";
 
 const AddMealHeader = ({
@@ -12,6 +12,7 @@ const AddMealHeader = ({
   onBack,
   onSaveMeal,
   onOpenMealDatePicker,
+  onOpenSmartInput,
 }: AddMealHeaderProps) => {
   return (
     <header className="sticky top-0 z-40 bg-white/90 dark:bg-background/90 backdrop-blur-xl border-b border-slate-200 dark:border-white/10 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between shadow-xs transition-colors">
@@ -48,7 +49,18 @@ const AddMealHeader = ({
       </div>
 
       {/* Right: Dish Counter Badge (when 0) OR Save Button (when > 0) */}
-      <div className="min-w-16 flex items-center justify-end shrink-0">
+      <div className="min-w-16 flex items-center justify-end shrink-0 gap-1">
+        {onOpenSmartInput && (
+          <button
+            type="button"
+            suppressHydrationWarning
+            onClick={onOpenSmartInput}
+            className="p-1.5 sm:p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-emerald-500 dark:text-primary transition-colors cursor-pointer"
+            title="Nhập bằng giọng nói hoặc nhiều món"
+          >
+            <Sparkles size={18} />
+          </button>
+        )}
         {addedItemsCount > 0 ? (
           <button
             type="button"
