@@ -45,6 +45,7 @@ export interface WeightChartCardProps {
   yTicks: number[];
   maxVal: number;
   chartPoints: WeightChartPoint[];
+  targetWeight?: number;
 }
 
 export interface WeightHistoryListProps {

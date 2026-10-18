@@ -1,11 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { useState, useMemo } from 'react';
-import { ArrowLeft, ChevronDown, Plus, Check, Search, BadgeCheck, Utensils, Mic } from 'lucide-react';
-import type { SmartParsedFoodItem, FoodItem } from '../../../interface';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { ArrowLeft, ChevronDown, Plus, Check, Search, BadgeCheck, Utensils, Mic, Loader2, X } from 'lucide-react';
+import type { SmartParsedFoodItem, FoodItem, FoodPaginatedResponse } from '../../../interface';
 import { useMealBuilderStore } from '../../../services/useMealBuilderStore';
 import toast from '../../../utils/toast';
+import apiClient from '../../../api/axios';
 import { WeightEditModal } from './WeightEditEat';
 
 interface SmartFoodResultsViewProps {
@@ -30,14 +31,82 @@ export const SmartFoodResultsView = ({
   const { addedItems, addItem, getTotalCalories } = useMealBuilderStore();
 
   const [searchFilter, setSearchFilter] = useState('');
+  const [dbResults, setDbResults] = useState<SmartParsedFoodItem[]>([]);
+  const [isSearchingDb, setIsSearchingDb] = useState(false);
   const [editingFood, setEditingFood] = useState<SmartParsedFoodItem | null>(null);
 
-  // Filter results by user typed keyword in the search bar
-  const filteredResults = useMemo(() => {
-    if (!searchFilter.trim()) return results;
-    const q = searchFilter.toLowerCase();
-    return results.filter((f) => f.name.toLowerCase().includes(q));
-  }, [results, searchFilter]);
+  const searchTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Search database when user types keyword in search bar
+  useEffect(() => {
+    const q = searchFilter.trim();
+    if (!q) {
+      setDbResults([]);
+      setIsSearchingDb(false);
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+      return;
+    }
+
+    setIsSearchingDb(true);
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+
+    searchTimerRef.current = setTimeout(async () => {
+      try {
+        const res = await apiClient.get<FoodPaginatedResponse | FoodItem[]>(
+          `/nutrition/foods?q=${encodeURIComponent(q)}&limit=10`
+        );
+        const list =
+          res.data && 'data' in res.data && Array.isArray(res.data.data)
+            ? res.data.data
+            : Array.isArray(res.data)
+            ? res.data
+            : [];
+
+        const mapped: SmartParsedFoodItem[] = list.map((f) => {
+          const weight = 100;
+          return {
+            ...f,
+            suggestedWeight: weight,
+            calculatedCalories: Math.round((f.caloriesPer100g * weight) / 100),
+            calculatedProtein: Math.round(((f.proteinPer100g * weight) / 100) * 10) / 10,
+            calculatedCarbs: Math.round(((f.carbsPer100g * weight) / 100) * 10) / 10,
+            calculatedFat: Math.round(((f.fatPer100g * weight) / 100) * 10) / 10,
+            source: f.source || 'DATABASE',
+          };
+        });
+        setDbResults(mapped);
+      } catch (err) {
+        setDbResults([]);
+      } finally {
+        setIsSearchingDb(false);
+      }
+    }, 500);
+
+    return () => {
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    };
+  }, [searchFilter]);
+
+  // Combine AI/voice parsed results with matching foods from database
+  const combinedResults = useMemo(() => {
+    if (!searchFilter.trim()) {
+      return results;
+    }
+    const q = searchFilter.toLowerCase().trim();
+
+    // 1. Matches from local smartResults
+    const localMatches = results.filter((f) => f.name.toLowerCase().includes(q));
+
+    // 2. Additional foods from database lookup that are not already in localMatches
+    const localIds = new Set(localMatches.map((item) => item.id));
+    const localNames = new Set(localMatches.map((item) => item.name.toLowerCase()));
+
+    const additionalFromDb = dbResults.filter(
+      (item) => !localIds.has(item.id) && !localNames.has(item.name.toLowerCase())
+    );
+
+    return [...localMatches, ...additionalFromDb];
+  }, [results, searchFilter, dbResults]);
 
   const handleQuickAdd = (item: SmartParsedFoodItem) => {
     addItem(item as unknown as FoodItem, item.suggestedWeight);
@@ -62,9 +131,9 @@ export const SmartFoodResultsView = ({
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-background text-on-surface flex flex-col justify-between">
-      {/* Sticky Header exactly as Image 3 */}
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-background/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/10 px-4 py-2.5 flex items-center justify-between">
+    <div className="min-h-screen bg-[#f8fafc] dark:bg-[#0c120e] text-slate-900 dark:text-white flex flex-col justify-between transition-colors">
+      {/* Sticky Header */}
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#0c120e]/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/10 px-4 py-2.5 flex items-center justify-between transition-colors">
         {/* Left: Back Arrow */}
         <button
           type="button"
@@ -90,10 +159,11 @@ export const SmartFoodResultsView = ({
           />
         </button>
 
+        {/* Right: Mic button */}
         <button
           type="button"
           onClick={onReopenSmartInput}
-          className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-emerald-500 dark:text-primary transition-colors cursor-pointer"
+          className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-emerald-600 dark:text-primary transition-colors cursor-pointer"
           title="Nhập giọng nói hoặc văn bản khác"
         >
           <Mic size={20} />
@@ -102,43 +172,77 @@ export const SmartFoodResultsView = ({
 
       {/* Main Container */}
       <main className="flex-1 max-w-xl mx-auto w-full px-4 pt-3 pb-24 space-y-3">
-        {/* Search Bar matching Image 3 */}
+        {/* Search Bar with live database lookup */}
         <div className="relative flex items-center">
           <input
             type="text"
             value={searchFilter}
             onChange={(e) => setSearchFilter(e.target.value)}
-            placeholder="Tìm kiếm thực phẩm"
-            className="w-full px-4 py-3 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/15 rounded-2xl text-slate-900 dark:text-white text-sm font-medium focus:outline-hidden focus:border-primary placeholder:text-slate-400 dark:placeholder:text-white/40 shadow-xs pr-10"
+            placeholder="Tìm kiếm món trong thư viện thực phẩm..."
+            className="w-full px-4 py-3 bg-white dark:bg-[#141b17] border border-slate-200 dark:border-white/15 rounded-2xl text-slate-900 dark:text-white text-sm font-medium focus:outline-hidden focus:border-primary placeholder:text-slate-400 dark:placeholder:text-white/40 shadow-xs pr-16 transition-colors"
           />
-          <div className="absolute right-3.5 text-emerald-500 dark:text-primary pointer-events-none">
-            <Search size={18} />
+          <div className="absolute right-3 flex items-center gap-1.5 text-slate-400 dark:text-white/40">
+            {isSearchingDb ? (
+              <Loader2 size={18} className="animate-spin text-emerald-600 dark:text-primary" />
+            ) : searchFilter ? (
+              <button
+                type="button"
+                onClick={() => setSearchFilter('')}
+                className="p-1 hover:text-slate-700 dark:hover:text-white cursor-pointer"
+                aria-label="Xóa tìm kiếm"
+              >
+                <X size={16} />
+              </button>
+            ) : (
+              <Search size={18} className="text-emerald-600 dark:text-primary" />
+            )}
           </div>
         </div>
 
+        {/* Search Result Category Caption */}
+        {searchFilter.trim() && combinedResults.length > 0 && (
+          <div className="px-1 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-semibold">
+            <span>Tìm thấy {combinedResults.length} món phù hợp</span>
+            {isSearchingDb && <span className="text-emerald-600 dark:text-primary">Đang tra cứu...</span>}
+          </div>
+        )}
+
         {/* Results List */}
-        {filteredResults.length === 0 ? (
-          <div className="text-center py-12 px-4 bg-white dark:bg-white/[0.03] rounded-3xl border border-slate-200/80 dark:border-white/10 shadow-xs">
-            <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto mb-3">
+        {combinedResults.length === 0 ? (
+          <div className="text-center py-12 px-4 bg-white dark:bg-[#141b17] rounded-3xl border border-slate-200/80 dark:border-white/10 shadow-xs">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-primary flex items-center justify-center mx-auto mb-3">
               <Utensils size={26} />
             </div>
-            <h3 className="font-bold text-slate-800 dark:text-white text-base mb-1">
+            <h3 className="font-bold text-slate-900 dark:text-white text-base mb-1">
               Chưa tìm thấy món phù hợp
             </h3>
-            <p className="text-xs text-slate-500 dark:text-white/60 max-w-xs mx-auto mb-4">
-              Bạn có thể điều chỉnh từ khóa tìm kiếm hoặc nói/gõ lại để hệ thống nhận diện.
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto mb-4">
+              {searchFilter
+                ? `Không tìm thấy món "${searchFilter}". Hãy thử tên món khác hoặc nói lại.`
+                : 'Bạn có thể tìm kiếm tên món ăn phía trên hoặc nói lại để hệ thống nhận diện.'}
             </p>
-            <button
-              type="button"
-              onClick={onReopenSmartInput}
-              className="px-4 py-2 rounded-xl bg-primary text-black font-extrabold text-xs hover:opacity-90 transition-all shadow-xs cursor-pointer"
-            >
-              Nói / Gõ lại
-            </button>
+            <div className="flex items-center justify-center gap-2">
+              {searchFilter && (
+                <button
+                  type="button"
+                  onClick={() => setSearchFilter('')}
+                  className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-white font-bold text-xs hover:bg-slate-200 dark:hover:bg-white/20 transition-all cursor-pointer"
+                >
+                  Xóa tìm kiếm
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={onReopenSmartInput}
+                className="px-4 py-2 rounded-xl bg-primary text-slate-950 font-extrabold text-xs hover:opacity-90 transition-all shadow-xs cursor-pointer"
+              >
+                Nói / Gõ lại
+              </button>
+            </div>
           </div>
         ) : (
           <div className="space-y-2.5">
-            {filteredResults.map((item) => {
+            {combinedResults.map((item) => {
               const alreadyAdded = isFoodAdded(item.id);
               const addedWeight = getAddedFoodWeight(item.id);
               const displayWeight = addedWeight || item.suggestedWeight;
@@ -155,9 +259,9 @@ export const SmartFoodResultsView = ({
               return (
                 <div
                   key={item.id}
-                  className={`flex items-center justify-between p-3.5 rounded-2xl bg-white dark:bg-white/[0.04] border transition-all shadow-xs hover:shadow-md ${
+                  className={`flex items-center justify-between p-3.5 rounded-2xl bg-white dark:bg-[#141b17] border transition-all shadow-xs hover:shadow-md ${
                     alreadyAdded
-                      ? 'border-emerald-500/50 bg-emerald-500/[0.03] dark:bg-emerald-500/[0.06]'
+                      ? 'border-emerald-500/50 bg-emerald-500/[0.04] dark:bg-emerald-500/[0.08]'
                       : 'border-slate-200/80 dark:border-white/10'
                   }`}
                 >
@@ -168,7 +272,7 @@ export const SmartFoodResultsView = ({
                     title="Nhấn để chỉnh sửa trọng lượng"
                   >
                     {/* Rounded Image Thumbnail */}
-                    <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-100 dark:bg-white/10 shrink-0 border border-slate-200 dark:border-white/10">
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-100 dark:bg-black/40 shrink-0 border border-slate-200 dark:border-white/10 shadow-xs">
                       {item.imageUrl ? (
                         <img
                           src={item.imageUrl}
@@ -185,11 +289,16 @@ export const SmartFoodResultsView = ({
                     {/* Food text info */}
                     <div className="min-w-0">
                       {/* Name + Verified Checkmark Badge */}
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-extrabold text-sm text-slate-900 dark:text-white truncate">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-extrabold text-sm text-slate-900 dark:text-white truncate capitalize">
                           {item.name}
                         </span>
                         <BadgeCheck size={16} className="text-sky-500 shrink-0" />
+                        {item.source === 'DATABASE' && (
+                          <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                            Thư viện
+                          </span>
+                        )}
                       </div>
 
                       {/* Description or category (if any) */}
@@ -215,8 +324,8 @@ export const SmartFoodResultsView = ({
                     onClick={() => handleQuickAdd(item)}
                     className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-xs ${
                       alreadyAdded
-                        ? 'bg-primary text-black scale-105'
-                        : 'border border-slate-300 dark:border-white/20 text-slate-700 dark:text-white/90 hover:bg-slate-100 dark:hover:bg-white/10 hover:border-slate-400'
+                        ? 'bg-primary text-slate-950 scale-105 shadow-sm'
+                        : 'bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/20 text-slate-700 dark:text-white/90 hover:bg-slate-200 dark:hover:bg-white/15'
                     }`}
                     title={alreadyAdded ? 'Nhấn để thêm tiếp' : 'Thêm vào bữa ăn'}
                   >
@@ -232,19 +341,19 @@ export const SmartFoodResultsView = ({
       {/* Floating Bottom Bar when items added */}
       {addedItems.length > 0 && (
         <div className="fixed bottom-4 left-4 right-4 max-w-lg mx-auto z-40">
-          <div className="p-3 bg-slate-900/95 dark:bg-surface-container-high/95 backdrop-blur-xl border border-white/15 rounded-2xl shadow-2xl flex items-center justify-between text-white">
+          <div className="p-3 bg-white/95 dark:bg-[#141b17]/95 backdrop-blur-xl border border-slate-200 dark:border-white/15 rounded-2xl shadow-xl flex items-center justify-between text-slate-900 dark:text-white transition-colors">
             <div className="pl-2">
-              <span className="text-xs font-bold text-slate-300 block">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 block">
                 Đã chọn {addedItems.length} món
               </span>
-              <span className="text-sm font-extrabold text-primary">
+              <span className="text-sm font-black text-emerald-600 dark:text-primary">
                 {Math.round(getTotalCalories())} kcal
               </span>
             </div>
             <button
               type="button"
               onClick={onFinish}
-              className="px-5 py-2.5 rounded-xl bg-primary text-black font-extrabold text-xs sm:text-sm hover:opacity-90 active:scale-95 transition-all shadow-md cursor-pointer"
+              className="px-5 py-2.5 rounded-xl bg-primary text-slate-950 font-extrabold text-xs sm:text-sm hover:opacity-90 active:scale-95 transition-all shadow-md cursor-pointer"
             >
               Xem bữa ăn & Lưu
             </button>

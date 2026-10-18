@@ -128,20 +128,20 @@ export default function WeightTrackingPage() {
     });
   }, [sortedMetrics, timeRange, currentWeight]);
 
-  // Chart Y-axis calculation matching the user's screenshot
+  // Chart Y-axis calculation matching the user's screenshot (e.g. 90, 75, 60, 45, 30, 15, 0)
   const { yTicks, maxVal } = useMemo(() => {
-    const maxDataWeight = Math.max(
+    const highest = Math.max(
       initialWeight,
       currentWeight,
       targetWeight,
       ...chartPoints.map((p) => p.weight)
     );
-    // Upper boundary with 10% breathing room
-    const calculatedMax = Math.max(89.1, Math.round(maxDataWeight * 1.1 * 10) / 10);
+    // Align max boundary to multiple of 15 (min 90)
+    const calculatedMax = Math.max(90, Math.ceil((highest + 2) / 15) * 15);
     const step = calculatedMax / 6;
     const ticks: number[] = [];
     for (let i = 6; i >= 0; i--) {
-      ticks.push(Math.round(step * i * 10) / 10);
+      ticks.push(Math.round(step * i));
     }
     return { yTicks: ticks, maxVal: calculatedMax };
   }, [initialWeight, currentWeight, targetWeight, chartPoints]);
@@ -274,6 +274,7 @@ export default function WeightTrackingPage() {
           yTicks={yTicks}
           maxVal={maxVal}
           chartPoints={chartPoints}
+          targetWeight={targetWeight}
         />
 
         {/* 6. History Logs Section */}

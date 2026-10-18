@@ -51,7 +51,7 @@ const PtFoodSelectionModal = ({
     const timer = setTimeout(() => {
       setDebouncedQuery(query);
       setCurrentPage(1);
-    }, 300);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [query]);

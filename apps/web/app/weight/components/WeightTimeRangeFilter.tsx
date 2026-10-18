@@ -15,7 +15,7 @@ export const WeightTimeRangeFilter: React.FC<WeightTimeRangeFilterProps> = ({
 
   return (
     <div className="flex justify-center">
-      <div className="inline-flex p-1 bg-white dark:bg-[#141b17] border-2 border-[#82c91e]/60 dark:border-[#82c91e]/40 rounded-2xl shadow-xs gap-1">
+      <div className="inline-flex p-1 bg-white dark:bg-[#141b17] border-2 border-[#82c91e] rounded-2xl shadow-xs gap-1.5">
         {options.map((opt) => {
           const isActive = timeRange === opt.id;
           return (
@@ -23,10 +23,10 @@ export const WeightTimeRangeFilter: React.FC<WeightTimeRangeFilterProps> = ({
               key={opt.id}
               type="button"
               onClick={() => onChangeTimeRange(opt.id)}
-              className={`px-5 py-2 rounded-xl text-sm font-extrabold transition-all cursor-pointer ${
+              className={`px-5 py-1.5 rounded-xl text-sm font-bold transition-all cursor-pointer ${
                 isActive
                   ? 'bg-[#82c91e] text-slate-950 shadow-xs'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100/70 dark:bg-white/5'
+                  : 'bg-[#9ca3af] dark:bg-[#6b7280] text-white hover:opacity-90'
               }`}
             >
               {opt.label}
