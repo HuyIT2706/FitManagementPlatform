@@ -79,7 +79,7 @@ const DailyFuelHeroCard = ({
         {/* Center Text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
           <span className="font-stats-xl text-3xl sm:text-4xl font-extrabold text-on-surface tracking-tighter">
-            {consumedCalo}
+            {Math.round(consumedCalo)}
           </span>
           <span className="font-label-lg text-xs sm:text-sm text-on-surface-variant mt-1">kcal đã nạp</span>
           <span className="text-xs text-[#10b981] font-bold mt-0.5">
@@ -91,11 +91,15 @@ const DailyFuelHeroCard = ({
       {/* Stats Summary Grid */}
       <div className="grid grid-cols-3 w-full gap-2 sm:gap-4 mt-4 sm:mt-6 z-10 border-t border-bento-border/50 pt-4 sm:pt-6">
         <div className="flex flex-col items-center text-center">
-          <span className="font-headline-md text-base sm:text-xl font-bold text-on-surface">{remainingCalories}</span>
+          <span className="font-headline-md text-base sm:text-xl font-bold text-on-surface">
+            {Math.round(remainingCalories)}
+          </span>
           <span className="font-label-lg text-[10px] sm:text-xs text-on-surface-variant uppercase tracking-wider">Còn lại</span>
         </div>
         <div className="flex flex-col items-center text-center border-l border-r border-bento-border/50">
-          <span className="font-headline-md text-base sm:text-xl font-bold text-on-surface">{targetCalo}</span>
+          <span className="font-headline-md text-base sm:text-xl font-bold text-on-surface">
+            {Math.round(targetCalo)}
+          </span>
           <span className="font-label-lg text-[10px] sm:text-xs text-on-surface-variant uppercase tracking-wider">Mục tiêu</span>
         </div>
         <div className="flex flex-col items-center text-center">

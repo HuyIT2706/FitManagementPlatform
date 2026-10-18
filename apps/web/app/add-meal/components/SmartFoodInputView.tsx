@@ -1,14 +1,25 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { ArrowLeft, Mic, Search, Sparkles, Loader2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  Mic,
+  Search,
+  Sparkles,
+  Loader2,
+  Camera,
+  Image as ImageIcon,
+  FileText,
+} from 'lucide-react';
+import { motion } from 'framer-motion';
 import toast from '../../../utils/toast';
 import { parseVietnameseFoodTokens } from '../../../utils/smartFoodParser';
 
 interface SmartFoodInputViewProps {
-  initialTab?: 'voice' | 'text';
+  initialTab?: 'voice' | 'text' | 'camera';
   onBack: () => void;
   onAnalyze: (rawText: string) => void;
+  onAnalyzeImage?: (base64Image: string) => void;
   isAnalyzing: boolean;
   onManualSearch: () => void;
 }
@@ -49,19 +60,32 @@ export const SmartFoodInputView = ({
   initialTab = 'voice',
   onBack,
   onAnalyze,
+  onAnalyzeImage,
   isAnalyzing,
   onManualSearch,
 }: SmartFoodInputViewProps) => {
-  const [activeTab, setActiveTab] = useState<'voice' | 'text'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'voice' | 'text' | 'camera'>(initialTab);
   const [textInput, setTextInput] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [speechTranscript, setSpeechTranscript] = useState('');
+
+  // Camera & Image state
+  const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null);
+  const [isCompressing, setIsCompressing] = useState(false);
+  const cameraCaptureInputRef = useRef<HTMLInputElement | null>(null);
+  const fileLibraryInputRef = useRef<HTMLInputElement | null>(null);
 
   const isListeningRef = useRef(false);
   const latestTranscriptRef = useRef('');
   const hasTriggeredAnalyzeRef = useRef(false);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
 
   const stopListening = useCallback(() => {
     isListeningRef.current = false;
@@ -167,7 +191,6 @@ export const SmartFoodInputView = ({
       recognition.onend = () => {
         isListeningRef.current = false;
         setIsListening(false);
-        // If speaking finished and hasn't analyzed yet, auto analyze
         if (latestTranscriptRef.current.trim() && !hasTriggeredAnalyzeRef.current) {
           triggerAnalyze(latestTranscriptRef.current);
         }
@@ -225,6 +248,72 @@ export const SmartFoodInputView = ({
     onAnalyze(textInput.trim());
   };
 
+  // Client-side image compression with Canvas
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDimension = 1024;
+
+          if (width > maxDimension || height > maxDimension) {
+            if (width > height) {
+              height = Math.round((height * maxDimension) / width);
+              width = maxDimension;
+            } else {
+              width = Math.round((width * maxDimension) / height);
+              height = maxDimension;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve(e.target?.result as string);
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+          resolve(dataUrl);
+        };
+        img.onerror = () => reject(new Error('Không thể đọc hình ảnh.'));
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = () => reject(new Error('Không thể tải tệp hình ảnh.'));
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Vui lòng chọn tệp hình ảnh (JPG, PNG, WebP).');
+      return;
+    }
+
+    try {
+      setIsCompressing(true);
+      const compressedData = await compressImage(file);
+      setSelectedImagePreview(compressedData);
+      e.target.value = '';
+      if (onAnalyzeImage) {
+        onAnalyzeImage(compressedData);
+      }
+    } catch (err: unknown) {
+      console.error('Image compression failed:', err);
+      toast.error('Không thể xử lý hình ảnh. Vui lòng thử lại!');
+    } finally {
+      setIsCompressing(false);
+    }
+  };
+
   const exampleSample = 'Cơm trắng 180 gram, Ức gà sống 180 gram';
 
   const recognizedTokens = parseVietnameseFoodTokens(
@@ -233,7 +322,24 @@ export const SmartFoodInputView = ({
 
   return (
     <div className="min-h-screen bg-surface-container-low dark:bg-background text-on-surface flex flex-col justify-between">
-      <header className="sticky top-0 z-40 bg-white/90 dark:bg-background/90 backdrop-blur-xl border-b border-slate-200 dark:border-white/10 px-4 py-3 flex items-center justify-between">
+      {/* Hidden file inputs for Camera and Gallery */}
+      <input
+        type="file"
+        accept="image/*"
+        capture="environment"
+        ref={cameraCaptureInputRef}
+        onChange={handleImageFileChange}
+        className="hidden"
+      />
+      <input
+        type="file"
+        accept="image/*"
+        ref={fileLibraryInputRef}
+        onChange={handleImageFileChange}
+        className="hidden"
+      />
+
+      <header className="sticky top-0 z-40 bg-white/90 dark:bg-background/90 backdrop-blur-xl border-b border-slate-200 dark:border-white/10 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between">
         <button
           type="button"
           onClick={onBack}
@@ -243,35 +349,56 @@ export const SmartFoodInputView = ({
           <ArrowLeft size={20} />
         </button>
 
+        {/* 3-Tab Segmented Control */}
         <div className="flex items-center bg-slate-100 dark:bg-white/10 p-1 rounded-full border border-slate-200/80 dark:border-white/10">
+          {/* 1. Chụp ảnh */}
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab('camera');
+              stopListening();
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+              activeTab === 'camera'
+                ? 'bg-white dark:bg-white/20 text-[#82c91e] dark:text-[#82c91e] shadow-xs'
+                : 'text-slate-500 dark:text-white/60 hover:text-slate-800 dark:hover:text-white'
+            }`}
+          >
+            <Camera size={13} className="shrink-0" />
+            <span>Chụp ảnh</span>
+          </button>
+
+          {/* 2. Nhập nói */}
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab('voice');
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+              activeTab === 'voice'
+                ? 'bg-white dark:bg-white/20 text-blue-600 dark:text-blue-400 shadow-xs'
+                : 'text-slate-500 dark:text-white/60 hover:text-slate-800 dark:hover:text-white'
+            }`}
+          >
+            <Mic size={13} className="shrink-0" />
+            <span>Giọng nói</span>
+          </button>
+
+          {/* 3. Văn bản */}
           <button
             type="button"
             onClick={() => {
               setActiveTab('text');
               stopListening();
             }}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'text'
                 ? 'bg-white dark:bg-white/20 text-slate-900 dark:text-white shadow-xs'
                 : 'text-slate-500 dark:text-white/60 hover:text-slate-800 dark:hover:text-white'
             }`}
           >
-            <span>Nhập văn bản</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setActiveTab('voice');
-            }}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-              activeTab === 'voice'
-                ? 'bg-white dark:bg-white/20 text-emerald-600 dark:text-primary shadow-xs'
-                : 'text-slate-500 dark:text-white/60 hover:text-slate-800 dark:hover:text-white'
-            }`}
-          >
-            <Mic size={13} className="text-emerald-500 dark:text-primary shrink-0" />
-            <span>Nhập nói</span>
+            <FileText size={13} className="shrink-0" />
+            <span>Văn bản</span>
           </button>
         </div>
 
@@ -279,12 +406,164 @@ export const SmartFoodInputView = ({
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col items-center justify-start max-w-md mx-auto w-full px-6 pt-10 pb-6 text-center">
-        {activeTab === 'voice' ? (
+      <main className="flex-1 flex flex-col items-center justify-start max-w-md mx-auto w-full px-5 sm:px-6 pt-6 sm:pt-8 pb-6 text-center">
+        {/* ==================== TAB 1: CAMERA ==================== */}
+        {activeTab === 'camera' && (
+          <div className="w-full flex flex-col items-center">
+            {selectedImagePreview ? (
+              /* Image Preview & Scanning Card */
+              <div className="w-full flex flex-col items-center">
+                <div className="relative w-full aspect-4/3 rounded-3xl overflow-hidden border border-slate-200 dark:border-white/15 bg-slate-900 shadow-2xl mb-6 group">
+                  {/* The captured meal image */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={selectedImagePreview}
+                    alt="Bữa ăn của bạn"
+                    className="w-full h-full object-cover"
+                  />
+
+                  {/* Laser Scanning Animation if analyzing */}
+                  {isAnalyzing && (
+                    <motion.div
+                      initial={{ top: '0%' }}
+                      animate={{ top: '95%' }}
+                      transition={{
+                        repeat: Infinity,
+                        repeatType: 'reverse',
+                        duration: 1.8,
+                        ease: 'easeInOut',
+                      }}
+                      className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#82c91e] to-transparent shadow-[0_0_15px_#82c91e] z-10"
+                    />
+                  )}
+
+                  {/* Dark Glass Overlay during processing */}
+                  {(isAnalyzing || isCompressing) && (
+                    <div className="absolute inset-0 bg-black/45 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 z-20">
+                      <div className="px-5 py-3 rounded-2xl bg-black/75 border border-white/20 text-white flex items-center gap-2.5 shadow-2xl">
+                        <Loader2 size={18} className="animate-spin text-[#82c91e]" />
+                        <span className="text-xs sm:text-sm font-bold">
+                          {isCompressing
+                            ? 'Đang tối ưu ảnh...'
+                            : 'Đang nhận diện món ăn...'}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Retake / Re-analyze buttons */}
+                {!isAnalyzing && (
+                  <div className="w-full flex flex-col gap-2.5 mb-6">
+                    <button
+                      type="button"
+                      onClick={() => onAnalyzeImage?.(selectedImagePreview)}
+                      className="w-full py-3.5 rounded-2xl bg-primary text-black font-extrabold text-sm hover:opacity-90 active:scale-95 transition-all shadow-[0_0_15px_rgba(102,200,28,0.4)] flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <Sparkles size={18} />
+                      <span>Phân tích lại ảnh này</span>
+                    </button>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => cameraCaptureInputRef.current?.click()}
+                        className="py-3 px-4 rounded-2xl bg-white dark:bg-white/10 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-white font-bold text-xs sm:text-sm hover:bg-slate-50 dark:hover:bg-white/15 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                      >
+                        <Camera size={16} className="text-[#82c91e]" />
+                        <span>Chụp lại</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => fileLibraryInputRef.current?.click()}
+                        className="py-3 px-4 rounded-2xl bg-white dark:bg-white/10 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-white font-bold text-xs sm:text-sm hover:bg-slate-50 dark:hover:bg-white/15 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                      >
+                        <ImageIcon size={16} className="text-blue-500" />
+                        <span>Chọn ảnh khác</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* Initial State: Prompt user to snap photo or pick from gallery */
+              <div className="w-full flex flex-col items-center">
+                <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-snug mb-2">
+                  Chụp ảnh bữa ăn để phân tích
+                </h1>
+
+                {/* Main Action Cards */}
+                <div className="w-full flex flex-col gap-3.5 mb-8">
+                  {/* Button 1: Snap Photo Immediately */}
+                  <button
+                    type="button"
+                    onClick={() => cameraCaptureInputRef.current?.click()}
+                    className="w-full p-4 sm:p-5 rounded-3xl bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent dark:from-emerald-500/20 dark:via-emerald-500/5 dark:to-transparent border-2 border-emerald-500/30 dark:border-[#82c91e]/40 hover:border-[#82c91e] active:scale-[0.98] transition-all flex items-center gap-4 cursor-pointer text-left shadow-lg group"
+                  >
+                    <div className="w-14 h-14 rounded-2xl bg-[#82c91e] text-black flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(130,201,30,0.4)] group-hover:scale-110 transition-transform">
+                      <Camera size={26} />
+                    </div>
+                    <div>
+                      <div className="font-black text-base sm:text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                        <span>Chụp ảnh ngay</span>
+                        <span className="px-2 py-0.5 rounded-full bg-[#82c91e]/20 text-[#82c91e] text-[10px] font-extrabold uppercase">
+                          Khuyên dùng
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-white/60 mt-0.5">
+                        Mở camera chụp đĩa đồ ăn trước mặt bạn
+                      </p>
+                    </div>
+                  </button>
+
+                  {/* Button 2: Pick from Library */}
+                  <button
+                    type="button"
+                    onClick={() => fileLibraryInputRef.current?.click()}
+                    className="w-full p-4 rounded-3xl bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 active:scale-[0.98] transition-all flex items-center gap-4 cursor-pointer text-left shadow-xs group"
+                  >
+                    <div className="w-12 h-12 rounded-2xl bg-blue-500/15 text-blue-500 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                      <ImageIcon size={22} />
+                    </div>
+                    <div>
+                      <div className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white">
+                        Chọn ảnh từ thư viện
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-white/60 mt-0.5">
+                        Tải ảnh chụp bữa ăn có sẵn trong máy
+                      </p>
+                    </div>
+                  </button>
+                </div>
+
+                {/* Pro-tip Card */}
+                <div className="w-full p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-left mb-6">
+                  <p className="text-xs text-amber-700 dark:text-amber-300 font-medium leading-relaxed">
+                    <strong className="font-bold">Mẹo chụp chuẩn:</strong> Đặt góc máy từ trên cao nhìn xuống bao trọn toàn bộ đĩa thức ăn trong điều kiện đủ sáng để nhận diện chính xác nhất.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Manual Search Button */}
+            <button
+              type="button"
+              onClick={onManualSearch}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-slate-300 dark:border-white/20 bg-white dark:bg-white/5 text-slate-700 dark:text-white/80 hover:bg-slate-50 dark:hover:bg-white/10 text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer mt-2"
+            >
+              <Search size={15} className="text-slate-400" />
+              <span>Tìm kiếm thủ công</span>
+            </button>
+          </div>
+        )}
+
+        {/* ==================== TAB 2: VOICE ==================== */}
+        {activeTab === 'voice' && (
           <>
             {/* Voice Mode Instructions */}
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-snug mb-5">
-              Hãy đọc chậm và rõ ràng, để Táo tìm món giúp bạn ngay.
+              Hãy đọc chậm và rõ ràng, Nhấn mic để nói nhé.
             </h1>
 
             {/* Spoken Quote / Example */}
@@ -381,8 +660,10 @@ export const SmartFoodInputView = ({
               </span>
             </div>
           </>
-        ) : (
-          /* Text Mode Area */
+        )}
+
+        {/* ==================== TAB 3: TEXT ==================== */}
+        {activeTab === 'text' && (
           <div className="w-full text-left">
             <h2 className="text-xl font-black text-slate-900 dark:text-white mb-2 text-center">
               Nhập nhiều món ăn cùng lúc

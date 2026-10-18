@@ -5,3 +5,9 @@ export class SmartParseFoodDto {
   @IsNotEmpty()
   text!: string;
 }
+
+export class SmartParseFoodImageDto {
+  @IsString()
+  @IsNotEmpty()
+  imageBase64!: string;
+}

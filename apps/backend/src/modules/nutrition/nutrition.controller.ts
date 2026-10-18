@@ -9,7 +9,10 @@ import {
 } from '@nestjs/common';
 import { NutritionService } from './nutrition.service';
 import { LogMealDto } from './dto/log-meal.dto';
-import { SmartParseFoodDto } from './dto/smart-parse.dto';
+import {
+  SmartParseFoodDto,
+  SmartParseFoodImageDto,
+} from './dto/smart-parse.dto';
 import { JwtGuard } from '../auth/jwt.guard';
 import type { RequestWithUser } from '@repo/types';
 
@@ -57,6 +60,11 @@ export class NutritionController {
   @Post('smart-parse')
   async smartParseFood(@Body() dto: SmartParseFoodDto) {
     return this.nutritionService.smartParseFoodInput(dto.text);
+  }
+
+  @Post('smart-image-parse')
+  async smartImageParse(@Body() dto: SmartParseFoodImageDto) {
+    return this.nutritionService.smartParseFoodImage(dto.imageBase64);
   }
 
   @Post('meals')

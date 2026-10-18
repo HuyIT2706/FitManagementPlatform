@@ -130,6 +130,7 @@ export interface SmartParsedGroup {
 }
 
 export interface SmartParseResponse {
+  rawDetectedText?: string;
   parsedCount: number;
   items: SmartParsedGroup[];
   allFoods: SmartParsedFoodItem[];

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import {
   X,
   Search,
+  Camera,
   Keyboard,
   Mic,
   Apple,
@@ -144,32 +145,32 @@ export const QuickActionBottomSheet = ({
               </div>
 
               {/* Top Row: Primary Input Methods */}
-              <div className="grid grid-cols-3 gap-3 mb-6">
+              <div className="grid grid-cols-4 gap-2 sm:gap-2.5 mb-6">
                 {/* 1. Nhập món ăn */}
                 <button
                   type="button"
                   onClick={() => handleActionClick('/add-meal', 'Nhập món ăn')}
-                  className="flex flex-col items-center justify-center p-3.5 sm:p-4 rounded-2xl bg-cyan-50 dark:bg-cyan-500/10 border border-cyan-200 dark:border-cyan-500/25 hover:scale-[1.03] transition-all text-center cursor-pointer group"
+                  className="flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-2xl bg-cyan-50 dark:bg-cyan-500/10 border border-cyan-200 dark:border-cyan-500/25 hover:scale-[1.03] transition-all text-center cursor-pointer group"
                 >
-                  <div className="w-11 h-11 rounded-2xl bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 flex items-center justify-center mb-2.5 shadow-sm group-hover:scale-110 transition-transform">
-                    <Search size={22} />
+                  <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 flex items-center justify-center mb-2 shadow-xs group-hover:scale-110 transition-transform">
+                    <Search size={20} />
                   </div>
-                  <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white leading-tight">
-                    Nhập món ăn
+                  <span className="text-[11px] sm:text-xs font-bold text-slate-800 dark:text-white leading-tight">
+                    Tìm kiếm
                   </span>
                 </button>
 
-                {/* 2. Nhập nhiều món */}
+                {/* 2. Chụp ảnh món */}
                 <button
                   type="button"
-                  onClick={() => handleActionClick('/add-meal?mode=smart-text', 'Nhập nhiều món')}
-                  className="flex flex-col items-center justify-center p-3.5 sm:p-4 rounded-2xl bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/25 hover:scale-[1.03] transition-all text-center cursor-pointer group"
+                  onClick={() => handleActionClick('/add-meal?mode=smart-camera', 'Chụp ảnh AI')}
+                  className="flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/25 hover:scale-[1.03] transition-all text-center cursor-pointer group"
                 >
-                  <div className="w-11 h-11 rounded-2xl bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-2.5 shadow-sm group-hover:scale-110 transition-transform">
-                    <Keyboard size={22} />
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-[#82c91e] dark:text-[#82c91e] flex items-center justify-center mb-2 shadow-xs group-hover:scale-110 transition-transform">
+                    <Camera size={20} />
                   </div>
-                  <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white leading-tight">
-                    Nhập nhiều món
+                  <span className="text-[11px] sm:text-xs font-bold text-slate-800 dark:text-white leading-tight">
+                    Chụp ảnh
                   </span>
                 </button>
 
@@ -177,13 +178,27 @@ export const QuickActionBottomSheet = ({
                 <button
                   type="button"
                   onClick={() => handleActionClick('/add-meal?mode=smart-voice', 'Nhập bằng giọng nói')}
-                  className="flex flex-col items-center justify-center p-3.5 sm:p-4 rounded-2xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/25 hover:scale-[1.03] transition-all text-center cursor-pointer group"
+                  className="flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-2xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/25 hover:scale-[1.03] transition-all text-center cursor-pointer group"
                 >
-                  <div className="w-11 h-11 rounded-2xl bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-2.5 shadow-sm group-hover:scale-110 transition-transform">
-                    <Mic size={22} />
+                  <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-2 shadow-xs group-hover:scale-110 transition-transform">
+                    <Mic size={20} />
                   </div>
-                  <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white leading-tight">
-                    Nhập bằng giọng nói
+                  <span className="text-[11px] sm:text-xs font-bold text-slate-800 dark:text-white leading-tight">
+                    Giọng nói
+                  </span>
+                </button>
+
+                {/* 4. Nhập nhiều món */}
+                <button
+                  type="button"
+                  onClick={() => handleActionClick('/add-meal?mode=smart-text', 'Nhập nhiều món')}
+                  className="flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-2xl bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/25 hover:scale-[1.03] transition-all text-center cursor-pointer group"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-2 shadow-xs group-hover:scale-110 transition-transform">
+                    <Keyboard size={20} />
+                  </div>
+                  <span className="text-[11px] sm:text-xs font-bold text-slate-800 dark:text-white leading-tight">
+                    Văn bản
                   </span>
                 </button>
               </div>

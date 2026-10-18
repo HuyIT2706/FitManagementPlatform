@@ -92,16 +92,18 @@ const Home = () => {
   const targetCarbs = dailyData?.targets?.carbs || userData?.nutritionTargets?.[0]?.targetCarbs || 0;
   const targetFat = dailyData?.targets?.fat || userData?.nutritionTargets?.[0]?.targetFat || 0;
 
-  const consumedCalo = dailyData?.consumed?.calories || 0;
-  const consumedProtein = dailyData?.consumed?.protein || 0;
-  const consumedCarbs = dailyData?.consumed?.carbs || 0;
-  const consumedFat = dailyData?.consumed?.fat || 0;
+  const consumedCalo = Math.round(dailyData?.consumed?.calories || 0);
+  const consumedProtein = Math.round((dailyData?.consumed?.protein || 0) * 10) / 10;
+  const consumedCarbs = Math.round((dailyData?.consumed?.carbs || 0) * 10) / 10;
+  const consumedFat = Math.round((dailyData?.consumed?.fat || 0) * 10) / 10;
 
-  const proteinPercentage = dailyData?.progress?.proteinPercent || 0;
-  const carbsPercentage = dailyData?.progress?.carbsPercent || 0;
-  const fatPercentage = dailyData?.progress?.fatPercent || 0;
+  const proteinPercentage = Math.round((dailyData?.progress?.proteinPercent || 0) * 10) / 10;
+  const carbsPercentage = Math.round((dailyData?.progress?.carbsPercent || 0) * 10) / 10;
+  const fatPercentage = Math.round((dailyData?.progress?.fatPercent || 0) * 10) / 10;
   const strokeDashoffset = dailyData?.progress?.strokeDashoffset ?? 816;
-  const remainingCalories = dailyData?.progress?.remainingCalories ?? Math.max(0, targetCalo - consumedCalo);
+  const remainingCalories = Math.round(
+    dailyData?.progress?.remainingCalories ?? Math.max(0, targetCalo - consumedCalo)
+  );
 
   const mealSlots: MealSlotConfig[] = dailyData?.mealSlots || [
     { id: 'BREAKFAST', name: 'Bữa Sáng', icon: 'wb_twilight' },

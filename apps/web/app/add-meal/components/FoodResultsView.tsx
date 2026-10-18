@@ -75,7 +75,7 @@ export const SmartFoodResultsView = ({
           };
         });
         setDbResults(mapped);
-      } catch (err) {
+      } catch {
         setDbResults([]);
       } finally {
         setIsSearchingDb(false);

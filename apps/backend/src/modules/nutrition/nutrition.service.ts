@@ -615,7 +615,7 @@ export class NutritionService {
 
     // Làm tròn số liệu cho từng bữa ăn
     Object.values(mealSummaryMap).forEach((summary) => {
-      summary.totalCalories = Math.round(summary.totalCalories * 10) / 10;
+      summary.totalCalories = Math.round(summary.totalCalories);
       summary.totalProtein = Math.round(summary.totalProtein * 10) / 10;
       summary.totalCarbs = Math.round(summary.totalCarbs * 10) / 10;
       summary.totalFat = Math.round(summary.totalFat * 10) / 10;
@@ -627,7 +627,7 @@ export class NutritionService {
     const targetCarbs = target?.targetCarbs || 200;
     const targetFat = target?.targetFat || 65;
 
-    const consumedCaloRound = Math.round(totalCalories * 10) / 10;
+    const consumedCaloRound = Math.round(totalCalories);
     const consumedProteinRound = Math.round(totalProtein * 10) / 10;
     const consumedCarbsRound = Math.round(totalCarbs * 10) / 10;
     const consumedFatRound = Math.round(totalFat * 10) / 10;
@@ -649,7 +649,9 @@ export class NutritionService {
     const strokeDashoffset = Math.round(
       circumference - (caloPercentage / 100) * circumference,
     );
-    const remainingCalories = Math.max(0, targetCalo - consumedCaloRound);
+    const remainingCalories = Math.round(
+      Math.max(0, targetCalo - consumedCaloRound),
+    );
 
     const mealSlots = this.getMealSlotsByFrequency(user?.mealFrequency);
 
@@ -891,7 +893,21 @@ export class NutritionService {
 
     for (const item of parsedItems) {
       const searchRes = await this.searchFoods(item.query, 1, 6);
-      const foodList = searchRes.data || [];
+      let foodList = searchRes.data || [];
+
+      if (foodList.length === 0 && item.query.includes(' ')) {
+        const subTokens = item.query.split(/\s+/).filter(Boolean);
+        if (subTokens.length >= 2) {
+          const fallbackRes = await this.searchFoods(
+            subTokens.slice(0, 2).join(' '),
+            1,
+            4,
+          );
+          if (fallbackRes.data && fallbackRes.data.length > 0) {
+            foodList = fallbackRes.data;
+          }
+        }
+      }
 
       const calculatedFoods: SmartParsedFoodItem[] = foodList.map(
         (f: FoodItem) => {
@@ -928,6 +944,131 @@ export class NutritionService {
       parsedCount: parsedItems.length,
       items: itemsResult,
       allFoods: Array.from(allFoodsMap.values()),
+    };
+  }
+
+  async smartParseFoodImage(imageBase64: string): Promise<SmartParseResponse> {
+    if (!imageBase64 || typeof imageBase64 !== 'string') {
+      throw new BadRequestException('Vui lòng cung cấp hình ảnh bữa ăn.');
+    }
+
+    const apiKey = (process.env.GEMINI_API_KEY || '').trim();
+    if (!apiKey) {
+      throw new BadRequestException(
+        'Hệ thống chưa được cấu hình GEMINI_API_KEY trong file .env',
+      );
+    }
+
+    let mimeType = 'image/jpeg';
+    let base64Data = imageBase64.trim();
+    if (base64Data.startsWith('data:')) {
+      const matches = base64Data.match(
+        /^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/,
+      );
+      if (matches && matches[1] && matches[2]) {
+        mimeType = matches[1];
+        base64Data = matches[2];
+      }
+    }
+
+    const prompt = `Bạn là một chuyên gia dinh dưỡng và phân tích ẩm thực Việt Nam. 
+                    Nhiệm vụ của bạn là nhìn vào bức ảnh bữa ăn được cung cấp, nhận diện tất cả các món ăn có trong ảnh và ước lượng khối lượng (gram) của từng món dựa trên kích thước khẩu phần thực tế.
+                      
+                    QUY TẮC BẮT BUỘC:
+                    1. Không giải thích, không viết lời mở đầu hay kết luận.
+                    2. Chỉ trả về một chuỗi văn bản duy nhất liệt kê danh sách các món ăn theo đúng định dạng: "[khối lượng tính bằng gram]g [tên món ăn]".
+                    3. Các món ăn cách nhau bằng dấu phẩy (,).
+                    4. Tên món ăn phải rõ ràng bằng tiếng Việt (ví dụ: cơm trắng, ức gà áp chảo, bông cải xanh luộc, phở bò, thịt kho tàu...).
+                      
+                    Ví dụ định dạng đầu ra mong muốn:
+                    200g cơm trắng, 150g ức gà áp chảo, 100g bông cải xanh luộc`;
+
+    const candidateModels = [
+      'gemini-2.5-flash',
+      'gemini-flash-latest',
+      'gemini-3.8-flash',
+    ];
+    let detectedText = '';
+    let lastError = '';
+
+    for (const model of candidateModels) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  { text: prompt },
+                  { inline_data: { mime_type: mimeType, data: base64Data } },
+                ],
+              },
+            ],
+          }),
+        });
+
+        type GeminiApiResponse = {
+          candidates?: Array<{
+            content?: {
+              parts?: Array<{
+                text?: string;
+              }>;
+            };
+          }>;
+          error?: {
+            code?: number;
+            message?: string;
+            status?: string;
+          };
+        };
+
+        const data = (await response.json()) as GeminiApiResponse;
+        const candidateText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (candidateText) {
+          detectedText = candidateText.trim();
+          break;
+        } else if (data.error?.message) {
+          lastError = data.error.message;
+          console.warn(
+            `[Gemini Vision] Model ${model} returned error:`,
+            data.error.message,
+          );
+        }
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        lastError = message;
+        console.warn(`[Gemini Vision] Model ${model} fetch failed:`, message);
+      }
+    }
+
+    if (!detectedText) {
+      throw new BadRequestException(
+        lastError
+          ? `Không thể phân tích ảnh: ${lastError}`
+          : 'Không thể nhận diện món ăn từ hình ảnh. Vui lòng chụp rõ hơn hoặc nhập thủ công.',
+      );
+    }
+
+    const lower = detectedText.toLowerCase();
+    if (
+      lower.includes('không thể nhận diện') ||
+      lower.includes('không có món') ||
+      lower.includes('không tìm thấy')
+    ) {
+      return {
+        rawDetectedText: detectedText,
+        parsedCount: 0,
+        items: [],
+        allFoods: [],
+      };
+    }
+
+    const parsed = await this.smartParseFoodInput(detectedText);
+    return {
+      rawDetectedText: detectedText,
+      ...parsed,
     };
   }
 

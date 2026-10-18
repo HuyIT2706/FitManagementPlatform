@@ -51,10 +51,16 @@ const AddMealContent = () => {
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
   const [viewMode, setViewMode] = useState<'standard' | 'smart-input' | 'smart-results'>(
-    initialMode === 'smart-voice' || initialMode === 'smart-text' ? 'smart-input' : 'standard'
+    initialMode === 'smart-voice' || initialMode === 'smart-text' || initialMode === 'smart-camera'
+      ? 'smart-input'
+      : 'standard'
   );
-  const [smartInputTab, setSmartInputTab] = useState<'voice' | 'text'>(
-    initialMode === 'smart-text' ? 'text' : 'voice'
+  const [smartInputTab, setSmartInputTab] = useState<'voice' | 'text' | 'camera'>(
+    initialMode === 'smart-text'
+      ? 'text'
+      : initialMode === 'smart-camera'
+        ? 'camera'
+        : 'voice'
   );
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [smartResults, setSmartResults] = useState<SmartParsedFoodItem[]>([]);
@@ -81,6 +87,9 @@ const AddMealContent = () => {
     } else if (m === 'smart-text') {
       setViewMode('smart-input');
       setSmartInputTab('text');
+    } else if (m === 'smart-camera') {
+      setViewMode('smart-input');
+      setSmartInputTab('camera');
     }
   }, [searchParams]);
 
@@ -293,6 +302,37 @@ const AddMealContent = () => {
     }
   };
 
+  const handleSmartImageAnalyze = async (base64Image: string) => {
+    setIsAnalyzing(true);
+    try {
+      const res = await apiClient.post<SmartParseResponse>(
+        '/nutrition/smart-image-parse',
+        {
+          imageBase64: base64Image,
+        }
+      );
+      if (res.data?.allFoods && res.data.allFoods.length > 0) {
+        setSmartResults(res.data.allFoods);
+        setViewMode('smart-results');
+        if (res.data.rawDetectedText) {
+          toast.success(`Nhận diện: ${res.data.rawDetectedText}`);
+        }
+      } else {
+        const msg =
+          res.data?.rawDetectedText ||
+          'Chưa tìm thấy món tương ứng trong thư viện từ ảnh. Bạn có thể tìm kiếm thủ công!';
+        toast.info(msg);
+        setSmartResults([]);
+        setViewMode('smart-results');
+      }
+    } catch (error: unknown) {
+      console.error('Failed to parse food image:', error);
+      toast.error('Không thể phân tích ảnh món ăn. Vui lòng thử lại!');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   const totalAddedCalories = getTotalCalories();
   const mealTitle = mealFullTitleMap[currentMealType] || 'Bữa ăn';
   const mealShortName = mealShortNameMap[currentMealType] || 'Bữa ăn';
@@ -311,6 +351,7 @@ const AddMealContent = () => {
             }
           }}
           onAnalyze={handleSmartAnalyze}
+          onAnalyzeImage={handleSmartImageAnalyze}
           isAnalyzing={isAnalyzing}
           onManualSearch={() => setViewMode('standard')}
         />
@@ -362,6 +403,10 @@ const AddMealContent = () => {
         onBack={() => router.back()}
         onSaveMeal={handleSaveMeal}
         onOpenMealDatePicker={() => setIsDatePickerOpen(true)}
+        onOpenCameraInput={() => {
+          setSmartInputTab('camera');
+          setViewMode('smart-input');
+        }}
         onOpenSmartInput={() => {
           setSmartInputTab('voice');
           setViewMode('smart-input');
