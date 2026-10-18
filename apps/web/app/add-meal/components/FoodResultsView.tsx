@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { ArrowLeft, ChevronDown, Sparkles, Plus, Check, Search, BadgeCheck, Utensils } from 'lucide-react';
+import { ArrowLeft, ChevronDown, Plus, Check, Search, BadgeCheck, Utensils, Mic } from 'lucide-react';
 import type { SmartParsedFoodItem, FoodItem } from '../../../interface';
 import { useMealBuilderStore } from '../../../services/useMealBuilderStore';
 import toast from '../../../utils/toast';
@@ -90,14 +90,13 @@ export const SmartFoodResultsView = ({
           />
         </button>
 
-        {/* Right: Sparkle / Voice reopen button */}
         <button
           type="button"
           onClick={onReopenSmartInput}
           className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-emerald-500 dark:text-primary transition-colors cursor-pointer"
           title="Nhập giọng nói hoặc văn bản khác"
         >
-          <Sparkles size={20} />
+          <Mic size={20} />
         </button>
       </header>
 

@@ -10,6 +10,7 @@ import LogoApp from '../../assets/imgs/logoApp.jpg';
 import apiClient from '../../api/axios';
 import type { UserDataHome } from '../../interface';
 import { handleRoleRedirect } from '../../utils/authRedirect';
+import { toast } from '../../utils/toast';
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
 
@@ -30,7 +31,6 @@ const LoginContent = () => {
   const [bio, setBio] = useState('');
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [pendingPtNotice, setPendingPtNotice] = useState<string | null>(null);
 
   useEffect(() => {
@@ -59,11 +59,10 @@ const LoginContent = () => {
     onSuccess: async (tokenResponse) => {
       try {
         if (!tokenResponse.access_token) {
-          throw new Error('Không nhận được token từ Google. Vui lòng thử lại.');
+          throw new Error('Không nhận được mã xác thực từ Google. Vui lòng thử lại.');
         }
 
         setLoading(true);
-        setError('');
         const userInfo = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
           headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
         }).then((res) => res.json());
@@ -75,48 +74,86 @@ const LoginContent = () => {
         const data = response.data;
         localStorage.setItem('jwt_token', data.access_token);
 
+        toast.success(
+          `Chào mừng ${data.user?.fullName || ''} quay trở lại!`,
+          'Đăng nhập Google thành công'
+        );
+
         handleRoleRedirect(data.user, router);
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : 'Đã có lỗi xảy ra';
-        setError(msg);
+      } catch (err: unknown) {
+        const msg =
+          err && typeof err === 'object' && 'message' in err && (err as { message: string }).message.includes('Network Error')
+            ? 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng hoặc backend!'
+            : err instanceof Error
+            ? err.message
+            : 'Đã có lỗi xảy ra khi xác thực Google';
+        toast.error(msg, 'Đăng nhập Google thất bại');
       } finally {
         setLoading(false);
       }
     },
-    onError: () => {
-      setError('Đăng nhập Google thất bại');
+    onError: (errorResponse) => {
+      console.warn('Google login error or popup closed:', errorResponse);
+      toast.error('Đăng nhập Google không thành công hoặc cửa sổ đăng nhập đã bị đóng.', 'Đăng nhập thất bại');
     },
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
     setPendingPtNotice(null);
+
+    // Client-side quick validations
+    if (!email.trim() || !password) {
+      toast.warning('Vui lòng nhập đầy đủ địa chỉ Email và Mật khẩu.', 'Thiếu thông tin');
+      setLoading(false);
+      return;
+    }
+
+    if (authMode === 'REGISTER') {
+      if (!fullName.trim()) {
+        toast.warning('Vui lòng nhập Họ và Tên của bạn.', 'Thiếu thông tin');
+        setLoading(false);
+        return;
+      }
+      if (password.length < 6) {
+        toast.warning('Mật khẩu phải có độ dài tối thiểu 6 ký tự.', 'Mật khẩu chưa an toàn');
+        setLoading(false);
+        return;
+      }
+    }
 
     try {
       if (authMode === 'LOGIN') {
-        const response = await apiClient.post('/auth/login', { email, password }).catch((err: { response?: { data?: { message?: string } } }) => {
-          throw new Error(err.response?.data?.message || 'Sai email hoặc mật khẩu');
-        });
+        const response = await apiClient
+          .post('/auth/login', { email: email.trim(), password })
+          .catch((err: { response?: { data?: { message?: string } } }) => {
+            throw new Error(err.response?.data?.message || 'Sai email hoặc mật khẩu');
+          });
         const data = response.data;
         localStorage.setItem('jwt_token', data.access_token);
 
         if (data.isPendingPtApproval) {
-          setPendingPtNotice(
-            'Tài khoản PT của bạn đã đăng ký thành công và đang chờ Admin kiểm duyệt trước khi truy cập giao diện PT!'
-          );
+          const notice =
+            'Tài khoản PT của bạn đã đăng ký thành công và đang chờ Admin kiểm duyệt trước khi truy cập giao diện PT!';
+          setPendingPtNotice(notice);
+          toast.info('Tài khoản Huấn luyện viên đang chờ Admin phê duyệt!', 'Thông báo');
           setLoading(false);
           return;
         }
+
+        toast.success(
+          `Chào mừng ${data.user?.fullName || ''} quay trở lại!`,
+          'Đăng nhập thành công'
+        );
 
         handleRoleRedirect(data.user, router);
       } else {
         // Register Mode
         const payload = {
-          email,
+          email: email.trim(),
           password,
-          fullName,
+          fullName: fullName.trim(),
           avatarUrl: avatarUrl.trim() || undefined,
           role,
           ...(role === 'PT' && {
@@ -126,23 +163,43 @@ const LoginContent = () => {
           }),
         };
 
-        const response = await apiClient.post('/auth/register', payload).catch((err: { response?: { data?: { message?: string } } }) => {
-          throw new Error(err.response?.data?.message || 'Không thể đăng ký tài khoản');
-        });
+        const response = await apiClient
+          .post('/auth/register', payload)
+          .catch((err: { response?: { data?: { message?: string } } }) => {
+            throw new Error(err.response?.data?.message || 'Không thể đăng ký tài khoản');
+          });
         const data = response.data;
         localStorage.setItem('jwt_token', data.access_token);
 
         if (role === 'PT') {
-          setPendingPtNotice(
-            'Đã gửi đơn đăng ký làm Huấn luyện viên PT! Hồ sơ của bạn đang chờ Admin kiểm duyệt.'
+          const notice =
+            'Đã gửi đơn đăng ký làm Huấn luyện viên PT! Hồ sơ của bạn đang chờ Admin kiểm duyệt.';
+          setPendingPtNotice(notice);
+          toast.success(
+            'Đăng ký tài khoản HLV thành công! Vui lòng chờ ban quản trị phê duyệt hồ sơ.',
+            'Đăng ký thành công'
           );
         } else {
-          window.location.href = '/onboarding';
+          toast.success(
+            'Tạo tài khoản Học viên thành công! Đang chuyển đến bước thiết lập hồ sơ...',
+            'Đăng ký thành công'
+          );
+          router.replace('/onboarding');
         }
       }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Đã có lỗi xảy ra';
-      setError(msg);
+    } catch (err: unknown) {
+      let msg = 'Đã có lỗi xảy ra';
+      if (err && typeof err === 'object') {
+        const axErr = err as { message?: string; response?: { data?: { message?: string } } };
+        if (axErr.response?.data?.message) {
+          msg = axErr.response.data.message;
+        } else if (axErr.message?.includes('Network Error')) {
+          msg = 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng hoặc backend!';
+        } else if (axErr.message) {
+          msg = axErr.message;
+        }
+      }
+      toast.error(msg, authMode === 'LOGIN' ? 'Đăng nhập thất bại' : 'Đăng ký thất bại');
     } finally {
       setLoading(false);
     }
@@ -193,7 +250,6 @@ const LoginContent = () => {
             suppressHydrationWarning
             onClick={() => {
               setAuthMode('LOGIN');
-              setError('');
               setPendingPtNotice(null);
             }}
             className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
@@ -209,7 +265,6 @@ const LoginContent = () => {
             suppressHydrationWarning
             onClick={() => {
               setAuthMode('REGISTER');
-              setError('');
               setPendingPtNotice(null);
             }}
             className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
@@ -258,12 +313,6 @@ const LoginContent = () => {
         )}
 
         <section className="w-full space-y-4">
-          {error && (
-            <div className="w-full p-3 text-xs text-red-300 bg-red-500/20 border border-red-500/40 rounded-xl text-center font-semibold">
-              {error}
-            </div>
-          )}
-
           {pendingPtNotice && (
             <div className="w-full p-4 text-xs text-amber-300 bg-amber-500/15 border border-amber-500/30 rounded-2xl text-center space-y-2">
               <Info size={24} className="mx-auto text-amber-400" />
@@ -499,7 +548,13 @@ const LoginContent = () => {
           <button
             type="button"
             suppressHydrationWarning
-            onClick={() => googleLogin()}
+            onClick={() => {
+              if (!GOOGLE_CLIENT_ID) {
+                toast.warning('Chưa cấu hình Google Client ID trong hệ thống.', 'Thông báo');
+                return;
+              }
+              googleLogin();
+            }}
             disabled={loading}
             className="w-full h-11 rounded-full bg-surface-container/80 backdrop-blur-md border border-outline-variant flex items-center justify-center space-x-3 hover:bg-surface-variant transition-colors active:scale-95 disabled:opacity-50 cursor-pointer text-xs"
           >

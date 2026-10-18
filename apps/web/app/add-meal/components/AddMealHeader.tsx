@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ChevronDown, UtensilsCrossed, Sparkles } from "lucide-react";
+import { ArrowLeft, ChevronDown, Mic } from "lucide-react";
 import type { AddMealHeaderProps } from "../../../interface";
 
 const AddMealHeader = ({
@@ -56,9 +56,9 @@ const AddMealHeader = ({
             suppressHydrationWarning
             onClick={onOpenSmartInput}
             className="p-1.5 sm:p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-emerald-500 dark:text-primary transition-colors cursor-pointer"
-            title="Nhập bằng giọng nói hoặc nhiều món"
+            title="Nhập bằng giọng nói"
           >
-            <Sparkles size={18} />
+            <Mic size={18} />
           </button>
         )}
         {addedItemsCount > 0 ? (
@@ -71,17 +71,7 @@ const AddMealHeader = ({
           >
             {isSaving ? "Đang lưu..." : `Lưu (${addedItemsCount})`}
           </button>
-        ) : (
-          <div
-            className="relative p-2 text-slate-400 dark:text-white/40 flex items-center justify-center shrink-0 cursor-default"
-            title="Chưa có món ăn nào được chọn"
-          >
-            <UtensilsCrossed size={18} />
-            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-slate-200 dark:bg-white/15 text-slate-700 dark:text-white/70 text-[10px] font-black flex items-center justify-center border border-white/20">
-              0
-            </span>
-          </div>
-        )}
+        ): ""}
       </div>
     </header>
   );

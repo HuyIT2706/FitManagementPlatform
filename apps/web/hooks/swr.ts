@@ -29,6 +29,24 @@ export const useCurrentUser = (options?: SWRConfiguration) => {
   );
 };
 
+export interface BodyMetricItem {
+  id: string;
+  userId?: string;
+  weight: number;
+  height?: number | null;
+  bodyFat?: number | null;
+  muscleMass?: number | null;
+  recordedAt: string | Date;
+}
+
+export const useBodyMetrics = (options?: SWRConfiguration) => {
+  return useSWR<BodyMetricItem[]>(
+    '/progress/metrics',
+    swrFetcher,
+    { ...DEFAULT_SWR_OPTIONS, ...options }
+  );
+};
+
 export const useDailyNutrition = (dateStr?: string, options?: SWRConfiguration) => {
   const url = dateStr ? `/nutrition/daily?date=${dateStr}` : null;
   return useSWR<DailyNutritionData>(

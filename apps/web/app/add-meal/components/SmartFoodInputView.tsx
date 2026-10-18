@@ -56,7 +56,6 @@ export const SmartFoodInputView = ({
   const [textInput, setTextInput] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [speechTranscript, setSpeechTranscript] = useState('');
-  const [isSpeechSupported, setIsSpeechSupported] = useState(true);
 
   const isListeningRef = useRef(false);
   const latestTranscriptRef = useRef('');
@@ -74,8 +73,8 @@ export const SmartFoodInputView = ({
     if (recognitionRef.current) {
       try {
         recognitionRef.current.stop();
-      } catch (err) {
-        // ignore
+      } catch {
+        void 0;
       }
     }
   }, []);
@@ -97,7 +96,6 @@ export const SmartFoodInputView = ({
       (window as unknown as { webkitSpeechRecognition?: new () => SpeechRecognitionInstance }).webkitSpeechRecognition;
 
     if (!SpeechRecognitionClass) {
-      setIsSpeechSupported(false);
       toast.info('Trình duyệt của bạn chưa hỗ trợ nhận diện giọng nói trực tiếp. Hãy sử dụng tab Nhập văn bản nhé!');
       setActiveTab('text');
       return;
@@ -107,7 +105,9 @@ export const SmartFoodInputView = ({
       if (recognitionRef.current) {
         try {
           recognitionRef.current.abort();
-        } catch {}
+        } catch {
+          void 0;
+        }
       }
 
       hasTriggeredAnalyzeRef.current = false;
@@ -180,7 +180,7 @@ export const SmartFoodInputView = ({
       isListeningRef.current = false;
       setIsListening(false);
     }
-  }, [stopListening, triggerAnalyze]);
+  }, [triggerAnalyze]);
 
   // Clean up when switching away from voice tab or unmounting
   useEffect(() => {
@@ -195,7 +195,9 @@ export const SmartFoodInputView = ({
       if (recognitionRef.current) {
         try {
           recognitionRef.current.abort();
-        } catch {}
+        } catch {
+          void 0;
+        }
       }
     };
   }, [stopListening]);

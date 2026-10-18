@@ -20,6 +20,24 @@ import type { SmartParsedFoodItem, SmartParseResponse, FoodPaginatedResponse } f
 import { parseVietnameseFoodTokens } from '../../utils/smartFoodParser';
 import { formatYYYYMMDD } from '../../utils/date';
 
+const mealFullTitleMap: Record<string, string> = {
+  BREAKFAST: 'Bữa Sáng',
+  MORNING_SNACK: 'Phụ Sáng',
+  LUNCH: 'Bữa Trưa',
+  AFTERNOON_SNACK: 'Phụ Chiều',
+  DINNER: 'Bữa Tối',
+  SNACK: 'Bữa Phụ',
+};
+
+const mealShortNameMap: Record<string, string> = {
+  BREAKFAST: 'Sáng',
+  MORNING_SNACK: 'Phụ Sáng',
+  LUNCH: 'Trưa',
+  AFTERNOON_SNACK: 'Phụ Chiều',
+  DINNER: 'Tối',
+  SNACK: 'Phụ',
+};
+
 const AddMealContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -69,24 +87,6 @@ const AddMealContent = () => {
   const { addedItems, removeItem, clearItems, getTotalCalories } = useMealBuilderStore();
 
   const [isSaving, setIsSaving] = useState(false);
-
-  const mealFullTitleMap: Record<string, string> = {
-    BREAKFAST: 'Bữa Sáng',
-    MORNING_SNACK: 'Phụ Sáng',
-    LUNCH: 'Bữa Trưa',
-    AFTERNOON_SNACK: 'Phụ Chiều',
-    DINNER: 'Bữa Tối',
-    SNACK: 'Bữa Phụ',
-  };
-
-  const mealShortNameMap: Record<string, string> = {
-    BREAKFAST: 'Sáng',
-    MORNING_SNACK: 'Phụ Sáng',
-    LUNCH: 'Trưa',
-    AFTERNOON_SNACK: 'Phụ Chiều',
-    DINNER: 'Tối',
-    SNACK: 'Phụ',
-  };
 
   // Strictly filter meal options matching user's configured meal slots
   const availableMealOptions: MealOption[] = useMemo(() => {
@@ -243,7 +243,9 @@ const AddMealContent = () => {
                   calculatedFat: Math.round(((f.fatPer100g * token.weight) / 100) * 10) / 10,
                 });
               }
-            } catch {}
+            } catch {
+              void 0;
+            }
           }
           if (fallbackResults.length > 0) {
             setSmartResults(fallbackResults);
@@ -276,7 +278,9 @@ const AddMealContent = () => {
               calculatedFat: Math.round(((f.fatPer100g * token.weight) / 100) * 10) / 10,
             });
           }
-        } catch {}
+        } catch {
+          void 0;
+        }
       }
       if (fallbackResults.length > 0) {
         setSmartResults(fallbackResults);

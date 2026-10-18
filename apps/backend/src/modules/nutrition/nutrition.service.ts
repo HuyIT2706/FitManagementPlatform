@@ -33,50 +33,198 @@ export class NutritionService {
 
     const SMART_CATEGORY_FILTERS: Record<
       string,
-      { includeKeywords: string[]; excludeKeywords: string[]; startsWithKeywords: string[] }
+      {
+        includeKeywords: string[];
+        excludeKeywords: string[];
+        startsWithKeywords: string[];
+      }
     > = {
       VEG: {
         includeKeywords: [
-          'rau', 'cải', 'muống', 'xà lách', 'súp lơ', 'cà rốt', 'bí đỏ', 'bí đao', 'bí xanh',
-          'cà chua', 'bắp cải', 'cải thìa', 'cải ngọt', 'mồng tơi', 'rau ngót', 'su hào',
-          'su su', 'đậu bắp', 'dưa chuột', 'dưa leo', 'măng', 'nấm', 'cần tây', 'bông cải',
-          'ớt chuông', 'củ dền', 'củ cải', 'mướp', 'bầu', 'hoa chuối', 'giá đỗ', 'ngó sen',
+          'rau',
+          'cải',
+          'muống',
+          'xà lách',
+          'súp lơ',
+          'cà rốt',
+          'bí đỏ',
+          'bí đao',
+          'bí xanh',
+          'cà chua',
+          'bắp cải',
+          'cải thìa',
+          'cải ngọt',
+          'mồng tơi',
+          'rau ngót',
+          'su hào',
+          'su su',
+          'đậu bắp',
+          'dưa chuột',
+          'dưa leo',
+          'măng',
+          'nấm',
+          'cần tây',
+          'bông cải',
+          'ớt chuông',
+          'củ dền',
+          'củ cải',
+          'mướp',
+          'bầu',
+          'hoa chuối',
+          'giá đỗ',
+          'ngó sen',
         ],
-        excludeKeywords: ['bánh', 'kẹo', 'chè', 'snack', 'nem rán', 'chả giò', 'bún', 'phở', 'miến'],
-        startsWithKeywords: ['rau', 'cải', 'củ', 'xà lách', 'súp lơ', 'bông cải', 'cà chua', 'dưa chuột', 'bí'],
+        excludeKeywords: [
+          'bánh',
+          'kẹo',
+          'chè',
+          'snack',
+          'nem rán',
+          'chả giò',
+          'bún',
+          'phở',
+          'miến',
+        ],
+        startsWithKeywords: [
+          'rau',
+          'cải',
+          'củ',
+          'xà lách',
+          'súp lơ',
+          'bông cải',
+          'cà chua',
+          'dưa chuột',
+          'bí',
+        ],
       },
       MEAT: {
         includeKeywords: [
-          'thịt', 'cá', 'gà', 'bò', 'heo', 'lợn', 'tôm', 'cua', 'mực', 'lươn', 'vịt', 'ngan',
-          'cừu', 'ức gà', 'cá hồi', 'cá thu', 'cá basa', 'cá lóc', 'cá rô', 'cá ngừ', 'bê',
-          'chả lụa', 'giò lụa', 'hải sản',
+          'thịt',
+          'cá',
+          'gà',
+          'bò',
+          'heo',
+          'lợn',
+          'tôm',
+          'cua',
+          'mực',
+          'lươn',
+          'vịt',
+          'ngan',
+          'cừu',
+          'ức gà',
+          'cá hồi',
+          'cá thu',
+          'cá basa',
+          'cá lóc',
+          'cá rô',
+          'cá ngừ',
+          'bê',
+          'chả lụa',
+          'giò lụa',
+          'hải sản',
         ],
-        excludeKeywords: ['bánh bao', 'bánh mì', 'bánh canh', 'bánh quy', 'kẹo', 'snack'],
-        startsWithKeywords: ['thịt', 'ức gà', 'cá', 'gà', 'bò', 'tôm', 'mực', 'lươn', 'chả lụa'],
+        excludeKeywords: [
+          'bánh bao',
+          'bánh mì',
+          'bánh canh',
+          'bánh quy',
+          'kẹo',
+          'snack',
+        ],
+        startsWithKeywords: [
+          'thịt',
+          'ức gà',
+          'cá',
+          'gà',
+          'bò',
+          'tôm',
+          'mực',
+          'lươn',
+          'chả lụa',
+        ],
       },
       EGG: {
         includeKeywords: [
-          'trứng', 'sữa', 'phô mai', 'pho mát', 'cheese', 'sữa chua', 'yogurt', 'whey', 'váng sữa',
+          'trứng',
+          'sữa',
+          'phô mai',
+          'pho mát',
+          'cheese',
+          'sữa chua',
+          'yogurt',
+          'whey',
+          'váng sữa',
         ],
         excludeKeywords: ['bánh', 'kẹo', 'chè', 'trà sữa'],
         startsWithKeywords: ['trứng', 'sữa', 'sữa chua', 'phô mai', 'whey'],
       },
       RICE: {
         includeKeywords: [
-          'cơm', 'gạo', 'yến mạch', 'khoai lang', 'khoai tây', 'bánh mì', 'bún', 'phở', 'miến',
-          'ngô', 'bắp', 'nui', 'mì ý', 'spaghetti', 'bánh canh',
+          'cơm',
+          'gạo',
+          'yến mạch',
+          'khoai lang',
+          'khoai tây',
+          'bánh mì',
+          'bún',
+          'phở',
+          'miến',
+          'ngô',
+          'bắp',
+          'nui',
+          'mì ý',
+          'spaghetti',
+          'bánh canh',
         ],
         excludeKeywords: ['bánh ngọt', 'kẹo', 'snack', 'bánh quy'],
         startsWithKeywords: ['cơm', 'gạo', 'yến mạch', 'khoai', 'bún', 'phở'],
       },
       FRUIT: {
         includeKeywords: [
-          'chuối', 'táo', 'cam', 'quýt', 'xoài', 'dưa hấu', 'ổi', 'nho', 'dứa', 'thơm', 'khóm',
-          'bơ', 'lê', 'thanh long', 'đu đủ', 'dâu', 'bưởi', 'đào', 'mận', 'kiwi', 'chôm chôm',
-          'sầu riêng', 'vải', 'nhãn', 'măng cụt', 'lựu', 'mãng cầu', 'chanh leo', 'quả', 'trái',
+          'chuối',
+          'táo',
+          'cam',
+          'quýt',
+          'xoài',
+          'dưa hấu',
+          'ổi',
+          'nho',
+          'dứa',
+          'thơm',
+          'khóm',
+          'bơ',
+          'lê',
+          'thanh long',
+          'đu đủ',
+          'dâu',
+          'bưởi',
+          'đào',
+          'mận',
+          'kiwi',
+          'chôm chôm',
+          'sầu riêng',
+          'vải',
+          'nhãn',
+          'măng cụt',
+          'lựu',
+          'mãng cầu',
+          'chanh leo',
+          'quả',
+          'trái',
         ],
         excludeKeywords: ['bánh', 'kẹo', 'nước ngọt', 'mứt', 'chè'],
-        startsWithKeywords: ['chuối', 'táo', 'cam', 'xoài', 'dưa hấu', 'ổi', 'nho', 'bơ', 'thanh long'],
+        startsWithKeywords: [
+          'chuối',
+          'táo',
+          'cam',
+          'xoài',
+          'dưa hấu',
+          'ổi',
+          'nho',
+          'bơ',
+          'thanh long',
+        ],
       },
     };
 
@@ -87,7 +235,7 @@ export class NutritionService {
         this.prisma.foodLibrary.findMany({
           skip,
           take: limitNum,
-          orderBy: { name: 'asc' },
+          orderBy: [{ createdAt: 'desc' }, { name: 'asc' }],
         }),
         this.prisma.foodLibrary.count(),
       ]);
@@ -105,7 +253,10 @@ export class NutritionService {
     // Normalize typos and common synonyms
     let normalized = trimmed.toLowerCase();
     normalized = normalized.replace(/(^|\s+)ứ\s*gà(?=\s|$)/gi, '$1ức gà');
-    normalized = normalized.replace(/(?:không|khong|k|ko)\s+da(?=\s|$)/gi, 'bỏ da');
+    normalized = normalized.replace(
+      /(?:không|khong|k|ko)\s+da(?=\s|$)/gi,
+      'bỏ da',
+    );
     normalized = normalized.replace(
       /(?:không|khong|k|ko)\s+đường(?=\s|$)/gi,
       'không đường',
@@ -131,7 +282,8 @@ export class NutritionService {
           (k) => Prisma.sql`unaccent(name) ILIKE unaccent(${'%' + k + '%'})`,
         );
         const excConds = activeCatRule.excludeKeywords.map(
-          (k) => Prisma.sql`unaccent(name) NOT ILIKE unaccent(${'%' + k + '%'})`,
+          (k) =>
+            Prisma.sql`unaccent(name) NOT ILIKE unaccent(${'%' + k + '%'})`,
         );
         allConditions.push(
           Prisma.sql`(${Prisma.join(incConds, ' OR ')}) AND (${Prisma.join(excConds, ' AND ')})`,
@@ -618,7 +770,9 @@ export class NutritionService {
     }
   }
 
-  parseSmartFoodText(rawText: string): Array<{ query: string; weight: number }> {
+  parseSmartFoodText(
+    rawText: string,
+  ): Array<{ query: string; weight: number }> {
     if (!rawText || typeof rawText !== 'string') return [];
 
     let text = rawText.trim().toLowerCase();
@@ -628,28 +782,46 @@ export class NutritionService {
     text = text.replace(/(\d+)\s*k\b/gi, '$1g');
     text = text.replace(/(\d+)\s*(?:gam|gram|gr)\b/gi, '$1g');
 
-    text = text.replace(/(\d+(?:[.,]\d+)?)\s*(?:kg|kí|ký)\b/gi, (_, p1) => {
-      const val = parseFloat(p1.replace(',', '.'));
-      return `${Math.round(val * 1000)}g`;
-    });
+    text = text.replace(
+      /(\d+(?:[.,]\d+)?)\s*(?:kg|kí|ký)\b/gi,
+      (_, p1: string) => {
+        const val = parseFloat(p1.replace(',', '.'));
+        return `${Math.round(val * 1000)}g`;
+      },
+    );
 
-    text = text.replace(/(\d+)\s*(?:lạng|lang)\b/gi, (_, p1) => `${Number(p1) * 100}g `);
+    text = text.replace(
+      /(\d+)\s*(?:lạng|lang)\b/gi,
+      (_, p1: string) => `${Number(p1) * 100}g `,
+    );
     text = text.replace(/(?:^|\s+)nửa lạng(?=\s+|$)/gi, ' 50g ');
 
-    text = text.replace(/(\d+)\s*(?:bát|chén)\b/gi, (_, p1) => `${Number(p1) * 150}g `);
+    text = text.replace(
+      /(\d+)\s*(?:bát|chén)\b/gi,
+      (_, p1) => `${Number(p1) * 150}g `,
+    );
     text = text.replace(/(?:^|\s+)nửa (?:bát|chén)(?=\s+|$)/gi, ' 75g ');
 
-    text = text.replace(/(\d+)\s*(?:quả|hột|trái)\b/gi, (_, p1) => `${Number(p1) * 50}g `);
+    text = text.replace(
+      /(\d+)\s*(?:quả|hột|trái)\b/gi,
+      (_, p1) => `${Number(p1) * 50}g `,
+    );
     text = text.replace(/(\d+)\s*đĩa\b/gi, (_, p1) => `${Number(p1) * 200}g `);
     text = text.replace(/(\d+)\s*tô\b/gi, (_, p1) => `${Number(p1) * 350}g `);
-    text = text.replace(/(\d+)\s*(?:ly|cốc|hộp)\b/gi, (_, p1) => `${Number(p1) * 200}g `);
+    text = text.replace(
+      /(\d+)\s*(?:ly|cốc|hộp)\b/gi,
+      (_, p1) => `${Number(p1) * 200}g `,
+    );
 
     // Normalize connectives & punctuation to delimiter '|'
     text = text.replace(/[,;+&\n]/g, ' | ');
     text = text.replace(/(?:^|\s+)(?:và|kèm|với|cùng)(?=\s+|$)/gi, ' | ');
 
     // Split by explicit delimiters first
-    const subPhrases = text.split('|').map((s) => s.trim()).filter(Boolean);
+    const subPhrases = text
+      .split('|')
+      .map((s) => s.trim())
+      .filter(Boolean);
 
     const cleanName = (s: string) =>
       s
@@ -721,24 +893,29 @@ export class NutritionService {
       const searchRes = await this.searchFoods(item.query, 1, 6);
       const foodList = searchRes.data || [];
 
-      const calculatedFoods: SmartParsedFoodItem[] = foodList.map((f: FoodItem) => {
-        const cal = Math.round((f.caloriesPer100g * item.weight) / 100);
-        const pro = Math.round(((f.proteinPer100g * item.weight) / 100) * 10) / 10;
-        const carbs = Math.round(((f.carbsPer100g * item.weight) / 100) * 10) / 10;
-        const fat = Math.round(((f.fatPer100g * item.weight) / 100) * 10) / 10;
-        const enriched: SmartParsedFoodItem = {
-          ...f,
-          suggestedWeight: item.weight,
-          calculatedCalories: cal,
-          calculatedProtein: pro,
-          calculatedCarbs: carbs,
-          calculatedFat: fat,
-        };
-        if (!allFoodsMap.has(f.id)) {
-          allFoodsMap.set(f.id, enriched);
-        }
-        return enriched;
-      });
+      const calculatedFoods: SmartParsedFoodItem[] = foodList.map(
+        (f: FoodItem) => {
+          const cal = Math.round((f.caloriesPer100g * item.weight) / 100);
+          const pro =
+            Math.round(((f.proteinPer100g * item.weight) / 100) * 10) / 10;
+          const carbs =
+            Math.round(((f.carbsPer100g * item.weight) / 100) * 10) / 10;
+          const fat =
+            Math.round(((f.fatPer100g * item.weight) / 100) * 10) / 10;
+          const enriched: SmartParsedFoodItem = {
+            ...f,
+            suggestedWeight: item.weight,
+            calculatedCalories: cal,
+            calculatedProtein: pro,
+            calculatedCarbs: carbs,
+            calculatedFat: fat,
+          };
+          if (!allFoodsMap.has(f.id)) {
+            allFoodsMap.set(f.id, enriched);
+          }
+          return enriched;
+        },
+      );
 
       itemsResult.push({
         query: item.query,
@@ -752,5 +929,33 @@ export class NutritionService {
       items: itemsResult,
       allFoods: Array.from(allFoodsMap.values()),
     };
+  }
+
+  async createFood(data: {
+    name: string;
+    caloriesPer100g: number;
+    proteinPer100g: number;
+    carbsPer100g: number;
+    fatPer100g: number;
+    fiberPer100g?: number;
+    category?: string;
+    imageUrl?: string;
+  }) {
+    if (!data.name || !data.name.trim()) {
+      throw new BadRequestException('Tên món ăn không được để trống');
+    }
+
+    return this.prisma.foodLibrary.create({
+      data: {
+        name: data.name.trim(),
+        caloriesPer100g: Math.max(0, Number(data.caloriesPer100g) || 0),
+        proteinPer100g: Math.max(0, Number(data.proteinPer100g) || 0),
+        carbsPer100g: Math.max(0, Number(data.carbsPer100g) || 0),
+        fatPer100g: Math.max(0, Number(data.fatPer100g) || 0),
+        fiberPer100g: data.fiberPer100g ? Number(data.fiberPer100g) : undefined,
+        category: data.category || 'Món ăn tự tạo',
+        imageUrl: data.imageUrl || undefined,
+      },
+    });
   }
 }

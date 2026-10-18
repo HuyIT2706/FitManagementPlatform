@@ -11,6 +11,7 @@ export * from "./IAdmin";
 export * from "./INotification";
 export * from "./IHeader";
 export * from "./IUi";
+export * from "./IWeight";
 export type {
   MealItem,
   CalendarStripProps,

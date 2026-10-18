@@ -10,6 +10,7 @@ import toast from '../../utils/toast';
 import type { FoodItem, FoodSelectorProps, FoodPaginatedResponse } from '../../interface';
 import { useMealBuilderStore } from '../../services/useMealBuilderStore';
 import { getRecentFoods, saveRecentFood } from '../../utils/recentFoods';
+import { CreateFoodModal } from './CreateFoodModal';
 
 export const QUICK_FILTERS = [
   { id: 'HISTORY', label: 'Lịch sử' },
@@ -35,6 +36,7 @@ const FoodSelector = ({
   const [loading, setLoading] = useState(true);
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
   const [weight, setWeight] = useState<number | ''>(100);
+  const [isCreateFoodOpen, setIsCreateFoodOpen] = useState(false);
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
@@ -133,7 +135,18 @@ const FoodSelector = ({
     <div className="space-y-4">
       {title && (
         <div className="px-1 flex items-center justify-between">
-          <h3 className="font-bold text-lg text-on-surface">{title}</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="font-bold text-lg text-on-surface">{title}</h3>
+            <button
+              type="button"
+              onClick={() => setIsCreateFoodOpen(true)}
+              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-primary text-[11px] font-bold hover:bg-emerald-500/25 transition-all cursor-pointer shadow-xs"
+              title="Tạo thực phẩm mới (thêm vào món ăn luôn)"
+            >
+              <Plus size={12} />
+              Tạo món
+            </button>
+          </div>
           <span className="text-xs text-on-surface-variant font-medium">
             {isSearching
               ? 'Đang tìm kiếm...'
@@ -212,6 +225,15 @@ const FoodSelector = ({
 
             {(query || selectedFilter !== 'ALL') && (
               <div className="flex items-center justify-center gap-2 pt-1 flex-wrap">
+                {query && (
+                  <button
+                    type="button"
+                    onClick={() => setIsCreateFoodOpen(true)}
+                    className="px-3.5 py-1.5 rounded-xl bg-primary text-dark-slate font-bold text-xs hover:bg-primary/90 transition-all cursor-pointer shadow-xs"
+                  >
+                    + Tạo thực phẩm mới
+                  </button>
+                )}
                 {query && (
                   <button
                     type="button"
@@ -436,6 +458,16 @@ const FoodSelector = ({
           </div>
         </div>
       )}
+
+      {/* Create Custom Food Modal (Ảnh 3) */}
+      <CreateFoodModal
+        isOpen={isCreateFoodOpen}
+        allowAddToMeal={true}
+        onClose={() => setIsCreateFoodOpen(false)}
+        onSuccess={() => {
+          fetchFoods(debouncedQuery, currentPage, selectedFilter);
+        }}
+      />
     </div>
   );
 };

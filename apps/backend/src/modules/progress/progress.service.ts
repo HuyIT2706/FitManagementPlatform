@@ -74,4 +74,50 @@ export class ProgressService {
 
     return metric;
   }
+
+  async updateMetric(
+    userId: string,
+    metricId: string,
+    dto: {
+      weight?: number;
+      height?: number;
+      bodyFat?: number;
+      muscleMass?: number;
+      recordedAt?: string;
+    },
+  ) {
+    const metric = await this.prisma.bodyMetric.findUnique({
+      where: { id: metricId },
+    });
+    if (!metric || metric.userId !== userId) {
+      throw new ForbiddenException(
+        'Không tìm thấy chỉ số này hoặc bạn không có quyền chỉnh sửa',
+      );
+    }
+    return this.prisma.bodyMetric.update({
+      where: { id: metricId },
+      data: {
+        weight: dto.weight !== undefined ? Number(dto.weight) : undefined,
+        height: dto.height !== undefined ? Number(dto.height) : undefined,
+        bodyFat: dto.bodyFat !== undefined ? Number(dto.bodyFat) : undefined,
+        muscleMass:
+          dto.muscleMass !== undefined ? Number(dto.muscleMass) : undefined,
+        recordedAt: dto.recordedAt ? new Date(dto.recordedAt) : undefined,
+      },
+    });
+  }
+
+  async deleteMetric(userId: string, metricId: string) {
+    const metric = await this.prisma.bodyMetric.findUnique({
+      where: { id: metricId },
+    });
+    if (!metric || metric.userId !== userId) {
+      throw new ForbiddenException(
+        'Không tìm thấy chỉ số này hoặc bạn không có quyền xóa',
+      );
+    }
+    return this.prisma.bodyMetric.delete({
+      where: { id: metricId },
+    });
+  }
 }

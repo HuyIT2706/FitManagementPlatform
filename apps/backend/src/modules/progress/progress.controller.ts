@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Delete,
   Body,
   Param,
@@ -53,5 +54,29 @@ export class ProgressController {
     @Body() dto: CreateBodyMetricDto,
   ) {
     return this.progressService.addMetric(req.user.sub, dto);
+  }
+
+  @Patch('metrics/:id')
+  async updateMetric(
+    @Request() req: RequestWithUser,
+    @Param('id') metricId: string,
+    @Body()
+    dto: {
+      weight?: number;
+      height?: number;
+      bodyFat?: number;
+      muscleMass?: number;
+      recordedAt?: string;
+    },
+  ) {
+    return this.progressService.updateMetric(req.user.sub, metricId, dto);
+  }
+
+  @Delete('metrics/:id')
+  async deleteMetric(
+    @Request() req: RequestWithUser,
+    @Param('id') metricId: string,
+  ) {
+    return this.progressService.deleteMetric(req.user.sub, metricId);
   }
 }

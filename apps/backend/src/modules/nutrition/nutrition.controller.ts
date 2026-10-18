@@ -37,6 +37,23 @@ export class NutritionController {
     return this.nutritionService.searchFoods(query, page, limit, category);
   }
 
+  @Post('foods')
+  async createFood(
+    @Body()
+    dto: {
+      name: string;
+      caloriesPer100g: number;
+      proteinPer100g: number;
+      carbsPer100g: number;
+      fatPer100g: number;
+      fiberPer100g?: number;
+      category?: string;
+      imageUrl?: string;
+    },
+  ) {
+    return this.nutritionService.createFood(dto);
+  }
+
   @Post('smart-parse')
   async smartParseFood(@Body() dto: SmartParseFoodDto) {
     return this.nutritionService.smartParseFoodInput(dto.text);
