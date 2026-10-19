@@ -7,6 +7,7 @@ import type {
   MealPlanAssigned,
   AssignedWorkoutPlanData,
   ExercisePaginatedResponse,
+  NotificationItem,
 } from '../interface';
 import type { PTCodeQrData, PTSessionItem } from '@repo/types';
 
@@ -109,5 +110,28 @@ export const usePtSchedule = (startDate?: string, endDate?: string, options?: SW
     `/pt/schedule${query}`,
     swrFetcher,
     { ...DEFAULT_SWR_OPTIONS, ...options }
+  );
+};
+
+export interface NotificationsResponse {
+  notifications: NotificationItem[];
+  unreadCount: number;
+}
+
+export const useNotifications = (options?: SWRConfiguration) => {
+  const hasToken =
+    typeof window !== 'undefined' && Boolean(localStorage.getItem('jwt_token'));
+  return useSWR<NotificationsResponse>(
+    hasToken ? '/notifications' : null,
+    swrFetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateIfStale: false,
+      dedupingInterval: 60000,
+      refreshInterval: 120000,
+      revalidateOnReconnect: true,
+      shouldRetryOnError: false,
+      ...options,
+    }
   );
 };

@@ -16,6 +16,7 @@ import {
   X,
 } from 'lucide-react';
 import apiClient from '../../api/axios';
+import { useNotifications } from '../../hooks/swr';
 import {
   registerServiceWorker,
   subscribeToPushNotifications,
@@ -31,34 +32,17 @@ const NotificationBellDropdown = ({
 }: NotificationBellDropdownProps) => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [filter, setFilter] = useState<'ALL' | 'UNREAD'>('ALL');
   const [permissionStatus, setPermissionStatus] = useState<string>('default');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const { data, mutate } = useNotifications();
+  const notifications = useMemo(() => data?.notifications || [], [data?.notifications]);
+  const unreadCount = data?.unreadCount || 0;
+
   useEffect(() => {
     registerServiceWorker();
     setPermissionStatus(getNotificationPermissionStatus());
-  }, []);
-
-  const fetchNotifications = async () => {
-    try {
-      const res = await apiClient.get<{
-        notifications: NotificationItem[];
-        unreadCount: number;
-      }>('/notifications');
-      setNotifications(res.data.notifications || []);
-      setUnreadCount(res.data.unreadCount || 0);
-    } catch {
-      // Silently ignore network or unauthorized errors for polling
-    }
-  };
-
-  useEffect(() => {
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 45000);
-    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -84,14 +68,24 @@ const NotificationBellDropdown = ({
 
   const handleItemClick = async (notif: NotificationItem) => {
     if (!notif.isRead) {
+      await mutate(
+        (current) => {
+          if (!current) return current;
+          return {
+            notifications: current.notifications.map((n) =>
+              n.id === notif.id ? { ...n, isRead: true } : n
+            ),
+            unreadCount: Math.max(0, current.unreadCount - 1),
+          };
+        },
+        false
+      );
+
       try {
         await apiClient.patch(`/notifications/${notif.id}/read`);
-        setNotifications((prev) =>
-          prev.map((n) => (n.id === notif.id ? { ...n, isRead: true } : n))
-        );
-        setUnreadCount((prev) => Math.max(0, prev - 1));
       } catch (err) {
         console.error('Failed to mark notification as read:', err);
+        mutate();
       }
     }
     setIsOpen(false);
@@ -101,12 +95,25 @@ const NotificationBellDropdown = ({
   };
 
   const handleMarkAllAsRead = async () => {
+    await mutate(
+      (current) => {
+        if (!current) return current;
+        return {
+          notifications: current.notifications.map((n) => ({
+            ...n,
+            isRead: true,
+          })),
+          unreadCount: 0,
+        };
+      },
+      false
+    );
+
     try {
       await apiClient.patch('/notifications/read-all');
-      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-      setUnreadCount(0);
     } catch (err) {
       console.error('Failed to mark all as read:', err);
+      mutate();
     }
   };
 
@@ -185,8 +192,11 @@ const NotificationBellDropdown = ({
       <button
         type="button"
         onClick={() => {
-          setIsOpen((prev) => !prev);
-          if (!isOpen) fetchNotifications();
+          setIsOpen((prev) => {
+            const next = !prev;
+            if (next) mutate();
+            return next;
+          });
         }}
         className={
           buttonClassName ||
