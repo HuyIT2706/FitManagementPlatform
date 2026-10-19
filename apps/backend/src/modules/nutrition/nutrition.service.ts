@@ -1038,15 +1038,10 @@ export class NutritionService {
           break;
         } else if (data.error?.message) {
           lastError = data.error.message;
-          console.warn(
-            `[Gemini Vision] Model ${model} returned error:`,
-            data.error.message,
-          );
         }
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
         lastError = message;
-        console.warn(`[Gemini Vision] Model ${model} fetch failed:`, message);
       }
     }
 
@@ -1054,7 +1049,7 @@ export class NutritionService {
       const isHighDemand = lastError.toLowerCase().includes('high demand');
       throw new BadRequestException(
         isHighDemand
-          ? 'Hệ thống AI đang quá tải tạm thời, vui lòng thử lại sau vài giây hoặc tìm món thủ công.'
+          ? 'Hệ thống đang quá tải tạm thời, vui lòng thử lại sau vài giây hoặc tìm món thủ công.'
           : lastError
             ? `Không thể phân tích ảnh: ${lastError}`
             : 'Không thể nhận diện món ăn từ hình ảnh. Vui lòng chụp rõ hơn hoặc nhập thủ công.',
