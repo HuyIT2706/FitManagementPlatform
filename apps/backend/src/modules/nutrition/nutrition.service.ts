@@ -984,9 +984,11 @@ export class NutritionService {
                     200g cơm trắng, 150g ức gà áp chảo, 100g bông cải xanh luộc`;
 
     const candidateModels = [
-      'gemini-2.5-flash',
+      'gemini-3.5-flash-lite',
+      'gemini-flash-lite-latest',
+      'gemini-2.5-flash-lite',
+      'gemini-3.1-flash-lite',
       'gemini-flash-latest',
-      'gemini-3.8-flash',
     ];
     let detectedText = '';
     let lastError = '';
@@ -994,9 +996,13 @@ export class NutritionService {
     for (const model of candidateModels) {
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+
         const response = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal,
           body: JSON.stringify({
             contents: [
               {
@@ -1008,6 +1014,7 @@ export class NutritionService {
             ],
           }),
         });
+        clearTimeout(timeoutId);
 
         type GeminiApiResponse = {
           candidates?: Array<{
@@ -1044,10 +1051,13 @@ export class NutritionService {
     }
 
     if (!detectedText) {
+      const isHighDemand = lastError.toLowerCase().includes('high demand');
       throw new BadRequestException(
-        lastError
-          ? `Không thể phân tích ảnh: ${lastError}`
-          : 'Không thể nhận diện món ăn từ hình ảnh. Vui lòng chụp rõ hơn hoặc nhập thủ công.',
+        isHighDemand
+          ? 'Hệ thống AI đang quá tải tạm thời, vui lòng thử lại sau vài giây hoặc tìm món thủ công.'
+          : lastError
+            ? `Không thể phân tích ảnh: ${lastError}`
+            : 'Không thể nhận diện món ăn từ hình ảnh. Vui lòng chụp rõ hơn hoặc nhập thủ công.',
       );
     }
 
