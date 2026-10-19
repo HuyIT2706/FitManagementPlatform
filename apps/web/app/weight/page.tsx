@@ -44,7 +44,7 @@ export default function WeightTrackingPage() {
     if (sortedMetrics.length > 0 && sortedMetrics[0]) {
       return sortedMetrics[0].weight;
     }
-    return userData?.weight || 81;
+    return userData?.weight || 0;
   }, [sortedMetrics, userData]);
 
   const currentWeight = useMemo(() => {
@@ -52,19 +52,23 @@ export default function WeightTrackingPage() {
     if (last) {
       return last.weight;
     }
-    return userData?.weight || initialWeight;
+    return initialWeight || userData?.weight || 0;
   }, [sortedMetrics, userData, initialWeight]);
 
   const targetWeight = useMemo(() => {
-    return userData?.targetWeight || 75;
+    return userData?.targetWeight || 0;
   }, [userData]);
 
   // Weight difference status
   const weightDiff = useMemo(() => {
+    if (initialWeight <= 0 || currentWeight <= 0) return 0;
     return Math.round((currentWeight - initialWeight) * 10) / 10;
   }, [currentWeight, initialWeight]);
 
   const statusMessage = useMemo(() => {
+    if (sortedMetrics.length === 0) {
+      return 'Chưa có dữ liệu ghi nhận cân nặng';
+    }
     if (Math.abs(weightDiff) < 0.1) {
       return 'Bạn đang giữ vững cân nặng';
     }
@@ -72,21 +76,12 @@ export default function WeightTrackingPage() {
       return `Bạn đã giảm ${Math.abs(weightDiff).toFixed(1)} kg`;
     }
     return `Bạn đã tăng ${weightDiff.toFixed(1)} kg`;
-  }, [weightDiff]);
+  }, [sortedMetrics.length, weightDiff]);
 
-  // Filtered data points for the selected range
+  // Filtered data points for the selected range - ONLY real user-logged metrics
   const chartPoints = useMemo<WeightChartPoint[]>(() => {
     if (sortedMetrics.length === 0) {
-      // Fallback sample point for brand-new users
-      const today = new Date();
-      return [
-        {
-          label: `${today.getDate()}-${today.getMonth() + 1}`,
-          fullDate: today.toISOString(),
-          weight: currentWeight,
-          id: 'temp-current',
-        },
-      ];
+      return [];
     }
 
     if (timeRange === 'DAY') {
@@ -126,7 +121,7 @@ export default function WeightTrackingPage() {
         id: m.id,
       };
     });
-  }, [sortedMetrics, timeRange, currentWeight]);
+  }, [sortedMetrics, timeRange]);
 
   // Chart Y-axis calculation matching the user's screenshot (e.g. 90, 75, 60, 45, 30, 15, 0)
   const { yTicks, maxVal } = useMemo(() => {
@@ -150,13 +145,13 @@ export default function WeightTrackingPage() {
   const openEditModal = (mode: WeightEditMode) => {
     setEditMode(mode);
     if (mode === 'INITIAL') {
-      setWeightInput(String(initialWeight));
+      setWeightInput(initialWeight > 0 ? String(initialWeight) : '');
       setSelectedMetricId(sortedMetrics[0]?.id || null);
     } else if (mode === 'CURRENT') {
-      setWeightInput(String(currentWeight));
+      setWeightInput(currentWeight > 0 ? String(currentWeight) : '');
       setSelectedMetricId(null);
     } else if (mode === 'TARGET') {
-      setWeightInput(String(targetWeight));
+      setWeightInput(targetWeight > 0 ? String(targetWeight) : '');
       setSelectedMetricId(null);
     }
   };

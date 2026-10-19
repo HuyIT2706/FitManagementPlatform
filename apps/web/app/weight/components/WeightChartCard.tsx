@@ -151,6 +151,17 @@ export const WeightChartCard: React.FC<WeightChartCardProps> = ({
 
           {/* HTML Overlay: Circular Dots & Crisp Weight Numbers */}
           <div className="absolute inset-0 pointer-events-none">
+            {coords.length === 0 && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pointer-events-none">
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                  Chưa có dữ liệu ghi nhận cân nặng
+                </p>
+                <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
+                  Bấm dấu &quot;+&quot; phía trên góc phải để ghi nhận cân nặng
+                </p>
+              </div>
+            )}
+
             {coords.map((c) => (
               <div
                 key={c.id || c.label}

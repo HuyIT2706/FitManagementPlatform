@@ -508,8 +508,20 @@ export class UsersService {
     if (dto.phone !== undefined) updateData.phone = dto.phone;
     if (dto.avatarUrl !== undefined) updateData.avatarUrl = dto.avatarUrl;
 
+    const latestMetric = existingUser?.bodyMetrics?.[0];
+    const weightChanged =
+      dto.weight !== undefined &&
+      Number(dto.weight) > 0 &&
+      (!latestMetric || Number(dto.weight) !== latestMetric.weight);
+    const bodyFatChanged =
+      dto.bodyFat !== undefined &&
+      (!latestMetric || Number(dto.bodyFat) !== latestMetric.bodyFat);
+    const muscleMassChanged =
+      dto.muscleMass !== undefined &&
+      (!latestMetric || Number(dto.muscleMass) !== latestMetric.muscleMass);
+
     return this.prisma.$transaction(async (tx) => {
-      if (dto.weight || dto.bodyFat || dto.muscleMass) {
+      if (weightChanged || bodyFatChanged || muscleMassChanged) {
         await tx.bodyMetric.create({
           data: {
             userId,

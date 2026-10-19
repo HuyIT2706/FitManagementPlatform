@@ -83,8 +83,7 @@ const NotificationBellDropdown = ({
 
       try {
         await apiClient.patch(`/notifications/${notif.id}/read`);
-      } catch (err) {
-        console.error('Failed to mark notification as read:', err);
+      } catch {
         mutate();
       }
     }

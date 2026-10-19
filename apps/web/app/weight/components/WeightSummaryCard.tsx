@@ -26,7 +26,7 @@ export const WeightSummaryCard: React.FC<WeightSummaryCardProps> = ({
             <Pencil size={13} className="text-slate-600 dark:text-slate-300 stroke-[2.2]" />
           </div>
           <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-            {initialWeight}kg
+            {initialWeight > 0 ? `${initialWeight}kg` : '--'}
           </div>
         </div>
 
@@ -41,7 +41,7 @@ export const WeightSummaryCard: React.FC<WeightSummaryCardProps> = ({
             <Pencil size={13} className="text-slate-600 dark:text-slate-300 stroke-[2.2]" />
           </div>
           <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-            {currentWeight}kg
+            {currentWeight > 0 ? `${currentWeight}kg` : '--'}
           </div>
         </div>
 
@@ -56,7 +56,7 @@ export const WeightSummaryCard: React.FC<WeightSummaryCardProps> = ({
             <Pencil size={13} className="text-slate-600 dark:text-slate-300 stroke-[2.2]" />
           </div>
           <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-            {targetWeight}kg
+            {targetWeight > 0 ? `${targetWeight}kg` : '--'}
           </div>
         </div>
       </div>
