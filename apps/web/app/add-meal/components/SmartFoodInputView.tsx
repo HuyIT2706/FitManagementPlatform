@@ -77,10 +77,11 @@ export const SmartFoodInputView = ({
 
   const isListeningRef = useRef(false);
   const latestTranscriptRef = useRef('');
+  const accumulatedFinalRef = useRef('');
   const hasTriggeredAnalyzeRef = useRef(false);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
+  const SILENCE_TIMEOUT_MS = 3500;
   useEffect(() => {
     if (initialTab) {
       setActiveTab(initialTab);
@@ -136,6 +137,7 @@ export const SmartFoodInputView = ({
 
       hasTriggeredAnalyzeRef.current = false;
       latestTranscriptRef.current = '';
+      accumulatedFinalRef.current = '';
 
       const recognition = new SpeechRecognitionClass();
       recognition.continuous = true;
@@ -148,32 +150,42 @@ export const SmartFoodInputView = ({
       };
 
       recognition.onresult = (event: SpeechRecognitionEvent) => {
-        let finalTranscript = '';
-        let interimTranscript = '';
+        let sessionFinalTranscript = '';
+        let sessionInterimTranscript = '';
 
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
+        // Accumulate ALL results in this recognition session from index 0 to avoid dropping earlier words
+        for (let i = 0; i < event.results.length; ++i) {
           const item = event.results[i];
-          if (item) {
+          if (item && item[0]) {
+            const transcriptPiece = item[0].transcript || '';
             if (item.isFinal) {
-              finalTranscript += item[0]?.transcript || '';
+              sessionFinalTranscript += (sessionFinalTranscript ? ' ' : '') + transcriptPiece.trim();
             } else {
-              interimTranscript += item[0]?.transcript || '';
+              sessionInterimTranscript += (sessionInterimTranscript ? ' ' : '') + transcriptPiece.trim();
             }
           }
         }
 
-        const currentText = (finalTranscript || interimTranscript).trim();
-        if (currentText) {
-          setSpeechTranscript(currentText);
-          latestTranscriptRef.current = currentText;
+        // Combine previously accumulated text (across browser auto-restarts) with current session text
+        const parts = [
+          accumulatedFinalRef.current,
+          sessionFinalTranscript,
+          sessionInterimTranscript,
+        ].filter(Boolean);
 
-          // Auto-trigger analyze after 1.5s of silence after user finishes speaking
+        const fullText = parts.join(' ').replace(/\s+/g, ' ').trim();
+
+        if (fullText) {
+          setSpeechTranscript(fullText);
+          latestTranscriptRef.current = fullText;
+
+          // Auto-trigger analyze after 2.8s of silence after user finishes speaking
           if (silenceTimeoutRef.current) {
             clearTimeout(silenceTimeoutRef.current);
           }
           silenceTimeoutRef.current = setTimeout(() => {
             triggerAnalyze(latestTranscriptRef.current);
-          }, 1500);
+          }, SILENCE_TIMEOUT_MS);
         }
       };
 
@@ -183,12 +195,26 @@ export const SmartFoodInputView = ({
         }
         if (event.error === 'not-allowed') {
           toast.error('Vui lòng cấp quyền truy cập Microphone cho trình duyệt.');
+          isListeningRef.current = false;
+          setIsListening(false);
         }
-        isListeningRef.current = false;
-        setIsListening(false);
       };
 
       recognition.onend = () => {
+        // If Chrome/browser ended on its own due to momentary silence, but user is still speaking
+        // and silence timer has not fired yet:
+        if (isListeningRef.current && !hasTriggeredAnalyzeRef.current) {
+          if (latestTranscriptRef.current) {
+            accumulatedFinalRef.current = latestTranscriptRef.current;
+          }
+          try {
+            recognition.start();
+            return;
+          } catch {
+            // Cannot restart, finish gracefully below
+          }
+        }
+
         isListeningRef.current = false;
         setIsListening(false);
         if (latestTranscriptRef.current.trim() && !hasTriggeredAnalyzeRef.current) {
@@ -227,13 +253,15 @@ export const SmartFoodInputView = ({
 
   const handleMicToggle = () => {
     if (isListeningRef.current || isListening) {
+      const text = latestTranscriptRef.current.trim() || speechTranscript.trim();
       stopListening();
-      if (latestTranscriptRef.current.trim() && !hasTriggeredAnalyzeRef.current) {
-        triggerAnalyze(latestTranscriptRef.current);
+      if (text && !hasTriggeredAnalyzeRef.current) {
+        triggerAnalyze(text);
       }
     } else {
       hasTriggeredAnalyzeRef.current = false;
       latestTranscriptRef.current = '';
+      accumulatedFinalRef.current = '';
       setSpeechTranscript('');
       startListening();
     }
@@ -656,8 +684,25 @@ export const SmartFoodInputView = ({
               </button>
 
               <span className="mt-4 text-xs font-bold text-slate-500 dark:text-white/60">
-                {isListening ? 'Đang lắng nghe bạn nói...' : 'Nhấn vào micro để nói'}
+                {isListening ? 'Đang lắng nghe...' : 'Nhấn vào micro để nói'}
               </span>
+
+              {/* Instant Analyze button while recording */}
+              {isListening && speechTranscript && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const text = latestTranscriptRef.current.trim() || speechTranscript.trim();
+                    if (text) {
+                      triggerAnalyze(text);
+                    }
+                  }}
+                  className="mt-3.5 px-5 py-2.5 rounded-full bg-primary text-black font-extrabold text-xs sm:text-sm hover:opacity-95 active:scale-95 transition-all shadow-[0_0_15px_rgba(102,200,28,0.35)] flex items-center gap-2 cursor-pointer animate-in fade-in zoom-in-95 duration-200"
+                >
+                  <Sparkles size={16} />
+                  <span>Xong & Phân tích ngay</span>
+                </button>
+              )}
             </div>
           </>
         )}

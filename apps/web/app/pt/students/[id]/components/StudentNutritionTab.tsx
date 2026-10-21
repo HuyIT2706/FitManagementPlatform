@@ -183,7 +183,6 @@ const StudentNutritionTab = ({
 
       toast.success("Đã tạo gợi ý thực đơn chuẩn theo Macro & Calo mục tiêu!");
     } catch (err: unknown) {
-      console.error("AI meal planner error:", err);
       toast.error("Không thể tạo thực đơn thông minh. Vui lòng thử lại!");
     } finally {
       setIsGeneratingMealPlan(false);
@@ -212,8 +211,7 @@ const StudentNutritionTab = ({
               className="w-full sm:w-auto px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:opacity-95 hover:scale-[1.02] cursor-pointer transition-all disabled:opacity-50 shrink-0"
               title="Tự động bốc món, lọc dị ứng và tính toán gram chuẩn từng bữa"
             >
-              <Sparkles size={15} className={isGeneratingMealPlan ? "animate-spin" : "animate-pulse"} />
-              {isGeneratingMealPlan ? "AI đang tính toán..." : "✨ AI Gợi Ý Thực Đơn"}
+              {isGeneratingMealPlan ? "Đang tính toán" : "Gợi Ý Thực Đơn"}
             </button>
 
             <button

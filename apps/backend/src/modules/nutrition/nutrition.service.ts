@@ -1738,32 +1738,55 @@ export class NutritionService {
       })
       .map((f) => ({ ...f, fixedGrams: 100 }));
 
-    // 9. Dầu Ăn Lành Mạnh (Từ CSDL): Dầu đậu nành / Dầu hạt cải / Dầu ô liu
-    const dbOilFood = allFoods.find((f) => {
+    // 9. Dầu Ăn & Chất Béo Lành Mạnh (Từ CSDL): Ưu tiên Dầu ô liu (olive) > Dầu lạc (đậu phộng)
+    // Tuyệt đối loại bỏ dầu đậu nành hoặc dầu công nghiệp không phổ biến trong chế độ fitness
+    const oliveOilFood = allFoods.find((f) => {
       const n = removeTones(f.name);
       return (
-        (n.includes('dau hat cai') ||
-          n.includes('dau dau nanh') ||
-          n.includes('dau o liu')) &&
-        f.caloriesPer100g > 800
+        (n.includes('oliu') || n.includes('olive') || n.includes('o liu')) &&
+        f.caloriesPer100g > 800 &&
+        isSafe(f)
       );
-    }) || {
-      id: 'db-healthy-oil',
-      name: 'Dầu hạt cải / ô liu (chế biến áp chảo)',
-      caloriesPer100g: 884,
-      proteinPer100g: 0,
-      carbsPer100g: 0,
-      fatPer100g: 100,
-    };
+    });
 
-    // 10. Hạt Bữa Phụ (Từ CSDL): Hạt hạnh nhân, hạt điều nguyên chất (Loại bỏ socola, kẹo, bánh, đồ uống, lương khô)
+    const peanutOilFood = allFoods.find((f) => {
+      const n = removeTones(f.name);
+      return (
+        (n.includes('dau lac') || n.includes('dau dau phong')) &&
+        f.caloriesPer100g > 800 &&
+        isSafe(f)
+      );
+    });
+
+    const dbHealthyOil =
+      oliveOilFood ||
+      peanutOilFood ||
+      allFoods.find(
+        (f) => removeTones(f.name).includes('dau') && f.caloriesPer100g > 800,
+      ) ||
+      allFoods[0];
+
+    const dbDinnerOil =
+      peanutOilFood ||
+      oliveOilFood ||
+      dbHealthyOil;
+
+    // 10. Hạt & Đậu Phộng Bữa Phụ (Từ CSDL): Hạt lạc (đậu phộng) tươi/khô luộc hoặc rang, Hạnh nhân, Hạt điều nguyên chất
+    // Loại bỏ kẹo, bánh, kem, socola, đồ uống có đường, sữa, lương khô
     const sNutPool = allFoods
       .filter((f) => {
         const n = removeTones(f.name);
-        if (f.caloriesPer100g < 500) return false;
+        if (f.caloriesPer100g < 250) return false;
         if (
-          (n.includes('hanh nhan') || n.includes('hat dieu')) &&
-          (n.includes('kho') || n.includes('rang') || n.includes('nguyen'))
+          (n.includes('hanh nhan') ||
+            n.includes('hat dieu') ||
+            n.includes('dau phong') ||
+            n.includes('hat lac')) &&
+          (n.includes('kho') ||
+            n.includes('rang') ||
+            n.includes('nguyen') ||
+            n.includes('luoc') ||
+            n.includes('tuoi'))
         ) {
           return (
             !n.includes('socola') &&
@@ -1778,6 +1801,9 @@ export class NutritionService {
             !n.includes('ca phe') &&
             !n.includes('tra ') &&
             !n.includes('keo') &&
+            !n.includes('xoi') &&
+            !n.includes('che') &&
+            !n.includes('kem') &&
             isSafe(f)
           );
         }
@@ -1785,68 +1811,10 @@ export class NutritionService {
       })
       .map((f) => ({ ...f, fixedGrams: 25 }));
 
-    // Fallbacks an toàn nếu CSDL môi trường test bị thiếu món
-    const fbProt = {
-      id: 'fb-egg',
-      name: 'trứng gà ta luộc',
-      caloriesPer100g: 176,
-      proteinPer100g: 15,
-      carbsPer100g: 1,
-      fatPer100g: 12,
-      minGrams: 100,
-      maxGrams: 150,
-    };
-    const fbCarb = {
-      id: 'fb-rice',
-      name: 'cơm trắng (nở, tơi)',
-      caloriesPer100g: 145,
-      proteinPer100g: 2.7,
-      carbsPer100g: 31.7,
-      fatPer100g: 0.3,
-      minGrams: 150,
-      maxGrams: 350,
-    };
-    const fbVeg = {
-      id: 'fb-veg',
-      name: 'súp lơ (bông cải) xanh luộc',
-      caloriesPer100g: 33,
-      proteinPer100g: 3.2,
-      carbsPer100g: 6.6,
-      fatPer100g: 0.2,
-    };
-    const fbFruit = {
-      id: 'fb-fruit',
-      name: 'Quả chuối tiêu (già, lùn) chín',
-      caloriesPer100g: 90,
-      proteinPer100g: 1.5,
-      carbsPer100g: 23,
-      fatPer100g: 0.2,
-      fixedGrams: 100,
-    };
-    const fbDairy = {
-      id: 'fb-dairy',
-      name: 'Sữa chua không đường VINAMILK',
-      caloriesPer100g: 60,
-      proteinPer100g: 3.7,
-      carbsPer100g: 4.5,
-      fatPer100g: 3,
-      fixedGrams: 100,
-    };
-    const fbNut = {
-      id: 'fb-nut',
-      name: 'hạt điều khô bỏ vỏ',
-      caloriesPer100g: 568,
-      proteinPer100g: 18,
-      carbsPer100g: 29,
-      fatPer100g: 46,
-      fixedGrams: 25,
-    };
-
     const usedFoodIds = new Set<string>();
 
     const pickFood = (
       pool: any[],
-      fallback: any,
       excludedIds: Set<string> = new Set(),
       preferredKeyword: string | null = null,
     ) => {
@@ -1860,7 +1828,7 @@ export class NutritionService {
         );
       }
       if (candidates.length === 0) {
-        return pool[0] || fallback;
+        return pool[Math.floor(Math.random() * pool.length)] || pool[0];
       }
       return (
         candidates[Math.floor(Math.random() * candidates.length)] || candidates[0]
@@ -2031,21 +1999,18 @@ export class NutritionService {
     if (activeMeals.includes('breakfast')) {
       const bProtFood = pickFood(
         bProtPool,
-        fbProt,
         usedFoodIds,
         'trung ga ta luoc',
       );
       usedFoodIds.add(bProtFood.id);
       const bCarbFood = pickFood(
         bCarbPool,
-        fbCarb,
         usedFoodIds,
         'banh mi den',
       );
       usedFoodIds.add(bCarbFood.id);
       const bFruitFood = pickFood(
         sFruitPool,
-        fbFruit,
         usedFoodIds,
         'chuoi tieu',
       );
@@ -2066,28 +2031,25 @@ export class NutritionService {
     if (activeMeals.includes('lunch')) {
       const lProtFood = pickFood(
         mProtPool,
-        fbProt,
         usedFoodIds,
         'uc ga',
       );
       usedFoodIds.add(lProtFood.id);
       const lCarbFood = pickFood(
         lCarbPool,
-        fbCarb,
         usedFoodIds,
         'com trang',
       );
       usedFoodIds.add(lCarbFood.id);
       const lVegFood = pickFood(
         vegPool,
-        fbVeg,
         usedFoodIds,
         'sup lo',
       );
       usedFoodIds.add(lVegFood.id);
 
       const lVegItem = createPlanItem(lVegFood, 150);
-      const lOilItem = createPlanItem(dbOilFood, 10);
+      const lOilItem = createPlanItem(dbHealthyOil, 10);
 
       lunchItems = solveDiscreteMeal(
         mealCalTarget('lunch'),
@@ -2111,26 +2073,24 @@ export class NutritionService {
       );
       const dProtFood =
         dProtCandidates[0] ||
-        pickFood(mProtPool, fbProt, usedFoodIds, 'bo');
+        pickFood(mProtPool, usedFoodIds, 'bo');
       usedFoodIds.add(dProtFood.id);
 
       const dCarbFood = pickFood(
         dCarbPool,
-        fbCarb,
         usedFoodIds,
         'gao lut',
       );
       usedFoodIds.add(dCarbFood.id);
       const dVegFood = pickFood(
         vegPool,
-        fbVeg,
         usedFoodIds,
         'cai',
       );
       usedFoodIds.add(dVegFood.id);
 
       const dVegItem = createPlanItem(dVegFood, 150);
-      const dOilItem = createPlanItem(dbOilFood, 10);
+      const dOilItem = createPlanItem(dbDinnerOil, 10);
 
       dinnerItems = solveDiscreteMeal(
         mealCalTarget('dinner'),
@@ -2146,14 +2106,12 @@ export class NutritionService {
     if (activeMeals.includes('morningSnack')) {
       const msFruitFood = pickFood(
         sFruitPool,
-        fbFruit,
         usedFoodIds,
         'chuoi',
       );
       usedFoodIds.add(msFruitFood.id);
       const msDairyFood = pickFood(
         sDairyPool,
-        fbDairy,
         usedFoodIds,
         'hy lap',
       );
@@ -2170,14 +2128,12 @@ export class NutritionService {
     if (activeMeals.includes('afternoonSnack')) {
       const asFruitFood = pickFood(
         sFruitPool,
-        fbFruit,
         usedFoodIds,
         'tao',
       );
       usedFoodIds.add(asFruitFood.id);
       const asNutFood = pickFood(
         sNutPool,
-        fbNut,
         usedFoodIds,
         'hanh nhan',
       );
@@ -2194,14 +2150,12 @@ export class NutritionService {
     if (activeMeals.includes('snack')) {
       const sFruitFood = pickFood(
         sFruitPool,
-        fbFruit,
         usedFoodIds,
         'tao',
       );
       usedFoodIds.add(sFruitFood.id);
       const sDairyFood = pickFood(
         sDairyPool,
-        fbDairy,
         usedFoodIds,
         'khong duong',
       );
@@ -2213,7 +2167,7 @@ export class NutritionService {
       ];
 
       if (targetCalories >= 2000 || mealCalTarget('snack') > 250) {
-        const sNutFood = pickFood(sNutPool, fbNut, usedFoodIds);
+        const sNutFood = pickFood(sNutPool, usedFoodIds);
         usedFoodIds.add(sNutFood.id);
         snackItems.push(createPlanItem(sNutFood, 25));
       }

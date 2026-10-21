@@ -32,8 +32,7 @@ const AssignedMealPlanCard = ({
               onClick={onOpenAiPlanner}
               className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.35)] hover:opacity-95 hover:scale-[1.02] cursor-pointer transition-all shrink-0"
             >
-              <Sparkles size={16} />
-              ✨ Gợi Ý Thực Đơn Bằng AI
+              Gợi Ý Thực Đơn 
             </button>
           )}
         </div>
@@ -98,8 +97,7 @@ const AssignedMealPlanCard = ({
             onClick={onOpenAiPlanner}
             className="px-3 sm:px-4 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 hover:from-emerald-500/20 hover:to-teal-500/20 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-extrabold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
           >
-            <Sparkles size={14} />
-            ✨ Gợi ý thực đơn AI mới
+          Gợi ý thực đơn 
           </button>
         )}
       </div>

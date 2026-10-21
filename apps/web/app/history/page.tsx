@@ -115,17 +115,18 @@ const HistoryPage = () => {
   ];
 
   // PT Package info
-  const hasPt = Boolean(
+  const isApprovedPt = Boolean(
     userData?.assignedPt &&
       (userData.assignedPt.status === 'APPROVED' || userData.assignedPt.isApproved)
   );
   const activePkg = userData?.activePackage;
-  const remainingPtSessions = activePkg?.remainingSessions ?? 8;
-  const totalPtSessions = activePkg?.totalSessions ?? 12;
-  const checkedInPtSessions = Math.max(0, totalPtSessions - remainingPtSessions);
-  const ptAttendancePercent = totalPtSessions
+  const totalPtSessions = activePkg?.totalSessions ?? 0;
+  const remainingPtSessions = activePkg?.remainingSessions ?? 0;
+  const hasPt = Boolean(isApprovedPt && totalPtSessions > 0);
+  const checkedInPtSessions = totalPtSessions > 0 ? Math.max(0, totalPtSessions - remainingPtSessions) : 0;
+  const ptAttendancePercent = totalPtSessions > 0
     ? Math.min(100, Math.round((checkedInPtSessions / totalPtSessions) * 100))
-    : 66;
+    : 0;
 
   // Dynamic Streak & Calorie Compliance Stats from Backend
   const streakDays = dailyData?.streak?.currentStreak ?? 0;
