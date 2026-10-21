@@ -51,6 +51,7 @@ const LoginContent = () => {
         })
         .catch(() => {
           localStorage.removeItem('jwt_token');
+          apiClient.post('/auth/logout', {}).catch(() => {});
         });
     }
   }, [router]);

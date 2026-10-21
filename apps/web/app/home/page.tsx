@@ -16,6 +16,7 @@ import {
 } from '../../utils/date';
 
 import { useCurrentUser, useDailyNutrition } from '../../hooks/swr';
+import { performLogout } from '../../utils/logout';
 import CalendarStrip from './components/CalendarStrip';
 import DailyFuelHeroCard from './components/DailyFuelHeroCard';
 import MacroCards from './components/MacroCards';
@@ -64,8 +65,7 @@ const Home = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('jwt_token');
-    router.replace('/login');
+    performLogout();
   };
 
   if (userLoading && !userData) {

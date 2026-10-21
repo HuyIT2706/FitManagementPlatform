@@ -7,6 +7,7 @@ import AppLoading from '../../components/ui/AppLoading';
 import type { MonthCell } from '../../interface';
 import { formatYYYYMMDD, isSameDay } from '../../utils/date';
 import { useCurrentUser, useDailyNutrition } from '../../hooks/swr';
+import { performLogout } from '../../utils/logout';
 
 import HistoryStreakHeroCard from './components/HistoryStreakHeroCard';
 import HistoryMonthCalendar from './components/HistoryMonthCalendar';
@@ -46,8 +47,7 @@ const HistoryPage = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('jwt_token');
-    window.location.href = '/login';
+    performLogout();
   };
 
   if (userLoading && !userData) {

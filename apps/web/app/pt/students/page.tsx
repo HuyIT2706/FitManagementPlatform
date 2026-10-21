@@ -13,6 +13,7 @@ import PtStudentCard from './components/PtStudentCard';
 import type { StudentListItem } from '../../../interface';
 import AccessDenied from '../../../components/ui/AccessDenied';
 import { useCurrentUser, usePtDashboard } from '../../../hooks/swr';
+import { performLogout } from '../../../utils/logout';
 import PtPendingApproval from '../../../components/ui/PtPendingApproval';
 import { getAvatarUrl } from '../../../utils/avatar';
 
@@ -33,8 +34,7 @@ const PTStudentsPage = () => {
   const [generatedInviteUrl, setGeneratedInviteUrl] = useState<string | null>(null);
 
   const handleLogout = () => {
-    localStorage.removeItem('jwt_token');
-    window.location.href = '/login';
+    performLogout();
   };
 
   const handleSendInvite = (e: React.FormEvent) => {

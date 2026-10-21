@@ -19,6 +19,7 @@ import type { UserData } from '../../interface';
 import { useTheme } from '../../context/ThemeContext';
 import AdminBottomNavBar from '../../components/navigation/AdminBottomNavBar';
 import NotificationBellDropdown from '../../components/notifications/NotificationBellDropdown';
+import { performLogout } from '../../utils/logout';
 
 const AdminLayout = ({
   children,
@@ -48,14 +49,12 @@ const AdminLayout = ({
         }
       })
       .catch(() => {
-        localStorage.removeItem('jwt_token');
-        window.location.href = '/login';
+        performLogout();
       });
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('jwt_token');
-    window.location.href = '/login';
+    performLogout();
   };
 
   const navItems = [

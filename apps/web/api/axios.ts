@@ -73,7 +73,12 @@ async function getFreshToken(): Promise<string | null> {
 apiClient.interceptors.request.use(
   async (config) => {
     // Skip proactive refresh check for authentication endpoints
-    if (config.url?.includes('/auth/refresh') || config.url?.includes('/auth/login')) {
+    if (
+      config.url?.includes('/auth/refresh') ||
+      config.url?.includes('/auth/login') ||
+      config.url?.includes('/auth/logout') ||
+      config.url?.includes('/auth/register')
+    ) {
       return config;
     }
 
@@ -106,16 +111,23 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (originalRequest.url?.includes('/auth/refresh')) {
+    if (
+      originalRequest?.url?.includes('/auth/refresh') ||
+      originalRequest?.url?.includes('/auth/logout')
+    ) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('jwt_token');
-        window.location.href = '/login';
       }
       return Promise.reject(error);
     }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
+
+      // If user has no jwt_token in localStorage, they are unauthenticated/logged out — do not auto-refresh!
+      if (typeof window !== 'undefined' && !localStorage.getItem('jwt_token')) {
+        return Promise.reject(error);
+      }
 
       try {
         const newAccessToken = await getFreshToken();

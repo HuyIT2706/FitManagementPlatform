@@ -33,6 +33,7 @@ export interface ExerciseLibraryGridProps {
 export interface AssignedMealPlanCardProps {
   assignedMealPlan: MealPlanAssigned | null;
   ptName: string;
+  onOpenAiPlanner?: () => void;
 }
 
 export interface AssignedWorkoutPlanData {

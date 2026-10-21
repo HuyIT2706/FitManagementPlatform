@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Clock, RotateCcw, LogOut, ShieldAlert, CheckCircle } from 'lucide-react';
 import LogoApp from '../../assets/imgs/logoApp.jpg';
 import type { PtPendingApprovalProps } from '../../interface';
+import { performLogout } from '../../utils/logout';
 
 const PtPendingApproval = ({
   currentUser,
@@ -16,8 +17,7 @@ const PtPendingApproval = ({
     if (onLogout) {
       onLogout();
     } else {
-      localStorage.removeItem('jwt_token');
-      window.location.href = '/login';
+      performLogout();
     }
   };
 

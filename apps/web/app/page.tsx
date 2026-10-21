@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import apiClient from '../api/axios';
 import { handleRoleRedirect } from '../utils/authRedirect';
+import { performLogout } from '../utils/logout';
 
 import AppLoading from '../components/ui/AppLoading';
 
@@ -23,8 +24,7 @@ const RootPage = () => {
         handleRoleRedirect(res.data, router);
       })
       .catch(() => {
-        localStorage.removeItem('jwt_token');
-        handleRoleRedirect(null, router);
+        performLogout();
       });
   }, [router]);
 

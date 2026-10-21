@@ -1079,7 +1079,7 @@ export class PtService {
     return {
       ptCode,
       qrCodeUrl,
-      coachName: ptUser ? `Coach ${ptUser.fullName}` : 'Coach Bùi Văn Huy',
+      coachName: ptUser ? `Coach ${ptUser.fullName}` : 'Hệ Thống NutriCore',
     };
   }
 

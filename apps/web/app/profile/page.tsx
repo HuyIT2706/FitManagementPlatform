@@ -11,6 +11,7 @@ import ProfileBiometricsGrid from './components/ProfileBiometricsGrid';
 import TransformationJourneySlider from './components/TransformationJourneySlider';
 import DailyMacroTargetMaster from './components/DailyMacroTargetMaster';
 import { useCurrentUser } from '../../hooks/swr';
+import { performLogout } from '../../utils/logout';
 import ProfileSettingsList from './components/ProfileSettingsList';
 import EditProfileModal from './components/EditProfileModal';
 
@@ -30,8 +31,7 @@ const ProfilePage = () => {
   };
 
   const handleLogout = (): void => {
-    localStorage.removeItem('jwt_token');
-    window.location.href = '/login';
+    performLogout();
   };
 
   if (loading && !userData) {
@@ -40,8 +40,7 @@ const ProfilePage = () => {
 
   if (!loading && !userData) {
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('jwt_token');
-      window.location.href = '/login';
+      performLogout();
     }
     return null;
   }

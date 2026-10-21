@@ -7,6 +7,7 @@ import AppLoading from '../../../components/ui/AppLoading';
 import { toast } from '../../../utils/toast';
 
 import { useCurrentUser, usePtDashboard, usePtCodeQr } from '../../../hooks/swr';
+import { performLogout } from '../../../utils/logout';
 import AccessDenied from '../../../components/ui/AccessDenied';
 import PtPendingApproval from '../../../components/ui/PtPendingApproval';
 import PtProfileCard from './components/PtProfileCard';
@@ -21,8 +22,7 @@ const PTProfilePage = () => {
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
   const handleLogout = (): void => {
-    localStorage.removeItem('jwt_token');
-    window.location.href = '/login';
+    performLogout();
   };
 
   const handleCopyPtCode = (): void => {

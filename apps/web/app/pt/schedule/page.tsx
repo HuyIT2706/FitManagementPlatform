@@ -21,6 +21,7 @@ import { toast } from "../../../utils/toast";
 import dynamic from "next/dynamic";
 import AccessDenied from "../../../components/ui/AccessDenied";
 import PtPendingApproval from "../../../components/ui/PtPendingApproval";
+import { performLogout } from "../../../utils/logout";
 import PtScheduleMonthGrid from "./components/PtScheduleMonthGrid";
 import type { ScheduleSlot } from "../../../interface";
 
@@ -99,8 +100,7 @@ const PTSchedulePage = () => {
   );
 
   const handleLogout = () => {
-    localStorage.removeItem("jwt_token");
-    window.location.href = "/login";
+    performLogout();
   };
 
   const handleCheckIn = (sessionId: string) => {

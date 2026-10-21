@@ -142,6 +142,7 @@ export interface StudentWorkoutTabProps {
 }
 
 export interface StudentNutritionTabProps {
+  studentId?: string;
   targetCalories: number;
   targetProtein: number;
   targetCarbs: number;

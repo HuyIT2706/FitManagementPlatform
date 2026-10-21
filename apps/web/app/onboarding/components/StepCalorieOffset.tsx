@@ -20,7 +20,7 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
     if (store.caloriesOffset !== undefined && store.caloriesOffset !== null) {
       return String(Math.abs(store.caloriesOffset));
     }
-    return isLosing ? '500' : '400';
+    return '';
   });
 
   useEffect(() => {
@@ -40,7 +40,7 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
         if (res.data?.calorieOffsetOptions && Array.isArray(res.data.calorieOffsetOptions)) {
           setOptions(res.data.calorieOffsetOptions);
 
-          // Only determine custom mode initially if not already explicitly toggled
+          // Only determine custom mode initially if offset was already set
           const currentOffset = store.caloriesOffset;
           if (currentOffset !== undefined && currentOffset !== null) {
             const matchesPreset = res.data.calorieOffsetOptions.some(
@@ -48,7 +48,7 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
             );
             if (!matchesPreset) {
               setIsCustom(true);
-              setCustomInput((prev) => prev || String(Math.abs(currentOffset)));
+              setCustomInput((prev) => prev !== '' ? prev : String(Math.abs(currentOffset)));
             }
           }
         }
@@ -57,13 +57,17 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
         console.error('Error fetching calorie offset options from BE:', err);
       })
       .finally(() => setLoading(false));
-  }, [store.weight, store.targetWeight, store.height, store.gender, store.activityLevel, store.birthYear, store.caloriesOffset]);
+  }, [store.weight, store.targetWeight, store.height, store.gender, store.activityLevel, store.birthYear]);
 
   const currentOffset = store.caloriesOffset ?? (isLosing ? -400 : 400);
 
   const handleCustomInputChange = (rawVal: string) => {
     const cleaned = rawVal.replace(/\D/g, '').slice(0, 4);
     setCustomInput(cleaned);
+    if (!cleaned) {
+      // User erased all: keep input empty and don't force values
+      return;
+    }
     const num = parseInt(cleaned, 10);
     if (!isNaN(num) && num > 0) {
       store.setCaloriesOffset(isLosing ? -num : num);
@@ -85,7 +89,7 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
         Chọn tốc độ {isLosing ? 'giảm cân' : 'tăng cân'} phù hợp nhất với cơ địa & lối sống của bạn.
       </p>
 
-      <div className="space-y-3 sm:space-y-4 overflow-y-auto pb-4 no-scrollbar">
+      <div className="space-y-3 sm:space-y-4 overflow-y-auto pb-4 no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((n) => (
@@ -135,8 +139,12 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
               onClick={() => {
                 if (!isCustom) {
                   setIsCustom(true);
-                  const num = Math.abs(parseInt(customInput, 10)) || (isLosing ? 600 : 500);
-                  store.setCaloriesOffset(isLosing ? -num : num);
+                  if (customInput) {
+                    const num = parseInt(customInput, 10);
+                    if (!isNaN(num) && num > 0) {
+                      store.setCaloriesOffset(isLosing ? -num : num);
+                    }
+                  }
                 }
               }}
               className={`w-full text-left p-5 rounded-2xl border-2 transition-all cursor-pointer relative space-y-3 ${
@@ -190,22 +198,29 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
                     </div>
                   )}
 
+                  {/* Guidance when empty */}
+                  {!customInput && (
+                    <p className="text-[11px] text-emerald-100/60 font-medium">
+                      Nhập số calo bạn muốn {isLosing ? 'thâm hụt' : 'thặng dư'} mỗi ngày (khuyến nghị: 300 - 700 kcal/ngày).
+                    </p>
+                  )}
+
                   {/* Range guidance helper */}
                   {customNum > 0 && customNum < 100 && (
                     <p className="text-[11px] text-amber-300 font-medium">
-                      ℹ️ Mức {isLosing ? 'thâm hụt' : 'thặng dư'} dưới 100 kcal/ngày có tiến độ rất chậm. Phổ biến nhất là 300 - 700 kcal/ngày.
+                       Mức {isLosing ? 'thâm hụt' : 'thặng dư'} dưới 100 kcal/ngày có tiến độ rất chậm. Phổ biến nhất là 300 - 700 kcal/ngày.
                     </p>
                   )}
 
                   {/* Warning if deficit is very high */}
                   {isLosing && customNum > 1000 && (
                     <p className="text-[11px] text-amber-400 font-medium">
-                      ⚠️ Mức thâm hụt trên 1000 kcal/ngày là rất lớn, cần đảm bảo đủ chất dinh dưỡng và tham khảo ý kiến HLV/bác sĩ.
+                      Mức thâm hụt trên 1000 kcal/ngày là rất lớn, cần đảm bảo đủ chất dinh dưỡng và tham khảo ý kiến HLV/bác sĩ.
                     </p>
                   )}
                   {!isLosing && customNum > 1000 && (
                     <p className="text-[11px] text-amber-400 font-medium">
-                      ⚠️ Mức thặng dư trên 1000 kcal/ngày có thể dẫn đến tăng mỡ nhanh chóng, hãy cân nhắc mức hợp lý hơn (300 - 500 kcal).
+                      Mức thặng dư trên 1000 kcal/ngày có thể dẫn đến tăng mỡ nhanh chóng, hãy cân nhắc mức hợp lý hơn (300 - 500 kcal).
                     </p>
                   )}
                 </div>

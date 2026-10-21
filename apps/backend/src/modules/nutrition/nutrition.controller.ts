@@ -13,6 +13,7 @@ import {
   SmartParseFoodDto,
   SmartParseFoodImageDto,
 } from './dto/smart-parse.dto';
+import { GenerateMealPlanDto } from './dto/generate-meal-plan.dto';
 import { JwtGuard } from '../auth/jwt.guard';
 import type { RequestWithUser } from '@repo/types';
 
@@ -85,4 +86,13 @@ export class NutritionController {
     const date = dateString ? new Date(dateString) : new Date();
     return this.nutritionService.getDailyNutrition(req.user.sub, date);
   }
+
+  @Post('generate-meal-plan')
+  async generateMealPlan(
+    @Request() req: RequestWithUser,
+    @Body() dto: GenerateMealPlanDto,
+  ) {
+    return this.nutritionService.generateMealPlan(req.user.sub, dto);
+  }
 }
+

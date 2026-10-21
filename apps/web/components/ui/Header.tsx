@@ -11,6 +11,7 @@ import type { HeaderProps } from '../../interface';
 import { getAvatarUrl } from '../../utils/avatar';
 import { useTheme } from '../../context/ThemeContext';
 import NotificationBellDropdown from '../notifications/NotificationBellDropdown';
+import { performLogout } from '../../utils/logout';
 
 const Header = ({ userData, onLogout }: HeaderProps) => {
   const router = useRouter();
@@ -81,7 +82,11 @@ const Header = ({ userData, onLogout }: HeaderProps) => {
 
   const handleLogoutClick = () => {
     setIsUserMenuOpen(false);
-    onLogout();
+    if (onLogout) {
+      onLogout();
+    } else {
+      performLogout();
+    }
   };
 
   return (

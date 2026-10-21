@@ -135,3 +135,80 @@ export interface SmartParseResponse {
   items: SmartParsedGroup[];
   allFoods: SmartParsedFoodItem[];
 }
+
+export interface GenerateMealPlanDto {
+  studentId?: string;
+  targetCalories?: number;
+  targetProtein?: number;
+  targetCarbs?: number;
+  targetFat?: number;
+  dietaryPreferences?: string[];
+  healthConditions?: string[];
+  mealFrequency?: number;
+  selectedMeals?: (
+    | 'breakfast'
+    | 'morningSnack'
+    | 'lunch'
+    | 'afternoonSnack'
+    | 'dinner'
+    | 'snack'
+    | string
+  )[];
+  goal?: 'LOSE_WEIGHT' | 'GAIN_WEIGHT' | 'MAINTAIN' | string;
+  saveToDatabase?: boolean;
+}
+
+export interface GeneratedMealPlanItem {
+  foodId: string;
+  foodName: string;
+  weightInGrams: number;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  category?: string | null;
+  imageUrl?: string | null;
+}
+
+export interface GeneratedMealSession {
+  mealKey:
+    | 'breakfast'
+    | 'morningSnack'
+    | 'lunch'
+    | 'afternoonSnack'
+    | 'dinner'
+    | 'snack'
+    | string;
+  mealName: string;
+  formattedText: string;
+  items: GeneratedMealPlanItem[];
+  totalCalories: number;
+  totalProtein: number;
+  totalCarbs: number;
+  totalFat: number;
+}
+
+export interface GeneratedMealPlanResponse {
+  targetCalories: number;
+  targetProtein: number;
+  targetCarbs: number;
+  targetFat: number;
+  calculatedCalories: number;
+  calculatedProtein: number;
+  calculatedCarbs: number;
+  calculatedFat: number;
+  allergiesFiltered: string[];
+  dietaryPreferencesApplied: string[];
+  meals: GeneratedMealSession[];
+  formattedPlan: {
+    breakfast: string;
+    lunch: string;
+    dinner: string;
+    snack: string;
+    morningSnack?: string;
+    afternoonSnack?: string;
+    note: string;
+  };
+  coachAdvice: string;
+}
+

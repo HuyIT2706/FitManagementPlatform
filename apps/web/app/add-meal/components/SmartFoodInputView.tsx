@@ -706,7 +706,6 @@ export const SmartFoodInputView = ({
                   </>
                 ) : (
                   <>
-                    <Sparkles size={18} />
                     <span>Phân tích & Tìm món</span>
                   </>
                 )}

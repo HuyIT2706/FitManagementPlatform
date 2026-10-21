@@ -23,7 +23,18 @@ export class AuthController {
       httpOnly: true,
       secure: isProd,
       sameSite: isProd ? 'none' : 'lax',
+      path: '/',
       maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+  }
+
+  private clearRefreshTokenCookie(res: Response) {
+    const isProd = process.env.NODE_ENV === 'production';
+    res.clearCookie('refresh_token', {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
+      path: '/',
     });
   }
 
@@ -90,22 +101,59 @@ export class AuthController {
     return { access_token: tokens.accessToken };
   }
 
-  @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.OK)
   @Post('logout')
   async logout(
-    @Req() req: RequestWithUser,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const userId = req.user.sub;
-    await this.authService.logout(userId);
-    const isProd = process.env.NODE_ENV === 'production';
-    res.clearCookie('refresh_token', {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? 'none' : 'lax',
-    });
-    return { message: 'Logged out successfully' };
+    let userId: string | null = null;
+
+    // 1. Try to extract userId from Bearer token
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      if (token && token.includes('.')) {
+        try {
+          const payload = JSON.parse(
+            Buffer.from(token.split('.')[1], 'base64').toString(),
+          ) as { sub?: string };
+          if (payload?.sub) {
+            userId = payload.sub;
+          }
+        } catch {
+          // Ignore parse errors
+        }
+      }
+    }
+
+    // 2. Fallback to extracting userId from refresh_token cookie
+    if (!userId) {
+      const refreshToken = (req.cookies as Record<string, string> | undefined)
+        ?.refresh_token;
+      if (refreshToken && refreshToken.includes('.')) {
+        try {
+          const payload = JSON.parse(
+            Buffer.from(refreshToken.split('.')[1], 'base64').toString(),
+          ) as { sub?: string };
+          if (payload?.sub) {
+            userId = payload.sub;
+          }
+        } catch {
+          // Ignore parse errors
+        }
+      }
+    }
+
+    // 3. Clear database refresh token hash for this user
+    if (userId) {
+      await this.authService.logout(userId);
+    }
+
+    // 4. Always clear refresh_token cookie from browser
+    this.clearRefreshTokenCookie(res);
+
+    return { message: 'Đăng xuất thành công' };
   }
 
   @UseGuards(JwtGuard)

@@ -1,15 +1,44 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { Utensils, Coffee, Sun, Moon, Apple } from 'lucide-react';
+import { Utensils, Coffee, Sun, Moon, Apple, Sparkles } from 'lucide-react';
 import type { AssignedMealPlanCardProps } from '../../../interface';
 
 const AssignedMealPlanCard = ({
   assignedMealPlan,
   ptName,
+  onOpenAiPlanner,
 }: AssignedMealPlanCardProps) => {
   if (!assignedMealPlan || !assignedMealPlan.meals || assignedMealPlan.meals.length === 0) {
-    return null;
+    return (
+      <div className="bento-card rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-4 border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 via-teal-500/5 to-transparent relative overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1.5">
+            <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 inline-flex items-center gap-1.5">
+              <Sparkles size={13} className="animate-pulse" />
+              NutriCore AI Meal Planner
+            </span>
+            <h3 className="font-bold text-base sm:text-lg text-on-surface">
+              Chưa có thực đơn chỉ định từ Huấn luyện viên?
+            </h3>
+            <p className="text-xs text-on-surface-variant max-w-xl">
+              Hệ thống AI thông minh có thể tự động bóc tách thực đơn 4 bữa chuẩn Calo & Macro cá nhân hóa dựa trên chỉ số InBody và sở thích của bạn!
+            </p>
+          </div>
+
+          {onOpenAiPlanner && (
+            <button
+              type="button"
+              onClick={onOpenAiPlanner}
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.35)] hover:opacity-95 hover:scale-[1.02] cursor-pointer transition-all shrink-0"
+            >
+              <Sparkles size={16} />
+              ✨ Gợi Ý Thực Đơn Bằng AI
+            </button>
+          )}
+        </div>
+      </div>
+    );
   }
 
   const getMealConfig = (iconName?: string, mealName?: string) => {
@@ -58,9 +87,22 @@ const AssignedMealPlanCard = ({
 
   return (
     <div className="space-y-3 sm:space-y-4">
-      <h3 className="font-headline-md font-bold text-lg sm:text-xl text-on-surface px-1">
-        Thực đơn chỉ định hôm nay
-      </h3>
+      <div className="flex items-center justify-between px-1">
+        <h3 className="font-headline-md font-bold text-lg sm:text-xl text-on-surface">
+          Thực đơn chỉ định hôm nay
+        </h3>
+
+        {onOpenAiPlanner && (
+          <button
+            type="button"
+            onClick={onOpenAiPlanner}
+            className="px-3 sm:px-4 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 hover:from-emerald-500/20 hover:to-teal-500/20 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-extrabold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+          >
+            <Sparkles size={14} />
+            ✨ Gợi ý thực đơn AI mới
+          </button>
+        )}
+      </div>
 
       <div className="bento-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 space-y-4 sm:space-y-6 border border-bento-border/50">
         {/* Coach Speech Bubble */}

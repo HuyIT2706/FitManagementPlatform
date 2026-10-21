@@ -13,11 +13,13 @@ import {
   useAssignedWorkoutPlan,
   useExerciseLibrary,
 } from '../../hooks/swr';
+import { performLogout } from '../../utils/logout';
 
 import TrainingVipBanner from './components/TrainingVipBanner';
 import ExerciseLibraryGrid from './components/ExerciseLibraryGrid';
 import AssignedMealPlanCard from './components/AssignedMealPlanCard';
 import AssignedWorkoutPlanCard from './components/AssignedWorkoutPlanCard';
+import SmartMealPlannerModal from '../../components/nutrition/SmartMealPlannerModal';
 
 const ExerciseDetailModal = dynamic(
   () => import('./components/ExerciseDetailModal'),
@@ -27,7 +29,7 @@ const ExerciseDetailModal = dynamic(
 const WorkoutPage = () => {
   const router = useRouter();
   const { data: userData, isLoading: userLoading } = useCurrentUser();
-  const { data: assignedMealPlan } = useAssignedMealPlan();
+  const { data: assignedMealPlan, mutate: mutateAssignedMealPlan } = useAssignedMealPlan();
   const { data: assignedWorkoutPlan } = useAssignedWorkoutPlan();
 
   const [selectedMuscle, setSelectedMuscle] = useState<string>('ALL');
@@ -38,6 +40,7 @@ const WorkoutPage = () => {
 
   const [checkedExercises, setCheckedExercises] = useState<Record<string, boolean>>({});
   const [activeExercise, setActiveExercise] = useState<ExerciseItem | null>(null);
+  const [isAiMealModalOpen, setIsAiMealModalOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('jwt_token');
@@ -92,8 +95,7 @@ const WorkoutPage = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('jwt_token');
-    router.replace('/login');
+    performLogout();
   };
 
   if (userLoading && !userData) {
@@ -118,6 +120,14 @@ const WorkoutPage = () => {
         <AssignedMealPlanCard
           assignedMealPlan={assignedMealPlan || null}
           ptName={userData?.assignedPt?.fullName || ''}
+          onOpenAiPlanner={() => setIsAiMealModalOpen(true)}
+        />
+
+        {/* AI Meal Planner Modal */}
+        <SmartMealPlannerModal
+          isOpen={isAiMealModalOpen}
+          onClose={() => setIsAiMealModalOpen(false)}
+          onApplied={() => mutateAssignedMealPlan()}
         />
 
         {/* Exercise Library Grid with Muscle Filters & Search */}

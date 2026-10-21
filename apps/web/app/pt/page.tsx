@@ -9,6 +9,7 @@ import apiClient from '../../api/axios';
 import { toast } from '../../utils/toast';
 
 import { useCurrentUser, usePtDashboard } from '../../hooks/swr';
+import { performLogout } from '../../utils/logout';
 import PtPendingApproval from '../../components/ui/PtPendingApproval';
 import PtWelcomeHeader from './home/components/PtWelcomeHeader';
 import PtBentoStats from './home/components/PtBentoStats';
@@ -73,8 +74,7 @@ const PTPage = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('jwt_token');
-    window.location.href = '/login';
+    performLogout();
   };
 
   const loading = userLoading || (userData?.role === 'PT' && userData?.isApprovedPt !== false && ptLoading && !ptData);

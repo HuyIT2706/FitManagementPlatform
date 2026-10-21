@@ -144,7 +144,7 @@ export class WorkoutService {
 
     const coachName = trainer
       ? `Coach ${trainer.fullName}`
-      : 'Coach Bùi Văn Huy';
+      : 'Hệ Thống NutriCore';
     const coachAvatar = trainer?.avatarUrl || undefined;
 
     // Use DB target calories or fallback to user TDEE/default
@@ -278,7 +278,7 @@ export class WorkoutService {
 
     const coachName = trainer
       ? `Coach ${trainer.fullName}`
-      : 'Coach Bùi Văn Huy';
+      : 'Hệ Thống NutriCore';
     const coachAvatar = trainer?.avatarUrl || undefined;
 
     let exercises: Array<{

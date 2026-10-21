@@ -1,12 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, StickyNote } from "lucide-react";
+import { Plus, StickyNote, Sparkles, CheckCircle2, ShieldCheck, Wand2 } from "lucide-react";
 import PtFoodSelectionModal from "./PtFoodSelectionModal";
-import type { FoodItem } from "@repo/types";
+import type { FoodItem, GeneratedMealPlanResponse } from "@repo/types";
 import type { StudentNutritionTabProps } from "../../../../../interface";
+import apiClient from "../../../../../api/axios";
+import toast from "../../../../../utils/toast";
 
 const StudentNutritionTab = ({
+  studentId,
   targetCalories,
   targetProtein,
   targetCarbs,
@@ -32,6 +35,8 @@ const StudentNutritionTab = ({
   const [activeMealKey, setActiveMealKey] = useState<
     "breakfast" | "lunch" | "dinner" | "snack"
   >("breakfast");
+  const [isGeneratingMealPlan, setIsGeneratingMealPlan] = useState(false);
+  const [aiSummary, setAiSummary] = useState<GeneratedMealPlanResponse | null>(null);
 
   // Auto-convert any legacy "+ " food lines to "(+) " in real-time
   useEffect(() => {
@@ -149,6 +154,42 @@ const StudentNutritionTab = ({
     }
   };
 
+  const handleGenerateSmartMealPlan = async () => {
+    setIsGeneratingMealPlan(true);
+    try {
+      const res = await apiClient.post<GeneratedMealPlanResponse>(
+        "/nutrition/generate-meal-plan",
+        {
+          studentId,
+          targetCalories: targetCalories > 0 ? targetCalories : undefined,
+          targetProtein: targetProtein > 0 ? targetProtein : undefined,
+          targetCarbs: targetCarbs > 0 ? targetCarbs : undefined,
+          targetFat: targetFat > 0 ? targetFat : undefined,
+        }
+      );
+
+      const data = res.data;
+      setAiSummary(data);
+
+      if (data.formattedPlan) {
+        onBreakfastTextChange(data.formattedPlan.breakfast || "");
+        onLunchTextChange(data.formattedPlan.lunch || "");
+        onDinnerTextChange(data.formattedPlan.dinner || "");
+        onSnackTextChange(data.formattedPlan.snack || "");
+        if (data.formattedPlan.note) {
+          onNutritionNoteChange(data.formattedPlan.note);
+        }
+      }
+
+      toast.success("Đã tạo gợi ý thực đơn chuẩn theo Macro & Calo mục tiêu!");
+    } catch (err: unknown) {
+      console.error("AI meal planner error:", err);
+      toast.error("Không thể tạo thực đơn thông minh. Vui lòng thử lại!");
+    } finally {
+      setIsGeneratingMealPlan(false);
+    }
+  };
+
   return (
     <section className="space-y-4 sm:space-y-6">
       {/* Target Macros Settings */}
@@ -158,17 +199,57 @@ const StudentNutritionTab = ({
             <h3 className="text-base sm:text-lg font-bold text-on-surface flex items-center gap-2">
               Mục Tiêu Dinh Dưỡng
             </h3>
+            <p className="text-xs text-on-surface-variant mt-0.5">
+              Thiết lập calo & macro
+            </p>
           </div>
 
-          <button
-            type="button"
-            onClick={onSaveNutrition}
-            disabled={saving}
-            className="w-full sm:w-auto px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-primary text-dark-slate font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 cursor-pointer transition-all disabled:opacity-50 shrink-0"
-          >
-            {saving ? "Đang lưu..." : "Lưu kế hoạch"}
-          </button>
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <button
+              type="button"
+              onClick={handleGenerateSmartMealPlan}
+              disabled={isGeneratingMealPlan || saving}
+              className="w-full sm:w-auto px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:opacity-95 hover:scale-[1.02] cursor-pointer transition-all disabled:opacity-50 shrink-0"
+              title="Tự động bốc món, lọc dị ứng và tính toán gram chuẩn từng bữa"
+            >
+              <Sparkles size={15} className={isGeneratingMealPlan ? "animate-spin" : "animate-pulse"} />
+              {isGeneratingMealPlan ? "AI đang tính toán..." : "✨ AI Gợi Ý Thực Đơn"}
+            </button>
+
+            <button
+              type="button"
+              onClick={onSaveNutrition}
+              disabled={saving || isGeneratingMealPlan}
+              className="w-full sm:w-auto px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-primary text-dark-slate font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 cursor-pointer transition-all disabled:opacity-50 shrink-0"
+            >
+              {saving ? "Đang lưu..." : "Lưu kế hoạch"}
+            </button>
+          </div>
         </div>
+
+        {/* AI Plan Summary Banner */}
+        {aiSummary && (
+          <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-2">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                <CheckCircle2 size={16} />
+                Thực đơn đề xuất ({aiSummary.calculatedCalories} kcal / Target {aiSummary.targetCalories} kcal)
+              </span>
+              <span className="text-[11px] font-semibold text-on-surface-variant">
+                P: {aiSummary.calculatedProtein}g | C: {aiSummary.calculatedCarbs}g | F: {aiSummary.calculatedFat}g
+              </span>
+            </div>
+            <p className="text-[11px] text-on-surface-variant leading-relaxed">
+              {aiSummary.coachAdvice}
+            </p>
+            {aiSummary.allergiesFiltered && aiSummary.allergiesFiltered.length > 0 && (
+              <div className="flex items-center gap-1.5 text-[11px] text-amber-700 dark:text-amber-400 font-medium">
+                <ShieldCheck size={14} className="shrink-0" />
+                <span>Đã kích hoạt bộ lọc loại trừ dị ứng: {aiSummary.allergiesFiltered.slice(0, 8).join(", ")}...</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Macro Inputs */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 text-xs">
@@ -257,11 +338,11 @@ const StudentNutritionTab = ({
           />
         </div>
 
-        {/* 4 Meal Slots Prescribed Plan */}
+        {/* Meal Slots Prescribed Plan */}
         <div className="space-y-3 sm:space-y-4 pt-2">
           <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-2">
             <h4 className="text-sm font-bold text-on-surface flex items-center gap-2">
-              Phân Chia Thực Đơn Chi Tiết 4 Bữa
+              Phân Chia Thực Đơn Chi Tiết Các Bữa Ăn
             </h4>
           </div>
 

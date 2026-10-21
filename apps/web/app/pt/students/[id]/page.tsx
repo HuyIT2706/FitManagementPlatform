@@ -20,6 +20,7 @@ import { toast } from '../../../../utils/toast';
 import dynamic from 'next/dynamic';
 import AccessDenied from '../../../../components/ui/AccessDenied';
 import PtPendingApproval from '../../../../components/ui/PtPendingApproval';
+import { performLogout } from '../../../../utils/logout';
 import StudentHeaderHero from './components/StudentHeaderHero';
 import StudentWorkoutTab from './components/StudentWorkoutTab';
 import StudentNutritionTab from './components/StudentNutritionTab';
@@ -154,8 +155,7 @@ const PTStudentDetailPage = () => {
   }, [studentId]);
 
   const handleLogout = () => {
-    localStorage.removeItem('jwt_token');
-    window.location.href = '/login';
+    performLogout();
   };
 
   const handleSelectExerciseFromModal = (ex: ExerciseItem) => {
@@ -492,6 +492,7 @@ const PTStudentDetailPage = () => {
         {/* Component 3: Tab 2 Dinh Dưỡng & Thực Đơn 4 Bữa */}
         {activeSubTab === 'nutrition' && (
           <StudentNutritionTab
+            studentId={studentId}
             targetCalories={targetCalories}
             targetProtein={targetProtein}
             targetCarbs={targetCarbs}
