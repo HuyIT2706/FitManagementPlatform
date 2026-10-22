@@ -21,14 +21,6 @@ interface SmartMealPlannerModalProps {
   onApplied?: () => void;
 }
 
-type MealKey =
-  | 'breakfast'
-  | 'morningSnack'
-  | 'lunch'
-  | 'afternoonSnack'
-  | 'dinner'
-  | 'snack';
-
 export default function SmartMealPlannerModal({
   isOpen,
   onClose,
@@ -77,7 +69,7 @@ export default function SmartMealPlannerModal({
       toast.success('Đã áp dụng thực đơn vào kế hoạch cá nhân');
       if (onApplied) onApplied();
       onClose();
-    } catch (err: unknown) {
+    } catch {
       toast.error('Không thể lưu thực đơn. Vui lòng thử lại');
     } finally {
       setSaving(false);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, StickyNote, Sparkles, CheckCircle2, ShieldCheck, Wand2 } from "lucide-react";
+import { Plus, StickyNote, CheckCircle2, ShieldCheck } from "lucide-react";
 import PtFoodSelectionModal from "./PtFoodSelectionModal";
 import type { FoodItem, GeneratedMealPlanResponse } from "@repo/types";
 import type { StudentNutritionTabProps } from "../../../../../interface";
@@ -182,7 +182,7 @@ const StudentNutritionTab = ({
       }
 
       toast.success("Đã tạo gợi ý thực đơn chuẩn theo Macro & Calo mục tiêu!");
-    } catch (err: unknown) {
+    } catch {
       toast.error("Không thể tạo thực đơn thông minh. Vui lòng thử lại!");
     } finally {
       setIsGeneratingMealPlan(false);

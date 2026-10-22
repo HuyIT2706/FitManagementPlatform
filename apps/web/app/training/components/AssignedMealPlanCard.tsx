@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { Utensils, Coffee, Sun, Moon, Apple, Sparkles } from 'lucide-react';
+import { Utensils, Coffee, Sun, Moon, Apple } from 'lucide-react';
 import type { AssignedMealPlanCardProps } from '../../../interface';
 
 const AssignedMealPlanCard = ({
@@ -14,16 +14,9 @@ const AssignedMealPlanCard = ({
       <div className="bento-card rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-4 border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 via-teal-500/5 to-transparent relative overflow-hidden">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1.5">
-            <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 inline-flex items-center gap-1.5">
-              <Sparkles size={13} className="animate-pulse" />
-              NutriCore AI Meal Planner
-            </span>
             <h3 className="font-bold text-base sm:text-lg text-on-surface">
               Chưa có thực đơn chỉ định từ Huấn luyện viên?
             </h3>
-            <p className="text-xs text-on-surface-variant max-w-xl">
-              Hệ thống AI thông minh có thể tự động bóc tách thực đơn 4 bữa chuẩn Calo & Macro cá nhân hóa dựa trên chỉ số InBody và sở thích của bạn!
-            </p>
           </div>
 
           {onOpenAiPlanner && (

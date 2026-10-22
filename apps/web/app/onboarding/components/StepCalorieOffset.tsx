@@ -57,6 +57,7 @@ const StepCalorieOffset = ({ store }: StepCalorieOffsetProps) => {
         console.error('Error fetching calorie offset options from BE:', err);
       })
       .finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [store.weight, store.targetWeight, store.height, store.gender, store.activityLevel, store.birthYear]);
 
   const currentOffset = store.caloriesOffset ?? (isLosing ? -400 : 400);

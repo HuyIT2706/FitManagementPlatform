@@ -5,6 +5,7 @@ import { QrCode, Link as LinkIcon, CheckCircle2, ShieldCheck, Clock, XCircle } f
 import type { PtCoachBindCardProps } from '../../../interface';
 import apiClient from '../../../api/axios';
 import { toast } from '../../../utils/toast';
+import { broadcastSync } from '../../../utils/realtimeSync';
 
 const PtCoachBindCard = ({ assignedPt, onBindSuccess }: PtCoachBindCardProps) => {
   const [ptCode, setPtCode] = useState('');
@@ -43,6 +44,7 @@ const PtCoachBindCard = ({ assignedPt, onBindSuccess }: PtCoachBindCardProps) =>
       });
       toast.success(res.data.message || 'Đã gửi lời mời liên kết tới Coach! Đang chờ phê duyệt.');
       setPtCode('');
+      broadcastSync('PT_BIND_UPDATED');
       if (onBindSuccess) onBindSuccess();
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { message?: string } } };
@@ -57,6 +59,7 @@ const PtCoachBindCard = ({ assignedPt, onBindSuccess }: PtCoachBindCardProps) =>
     try {
       const res = await apiClient.delete<{ message?: string }>('/pt/students/bind');
       toast.success(res.data.message || 'Đã hủy yêu cầu liên kết PT thành công!');
+      broadcastSync('PT_BIND_UPDATED');
       if (onBindSuccess) onBindSuccess();
     } catch {
       toast.error('Không thể hủy yêu cầu liên kết!');

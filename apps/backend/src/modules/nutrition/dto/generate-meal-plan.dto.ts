@@ -45,7 +45,6 @@ export class GenerateMealPlanDto {
     | 'afternoonSnack'
     | 'dinner'
     | 'snack'
-    | string
   )[];
 
   @IsOptional()

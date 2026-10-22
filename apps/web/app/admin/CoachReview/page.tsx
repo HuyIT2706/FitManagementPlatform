@@ -1,7 +1,7 @@
-'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import apiClient from '../../../api/axios';
 import { toast } from '../../../utils/toast';
+import { broadcastSync, subscribeSync } from '../../../utils/realtimeSync';
 import type {
   AdminPtApplication,
   AdminStats,
@@ -24,8 +24,8 @@ const CoachReviewPage = () => {
   const [actionNote, setActionNote] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchData = () => {
-    setLoading(true);
+  const fetchData = useCallback((isInitial = false) => {
+    if (isInitial) setLoading(true);
     Promise.all([
       apiClient.get<AdminStats>('/admin/stats'),
       apiClient.get<AdminPtApplication[]>('/admin/pt-applications'),
@@ -33,29 +33,52 @@ const CoachReviewPage = () => {
       .then(([statsRes, appsRes]) => {
         setStats(statsRes.data);
         setApplications(appsRes.data);
-        setLoading(false);
+        if (isInitial) setLoading(false);
       })
       .catch((err) => {
         console.error('Error fetching admin data:', err);
-        setLoading(false);
-        toast.error('Không thể tải danh sách đơn đăng ký HLV');
+        if (isInitial) {
+          setLoading(false);
+          toast.error('Không thể tải danh sách đơn đăng ký HLV');
+        }
       });
-  };
+  }, []);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData(true);
+
+    // Auto-poll every 4s for realtime list updates
+    const timer = setInterval(() => {
+      fetchData(false);
+    }, 4000);
+
+    const onFocus = () => fetchData(false);
+    window.addEventListener('focus', onFocus);
+
+    // Instant cross-tab sync listener
+    const unsubscribe = subscribeSync((type) => {
+      if (type === 'PT_APPLICATION_UPDATED') {
+        fetchData(false);
+      }
+    });
+
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('focus', onFocus);
+      unsubscribe();
+    };
+  }, [fetchData]);
 
   const handleOpenApproveModal = (app: AdminPtApplication) => {
     setSelectedApp(app);
     setModalAction('APPROVE');
-    setActionNote('Đã phê duyệt đủ điều kiện chứng chỉ PT');
+    setActionNote('Đã phê duyệt hồ sơ Huấn luyện viên (PT)');
   };
 
   const handleOpenRejectModal = (app: AdminPtApplication) => {
     setSelectedApp(app);
     setModalAction('REJECT');
-    setActionNote('Chưa đủ chứng chỉ chuyên môn');
+    setActionNote('Thông tin hồ sơ chưa phù hợp');
   };
 
   const handleCloseModal = () => {
@@ -78,7 +101,8 @@ const CoachReviewPage = () => {
       .then((res) => {
         toast.success(res.data.message || 'Thao tác thành công!');
         handleCloseModal();
-        fetchData();
+        broadcastSync('PT_APPLICATION_UPDATED');
+        fetchData(false);
       })
       .catch((err) => {
         console.error('Error updating application:', err);

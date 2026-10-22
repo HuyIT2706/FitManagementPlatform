@@ -27,6 +27,7 @@ const PtProfileCard = ({
   const setIsEditOpen = externalSetIsEditOpen || setInternalEditOpen;
 
   const [fullName, setFullName] = useState(userData?.fullName || '');
+  const [avatarUrl, setAvatarUrl] = useState(userData?.avatarUrl || '');
   const [bio, setBio] = useState('HLV Cá Nhân Chuyên Nghiệp 1:1 • Giúp bạn lột xác vóc dáng an toàn & khoa học');
   const [experienceYears, setExperienceYears] = useState(4);
   const [specialties, setSpecialties] = useState<string[]>([
@@ -50,6 +51,7 @@ const PtProfileCard = ({
     apiClient
       .patch('/pt/profile', {
         fullName,
+        avatarUrl: avatarUrl || undefined,
         bio,
         experienceYears,
         specialties,
@@ -147,6 +149,8 @@ const PtProfileCard = ({
         availableSpecialties={availableSpecialties}
         saving={saving}
         onSave={handleSaveProfile}
+        avatarUrl={avatarUrl}
+        setAvatarUrl={setAvatarUrl}
       />
     </>
   );

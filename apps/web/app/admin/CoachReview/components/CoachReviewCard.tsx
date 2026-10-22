@@ -111,10 +111,13 @@ const CoachReviewCard = ({
             className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-500/30 text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors"
           >
             <ExternalLink size={14} />
-            Xem Bằng Cấp / Chứng Chỉ
+            Chứng chỉ đính kèm (nếu có)
           </a>
         ) : (
-          <span className="text-xs text-slate-400 dark:text-white/40 italic">Chưa tải bằng cấp</span>
+          <span className="text-xs text-slate-500 dark:text-white/60 font-medium inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            PT Freelance (Tự Do)
+          </span>
         )}
 
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">

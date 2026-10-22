@@ -1,7 +1,10 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { X, Check } from "lucide-react";
+import { useState } from "react";
+import { X, Check, Upload, User, Loader2 } from "lucide-react";
 import type { EditPtProfileModalProps } from "../../../../interface";
+import { toast } from "../../../../utils/toast";
 
 const EditPtProfileModal = ({
   isOpen,
@@ -18,7 +21,11 @@ const EditPtProfileModal = ({
   availableSpecialties,
   saving,
   onSave,
+  avatarUrl,
+  setAvatarUrl,
 }: EditPtProfileModalProps) => {
+  const [isProcessingAvatar, setIsProcessingAvatar] = useState(false);
+
   if (!isOpen) return null;
 
   const toggleSpecialty = (spec: string) => {
@@ -26,6 +33,89 @@ const EditPtProfileModal = ({
       setSpecialties(specialties.filter((s) => s !== spec));
     } else {
       setSpecialties([...specialties, spec]);
+    }
+  };
+
+  const processImageFile = (
+    file: File,
+    maxDimension: number,
+    quality = 0.85
+  ): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      if (!file.type.startsWith("image/")) {
+        return reject(
+          new Error("Vui lòng chọn tệp định dạng hình ảnh (.jpg, .jpeg, .png, .webp)")
+        );
+      }
+      if (file.size > 15 * 1024 * 1024) {
+        return reject(new Error("Kích thước ảnh tối đa là 15MB"));
+      }
+
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error("Không thể đọc tệp hình ảnh"));
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        if (!result) return reject(new Error("Tệp hình ảnh rỗng"));
+
+        const img = new window.Image();
+        img.onerror = () => {
+          if (result.length < 2 * 1024 * 1024) {
+            resolve(result);
+          } else {
+            reject(new Error("Định dạng ảnh không hỗ trợ hoặc tệp bị lỗi"));
+          }
+        };
+        img.onload = () => {
+          try {
+            const canvas = document.createElement("canvas");
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > maxDimension) {
+                height = Math.round((height * maxDimension) / width);
+                width = maxDimension;
+              }
+            } else {
+              if (height > maxDimension) {
+                width = Math.round((width * maxDimension) / height);
+                height = maxDimension;
+              }
+            }
+
+            canvas.width = Math.max(1, width);
+            canvas.height = Math.max(1, height);
+            const ctx = canvas.getContext("2d");
+            if (!ctx) {
+              return resolve(result);
+            }
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressed = canvas.toDataURL("image/jpeg", quality);
+            resolve(compressed);
+          } catch {
+            resolve(result);
+          }
+        };
+        img.src = result;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleAvatarFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !setAvatarUrl) return;
+    setIsProcessingAvatar(true);
+    try {
+      const compressed = await processImageFile(file, 400, 0.85);
+      setAvatarUrl(compressed);
+      toast.success("Đã tải ảnh đại diện thành công!");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Lỗi tải ảnh đại diện";
+      toast.error(msg);
+    } finally {
+      setIsProcessingAvatar(false);
+      e.target.value = "";
     }
   };
 
@@ -66,6 +156,62 @@ const EditPtProfileModal = ({
             />
           </div>
 
+          {/* Avatar Photo Upload */}
+          {setAvatarUrl && (
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-slate-800 dark:text-on-surface">
+                Ảnh đại diện HLV:
+              </label>
+              <div className="flex items-center gap-3 bg-slate-50 dark:bg-surface-bright/30 p-2.5 rounded-xl border border-slate-200 dark:border-white/10">
+                <div className="w-12 h-12 rounded-full overflow-hidden border border-primary/50 bg-black/40 flex items-center justify-center shrink-0">
+                  {isProcessingAvatar ? (
+                    <Loader2 size={16} className="text-primary animate-spin" />
+                  ) : avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt="Avatar"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User size={20} className="text-slate-400" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/15 border border-primary/40 text-primary-dark dark:text-primary text-xs font-bold hover:bg-primary/25 transition-all">
+                    {isProcessingAvatar ? (
+                      <>
+                        <Loader2 size={13} className="animate-spin" />
+                        Đang nén ảnh...
+                      </>
+                    ) : (
+                      <>
+                        <Upload size={13} />
+                        {avatarUrl ? "Đổi ảnh đại diện" : "Chọn ảnh đại diện"}
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      disabled={isProcessingAvatar}
+                      onChange={handleAvatarFile}
+                      className="hidden"
+                    />
+                  </label>
+                  {avatarUrl && !isProcessingAvatar && (
+                    <button
+                      type="button"
+                      onClick={() => setAvatarUrl("")}
+                      className="ml-2 text-[11px] text-rose-500 hover:underline font-semibold"
+                    >
+                      Xóa
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Certificate Photo Upload */}
           {/* Experience Years */}
           <div className="space-y-1.5">
             <label className="block text-xs font-bold text-slate-800 dark:text-on-surface">
@@ -145,7 +291,7 @@ const EditPtProfileModal = ({
           <button
             type="button"
             onClick={onSave}
-            disabled={saving}
+            disabled={saving || isProcessingAvatar}
             className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-primary text-dark-slate text-xs font-extrabold shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:bg-primary/90 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 text-center"
           >
             {saving ? "Đang lưu..." : "Lưu Thay Đổi"}

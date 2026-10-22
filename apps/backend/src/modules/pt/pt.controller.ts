@@ -88,6 +88,7 @@ export class PtController {
     dto: {
       fullName?: string;
       phone?: string;
+      avatarUrl?: string;
       bio?: string;
       experienceYears?: number;
       specialties?: string[];

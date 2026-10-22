@@ -141,6 +141,10 @@ export class UsersService {
           select: {
             status: true,
             adminNote: true,
+            certificateUrl: true,
+            experienceYears: true,
+            specialties: true,
+            bio: true,
           },
         },
       },

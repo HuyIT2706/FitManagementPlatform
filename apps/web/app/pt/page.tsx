@@ -10,6 +10,7 @@ import { toast } from '../../utils/toast';
 
 import { useCurrentUser, usePtDashboard } from '../../hooks/swr';
 import { performLogout } from '../../utils/logout';
+import { broadcastSync } from '../../utils/realtimeSync';
 import PtPendingApproval from '../../components/ui/PtPendingApproval';
 import PtWelcomeHeader from './home/components/PtWelcomeHeader';
 import PtBentoStats from './home/components/PtBentoStats';
@@ -40,6 +41,7 @@ const PTPage = () => {
       .then((res) => {
         toast.success(res.data.message || 'Đã check-in điểm danh thành công!');
         mutatePt();
+        broadcastSync('PT_BIND_UPDATED');
       })
       .catch((err) => {
         console.error(err);
@@ -53,6 +55,7 @@ const PTPage = () => {
       .then((res) => {
         toast.success(res.data.message || 'Đã chấp nhận học viên thành công!');
         mutatePt();
+        broadcastSync('PT_BIND_UPDATED');
       })
       .catch((err) => {
         console.error(err);
@@ -66,6 +69,7 @@ const PTPage = () => {
       .then((res) => {
         toast.success(res.data.message || 'Đã từ chối yêu cầu học viên!');
         mutatePt();
+        broadcastSync('PT_BIND_UPDATED');
       })
       .catch((err) => {
         console.error(err);

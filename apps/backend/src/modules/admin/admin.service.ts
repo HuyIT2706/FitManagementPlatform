@@ -121,7 +121,8 @@ export class AdminService {
       data: {
         status: 'REJECTED',
         adminNote:
-          adminNote || 'Hồ sơ chưa đạt đủ điều kiện chứng chỉ chuyên môn',
+          adminNote ||
+          'Hồ sơ chưa phù hợp với tiêu chuẩn Huấn luyện viên NutriCore',
       },
     });
 

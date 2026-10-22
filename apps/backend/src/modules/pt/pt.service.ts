@@ -346,6 +346,24 @@ export class PtService {
       });
     }
 
+    try {
+      const ptUser = await this.prisma.user.findUnique({
+        where: { id: ptUserId },
+        select: { fullName: true },
+      });
+      const ptDisplayName = ptUser?.fullName || 'Huấn luyện viên';
+
+      await this.notificationsService.sendNotification({
+        userId: profile.studentId,
+        title: 'Huấn Luyện Viên Đã Phê Duyệt!',
+        message: `Coach ${ptDisplayName} đã chấp nhận yêu cầu ghép lớp 1:1. Chào mừng bạn tham gia huấn luyện!`,
+        type: 'PT_ACCEPTED',
+        linkUrl: '/training',
+      });
+    } catch {
+      // Notification send is non-blocking
+    }
+
     return {
       success: true,
       requestId,
@@ -375,6 +393,18 @@ export class PtService {
       where: { id: requestId },
       data: { status: 'REJECTED' },
     });
+
+    try {
+      await this.notificationsService.sendNotification({
+        userId: profile.studentId,
+        title: 'Yêu Cầu Ghép PT Chưa Được Chấp Nhận',
+        message: `Huấn luyện viên chưa thể nhận học viên vào lúc này. Bạn có thể kết nối với Coach khác.`,
+        type: 'PT_REJECTED',
+        linkUrl: '/profile',
+      });
+    } catch {
+      // Notification send is non-blocking
+    }
 
     return {
       success: true,
@@ -1266,6 +1296,24 @@ export class PtService {
       },
     });
 
+    try {
+      const student = await this.prisma.user.findUnique({
+        where: { id: studentUserId },
+        select: { fullName: true, email: true },
+      });
+      const studentName = student?.fullName || student?.email || 'Học viên';
+
+      await this.notificationsService.sendNotification({
+        userId: trainerId,
+        title: 'Yêu Cầu Ghép Lớp 1:1 Mới',
+        message: `${studentName} vừa gửi yêu cầu ghép lớp với bạn. Vui lòng kiểm tra và duyệt yêu cầu.`,
+        type: 'STUDENT_REQUEST',
+        linkUrl: '/pt',
+      });
+    } catch (err) {
+      console.error('Failed to notify PT of new bind request:', err);
+    }
+
     return {
       success: true,
       studentUserId,
@@ -1405,21 +1453,29 @@ export class PtService {
     dto: {
       fullName?: string;
       phone?: string;
+      avatarUrl?: string;
       bio?: string;
       experienceYears?: number;
       specialties?: string[];
       certificateUrl?: string;
     },
   ) {
-    if (dto.fullName || dto.phone) {
+    if (dto.fullName || dto.phone || dto.avatarUrl) {
       await this.prisma.user.update({
         where: { id: ptUserId },
         data: {
           ...(dto.fullName && { fullName: dto.fullName }),
           ...(dto.phone && { phone: dto.phone }),
+          ...(dto.avatarUrl && { avatarUrl: dto.avatarUrl }),
         },
       });
     }
+
+    const existingApp = await this.prisma.ptApplication.findUnique({
+      where: { userId: ptUserId },
+    });
+
+    const shouldResetToPending = existingApp?.status === 'REJECTED';
 
     await this.prisma.ptApplication.upsert({
       where: { userId: ptUserId },
@@ -1429,6 +1485,7 @@ export class PtService {
         experienceYears: dto.experienceYears || 3,
         specialties: dto.specialties || ['Tăng cơ giảm mỡ'],
         certificateUrl: dto.certificateUrl,
+        status: 'PENDING',
       },
       update: {
         ...(dto.bio && { bio: dto.bio }),
@@ -1436,6 +1493,10 @@ export class PtService {
         ...(dto.specialties && { specialties: dto.specialties }),
         ...(dto.certificateUrl !== undefined && {
           certificateUrl: dto.certificateUrl,
+        }),
+        ...(shouldResetToPending && {
+          status: 'PENDING',
+          adminNote: null,
         }),
       },
     });

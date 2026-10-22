@@ -129,6 +129,7 @@ export class AuthService {
         email: user.email,
         name: user.fullName,
         role: user.role,
+        avatarUrl: user.avatarUrl,
         onboardingCompleted: user.onboardingCompleted,
       },
     };

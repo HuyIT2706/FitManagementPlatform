@@ -16,6 +16,7 @@ import type {
 } from '@repo/types';
 import type { ExerciseItem } from '../../../../interface';
 import { toast } from '../../../../utils/toast';
+import { broadcastSync } from '../../../../utils/realtimeSync';
 
 import dynamic from 'next/dynamic';
 import AccessDenied from '../../../../components/ui/AccessDenied';
@@ -215,6 +216,7 @@ const PTStudentDetailPage = () => {
             assignedExercises,
           });
         }
+        broadcastSync('WORKOUT_UPDATED');
         toast.success('Lưu & Giao giáo án tập luyện thành công!');
       })
       .catch((err) => {
@@ -268,6 +270,7 @@ const PTStudentDetailPage = () => {
             },
           });
         }
+        broadcastSync('MEAL_PLAN_UPDATED');
         toast.success('Lưu thực đơn & mục tiêu dinh dưỡng thành công!');
       })
       .catch((err) => {
@@ -314,6 +317,7 @@ const PTStudentDetailPage = () => {
             bodyMetricsHistory: updatedHistory,
           });
         }
+        broadcastSync('PROFILE_UPDATED');
         toast.success('Đã cập nhật chỉ số InBody mới thành công!');
       })
       .catch((err) => {
@@ -342,6 +346,7 @@ const PTStudentDetailPage = () => {
             packageName: editPackageName,
           });
         }
+        broadcastSync('PT_BIND_UPDATED');
         toast.success('Đã cập nhật số buổi & gói tập cho học viên thành công!');
       })
       .catch((err) => {

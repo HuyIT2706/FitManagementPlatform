@@ -17,16 +17,29 @@ export const swrFetcher = async <T>(url: string): Promise<T> => {
 };
 
 const DEFAULT_SWR_OPTIONS: SWRConfiguration = {
-  revalidateOnFocus: false,
+  revalidateOnFocus: true,
   revalidateIfStale: true,
-  dedupingInterval: 4000,
+  revalidateOnReconnect: true,
+  dedupingInterval: 2000,
 };
 
 export const useCurrentUser = (options?: SWRConfiguration) => {
   return useSWR<UserDataHome>(
     '/users/me',
     swrFetcher,
-    { ...DEFAULT_SWR_OPTIONS, ...options }
+    {
+      ...DEFAULT_SWR_OPTIONS,
+      refreshInterval: (latestData) => {
+        if (
+          latestData?.assignedPt?.status === 'PENDING' ||
+          latestData?.isPendingPtApproval
+        ) {
+          return 3000;
+        }
+        return 8000;
+      },
+      ...options,
+    }
   );
 };
 
@@ -61,7 +74,7 @@ export const useAssignedMealPlan = (options?: SWRConfiguration) => {
   return useSWR<MealPlanAssigned | null>(
     '/workout/assigned-meal-plan',
     swrFetcher,
-    { ...DEFAULT_SWR_OPTIONS, ...options }
+    { ...DEFAULT_SWR_OPTIONS, refreshInterval: 8000, ...options }
   );
 };
 
@@ -69,7 +82,7 @@ export const useAssignedWorkoutPlan = (options?: SWRConfiguration) => {
   return useSWR<AssignedWorkoutPlanData | null>(
     '/workout/assigned-workout-plan',
     swrFetcher,
-    { ...DEFAULT_SWR_OPTIONS, ...options }
+    { ...DEFAULT_SWR_OPTIONS, refreshInterval: 8000, ...options }
   );
 };
 
@@ -92,7 +105,7 @@ export const usePtDashboard = (options?: SWRConfiguration) => {
   return useSWR<PTDashboardData>(
     '/pt/dashboard',
     swrFetcher,
-    { ...DEFAULT_SWR_OPTIONS, ...options }
+    { ...DEFAULT_SWR_OPTIONS, refreshInterval: 4000, ...options }
   );
 };
 
@@ -125,11 +138,8 @@ export const useNotifications = (options?: SWRConfiguration) => {
     hasToken ? '/notifications' : null,
     swrFetcher,
     {
-      revalidateOnFocus: false,
-      revalidateIfStale: false,
-      dedupingInterval: 60000,
-      refreshInterval: 120000,
-      revalidateOnReconnect: true,
+      ...DEFAULT_SWR_OPTIONS,
+      refreshInterval: 5000,
       shouldRetryOnError: false,
       ...options,
     }

@@ -16,6 +16,14 @@ export interface UserData {
   isApprovedPt?: boolean;
   ptApplicationStatus?: 'PENDING' | 'APPROVED' | 'REJECTED';
   isPendingPtApproval?: boolean;
+  ptApplication?: {
+    status?: 'PENDING' | 'APPROVED' | 'REJECTED';
+    adminNote?: string | null;
+    certificateUrl?: string | null;
+    experienceYears?: number;
+    specialties?: string[];
+    bio?: string | null;
+  } | null;
 }
 
 export interface OnboardingData {

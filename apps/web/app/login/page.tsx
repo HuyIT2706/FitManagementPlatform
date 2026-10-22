@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, Eye, EyeOff, User, Dumbbell, Award, Briefcase, Info, Upload } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, User, Dumbbell, Award, Briefcase, Info, Upload, Check, Loader2, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -29,6 +29,8 @@ const LoginContent = () => {
   const [experienceYears, setExperienceYears] = useState<number | ''>(2);
   const [specialties, setSpecialties] = useState('Tăng cơ, Giảm mỡ, Calisthenics');
   const [bio, setBio] = useState('');
+
+  const [isProcessingAvatar, setIsProcessingAvatar] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [pendingPtNotice, setPendingPtNotice] = useState<string | null>(null);
@@ -99,8 +101,97 @@ const LoginContent = () => {
     },
   });
 
+  const processImageFile = (
+    file: File,
+    maxDimension: number,
+    quality = 0.85
+  ): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      if (!file.type.startsWith('image/')) {
+        return reject(
+          new Error('Vui lòng chọn tệp định dạng hình ảnh (.jpg, .jpeg, .png, .webp)')
+        );
+      }
+      if (file.size > 15 * 1024 * 1024) {
+        return reject(new Error('Kích thước ảnh tối đa là 15MB'));
+      }
+
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Không thể đọc tệp hình ảnh'));
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        if (!result) return reject(new Error('Tệp hình ảnh rỗng'));
+
+        const img = new window.Image();
+        img.onerror = () => {
+          if (result.length < 2 * 1024 * 1024) {
+            resolve(result);
+          } else {
+            reject(new Error('Định dạng ảnh không hỗ trợ hoặc tệp bị lỗi'));
+          }
+        };
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > maxDimension) {
+                height = Math.round((height * maxDimension) / width);
+                width = maxDimension;
+              }
+            } else {
+              if (height > maxDimension) {
+                width = Math.round((width * maxDimension) / height);
+                height = maxDimension;
+              }
+            }
+
+            canvas.width = Math.max(1, width);
+            canvas.height = Math.max(1, height);
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+              return resolve(result);
+            }
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressed = canvas.toDataURL('image/jpeg', quality);
+            resolve(compressed);
+          } catch {
+            resolve(result);
+          }
+        };
+        img.src = result;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleAvatarFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsProcessingAvatar(true);
+    try {
+      const compressed = await processImageFile(file, 400, 0.85);
+      setAvatarUrl(compressed);
+      toast.success('Đã tải ảnh đại diện HLV thành công!');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Lỗi tải ảnh đại diện';
+      toast.error(msg);
+    } finally {
+      setIsProcessingAvatar(false);
+      e.target.value = '';
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isProcessingAvatar) {
+      toast.warning('Ảnh đang được xử lý, vui lòng chờ trong giây lát...', 'Đang nạp ảnh');
+      return;
+    }
+
     setLoading(true);
     setPendingPtNotice(null);
 
@@ -390,15 +481,29 @@ const LoginContent = () => {
                   <Award size={16} /> Hồ sơ Đăng ký Huấn luyện viên (PT):
                 </div>
 
+                {/* 1. Ảnh đại diện HLV */}
                 <div className="space-y-1.5">
-                  <label className="block text-[11px] font-semibold text-on-surface-variant">
-                    Ảnh đại diện HLV (Tải từ máy):
-                  </label>
+                  <div className="flex items-center justify-between">
+                    <label className="block text-[11px] font-semibold text-on-surface-variant">
+                      Ảnh đại diện HLV (Avatar):
+                    </label>
+                    {avatarUrl && (
+                      <span className="text-[10px] text-primary flex items-center gap-1 font-bold">
+                        <Check size={12} /> Đã chọn ảnh
+                      </span>
+                    )}
+                  </div>
                   <div className="flex items-center gap-3 bg-black/40 p-2.5 rounded-xl border border-white/10">
-                    <div className="w-12 h-12 rounded-full overflow-hidden border border-primary/50 bg-black/60 flex items-center justify-center shrink-0">
-                      {avatarUrl ? (
+                    <div className="w-12 h-12 rounded-full overflow-hidden border border-primary/50 bg-black/60 flex items-center justify-center shrink-0 relative">
+                      {isProcessingAvatar ? (
+                        <Loader2 size={18} className="text-primary animate-spin" />
+                      ) : avatarUrl ? (
                         /* eslint-disable-next-line @next/next/no-img-element */
-                        <img src={avatarUrl} alt="Avatar preview" className="w-full h-full object-cover" />
+                        <img
+                          src={avatarUrl}
+                          alt="Avatar preview"
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
                         <User size={20} className="text-white/40" />
                       )}
@@ -406,58 +511,34 @@ const LoginContent = () => {
 
                     <div className="flex-1">
                       <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/15 border border-primary/40 text-primary text-xs font-bold hover:bg-primary/25 transition-all">
-                        <Upload size={14} />
-                        {avatarUrl ? 'Đổi ảnh đại diện' : 'Chọn ảnh từ máy'}
+                        {isProcessingAvatar ? (
+                          <>
+                            <Loader2 size={13} className="animate-spin" />
+                            Đang xử lý...
+                          </>
+                        ) : (
+                          <>
+                            <Upload size={13} />
+                            {avatarUrl ? 'Đổi ảnh đại diện' : 'Chọn ảnh đại diện'}
+                          </>
+                        )}
                         <input
                           type="file"
                           accept="image/*"
                           suppressHydrationWarning
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              const reader = new FileReader();
-                              reader.onload = (event) => {
-                                const img = document.createElement('img');
-                                img.onload = () => {
-                                  const canvas = document.createElement('canvas');
-                                  let width = img.width;
-                                  let height = img.height;
-                                  const maxDim = 400;
-
-                                  if (width > height) {
-                                    if (width > maxDim) {
-                                      height = Math.round((height * maxDim) / width);
-                                      width = maxDim;
-                                    }
-                                  } else {
-                                    if (height > maxDim) {
-                                      width = Math.round((width * maxDim) / height);
-                                      height = maxDim;
-                                    }
-                                  }
-
-                                  canvas.width = width;
-                                  canvas.height = height;
-                                  const ctx = canvas.getContext('2d');
-                                  ctx?.drawImage(img, 0, 0, width, height);
-                                  setAvatarUrl(canvas.toDataURL('image/jpeg', 0.85));
-                                };
-                                img.src = event.target?.result as string;
-                              };
-                              reader.readAsDataURL(file);
-                            }
-                          }}
+                          disabled={isProcessingAvatar}
+                          onChange={handleAvatarFile}
                           className="hidden"
                         />
                       </label>
-                      {avatarUrl && (
+                      {avatarUrl && !isProcessingAvatar && (
                         <button
                           type="button"
                           suppressHydrationWarning
                           onClick={() => setAvatarUrl('')}
-                          className="ml-2 text-[11px] text-rose-400 hover:underline inline-block font-semibold cursor-pointer"
+                          className="ml-2 text-[11px] text-rose-400 hover:underline inline-flex items-center gap-1 font-semibold cursor-pointer"
                         >
-                          Xóa ảnh
+                          <Trash2 size={12} /> Xóa
                         </button>
                       )}
                     </div>

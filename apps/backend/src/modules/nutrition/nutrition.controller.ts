@@ -95,4 +95,3 @@ export class NutritionController {
     return this.nutritionService.generateMealPlan(req.user.sub, dto);
   }
 }
-

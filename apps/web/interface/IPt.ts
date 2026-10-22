@@ -111,6 +111,10 @@ export interface EditPtProfileModalProps {
   availableSpecialties: string[];
   saving: boolean;
   onSave: () => void;
+  avatarUrl?: string;
+  setAvatarUrl?: (val: string) => void;
+  certificateUrl?: string;
+  setCertificateUrl?: (val: string) => void;
 }
 
 export interface StudentHeaderHeroProps {
