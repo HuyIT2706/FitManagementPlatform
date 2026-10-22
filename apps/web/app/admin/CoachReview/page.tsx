@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState, useCallback } from 'react';
 import apiClient from '../../../api/axios';
 import { toast } from '../../../utils/toast';

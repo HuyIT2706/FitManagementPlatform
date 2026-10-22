@@ -1,3 +1,5 @@
+'use client';
+
 import { mutate } from 'swr';
 
 export type SyncEventType =
