@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Activity } from 'lucide-react';
+import { Activity, RefreshCw } from 'lucide-react';
 import apiClient from '../../api/axios';
 import { toast } from '../../utils/toast';
 import type { AdminAnalyticsData } from '../../interface';
@@ -42,9 +42,21 @@ const AdminAnalyticsOverview = () => {
 
   if (!data) {
     return (
-      <div className="py-16 text-center bg-white dark:bg-[#121a15] rounded-2xl border border-slate-200 dark:border-white/10 shadow-xs" suppressHydrationWarning>
-        <Activity size={40} className="mx-auto text-slate-400 dark:text-white/30 mb-3" />
-        <p className="text-sm font-bold text-slate-700 dark:text-white/80">Không có dữ liệu báo cáo</p>
+      <div className="py-16 text-center bg-white dark:bg-[#121a15] rounded-2xl border border-slate-200 dark:border-white/10 shadow-xs flex flex-col items-center justify-center p-6" suppressHydrationWarning>
+        <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center mb-4 text-amber-500">
+          <Activity size={32} />
+        </div>
+        <p className="text-base font-bold text-slate-800 dark:text-white/90 mb-1">Không thể tải dữ liệu báo cáo</p>
+        <p className="text-xs text-slate-500 dark:text-white/50 max-w-sm mb-6">
+          Hệ thống gặp sự cố khi kết nối hoặc máy chủ đang phản hồi chậm. Vui lòng thử lại.
+        </p>
+        <button
+          onClick={fetchAnalytics}
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold shadow-md shadow-emerald-500/20 transition-all active:scale-95 cursor-pointer"
+        >
+          <RefreshCw size={14} />
+          <span>Thử lại</span>
+        </button>
       </div>
     );
   }

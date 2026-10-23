@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Role, type FoodLibrary } from '@prisma/client';
@@ -9,6 +10,8 @@ import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class AdminService {
+  private readonly logger = new Logger(AdminService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly notificationsService: NotificationsService,
@@ -18,45 +21,68 @@ export class AdminService {
   // 1. PT APPLICATIONS
   // ==========================================
   async getPtApplications(status?: string) {
-    const whereCondition =
-      status && status !== 'ALL'
-        ? { status: status as 'PENDING' | 'APPROVED' | 'REJECTED' }
-        : {};
+    try {
+      const whereCondition =
+        status && status !== 'ALL'
+          ? { status: status as 'PENDING' | 'APPROVED' | 'REJECTED' }
+          : {};
 
-    const applications = await this.prisma.ptApplication.findMany({
-      where: whereCondition,
-      include: {
-        user: {
-          select: {
-            id: true,
-            fullName: true,
-            email: true,
-            phone: true,
-            avatarUrl: true,
-            role: true,
-            createdAt: true,
+      const applications = await this.prisma.ptApplication.findMany({
+        where: whereCondition,
+        include: {
+          user: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              phone: true,
+              avatarUrl: true,
+              role: true,
+              createdAt: true,
+            },
           },
         },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+        orderBy: { createdAt: 'desc' },
+      });
 
-    return applications.map((app) => ({
-      id: app.id,
-      userId: app.userId,
-      fullName: app.user.fullName,
-      email: app.user.email,
-      phone: app.user.phone || undefined,
-      avatarUrl: app.user.avatarUrl || undefined,
-      experienceYears: app.experienceYears,
-      specialties: app.specialties,
-      certificateUrl: app.certificateUrl || undefined,
-      bio: app.bio || undefined,
-      status: app.status,
-      adminNote: app.adminNote || undefined,
-      createdAt: app.createdAt.toISOString(),
-      updatedAt: app.updatedAt.toISOString(),
-    }));
+      return applications.map((app) => {
+        const userObj = app.user as
+          | {
+              id?: string;
+              fullName?: string;
+              email?: string;
+              phone?: string | null;
+              avatarUrl?: string | null;
+              role?: Role;
+            }
+          | null
+          | undefined;
+
+        return {
+          id: app.id,
+          userId: app.userId,
+          fullName: userObj?.fullName || 'Huấn luyện viên',
+          email: userObj?.email || 'N/A',
+          phone: userObj?.phone || undefined,
+          avatarUrl: userObj?.avatarUrl || undefined,
+          experienceYears: app.experienceYears,
+          specialties: app.specialties,
+          certificateUrl: app.certificateUrl || undefined,
+          bio: app.bio || undefined,
+          status: app.status,
+          adminNote: app.adminNote || undefined,
+          createdAt: app.createdAt
+            ? app.createdAt.toISOString()
+            : new Date().toISOString(),
+          updatedAt: app.updatedAt
+            ? app.updatedAt.toISOString()
+            : new Date().toISOString(),
+        };
+      });
+    } catch (error) {
+      this.logger.error('Failed to get PT applications:', error);
+      return [];
+    }
   }
 
   async approvePtApplication(id: string, adminNote?: string) {
@@ -97,11 +123,13 @@ export class AdminService {
       console.error('Failed to send approval notification:', err);
     }
 
+    const applicantName = app.user?.fullName || 'ứng viên';
+
     return {
       success: true,
       applicationId: id,
       userId: app.userId,
-      message: `Đã phê duyệt đơn và nâng cấp quyền PT cho tài khoản ${app.user.fullName} thành công!`,
+      message: `Đã phê duyệt đơn và nâng cấp quyền PT cho tài khoản ${applicantName} thành công!`,
       application: updatedApp,
     };
   }
@@ -138,45 +166,61 @@ export class AdminService {
       console.error('Failed to send rejection notification:', err);
     }
 
+    const applicantName = app.user?.fullName || 'ứng viên';
+
     return {
       success: true,
       applicationId: id,
-      message: `Đã từ chối đơn đăng ký PT của ứng viên ${app.user.fullName}`,
+      message: `Đã từ chối đơn đăng ký PT của ứng viên ${applicantName}`,
       application: updatedApp,
     };
   }
 
   async getAdminStats() {
-    const [
-      totalUsers,
-      totalPts,
-      totalAdmins,
-      pendingApps,
-      approvedApps,
-      rejectedApps,
-      totalExercises,
-      totalFoods,
-    ] = await Promise.all([
-      this.prisma.user.count(),
-      this.prisma.user.count({ where: { role: 'PT' } }),
-      this.prisma.user.count({ where: { role: 'ADMIN' } }),
-      this.prisma.ptApplication.count({ where: { status: 'PENDING' } }),
-      this.prisma.ptApplication.count({ where: { status: 'APPROVED' } }),
-      this.prisma.ptApplication.count({ where: { status: 'REJECTED' } }),
-      this.prisma.exerciseLibrary.count(),
-      this.prisma.foodLibrary.count(),
-    ]);
+    try {
+      const [
+        totalUsers,
+        totalPts,
+        totalAdmins,
+        pendingApps,
+        approvedApps,
+        rejectedApps,
+        totalExercises,
+        totalFoods,
+      ] = await Promise.all([
+        this.prisma.user.count(),
+        this.prisma.user.count({ where: { role: 'PT' } }),
+        this.prisma.user.count({ where: { role: 'ADMIN' } }),
+        this.prisma.ptApplication.count({ where: { status: 'PENDING' } }),
+        this.prisma.ptApplication.count({ where: { status: 'APPROVED' } }),
+        this.prisma.ptApplication.count({ where: { status: 'REJECTED' } }),
+        this.prisma.exerciseLibrary.count(),
+        this.prisma.foodLibrary.count(),
+      ]);
 
-    return {
-      totalUsers,
-      totalPts,
-      totalAdmins,
-      pendingApps,
-      approvedApps,
-      rejectedApps,
-      totalExercises,
-      totalFoods,
-    };
+      return {
+        totalUsers,
+        totalPts,
+        totalAdmins,
+        pendingApps,
+        approvedApps,
+        rejectedApps,
+        totalExercises,
+        totalFoods,
+      };
+    } catch (error) {
+      this.logger.error('Failed to get admin stats:', error);
+      return {
+        totalUsers: 0,
+        totalPts: 0,
+        totalAdmins: 0,
+        pendingApps: 0,
+        approvedApps: 0,
+        rejectedApps: 0,
+        totalExercises: 0,
+        totalFoods: 0,
+      };
+    }
   }
 
   // ==========================================
@@ -188,89 +232,102 @@ export class AdminService {
     search?: string;
     role?: string;
   }) {
-    const page = Math.max(1, Number(params?.page) || 1);
-    const limit = Math.min(50, Math.max(1, Number(params?.limit) || 10));
-    const skip = (page - 1) * limit;
+    try {
+      const page = Math.max(1, Number(params?.page) || 1);
+      const limit = Math.min(50, Math.max(1, Number(params?.limit) || 10));
+      const skip = (page - 1) * limit;
 
-    const where: Record<string, unknown> = {};
+      const where: Record<string, unknown> = {};
 
-    if (params?.role && params.role !== 'ALL') {
-      where.role = params.role;
-    }
+      if (params?.role && params.role !== 'ALL') {
+        where.role = params.role;
+      }
 
-    if (params?.search && params.search.trim()) {
-      const search = params.search.trim();
-      where.OR = [
-        { fullName: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } },
-        { phone: { contains: search, mode: 'insensitive' } },
-      ];
-    }
+      if (params?.search && params.search.trim()) {
+        const search = params.search.trim();
+        where.OR = [
+          { fullName: { contains: search, mode: 'insensitive' } },
+          { email: { contains: search, mode: 'insensitive' } },
+          { phone: { contains: search, mode: 'insensitive' } },
+        ];
+      }
 
-    const [users, total] = await Promise.all([
-      this.prisma.user.findMany({
-        where,
-        select: {
-          id: true,
-          fullName: true,
-          email: true,
-          phone: true,
-          avatarUrl: true,
-          role: true,
-          goal: true,
-          gender: true,
-          createdAt: true,
-          userPackages: {
-            where: { isActive: true },
-            select: {
-              id: true,
-              totalSessions: true,
-              remainingSessions: true,
-              gymPackage: {
-                select: { title: true },
+      const [users, total] = await Promise.all([
+        this.prisma.user.findMany({
+          where,
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            phone: true,
+            avatarUrl: true,
+            role: true,
+            goal: true,
+            gender: true,
+            createdAt: true,
+            userPackages: {
+              where: { isActive: true },
+              select: {
+                id: true,
+                totalSessions: true,
+                remainingSessions: true,
+                gymPackage: {
+                  select: { title: true },
+                },
+              },
+            },
+            studentProfiles: {
+              select: {
+                trainer: {
+                  select: { fullName: true },
+                },
               },
             },
           },
-          studentProfiles: {
-            select: {
-              trainer: {
-                select: { fullName: true },
-              },
-            },
-          },
-        },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      this.prisma.user.count({ where }),
-    ]);
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take: limit,
+        }),
+        this.prisma.user.count({ where }),
+      ]);
 
-    return {
-      data: users.map((u) => ({
-        id: u.id,
-        fullName: u.fullName,
-        email: u.email,
-        phone: u.phone || undefined,
-        avatarUrl: u.avatarUrl || undefined,
-        role: u.role,
-        goal: u.goal || undefined,
-        gender: u.gender || undefined,
-        createdAt: u.createdAt.toISOString(),
-        coachName: u.studentProfiles?.[0]?.trainer?.fullName || undefined,
-        activePackage: u.userPackages?.[0]
-          ? {
-              title: u.userPackages[0].gymPackage.title,
-              remainingSessions: u.userPackages[0].remainingSessions,
-              totalSessions: u.userPackages[0].totalSessions,
-            }
-          : undefined,
-      })),
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
+      return {
+        data: users.map((u) => ({
+          id: u.id,
+          fullName: u.fullName || 'Người dùng',
+          email: u.email || 'N/A',
+          phone: u.phone || undefined,
+          avatarUrl: u.avatarUrl || undefined,
+          role: u.role,
+          goal: u.goal || undefined,
+          gender: u.gender || undefined,
+          createdAt: u.createdAt
+            ? u.createdAt.toISOString()
+            : new Date().toISOString(),
+          coachName: u.studentProfiles?.[0]?.trainer?.fullName || undefined,
+          activePackage: u.userPackages?.[0]
+            ? {
+                title: u.userPackages[0].gymPackage?.title || 'Gói tập',
+                remainingSessions: u.userPackages[0].remainingSessions ?? 0,
+                totalSessions: u.userPackages[0].totalSessions ?? 0,
+              }
+            : undefined,
+        })),
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit) || 1,
+      };
+    } catch (error) {
+      this.logger.error('Failed to get users:', error);
+      return {
+        data: [],
+        total: 0,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      };
+    }
   }
 
   async updateUserRole(id: string, newRole: Role) {
@@ -639,123 +696,158 @@ export class AdminService {
   // 5. ANALYTICS & SYSTEM ACTIVITY REPORT
   // ==========================================
   async getAnalyticsOverview() {
-    const [
-      totalUsers,
-      totalPts,
-      totalAdmins,
-      totalExercises,
-      totalFoods,
-      totalMealLogs,
-      totalWorkouts,
-      recentUsers,
-      recentApplications,
-      ptUsers,
-    ] = await Promise.all([
-      this.prisma.user.count({ where: { role: 'USER' } }),
-      this.prisma.user.count({ where: { role: 'PT' } }),
-      this.prisma.user.count({ where: { role: 'ADMIN' } }),
-      this.prisma.exerciseLibrary.count(),
-      this.prisma.foodLibrary.count(),
-      this.prisma.mealLog.count(),
-      this.prisma.workoutSchedule.count(),
-      this.prisma.user.findMany({
-        take: 5,
-        orderBy: { createdAt: 'desc' },
-        select: {
-          id: true,
-          fullName: true,
-          email: true,
-          role: true,
-          avatarUrl: true,
-          createdAt: true,
-        },
-      }),
-      this.prisma.ptApplication.findMany({
-        take: 5,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          user: {
-            select: {
-              fullName: true,
-              email: true,
-            },
-          },
-        },
-      }),
-      this.prisma.user.findMany({
-        where: { role: 'PT' },
-        select: {
-          id: true,
-          fullName: true,
-          email: true,
-          avatarUrl: true,
-          trainerProfiles: {
-            where: { status: 'APPROVED' },
-            select: { id: true },
-          },
-        },
-      }),
-    ]);
-
-    // Calculate goal distribution among users
-    const usersWithGoals = await this.prisma.user.groupBy({
-      by: ['goal'],
-      _count: { id: true },
-      where: { goal: { not: null } },
-    });
-
-    const goalDistribution = usersWithGoals.map((g) => ({
-      goal: g.goal || 'Khác',
-      count: g._count.id,
-    }));
-
-    // Calculate PT Performance
-    const ptPerformance = await Promise.all(
-      ptUsers.map(async (pt) => {
-        const workoutCount = await this.prisma.workoutSchedule.count({
-          where: {
-            student: {
-              studentProfiles: {
-                some: { trainerId: pt.id, status: 'APPROVED' },
-              },
-            },
-          },
-        });
-        return {
-          ptId: pt.id,
-          fullName: pt.fullName,
-          email: pt.email,
-          avatarUrl: pt.avatarUrl || undefined,
-          activeStudentsCount: pt.trainerProfiles.length,
-          workoutCount,
-        };
-      }),
-    );
-
-    return {
-      overview: {
+    try {
+      const [
         totalUsers,
         totalPts,
         totalAdmins,
-        totalAccounts: totalUsers + totalPts + totalAdmins,
         totalExercises,
         totalFoods,
         totalMealLogs,
         totalWorkouts,
-      },
-      ptPerformance,
-      goalDistribution,
-      recentUsers: recentUsers.map((u) => ({
+        recentUsers,
+        recentApplications,
+        ptUsers,
+      ] = await Promise.all([
+        this.prisma.user.count({ where: { role: 'USER' } }),
+        this.prisma.user.count({ where: { role: 'PT' } }),
+        this.prisma.user.count({ where: { role: 'ADMIN' } }),
+        this.prisma.exerciseLibrary.count(),
+        this.prisma.foodLibrary.count(),
+        this.prisma.mealLog.count(),
+        this.prisma.workoutSchedule.count(),
+        this.prisma.user.findMany({
+          take: 5,
+          orderBy: { createdAt: 'desc' },
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            role: true,
+            avatarUrl: true,
+            createdAt: true,
+          },
+        }),
+        this.prisma.ptApplication.findMany({
+          take: 5,
+          orderBy: { createdAt: 'desc' },
+          include: {
+            user: {
+              select: {
+                fullName: true,
+                email: true,
+              },
+            },
+          },
+        }),
+        this.prisma.user.findMany({
+          where: { role: 'PT' },
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            avatarUrl: true,
+            trainerProfiles: {
+              where: { status: 'APPROVED' },
+              select: { id: true },
+            },
+          },
+        }),
+      ]);
+
+      // Calculate goal distribution among users safely
+      const usersWithGoals = await this.prisma.user.groupBy({
+        by: ['goal'],
+        _count: { id: true },
+        where: { goal: { not: null } },
+      });
+
+      const goalDistribution = usersWithGoals.map((g) => ({
+        goal: g.goal || 'Khác',
+        count: g._count.id,
+      }));
+
+      // Calculate PT Performance safely
+      const ptPerformance = await Promise.all(
+        ptUsers.map(async (pt) => {
+          let workoutCount = 0;
+          try {
+            workoutCount = await this.prisma.workoutSchedule.count({
+              where: {
+                student: {
+                  studentProfiles: {
+                    some: { trainerId: pt.id, status: 'APPROVED' },
+                  },
+                },
+              },
+            });
+          } catch {
+            workoutCount = 0;
+          }
+
+          return {
+            ptId: pt.id,
+            fullName: pt.fullName,
+            email: pt.email,
+            avatarUrl: pt.avatarUrl || undefined,
+            activeStudentsCount: pt.trainerProfiles.length,
+            workoutCount,
+          };
+        }),
+      );
+
+      const safeRecentUsers = recentUsers.map((u) => ({
         ...u,
+        avatarUrl: u.avatarUrl || undefined,
         createdAt: u.createdAt.toISOString(),
-      })),
-      recentApplications: recentApplications.map((a) => ({
-        id: a.id,
-        fullName: a.user.fullName,
-        email: a.user.email,
-        status: a.status,
-        createdAt: a.createdAt.toISOString(),
-      })),
-    };
+      }));
+
+      const safeRecentApplications = recentApplications.map((a) => {
+        const userObj = a.user as
+          { fullName?: string; email?: string } | null | undefined;
+        return {
+          id: a.id,
+          fullName: userObj?.fullName || 'Huấn luyện viên',
+          email: userObj?.email || 'N/A',
+          status: a.status,
+          createdAt: a.createdAt.toISOString(),
+        };
+      });
+
+      return {
+        overview: {
+          totalUsers,
+          totalPts,
+          totalAdmins,
+          totalAccounts: totalUsers + totalPts + totalAdmins,
+          totalExercises,
+          totalFoods,
+          totalMealLogs,
+          totalWorkouts,
+        },
+        ptPerformance,
+        goalDistribution,
+        recentUsers: safeRecentUsers,
+        recentApplications: safeRecentApplications,
+      };
+    } catch (error) {
+      this.logger.error('Failed to get analytics overview:', error);
+      return {
+        overview: {
+          totalUsers: 0,
+          totalPts: 0,
+          totalAdmins: 0,
+          totalAccounts: 0,
+          totalExercises: 0,
+          totalFoods: 0,
+          totalMealLogs: 0,
+          totalWorkouts: 0,
+        },
+        ptPerformance: [],
+        goalDistribution: [],
+        recentUsers: [],
+        recentApplications: [],
+      };
+    }
   }
 }

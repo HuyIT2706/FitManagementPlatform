@@ -28,21 +28,31 @@ const CoachReviewPage = () => {
 
   const fetchData = useCallback((isInitial = false) => {
     if (isInitial) setLoading(true);
-    Promise.all([
+    Promise.allSettled([
       apiClient.get<AdminStats>('/admin/stats'),
       apiClient.get<AdminPtApplication[]>('/admin/pt-applications'),
     ])
       .then(([statsRes, appsRes]) => {
-        setStats(statsRes.data);
-        setApplications(appsRes.data);
-        if (isInitial) setLoading(false);
+        if (statsRes.status === 'fulfilled') {
+          setStats(statsRes.value.data);
+        } else {
+          console.error('Error fetching admin stats:', statsRes.reason);
+        }
+
+        if (appsRes.status === 'fulfilled') {
+          setApplications(appsRes.value.data);
+        } else {
+          console.error('Error fetching PT applications:', appsRes.reason);
+          if (isInitial) {
+            toast.error('Không thể tải danh sách đơn đăng ký HLV');
+          }
+        }
       })
       .catch((err) => {
         console.error('Error fetching admin data:', err);
-        if (isInitial) {
-          setLoading(false);
-          toast.error('Không thể tải danh sách đơn đăng ký HLV');
-        }
+      })
+      .finally(() => {
+        if (isInitial) setLoading(false);
       });
   }, []);
 
@@ -125,7 +135,7 @@ const CoachReviewPage = () => {
       {/* Component 2: Filters & Search */}
       <CoachReviewFilterBar
         filterStatus={filterStatus}
-        pendingCount={stats?.pendingApps ?? 0}
+        pendingCount={stats?.pendingApps ?? applications.filter((a) => a.status === 'PENDING').length}
         searchTerm={searchTerm}
         onFilterChange={setFilterStatus}
         onSearchChange={setSearchTerm}
