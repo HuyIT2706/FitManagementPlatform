@@ -25,7 +25,7 @@ import { performLogout } from '../../utils/logout';
 import { getAvatarUrl } from '../../utils/avatar';
 import apiClient from '../../api/axios';
 import { toast } from '../../utils/toast';
-import { broadcastSync } from '../../utils/realtimeSync';
+import { broadcastSync, subscribeSync } from '../../utils/realtimeSync';
 
 const PtPendingApproval = ({
   currentUser,
@@ -74,19 +74,23 @@ const PtPendingApproval = ({
   }, [currentUser, router]);
 
   useEffect(() => {
-    const timer = setInterval(async () => {
-      try {
-        const res = await apiClient.get<UserDataHome>('/users/me');
-        if (res.data?.isApprovedPt === true || res.data?.ptApplicationStatus === 'APPROVED') {
-          broadcastSync('PT_APPLICATION_UPDATED');
-          toast.success('Hồ sơ Huấn luyện viên đã được phê duyệt!', 'Chúc mừng!');
-          router.replace('/pt');
-        }
-      } catch {
-        // Polling check is best-effort
+    const unsubscribe = subscribeSync((type) => {
+      if (type === 'PT_APPLICATION_UPDATED') {
+        apiClient
+          .get<UserDataHome>('/users/me')
+          .then((res) => {
+            if (
+              res.data?.isApprovedPt === true ||
+              res.data?.ptApplicationStatus === 'APPROVED'
+            ) {
+              toast.success('Hồ sơ Huấn luyện viên đã được phê duyệt!', 'Chúc mừng!');
+              router.replace('/pt');
+            }
+          })
+          .catch(() => {});
       }
-    }, 3000);
-    return () => clearInterval(timer);
+    });
+    return () => unsubscribe();
   }, [router]);
 
   const processImageFile = (

@@ -1425,7 +1425,7 @@ export class NutritionService {
       })
       .map((f) => ({
         ...f,
-        minGrams: 100,
+        minGrams: 50,
         maxGrams: 150,
       }));
 
@@ -1452,8 +1452,8 @@ export class NutritionService {
       })
       .map((f) => ({
         ...f,
-        minGrams: 150,
-        maxGrams: 350,
+        minGrams: 100,
+        maxGrams: 300,
       }));
 
     // 4. Tinh Bột Bữa Tối (Từ CSDL): Cơm gạo lứt, cơm trắng, khoai lang hấp (tối đa 200g)
@@ -1474,8 +1474,8 @@ export class NutritionService {
       })
       .map((f) => ({
         ...f,
-        minGrams: 150,
-        maxGrams: f.name.toLowerCase().includes('khoai') ? 200 : 350,
+        minGrams: 100,
+        maxGrams: f.name.toLowerCase().includes('khoai') ? 200 : 300,
       }));
 
     // 5. Đạm Bữa Chính (Trưa & Tối) từ CSDL: Thịt nạc, hải sản thật (ức gà, bắp bò, thăn heo, tôm, cá hồi)
@@ -1786,6 +1786,24 @@ export class NutritionService {
       snack: 0.2,
     };
 
+    const carbWeights: Record<MealKey, number> = {
+      breakfast: 0.85,
+      morningSnack: 0.35,
+      lunch: 1.35,
+      afternoonSnack: 0.35,
+      dinner: 1.15,
+      snack: 0.35,
+    };
+
+    const fatWeights: Record<MealKey, number> = {
+      breakfast: 0.85,
+      morningSnack: 0.25,
+      lunch: 1.35,
+      afternoonSnack: 0.45,
+      dinner: 1.25,
+      snack: 0.35,
+    };
+
     const totalCalW = activeMeals.reduce(
       (acc, m) => acc + (calWeights[m] || 1),
       0,
@@ -1794,39 +1812,65 @@ export class NutritionService {
       (acc, m) => acc + (protWeights[m] || 1),
       0,
     );
+    const totalCarbW = activeMeals.reduce(
+      (acc, m) => acc + (carbWeights[m] || 1),
+      0,
+    );
+    const totalFatW = activeMeals.reduce(
+      (acc, m) => acc + (fatWeights[m] || 1),
+      0,
+    );
 
     const mealCalTarget = (m: MealKey) =>
       (targetCalories * (calWeights[m] || 1)) / totalCalW;
     const mealProtTarget = (m: MealKey) =>
       (targetProtein * (protWeights[m] || 1)) / totalProtW;
+    const mealCarbTarget = (m: MealKey) =>
+      (targetCarbs * (carbWeights[m] || 1)) / totalCarbW;
+    // Cố định định mức chất béo ở mức an toàn 70% - 80% (khoảng 75%) của targetFat để tuyệt đối không bị vượt ngưỡng Fat
+    const effectiveTargetFat = targetFat * 0.75;
+    const mealFatTarget = (m: MealKey) =>
+      (effectiveTargetFat * (fatWeights[m] || 1)) / totalFatW;
+
+    // Tính toán lượng dầu ăn tốt (dầu oliu/lạc) linh hoạt, tối đa 10g (1 muỗng canh) để giữ Fat luôn đạt 70% - 80% mục tiêu
+    const calcHealthyOilGrams = (
+      targetMealFat: number,
+      baseFatEstimate: number,
+    ): number => {
+      const needed = targetMealFat - baseFatEstimate;
+      if (needed <= 4) return 5;
+      return 10;
+    };
 
     // ========================================================
-    // THUẬT TOÁN BƯỚC NHẢY 50G RỜI RẠC (50G STEP DISCRETE SOLVER)
-    // Duyệt qua các bước nhảy 50g (100g, 150g, 200g, 250g, 300g, 350g)
-    // Tự động kiểm soát khẩu phần không bao giờ vượt ngưỡng thực tế
+    // THUẬT TOÁN ĐA MỤC TIÊU CÂN BẰNG (MULTI-OBJECTIVE BALANCED SOLVER)
+    // Cân bằng đồng thời Calo + Đạm (Protein) + Tinh bột (Carbs)
+    // Tự động kiểm soát lượng Carb không bị vượt quá định mức (tránh carb overshoot)
     // ========================================================
     const solveDiscreteMeal = (
       targetCal: number,
       targetProt: number,
+      targetCarb: number,
       protFood: PoolFoodItem,
       carbFood: PoolFoodItem,
       extraItems: GeneratedMealPlanItem[] = [],
     ): GeneratedMealPlanItem[] => {
       let bestP = protFood.minGrams || 100;
-      let bestC = carbFood.minGrams || 150;
+      let bestC = carbFood.minGrams || 100;
       let minError = Infinity;
 
       const extraCal = extraItems.reduce((acc, it) => acc + it.calories, 0);
       const extraProt = extraItems.reduce((acc, it) => acc + it.protein, 0);
+      const extraCarb = extraItems.reduce((acc, it) => acc + it.carbs, 0);
 
       const minP = protFood.minGrams || 100;
       const maxP = isFewMeals
         ? Math.max(protFood.maxGrams || 300, 350)
         : protFood.maxGrams || 300;
-      const minC = carbFood.minGrams || 150;
+      const minC = carbFood.minGrams || 50;
       const maxC = isFewMeals
-        ? Math.max(carbFood.maxGrams || 350, 450)
-        : carbFood.maxGrams || 350;
+        ? Math.max(carbFood.maxGrams || 300, 400)
+        : carbFood.maxGrams || 300;
 
       for (let pG = minP; pG <= maxP; pG += 50) {
         for (let cG = minC; cG <= maxC; cG += 50) {
@@ -1838,9 +1882,20 @@ export class NutritionService {
           const cProt = (carbFood.proteinPer100g * cG) / 100;
           const totalProt = extraProt + pProt + cProt;
 
+          const pCarb = (protFood.carbsPer100g * pG) / 100;
+          const cCarb = (carbFood.carbsPer100g * cG) / 100;
+          const totalCarb = extraCarb + pCarb + cCarb;
+
           const calErr = Math.abs(totalCal - targetCal);
           const protErr = Math.abs(totalProt - targetProt) * 3;
-          const combinedScore = calErr * 1.2 + protErr;
+          const carbErr = Math.abs(totalCarb - targetCarb) * 2.5;
+
+          // Phạt nếu Carb vượt quá định mức bữa > 5g
+          const carbOverPenalty =
+            totalCarb > targetCarb + 5 ? (totalCarb - targetCarb) * 6 : 0;
+
+          const combinedScore =
+            calErr * 1.0 + protErr + carbErr + carbOverPenalty;
 
           if (combinedScore < minError) {
             minError = combinedScore;
@@ -1871,6 +1926,7 @@ export class NutritionService {
       breakfastItems = solveDiscreteMeal(
         mealCalTarget('breakfast'),
         mealProtTarget('breakfast'),
+        mealCarbTarget('breakfast'),
         bProtFood,
         bCarbFood,
         [bFruitItem],
@@ -1888,11 +1944,13 @@ export class NutritionService {
       usedFoodIds.add(lVegFood.id);
 
       const lVegItem = createPlanItem(lVegFood, 150);
-      const lOilItem = createPlanItem(dbHealthyOil, 10);
+      const lOilGrams = calcHealthyOilGrams(mealFatTarget('lunch'), 5);
+      const lOilItem = createPlanItem(dbHealthyOil, lOilGrams);
 
       lunchItems = solveDiscreteMeal(
         mealCalTarget('lunch'),
         mealProtTarget('lunch'),
+        mealCarbTarget('lunch'),
         lProtFood,
         lCarbFood,
         [lVegItem, lOilItem],
@@ -1920,11 +1978,13 @@ export class NutritionService {
       usedFoodIds.add(dVegFood.id);
 
       const dVegItem = createPlanItem(dVegFood, 150);
-      const dOilItem = createPlanItem(dbDinnerOil, 10);
+      const dOilGrams = calcHealthyOilGrams(mealFatTarget('dinner'), 8);
+      const dOilItem = createPlanItem(dbDinnerOil, dOilGrams);
 
       dinnerItems = solveDiscreteMeal(
         mealCalTarget('dinner'),
         mealProtTarget('dinner'),
+        mealCarbTarget('dinner'),
         dProtFood,
         dCarbFood,
         [dVegItem, dOilItem],

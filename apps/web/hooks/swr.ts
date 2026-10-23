@@ -17,10 +17,10 @@ export const swrFetcher = async <T>(url: string): Promise<T> => {
 };
 
 const DEFAULT_SWR_OPTIONS: SWRConfiguration = {
-  revalidateOnFocus: true,
-  revalidateIfStale: true,
+  revalidateOnFocus: false,
+  revalidateIfStale: false,
   revalidateOnReconnect: true,
-  dedupingInterval: 2000,
+  dedupingInterval: 5000,
 };
 
 export const useCurrentUser = (options?: SWRConfiguration) => {
@@ -34,9 +34,9 @@ export const useCurrentUser = (options?: SWRConfiguration) => {
           latestData?.assignedPt?.status === 'PENDING' ||
           latestData?.isPendingPtApproval
         ) {
-          return 3000;
+          return 10000;
         }
-        return 8000;
+        return 0;
       },
       ...options,
     }
@@ -74,7 +74,7 @@ export const useAssignedMealPlan = (options?: SWRConfiguration) => {
   return useSWR<MealPlanAssigned | null>(
     '/workout/assigned-meal-plan',
     swrFetcher,
-    { ...DEFAULT_SWR_OPTIONS, refreshInterval: 8000, ...options }
+    { ...DEFAULT_SWR_OPTIONS, ...options }
   );
 };
 
@@ -82,7 +82,7 @@ export const useAssignedWorkoutPlan = (options?: SWRConfiguration) => {
   return useSWR<AssignedWorkoutPlanData | null>(
     '/workout/assigned-workout-plan',
     swrFetcher,
-    { ...DEFAULT_SWR_OPTIONS, refreshInterval: 8000, ...options }
+    { ...DEFAULT_SWR_OPTIONS, ...options }
   );
 };
 
@@ -105,7 +105,7 @@ export const usePtDashboard = (options?: SWRConfiguration) => {
   return useSWR<PTDashboardData>(
     '/pt/dashboard',
     swrFetcher,
-    { ...DEFAULT_SWR_OPTIONS, refreshInterval: 4000, ...options }
+    { ...DEFAULT_SWR_OPTIONS, ...options }
   );
 };
 
@@ -139,7 +139,7 @@ export const useNotifications = (options?: SWRConfiguration) => {
     swrFetcher,
     {
       ...DEFAULT_SWR_OPTIONS,
-      refreshInterval: 5000,
+      refreshInterval: 60000,
       shouldRetryOnError: false,
       ...options,
     }

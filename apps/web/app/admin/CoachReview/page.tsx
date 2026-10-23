@@ -49,13 +49,10 @@ const CoachReviewPage = () => {
   useEffect(() => {
     fetchData(true);
 
-    // Auto-poll every 4s for realtime list updates
+    // Background fallback poll every 30s (instant updates handled by subscribeSync)
     const timer = setInterval(() => {
       fetchData(false);
-    }, 4000);
-
-    const onFocus = () => fetchData(false);
-    window.addEventListener('focus', onFocus);
+    }, 30000);
 
     // Instant cross-tab sync listener
     const unsubscribe = subscribeSync((type) => {
@@ -66,7 +63,6 @@ const CoachReviewPage = () => {
 
     return () => {
       clearInterval(timer);
-      window.removeEventListener('focus', onFocus);
       unsubscribe();
     };
   }, [fetchData]);
