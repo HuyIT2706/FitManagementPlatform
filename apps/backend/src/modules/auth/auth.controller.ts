@@ -69,11 +69,15 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('google')
   async googleAuth(
-    @Body() googleDto: { token: string },
+    @Body()
+    googleDto: {
+      token: string;
+      userInfo?: { email?: string; name?: string; picture?: string };
+    },
     @Res({ passthrough: true }) res: Response,
   ) {
     const { access_token, refresh_token, user } =
-      await this.authService.googleLogin(googleDto.token);
+      await this.authService.googleLogin(googleDto.token, googleDto.userInfo);
     this.setRefreshTokenCookie(res, refresh_token);
     return { access_token, user };
   }

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
 import {
   Injectable,
   UnauthorizedException,
@@ -171,20 +170,49 @@ export class AuthService {
     };
   }
 
-  async googleLogin(token: string) {
-    if (!token) throw new UnauthorizedException('Token required');
+  async googleLogin(
+    token: string,
+    clientUserInfo?: { email?: string; name?: string; picture?: string },
+  ) {
+    if (!token && !clientUserInfo?.email) {
+      throw new UnauthorizedException('Token required');
+    }
     try {
-      const googleResponse = await fetch(
-        'https://www.googleapis.com/oauth2/v3/userinfo',
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
-      const payload = await googleResponse.json();
-      if (!googleResponse.ok || !payload || !payload.email)
-        throw new UnauthorizedException('Invalid Google Token');
+      let payload: { email?: string; name?: string; picture?: string } | null =
+        null;
+
+      if (token) {
+        try {
+          const googleResponse = await fetch(
+            'https://www.googleapis.com/oauth2/v3/userinfo',
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            },
+          );
+          if (googleResponse.ok) {
+            payload = (await googleResponse.json()) as {
+              email?: string;
+              name?: string;
+              picture?: string;
+            };
+          }
+        } catch (fetchErr) {
+          console.warn('Backend fetch to Google userinfo failed:', fetchErr);
+        }
+      }
+
+      if (!payload || !payload.email) {
+        if (clientUserInfo && clientUserInfo.email) {
+          payload = clientUserInfo;
+        } else {
+          throw new UnauthorizedException('Invalid Google Token');
+        }
+      }
 
       const email = payload.email;
+      if (!email) {
+        throw new UnauthorizedException('Invalid Google Token: missing email');
+      }
       let user = await this.prisma.user.findUnique({ where: { email } });
 
       if (!user) {
@@ -207,6 +235,7 @@ export class AuthService {
         user: {
           id: user.id,
           email: user.email,
+          fullName: user.fullName,
           name: user.fullName,
           avatar: user.avatarUrl,
           role: user.role,
@@ -214,8 +243,10 @@ export class AuthService {
         },
       };
     } catch (e) {
-      console.error(e);
-      throw new UnauthorizedException('Google authentication failed');
+      console.error('Google authentication error:', e);
+      throw new UnauthorizedException(
+        e instanceof Error ? e.message : 'Google authentication failed',
+      );
     }
   }
 

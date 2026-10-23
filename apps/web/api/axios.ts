@@ -73,12 +73,14 @@ async function getFreshToken(): Promise<string | null> {
 apiClient.interceptors.request.use(
   async (config) => {
     // Skip proactive refresh check for authentication endpoints
-    if (
+    const isAuthEndpoint =
       config.url?.includes('/auth/refresh') ||
       config.url?.includes('/auth/login') ||
       config.url?.includes('/auth/logout') ||
-      config.url?.includes('/auth/register')
-    ) {
+      config.url?.includes('/auth/register') ||
+      config.url?.includes('/auth/google');
+
+    if (isAuthEndpoint) {
       return config;
     }
 
@@ -111,12 +113,18 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (
+    const isAuthEndpoint =
       originalRequest?.url?.includes('/auth/refresh') ||
-      originalRequest?.url?.includes('/auth/logout')
-    ) {
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('jwt_token');
+      originalRequest?.url?.includes('/auth/logout') ||
+      originalRequest?.url?.includes('/auth/login') ||
+      originalRequest?.url?.includes('/auth/register') ||
+      originalRequest?.url?.includes('/auth/google');
+
+    if (isAuthEndpoint) {
+      if (originalRequest?.url?.includes('/auth/logout')) {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('jwt_token');
+        }
       }
       return Promise.reject(error);
     }

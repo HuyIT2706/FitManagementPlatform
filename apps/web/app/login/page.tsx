@@ -66,6 +66,9 @@ const LoginContent = () => {
         }
 
         setLoading(true);
+        // Clear old stale token before starting new Google auth session
+        localStorage.removeItem('jwt_token');
+
         const userInfo = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
           headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
         }).then((res) => res.json());
@@ -75,21 +78,33 @@ const LoginContent = () => {
           userInfo,
         });
         const data = response.data;
-        localStorage.setItem('jwt_token', data.access_token);
+        if (data.access_token) {
+          localStorage.setItem('jwt_token', data.access_token);
+        }
+
+        const displayName =
+          data.user?.fullName || data.user?.name || userInfo?.name || '';
 
         toast.success(
-          `Chào mừng ${data.user?.fullName || ''} quay trở lại!`,
+          `Chào mừng ${displayName} quay trở lại!`,
           'Đăng nhập Google thành công'
         );
 
         handleRoleRedirect(data.user, router);
       } catch (err: unknown) {
+        console.error('Google login error:', err);
+        const errObj = err as {
+          response?: { data?: { message?: string } };
+          message?: string;
+        };
+        const backendMessage = errObj.response?.data?.message;
         const msg =
-          err && typeof err === 'object' && 'message' in err && (err as { message: string }).message.includes('Network Error')
+          backendMessage ||
+          (errObj.message && errObj.message.includes('Network Error')
             ? 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng hoặc backend!'
             : err instanceof Error
             ? err.message
-            : 'Đã có lỗi xảy ra khi xác thực Google';
+            : 'Đã có lỗi xảy ra khi xác thực Google');
         toast.error(msg, 'Đăng nhập Google thất bại');
       } finally {
         setLoading(false);
