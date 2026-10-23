@@ -18,9 +18,9 @@ export const swrFetcher = async <T>(url: string): Promise<T> => {
 
 const DEFAULT_SWR_OPTIONS: SWRConfiguration = {
   revalidateOnFocus: false,
-  revalidateIfStale: false,
+  revalidateIfStale: true,
   revalidateOnReconnect: true,
-  dedupingInterval: 5000,
+  dedupingInterval: 2000,
 };
 
 export const useCurrentUser = (options?: SWRConfiguration) => {

@@ -55,6 +55,7 @@ export const executeSync = (type: SyncEventType): void => {
       mutate('/notifications');
       mutate('/workout/assigned-meal-plan');
       mutate('/workout/assigned-workout-plan');
+      mutate((key) => typeof key === 'string' && key.startsWith('/nutrition/daily'));
       break;
     case 'PT_APPLICATION_UPDATED':
       mutate('/users/me');
@@ -66,11 +67,14 @@ export const executeSync = (type: SyncEventType): void => {
       mutate('/users/me');
       mutate('/pt/profile');
       mutate('/admin/stats');
+      mutate((key) => typeof key === 'string' && key.startsWith('/nutrition/daily'));
       break;
     case 'MEAL_PLAN_UPDATED':
       mutate('/workout/assigned-meal-plan');
       mutate('/pt/dashboard');
       mutate('/notifications');
+      mutate('/users/me');
+      mutate((key) => typeof key === 'string' && key.startsWith('/nutrition/daily'));
       break;
     case 'WORKOUT_UPDATED':
       mutate('/workout/assigned-workout-plan');

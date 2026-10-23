@@ -7,7 +7,9 @@ import apiClient from '../../api/axios';
 import toast from '../../utils/toast';
 import { useMealBuilderStore } from '../../services/useMealBuilderStore';
 import FoodSelector from '../../components/nutrition/FoodSelector';
+import { mutate } from 'swr';
 import { useCurrentUser, useDailyNutrition } from '../../hooks/swr';
+import { broadcastSync } from '../../utils/realtimeSync';
 
 import AddMealHeader from './components/AddMealHeader';
 import SelectedFoodSummary from './components/SelectedFoodSummary';
@@ -214,6 +216,15 @@ const AddMealContent = () => {
       });
       toast.success(`Đã ghi nhận ${mealFullTitleMap[currentMealType] || 'bữa ăn'}!`);
       clearItems();
+
+      // Trigger realtime SWR cache invalidation immediately
+      await Promise.all([
+        mutate(`/nutrition/daily?date=${currentDateStr}`),
+        mutate((key) => typeof key === 'string' && key.startsWith('/nutrition/daily')),
+        mutate('/users/me'),
+      ]);
+      broadcastSync('MEAL_PLAN_UPDATED');
+
       router.push(`/home?date=${currentDateStr}`);
     } catch (error) {
       console.error('Failed to save meal:', error);

@@ -8,6 +8,7 @@ import type { MonthCell } from '../../interface';
 import { formatYYYYMMDD, isSameDay } from '../../utils/date';
 import { useCurrentUser, useDailyNutrition } from '../../hooks/swr';
 import { performLogout } from '../../utils/logout';
+import { subscribeSync } from '../../utils/realtimeSync';
 
 import HistoryStreakHeroCard from './components/HistoryStreakHeroCard';
 import HistoryMonthCalendar from './components/HistoryMonthCalendar';
@@ -26,7 +27,20 @@ const HistoryPage = () => {
   }, []);
 
   const selectedDateStr = formatYYYYMMDD(selectedDate);
-  const { data: dailyData, isLoading: dailyLoading } = useDailyNutrition(selectedDateStr);
+  const { data: dailyData, isLoading: dailyLoading, mutate: mutateDaily } = useDailyNutrition(selectedDateStr);
+
+  useEffect(() => {
+    const unsubscribe = subscribeSync((type) => {
+      if (
+        type === 'MEAL_PLAN_UPDATED' ||
+        type === 'PROFILE_UPDATED' ||
+        type === 'PT_BIND_UPDATED'
+      ) {
+        mutateDaily();
+      }
+    });
+    return () => unsubscribe();
+  }, [mutateDaily]);
 
   const handleSelectDate = (date: Date) => {
     setSelectedDate(date);

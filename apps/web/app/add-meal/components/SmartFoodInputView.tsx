@@ -699,7 +699,6 @@ export const SmartFoodInputView = ({
                   }}
                   className="mt-3.5 px-5 py-2.5 rounded-full bg-primary text-black font-extrabold text-xs sm:text-sm hover:opacity-95 active:scale-95 transition-all shadow-[0_0_15px_rgba(102,200,28,0.35)] flex items-center gap-2 cursor-pointer animate-in fade-in zoom-in-95 duration-200"
                 >
-                  <Sparkles size={16} />
                   <span>Xong & Phân tích ngay</span>
                 </button>
               )}

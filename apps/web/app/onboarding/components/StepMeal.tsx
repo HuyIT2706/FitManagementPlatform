@@ -30,7 +30,7 @@ const StepMeal = ({ store }: StepMealProps) => {
               {store.mealFrequency === num && <Check size={16} className="text-[#003824]" />}
             </div>
             <span className="text-base sm:text-lg md:text-xl font-bold text-white">{num} bữa / ngày</span>
-            {num === 5 && <span className="ml-auto text-xs bg-white/10 px-2 py-1 rounded-md text-white/60">Khuyên dùng</span>}
+            {num === 3 && <span className="ml-auto text-xs bg-white/10 px-2 py-1 rounded-md text-white/60">Khuyên dùng</span>}
           </button>
         ))}
       </div>

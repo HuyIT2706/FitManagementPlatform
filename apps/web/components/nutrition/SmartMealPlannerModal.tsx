@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import apiClient from '../../api/axios';
 import toast from '../../utils/toast';
+import { mutate } from 'swr';
+import { broadcastSync } from '../../utils/realtimeSync';
 import type { GeneratedMealPlanResponse, GeneratedMealSession } from '@repo/types';
 
 interface SmartMealPlannerModalProps {
@@ -65,6 +67,13 @@ export default function SmartMealPlannerModal({
         targetFat: mealPlan.targetFat,
         saveToDatabase: true,
       });
+
+      await Promise.all([
+        mutate('/workout/assigned-meal-plan'),
+        mutate('/users/me'),
+        mutate((key) => typeof key === 'string' && key.startsWith('/nutrition/daily')),
+      ]);
+      broadcastSync('MEAL_PLAN_UPDATED');
 
       toast.success('Đã áp dụng thực đơn vào kế hoạch cá nhân');
       if (onApplied) onApplied();
