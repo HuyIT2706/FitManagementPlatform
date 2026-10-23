@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import type {
@@ -22,25 +23,134 @@ import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class PtService {
+  private readonly logger = new Logger(PtService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly notificationsService: NotificationsService,
   ) {}
 
   async getDashboardData(ptUserId: string): Promise<PTDashboardData> {
-    const [ptUser, approvedProfiles] = await Promise.all([
-      this.prisma.user.findUnique({
-        where: { id: ptUserId },
-        select: { fullName: true, avatarUrl: true },
-      }),
-      this.prisma.studentProfile.findMany({
-        where: { trainerId: ptUserId, status: 'APPROVED' },
+    try {
+      const [ptUser, approvedProfiles] = await Promise.all([
+        this.prisma.user.findUnique({
+          where: { id: ptUserId },
+          select: { fullName: true, avatarUrl: true },
+        }),
+        this.prisma.studentProfile.findMany({
+          where: { trainerId: ptUserId, status: 'APPROVED' },
+          select: {
+            id: true,
+            studentId: true,
+            student: {
+              select: {
+                id: true,
+                fullName: true,
+                avatarUrl: true,
+                userPackages: {
+                  where: { isActive: true },
+                  take: 1,
+                  select: {
+                    totalSessions: true,
+                    remainingSessions: true,
+                  },
+                },
+                mealLogs: {
+                  take: 5,
+                  orderBy: { logDate: 'desc' },
+                  select: {
+                    id: true,
+                    mealName: true,
+                    logDate: true,
+                    totalCalories: true,
+                    totalProtein: true,
+                    totalCarbs: true,
+                    totalFat: true,
+                    reviews: {
+                      select: { id: true, ptId: true, comment: true },
+                    },
+                    items: {
+                      select: {
+                        id: true,
+                        foodName: true,
+                        weightInGram: true,
+                        calories: true,
+                      },
+                    },
+                  },
+                },
+                bodyMetrics: {
+                  take: 1,
+                  orderBy: { recordedAt: 'desc' },
+                  select: { weight: true, recordedAt: true },
+                },
+              },
+            },
+          },
+        }),
+      ]);
+
+      const coachName = ptUser ? `Coach ${ptUser.fullName}` : 'Coach PT';
+      const coachAvatar = ptUser?.avatarUrl || undefined;
+
+      const validApprovedProfiles = (approvedProfiles || []).filter((sp) =>
+        Boolean(sp && sp.student),
+      );
+
+      const totalVipStudents = validApprovedProfiles.length;
+
+      // Calculate session counts from member packages
+      let totalPackageSessionsCount = 0;
+      let remainingSessionsSum = 0;
+
+      const students = validApprovedProfiles.map((sp) => {
+        const student = sp.student;
+        const pkg = student?.userPackages?.[0];
+        const totalSessions = pkg?.totalSessions ?? 0;
+        const remainingSessions = pkg?.remainingSessions ?? 0;
+
+        totalPackageSessionsCount += totalSessions;
+        remainingSessionsSum += remainingSessions;
+
+        return {
+          id: student.id,
+          fullName: student.fullName || 'Học viên',
+          avatarUrl: student.avatarUrl || '/default-avatar.svg',
+          packageName: pkg ? 'Gói PT 1:1' : 'Gói Tiêu chuẩn',
+          remainingSessions,
+          totalSessions,
+          lastWorkoutDate: 'Hôm nay',
+        };
+      });
+
+      const completedSessionsCount = Math.max(
+        0,
+        totalPackageSessionsCount - remainingSessionsSum,
+      );
+
+      // Check attendance history from DB for all PT students (ONLY for today's sessions)
+      const studentIds = validApprovedProfiles.map((sp) => sp.studentId);
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
+      const endOfToday = new Date();
+      endOfToday.setHours(23, 59, 59, 999);
+
+      // Query actual workout schedules created for today
+      const todaySchedules = await this.prisma.workoutSchedule.findMany({
+        where: {
+          studentId: { in: studentIds },
+          scheduledDate: {
+            gte: startOfToday,
+            lte: endOfToday,
+          },
+        },
         select: {
           id: true,
+          title: true,
           studentId: true,
+          isCompleted: true,
           student: {
             select: {
-              id: true,
               fullName: true,
               avatarUrl: true,
               userPackages: {
@@ -51,207 +161,156 @@ export class PtService {
                   remainingSessions: true,
                 },
               },
-              mealLogs: {
-                take: 5,
-                orderBy: { logDate: 'desc' },
-                select: {
-                  id: true,
-                  mealName: true,
-                  logDate: true,
-                  totalCalories: true,
-                  totalProtein: true,
-                  totalCarbs: true,
-                  totalFat: true,
-                  reviews: {
-                    select: { id: true, ptId: true, comment: true },
-                  },
-                  items: {
-                    select: {
-                      id: true,
-                      foodName: true,
-                      weightInGram: true,
-                      calories: true,
-                    },
-                  },
-                },
-              },
-              bodyMetrics: {
-                take: 1,
-                orderBy: { recordedAt: 'desc' },
-                select: { weight: true, recordedAt: true },
-              },
             },
           },
         },
-      }),
-    ]);
+        orderBy: { scheduledDate: 'asc' },
+      });
 
-    const coachName = ptUser ? `Coach ${ptUser.fullName}` : 'Coach PT';
-    const coachAvatar = ptUser?.avatarUrl || undefined;
+      const timeSlots = [
+        '08:00 - 09:00',
+        '10:00 - 11:00',
+        '14:00 - 15:00',
+        '16:30 - 17:30',
+      ];
 
-    const totalVipStudents = approvedProfiles.length;
+      const todaySessions: PTSessionItem[] = (todaySchedules || []).map(
+        (ws, idx) => {
+          const student = ws.student;
+          const pkg = student?.userPackages?.[0];
+          const isCheckedIn = Boolean(ws.isCompleted);
 
-    // Calculate session counts from member packages
-    let totalPackageSessionsCount = 0;
-    let remainingSessionsSum = 0;
-
-    const students = approvedProfiles.map((sp) => {
-      const student = sp.student;
-      const pkg = student.userPackages?.[0];
-      const totalSessions = pkg?.totalSessions ?? 0;
-      const remainingSessions = pkg?.remainingSessions ?? 0;
-
-      totalPackageSessionsCount += totalSessions;
-      remainingSessionsSum += remainingSessions;
-
-      return {
-        id: student.id,
-        fullName: student.fullName,
-        avatarUrl: student.avatarUrl || '/default-avatar.svg',
-        packageName: pkg ? 'Gói PT 1:1' : 'Gói Tiêu chuẩn',
-        remainingSessions,
-        totalSessions,
-        lastWorkoutDate: 'Hôm nay',
-      };
-    });
-
-    const completedSessionsCount = Math.max(
-      0,
-      totalPackageSessionsCount - remainingSessionsSum,
-    );
-
-    // Check attendance history from DB for all PT students (ONLY for today's sessions)
-    const studentIds = approvedProfiles.map((sp) => sp.studentId);
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
-    const endOfToday = new Date();
-    endOfToday.setHours(23, 59, 59, 999);
-
-    // Query actual workout schedules created for today
-    const todaySchedules = await this.prisma.workoutSchedule.findMany({
-      where: {
-        studentId: { in: studentIds },
-        scheduledDate: {
-          gte: startOfToday,
-          lte: endOfToday,
+          return {
+            id: ws.id,
+            timeSlot: timeSlots[idx % timeSlots.length] || '08:00 - 09:00',
+            studentId: ws.studentId,
+            studentName: student?.fullName || 'Học viên',
+            studentAvatar: student?.avatarUrl || '/default-avatar.svg',
+            workoutName: ws.title || 'Giáo Án Tập Luyện 1:1',
+            status: isCheckedIn ? 'CHECKED_IN' : 'PENDING',
+            remainingSessions: pkg?.remainingSessions ?? 0,
+            totalSessions: pkg?.totalSessions ?? 0,
+          };
         },
-      },
-      select: {
-        id: true,
-        title: true,
-        studentId: true,
-        isCompleted: true,
-        student: {
-          select: {
-            fullName: true,
-            avatarUrl: true,
-            userPackages: {
-              where: { isActive: true },
-              take: 1,
-              select: {
-                totalSessions: true,
-                remainingSessions: true,
-              },
-            },
-          },
-        },
-      },
-      orderBy: { scheduledDate: 'asc' },
-    });
+      );
 
-    const timeSlots = [
-      '08:00 - 09:00',
-      '10:00 - 11:00',
-      '14:00 - 15:00',
-      '16:30 - 17:30',
-    ];
-
-    const todaySessions: PTSessionItem[] = todaySchedules.map((ws, idx) => {
-      const student = ws.student;
-      const pkg = student?.userPackages?.[0];
-      const isCheckedIn = Boolean(ws.isCompleted);
-
-      return {
-        id: ws.id,
-        timeSlot: timeSlots[idx % timeSlots.length] || '08:00 - 09:00',
-        studentId: ws.studentId,
-        studentName: student?.fullName || 'Học viên',
-        studentAvatar: student?.avatarUrl || '/default-avatar.svg',
-        workoutName: ws.title || 'Giáo Án Tập Luyện 1:1',
-        status: isCheckedIn ? 'CHECKED_IN' : 'PENDING',
-        remainingSessions: pkg?.remainingSessions ?? 0,
-        totalSessions: pkg?.totalSessions ?? 0,
-      };
-    });
-
-    // Extract pending meals awaiting PT review
-    const pendingMeals: PTDashboardData['pendingMeals'] = [];
-    for (const sp of approvedProfiles) {
-      for (const log of sp.student.mealLogs) {
-        if (log.reviews.length === 0) {
-          const desc =
-            log.items.map((i) => i.foodName).join(' + ') || log.mealName;
-          pendingMeals.push({
-            id: log.id,
-            studentId: sp.student.id,
-            studentName: sp.student.fullName,
-            studentAvatar: sp.student.avatarUrl || '/default-avatar.svg',
-            mealName: log.mealName,
-            calories: Math.round(log.totalCalories),
-            imageUrl:
-              'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
-            foodDescription: desc,
-            proteinGrams: Math.round(log.totalProtein),
-            carbsGrams: Math.round(log.totalCarbs),
-            fatGrams: Math.round(log.totalFat),
-            loggedAt: log.logDate.toISOString(),
-          });
+      // Extract pending meals awaiting PT review
+      const pendingMeals: PTDashboardData['pendingMeals'] = [];
+      for (const sp of validApprovedProfiles) {
+        if (!sp.student?.mealLogs || !Array.isArray(sp.student.mealLogs))
+          continue;
+        for (const log of sp.student.mealLogs) {
+          if (Array.isArray(log.reviews) && log.reviews.length === 0) {
+            const desc =
+              log.items?.map((i) => i.foodName).join(' + ') || log.mealName;
+            pendingMeals.push({
+              id: log.id,
+              studentId: sp.student.id,
+              studentName: sp.student.fullName || 'Học viên',
+              studentAvatar: sp.student.avatarUrl || '/default-avatar.svg',
+              mealName: log.mealName,
+              calories: Math.round(log.totalCalories || 0),
+              imageUrl:
+                'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
+              foodDescription: desc,
+              proteinGrams: Math.round(log.totalProtein || 0),
+              carbsGrams: Math.round(log.totalCarbs || 0),
+              fatGrams: Math.round(log.totalFat || 0),
+              loggedAt: log.logDate
+                ? log.logDate instanceof Date
+                  ? log.logDate.toISOString()
+                  : new Date(log.logDate).toISOString()
+                : new Date().toISOString(),
+            });
+          }
         }
       }
-    }
 
-    // Extract pending student bind requests awaiting PT approval
-    const pendingProfiles = await this.prisma.studentProfile.findMany({
-      where: {
-        trainerId: ptUserId,
-        status: 'PENDING',
-      },
-      include: {
-        student: true,
-      },
-      orderBy: { assignedAt: 'desc' },
-    });
+      // Extract pending student bind requests awaiting PT approval
+      const pendingProfiles = await this.prisma.studentProfile.findMany({
+        where: {
+          trainerId: ptUserId,
+          status: 'PENDING',
+        },
+        include: {
+          student: true,
+        },
+        orderBy: { assignedAt: 'desc' },
+      });
 
-    const pendingStudentRequests = pendingProfiles.map((sp) => {
-      const spObj = sp as unknown as { status?: string };
+      const pendingStudentRequests = (pendingProfiles || []).map((sp) => {
+        const spObj = sp as unknown as { status?: string };
+        const student = sp.student as
+          | {
+              fullName?: string;
+              email?: string;
+              phone?: string | null;
+              avatarUrl?: string | null;
+            }
+          | null
+          | undefined;
+
+        let requestedAtStr = new Date().toISOString();
+        if (sp.assignedAt) {
+          try {
+            requestedAtStr =
+              sp.assignedAt instanceof Date
+                ? sp.assignedAt.toISOString()
+                : new Date(sp.assignedAt).toISOString();
+          } catch {
+            // ignore
+          }
+        }
+
+        return {
+          id: sp.id,
+          studentId: sp.studentId,
+          studentName: student?.fullName || 'Học viên',
+          studentEmail: student?.email || 'N/A',
+          studentPhone: student?.phone || undefined,
+          studentAvatar: student?.avatarUrl || '/default-avatar.svg',
+          requestedAt: requestedAtStr,
+          status: (spObj.status || 'PENDING') as
+            'PENDING' | 'APPROVED' | 'REJECTED',
+        };
+      });
+
       return {
-        id: sp.id,
-        studentId: sp.studentId,
-        studentName: sp.student.fullName,
-        studentEmail: sp.student.email,
-        studentPhone: sp.student.phone || undefined,
-        studentAvatar: sp.student.avatarUrl || '/default-avatar.svg',
-        requestedAt: sp.assignedAt.toISOString(),
-        status: (spObj.status || 'PENDING') as
-          'PENDING' | 'APPROVED' | 'REJECTED',
+        coachName,
+        coachAvatar,
+        totalVipStudents,
+        todaySessionsCount: todaySessions.length,
+        completedSessionsCount,
+        totalPackageSessionsCount,
+        warningsCount: 0,
+        pendingMealCount: pendingMeals.length,
+        pendingStudentRequestsCount: pendingStudentRequests.length,
+        pendingStudentRequests,
+        todaySessions,
+        pendingMeals,
+        students,
       };
-    });
-
-    return {
-      coachName,
-      coachAvatar,
-      totalVipStudents,
-      todaySessionsCount: todaySessions.length,
-      completedSessionsCount,
-      totalPackageSessionsCount,
-      warningsCount: 0,
-      pendingMealCount: pendingMeals.length,
-      pendingStudentRequestsCount: pendingStudentRequests.length,
-      pendingStudentRequests,
-      todaySessions,
-      pendingMeals,
-      students,
-    };
+    } catch (error) {
+      this.logger.error(
+        `Failed to get PT dashboard data for user ${ptUserId}:`,
+        error,
+      );
+      return {
+        coachName: 'Coach PT',
+        coachAvatar: undefined,
+        totalVipStudents: 0,
+        todaySessionsCount: 0,
+        completedSessionsCount: 0,
+        totalPackageSessionsCount: 0,
+        warningsCount: 0,
+        pendingMealCount: 0,
+        pendingStudentRequestsCount: 0,
+        pendingStudentRequests: [],
+        todaySessions: [],
+        pendingMeals: [],
+        students: [],
+      };
+    }
   }
 
   async getPendingStudentRequests(ptUserId: string) {

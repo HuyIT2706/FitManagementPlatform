@@ -76,10 +76,10 @@ export class AuthController {
     },
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { access_token, refresh_token, user } =
+    const { access_token, refresh_token, user, isPendingPtApproval } =
       await this.authService.googleLogin(googleDto.token, googleDto.userInfo);
     this.setRefreshTokenCookie(res, refresh_token);
-    return { access_token, user };
+    return { access_token, user, isPendingPtApproval };
   }
 
   @HttpCode(HttpStatus.OK)

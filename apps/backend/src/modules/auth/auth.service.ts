@@ -213,7 +213,10 @@ export class AuthService {
       if (!email) {
         throw new UnauthorizedException('Invalid Google Token: missing email');
       }
-      let user = await this.prisma.user.findUnique({ where: { email } });
+      let user = await this.prisma.user.findUnique({
+        where: { email },
+        include: { ptApplication: true },
+      });
 
       if (!user) {
         user = await this.prisma.user.create({
@@ -223,8 +226,14 @@ export class AuthService {
             passwordHash: '',
             avatarUrl: payload.picture,
           },
+          include: { ptApplication: true },
         });
       }
+
+      const isPendingPt =
+        user.role === 'PT' && user.ptApplication?.status === 'PENDING';
+      const isApprovedPt =
+        user.role === 'PT' ? user.ptApplication?.status === 'APPROVED' : true;
 
       const tokens = await this.getTokens(user.id, user.email, user.role);
       await this.updateRefreshTokenHash(user.id, tokens.refreshToken);
@@ -232,6 +241,7 @@ export class AuthService {
       return {
         access_token: tokens.accessToken,
         refresh_token: tokens.refreshToken,
+        isPendingPtApproval: isPendingPt,
         user: {
           id: user.id,
           email: user.email,
@@ -239,6 +249,8 @@ export class AuthService {
           name: user.fullName,
           avatar: user.avatarUrl,
           role: user.role,
+          isApprovedPt,
+          isPendingPtApproval: isPendingPt,
           onboardingCompleted: user.onboardingCompleted,
         },
       };

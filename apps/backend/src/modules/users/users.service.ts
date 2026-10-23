@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import type { Gender, ActivityLevel } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { OnboardingDto } from './dto/onboarding.dto';
@@ -19,6 +19,8 @@ export interface UpdateProfileDto {
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(private prisma: PrismaService) {}
 
   getBMICategory(bmi: number) {
@@ -63,167 +65,179 @@ export class UsersService {
   }
 
   async getMe(userId: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        email: true,
-        fullName: true,
-        avatarUrl: true,
-        phone: true,
-        role: true,
-        gender: true,
-        height: true,
-        dateOfBirth: true,
-        activityLevel: true,
-        goal: true,
-        targetWeight: true,
-        onboardingCompleted: true,
-        createdAt: true,
-        nutritionTargets: {
-          orderBy: { effectiveDate: 'desc' },
-          take: 1,
-          select: {
-            id: true,
-            targetCalo: true,
-            targetProtein: true,
-            targetCarbs: true,
-            targetFat: true,
-            prescribedMealPlan: true,
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          email: true,
+          fullName: true,
+          avatarUrl: true,
+          phone: true,
+          role: true,
+          gender: true,
+          height: true,
+          dateOfBirth: true,
+          activityLevel: true,
+          goal: true,
+          targetWeight: true,
+          onboardingCompleted: true,
+          createdAt: true,
+          nutritionTargets: {
+            orderBy: { effectiveDate: 'desc' },
+            take: 1,
+            select: {
+              id: true,
+              targetCalo: true,
+              targetProtein: true,
+              targetCarbs: true,
+              targetFat: true,
+              prescribedMealPlan: true,
+            },
           },
-        },
-        bodyMetrics: {
-          orderBy: { recordedAt: 'desc' },
-          take: 1,
-          select: {
-            weight: true,
-            height: true,
-            bodyFat: true,
-            muscleMass: true,
-            recordedAt: true,
+          bodyMetrics: {
+            orderBy: { recordedAt: 'desc' },
+            take: 1,
+            select: {
+              weight: true,
+              height: true,
+              bodyFat: true,
+              muscleMass: true,
+              recordedAt: true,
+            },
           },
-        },
-        studentProfiles: {
-          orderBy: { assignedAt: 'desc' },
-          select: {
-            id: true,
-            status: true,
-            trainer: {
-              select: {
-                id: true,
-                fullName: true,
-                avatarUrl: true,
-                phone: true,
-                email: true,
+          studentProfiles: {
+            orderBy: { assignedAt: 'desc' },
+            select: {
+              id: true,
+              status: true,
+              trainer: {
+                select: {
+                  id: true,
+                  fullName: true,
+                  avatarUrl: true,
+                  phone: true,
+                  email: true,
+                },
               },
             },
           },
-        },
-        userPackages: {
-          where: { isActive: true },
-          take: 1,
-          select: {
-            id: true,
-            totalSessions: true,
-            remainingSessions: true,
-            startDate: true,
-            endDate: true,
-            gymPackage: {
-              select: {
-                id: true,
-                title: true,
-                price: true,
+          userPackages: {
+            where: { isActive: true },
+            take: 1,
+            select: {
+              id: true,
+              totalSessions: true,
+              remainingSessions: true,
+              startDate: true,
+              endDate: true,
+              gymPackage: {
+                select: {
+                  id: true,
+                  title: true,
+                  price: true,
+                },
               },
             },
           },
-        },
-        ptApplication: {
-          select: {
-            status: true,
-            adminNote: true,
-            certificateUrl: true,
-            experienceYears: true,
-            specialties: true,
-            bio: true,
+          ptApplication: {
+            select: {
+              status: true,
+              adminNote: true,
+              certificateUrl: true,
+              experienceYears: true,
+              specialties: true,
+              bio: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    if (!user) return null;
+      if (!user) return null;
 
-    const studentProfile = user.studentProfiles?.[0] || null;
-    const ptBindStatus = studentProfile?.status || null;
-    const assignedPt = studentProfile?.trainer
-      ? {
-          ...studentProfile.trainer,
-          status: ptBindStatus,
-          isApproved: ptBindStatus === 'APPROVED',
-          isPending: ptBindStatus === 'PENDING',
+      const studentProfile = user.studentProfiles?.[0] || null;
+      const ptBindStatus = studentProfile?.status || null;
+      const assignedPt = studentProfile?.trainer
+        ? {
+            ...studentProfile.trainer,
+            status: ptBindStatus,
+            isApproved: ptBindStatus === 'APPROVED',
+            isPending: ptBindStatus === 'PENDING',
+          }
+        : null;
+      const activePackage = user.userPackages?.[0] || null;
+
+      const isApprovedPt =
+        user.role === 'PT' ? user.ptApplication?.status === 'APPROVED' : true;
+      const ptApplicationStatus =
+        user.ptApplication?.status ||
+        (user.role === 'PT' ? 'PENDING' : 'APPROVED');
+      const isPendingPtApproval =
+        user.role === 'PT' && user.ptApplication?.status === 'PENDING';
+
+      // Calculate BMR, TDEE, and BMI on Backend
+      const weight = user.bodyMetrics?.[0]?.weight ?? 70;
+      const height = user.height ?? 170;
+      const gender = user.gender || 'MALE';
+
+      let age = 25;
+      if (user.dateOfBirth) {
+        try {
+          const dob = new Date(user.dateOfBirth);
+          const diffMs = Date.now() - dob.getTime();
+          const ageDt = new Date(diffMs);
+          age = Math.abs(ageDt.getUTCFullYear() - 1970);
+        } catch {
+          age = 25;
         }
-      : null;
-    const activePackage = user.userPackages?.[0] || null;
+      }
 
-    const isApprovedPt =
-      user.role === 'PT' ? user.ptApplication?.status === 'APPROVED' : true;
-    const ptApplicationStatus =
-      user.ptApplication?.status ||
-      (user.role === 'PT' ? 'PENDING' : 'APPROVED');
-    const isPendingPtApproval =
-      user.role === 'PT' && user.ptApplication?.status === 'PENDING';
+      const bmr =
+        gender === 'MALE'
+          ? 10 * weight + 6.25 * height - 5 * age + 5
+          : 10 * weight + 6.25 * height - 5 * age - 161;
 
-    // Calculate BMR, TDEE, and BMI on Backend
-    const weight = user.bodyMetrics?.[0]?.weight ?? 70;
-    const height = user.height ?? 170;
-    const gender = user.gender || 'MALE';
+      const activityMultipliers: Record<string, number> = {
+        SEDENTARY: 1.2,
+        LIGHTLY_ACTIVE: 1.375,
+        MODERATELY_ACTIVE: 1.55,
+        VERY_ACTIVE: 1.725,
+        EXTRA_ACTIVE: 1.9,
+      };
+      const multiplier =
+        activityMultipliers[user.activityLevel || 'VERY_ACTIVE'] || 1.725;
+      const tdee = Math.round(bmr * multiplier) || 2000;
 
-    let age = 25;
-    if (user.dateOfBirth) {
-      const dob = new Date(user.dateOfBirth);
-      const diffMs = Date.now() - dob.getTime();
-      const ageDt = new Date(diffMs);
-      age = Math.abs(ageDt.getUTCFullYear() - 1970);
+      const heightM = height / 100;
+      const bmi =
+        heightM > 0
+          ? Math.round((weight / (heightM * heightM)) * 10) / 10
+          : 24.5;
+      const safeBmi = isNaN(bmi) ? 22 : bmi;
+      const bmiInfo = this.getBMICategory(safeBmi);
+
+      const isLosing = (weight || 70) > (user.targetWeight || 70);
+      const suggestedOffset = isLosing ? -400 : 300;
+
+      return {
+        ...user,
+        isApprovedPt,
+        ptApplicationStatus,
+        isPendingPtApproval,
+        bmr: Math.round(bmr) || 1600,
+        tdee,
+        bmi: safeBmi,
+        bmiCategory: bmiInfo.category,
+        bmiColor: bmiInfo.color,
+        bmiDescription: bmiInfo.description,
+        suggestedOffset,
+        assignedPt,
+        activePackage,
+      };
+    } catch (err) {
+      this.logger.error(`Failed to getMe for user ${userId}:`, err);
+      return null;
     }
-
-    const bmr =
-      gender === 'MALE'
-        ? 10 * weight + 6.25 * height - 5 * age + 5
-        : 10 * weight + 6.25 * height - 5 * age - 161;
-
-    const activityMultipliers: Record<string, number> = {
-      SEDENTARY: 1.2,
-      LIGHTLY_ACTIVE: 1.375,
-      MODERATELY_ACTIVE: 1.55,
-      VERY_ACTIVE: 1.725,
-      EXTRA_ACTIVE: 1.9,
-    };
-    const multiplier =
-      activityMultipliers[user.activityLevel || 'VERY_ACTIVE'] || 1.725;
-    const tdee = Math.round(bmr * multiplier);
-
-    const heightM = height / 100;
-    const bmi =
-      heightM > 0 ? Math.round((weight / (heightM * heightM)) * 10) / 10 : 24.5;
-    const bmiInfo = this.getBMICategory(bmi);
-
-    const isLosing = (weight || 70) > (user.targetWeight || 70);
-    const suggestedOffset = isLosing ? -400 : 300;
-
-    return {
-      ...user,
-      isApprovedPt,
-      ptApplicationStatus,
-      isPendingPtApproval,
-      bmr: Math.round(bmr),
-      tdee,
-      bmi,
-      bmiCategory: bmiInfo.category,
-      bmiColor: bmiInfo.color,
-      bmiDescription: bmiInfo.description,
-      suggestedOffset,
-      assignedPt,
-      activePackage,
-    };
   }
 
   getCalorieOffsetOptions(isLosing: boolean) {

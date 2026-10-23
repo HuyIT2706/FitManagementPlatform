@@ -21,11 +21,14 @@ const DEFAULT_SWR_OPTIONS: SWRConfiguration = {
   revalidateIfStale: true,
   revalidateOnReconnect: true,
   dedupingInterval: 2000,
+  errorRetryCount: 3,
 };
 
 export const useCurrentUser = (options?: SWRConfiguration) => {
+  const hasToken =
+    typeof window !== 'undefined' && Boolean(localStorage.getItem('jwt_token'));
   return useSWR<UserDataHome>(
-    '/users/me',
+    hasToken ? '/users/me' : null,
     swrFetcher,
     {
       ...DEFAULT_SWR_OPTIONS,
@@ -102,25 +105,31 @@ export const useExerciseLibrary = (
 };
 
 export const usePtDashboard = (options?: SWRConfiguration) => {
+  const hasToken =
+    typeof window !== 'undefined' && Boolean(localStorage.getItem('jwt_token'));
   return useSWR<PTDashboardData>(
-    '/pt/dashboard',
+    hasToken ? '/pt/dashboard' : null,
     swrFetcher,
     { ...DEFAULT_SWR_OPTIONS, ...options }
   );
 };
 
 export const usePtCodeQr = (options?: SWRConfiguration) => {
+  const hasToken =
+    typeof window !== 'undefined' && Boolean(localStorage.getItem('jwt_token'));
   return useSWR<PTCodeQrData>(
-    '/pt/code-qr',
+    hasToken ? '/pt/code-qr' : null,
     swrFetcher,
     { ...DEFAULT_SWR_OPTIONS, ...options }
   );
 };
 
 export const usePtSchedule = (startDate?: string, endDate?: string, options?: SWRConfiguration) => {
+  const hasToken =
+    typeof window !== 'undefined' && Boolean(localStorage.getItem('jwt_token'));
   const query = startDate && endDate ? `?startDate=${startDate}&endDate=${endDate}` : '';
   return useSWR<PTSessionItem[]>(
-    `/pt/schedule${query}`,
+    hasToken ? `/pt/schedule${query}` : null,
     swrFetcher,
     { ...DEFAULT_SWR_OPTIONS, ...options }
   );

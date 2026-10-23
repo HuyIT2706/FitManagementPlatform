@@ -69,21 +69,68 @@ const LoginContent = () => {
         // Clear old stale token before starting new Google auth session
         localStorage.removeItem('jwt_token');
 
-        const userInfo = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
-        }).then((res) => res.json());
+        // Safely fetch user info from Google client-side if possible
+        let userInfo: { email?: string; name?: string; picture?: string } | undefined;
+        try {
+          const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+          });
+          if (res.ok) {
+            userInfo = await res.json();
+          }
+        } catch (fetchErr) {
+          console.warn('Client-side Google userinfo fetch skipped/failed:', fetchErr);
+        }
 
-        const response = await apiClient.post('/auth/google', {
-          token: tokenResponse.access_token,
-          userInfo,
-        });
-        const data = response.data;
+        // Send token to backend via apiClient, falling back to native fetch if Axios encounters Network Error
+        let data: {
+          access_token: string;
+          user: UserDataHome;
+        };
+
+        try {
+          const response = await apiClient.post('/auth/google', {
+            token: tokenResponse.access_token,
+            userInfo,
+          });
+          data = response.data;
+        } catch (axiosErr: unknown) {
+          console.warn('apiClient.post(/auth/google) error, trying direct fetch fallback:', axiosErr);
+          const API_BASE_URL =
+            process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3100';
+          const nativeRes = await fetch(`${API_BASE_URL}/auth/google`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              token: tokenResponse.access_token,
+              userInfo,
+            }),
+          });
+          if (!nativeRes.ok) {
+            const errJson = await nativeRes.json().catch(() => null);
+            throw new Error(
+              errJson?.message || `Xác thực Google thất bại (Mã lỗi ${nativeRes.status})`
+            );
+          }
+          data = await nativeRes.json();
+        }
+
         if (data.access_token) {
           localStorage.setItem('jwt_token', data.access_token);
         }
 
+        if ((data as { isPendingPtApproval?: boolean }).isPendingPtApproval) {
+          const notice =
+            'Tài khoản PT của bạn đã đăng ký thành công và đang chờ Admin kiểm duyệt trước khi truy cập giao diện PT!';
+          setPendingPtNotice(notice);
+          toast.info('Tài khoản Huấn luyện viên đang chờ Admin phê duyệt!', 'Thông báo');
+          setLoading(false);
+          return;
+        }
+
         const displayName =
-          data.user?.fullName || data.user?.name || userInfo?.name || '';
+          data.user?.fullName || (data.user as unknown as { name?: string })?.name || userInfo?.name || '';
 
         toast.success(
           `Chào mừng ${displayName} quay trở lại!`,
