@@ -10,8 +10,8 @@ self.addEventListener('push', (event) => {
   let data = {
     title: 'NutriCore Thông Báo',
     body: 'Bạn có cập nhật mới từ hệ thống NutriCore!',
-    icon: '/logoApp.jpg',
-    badge: '/logoApp.jpg',
+    icon: '/android-chrome-192x192.png',
+    badge: '/favicon-32x32.png',
     url: '/home',
   };
 
@@ -26,8 +26,8 @@ self.addEventListener('push', (event) => {
   const title = data.title || 'NutriCore';
   const options = {
     body: data.body,
-    icon: data.icon || '/logoApp.jpg',
-    badge: data.badge || '/logoApp.jpg',
+    icon: data.icon || '/android-chrome-192x192.png',
+    badge: data.badge || '/favicon-32x32.png',
     vibrate: [100, 50, 100],
     data: {
       url: data.url || (data.data && data.data.url) || '/home',
@@ -56,10 +56,17 @@ self.addEventListener('notificationclick', (event) => {
     return;
   }
 
-  const targetUrl =
+  const rawUrl =
     event.notification.data && event.notification.data.url
       ? event.notification.data.url
       : '/home';
+
+  let targetUrl = rawUrl;
+  try {
+    targetUrl = new URL(rawUrl, self.location.origin).href;
+  } catch {
+    targetUrl = rawUrl;
+  }
 
   event.waitUntil(
     self.clients

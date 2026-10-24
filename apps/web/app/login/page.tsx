@@ -11,6 +11,7 @@ import apiClient from '../../api/axios';
 import type { UserDataHome } from '../../interface';
 import { handleRoleRedirect } from '../../utils/authRedirect';
 import { toast } from '../../utils/toast';
+import { autoSyncPushSubscription } from '../../utils/pushNotification';
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
 
@@ -118,6 +119,7 @@ const LoginContent = () => {
 
         if (data.access_token) {
           localStorage.setItem('jwt_token', data.access_token);
+          autoSyncPushSubscription();
         }
 
         if ((data as { isPendingPtApproval?: boolean }).isPendingPtApproval) {
@@ -286,6 +288,7 @@ const LoginContent = () => {
           });
         const data = response.data;
         localStorage.setItem('jwt_token', data.access_token);
+        autoSyncPushSubscription();
 
         if (data.isPendingPtApproval) {
           const notice =
@@ -324,6 +327,7 @@ const LoginContent = () => {
           });
         const data = response.data;
         localStorage.setItem('jwt_token', data.access_token);
+        autoSyncPushSubscription();
 
         if (role === 'PT') {
           const notice =

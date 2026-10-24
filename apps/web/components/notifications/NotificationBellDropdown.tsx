@@ -21,6 +21,7 @@ import {
   registerServiceWorker,
   subscribeToPushNotifications,
   getNotificationPermissionStatus,
+  autoSyncPushSubscription,
 } from '../../utils/pushNotification';
 import type {
   NotificationItem,
@@ -42,7 +43,11 @@ const NotificationBellDropdown = ({
 
   useEffect(() => {
     registerServiceWorker();
-    setPermissionStatus(getNotificationPermissionStatus());
+    const status = getNotificationPermissionStatus();
+    setPermissionStatus(status);
+    if (status === 'granted') {
+      autoSyncPushSubscription();
+    }
   }, []);
 
   useEffect(() => {
@@ -142,12 +147,15 @@ const NotificationBellDropdown = ({
   const renderNotifIcon = (type: string) => {
     switch (type) {
       case 'SESSION_DEDUCT':
+      case 'PACKAGE_UPDATE':
         return (
           <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 flex items-center justify-center text-emerald-600 dark:text-[#10b981] shrink-0">
             <CalendarCheck size={16} />
           </div>
         );
       case 'MEAL_REMINDER':
+      case 'NUTRITION_ASSIGNED':
+      case 'MEAL_REVIEW':
         return (
           <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-500/15 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
             <Apple size={16} />
@@ -160,18 +168,21 @@ const NotificationBellDropdown = ({
           </div>
         );
       case 'WORKOUT_REMINDER':
+      case 'WORKOUT_ASSIGNED':
         return (
           <div className="w-8 h-8 rounded-xl bg-orange-50 dark:bg-orange-500/15 flex items-center justify-center text-orange-600 dark:text-orange-400 shrink-0">
             <Dumbbell size={16} />
           </div>
         );
       case 'PT_REQUEST':
+      case 'STUDENT_REQUEST':
         return (
           <div className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-500/15 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0">
             <UserPlus size={16} />
           </div>
         );
       case 'PT_APPLICATION':
+      case 'PT_ACCEPTED':
         return (
           <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
             <Award size={16} />

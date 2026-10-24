@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans, Inter } from "next/font/google";
 import "../assets/css/globals.css";
 import { ToastContainer } from "../utils/toast";
 import { ThemeProvider } from "../context/ThemeContext";
+import PushNotificationSync from "../components/common/PushNotificationSync";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin", "vietnamese"],
@@ -75,6 +76,7 @@ const RootLayout = ({
       <body suppressHydrationWarning className="bg-background text-on-surface font-sans">
         <ThemeProvider>
           {children}
+          <PushNotificationSync />
           <ToastContainer />
         </ThemeProvider>
       </body>

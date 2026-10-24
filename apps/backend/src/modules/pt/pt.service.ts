@@ -885,6 +885,20 @@ export class PtService {
       }
     }
 
+    if (dto.studentId) {
+      try {
+        await this.notificationsService.sendNotification({
+          userId: dto.studentId,
+          title: '💪 Kế Hoạch Tập Luyện Mới',
+          message: `HLV vừa giao giáo án tập luyện mới: ${dto.title || 'Lịch tập 1:1'}`,
+          type: 'WORKOUT_ASSIGNED',
+          linkUrl: '/training',
+        });
+      } catch (err) {
+        console.error('Failed to notify student of workout plan:', err);
+      }
+    }
+
     return {
       success: true,
       studentId: dto.studentId,
@@ -924,6 +938,21 @@ export class PtService {
           prescribedMealPlan,
         },
       });
+    }
+
+    if (dto.studentId) {
+      try {
+        const targetCalories = Number(dto.targetCalories ?? 2200);
+        await this.notificationsService.sendNotification({
+          userId: dto.studentId,
+          title: '🥗 Thực Đơn & Dinh Dưỡng Mới',
+          message: `HLV vừa cập nhật mục tiêu dinh dưỡng (${targetCalories} kcal) & thực đơn mới cho bạn.`,
+          type: 'NUTRITION_ASSIGNED',
+          linkUrl: '/nutrition',
+        });
+      } catch (err) {
+        console.error('Failed to notify student of nutrition plan:', err);
+      }
     }
 
     return {
@@ -1123,6 +1152,25 @@ export class PtService {
         comment: note || 'PT đã duyệt bữa ăn - Đạt chuẩn dinh dưỡng!',
       },
     });
+
+    try {
+      const meal = await this.prisma.mealLog.findUnique({
+        where: { id: mealId },
+        select: { userId: true },
+      });
+      if (meal?.userId) {
+        await this.notificationsService.sendNotification({
+          userId: meal.userId,
+          title: '🍽️ Bữa Ăn Đã Được HLV Đánh Giá',
+          message:
+            note || 'HLV đã duyệt bữa ăn của bạn - Đạt chuẩn dinh dưỡng!',
+          type: 'MEAL_REVIEW',
+          linkUrl: '/nutrition',
+        });
+      }
+    } catch (err) {
+      console.error('Failed to notify student of meal review:', err);
+    }
 
     return {
       success: true,
@@ -1454,6 +1502,23 @@ export class PtService {
     const remaining = dto.remainingSessions ?? 0;
     const total = dto.totalSessions ?? 0;
 
+    if (
+      dto.remainingSessions !== undefined ||
+      dto.totalSessions !== undefined
+    ) {
+      try {
+        await this.notificationsService.sendNotification({
+          userId: studentId,
+          title: 'Cập Nhật Gói Tập & Số Buổi',
+          message: `Huấn luyện viên đã cập nhật số buổi tập của bạn: ${remaining}/${total} buổi.`,
+          type: 'PACKAGE_UPDATE',
+          linkUrl: '/training',
+        });
+      } catch (err) {
+        console.error('Failed to notify student of session update:', err);
+      }
+    }
+
     return {
       success: true,
       studentId,
@@ -1559,6 +1624,33 @@ export class PtService {
         }),
       },
     });
+
+    if (!existingApp || shouldResetToPending) {
+      try {
+        const admins = await this.prisma.user.findMany({
+          where: { role: 'ADMIN' },
+          select: { id: true },
+        });
+
+        const ptUser = await this.prisma.user.findUnique({
+          where: { id: ptUserId },
+          select: { fullName: true, email: true },
+        });
+        const ptName = ptUser?.fullName || ptUser?.email || 'Huấn luyện viên';
+
+        for (const admin of admins) {
+          await this.notificationsService.sendNotification({
+            userId: admin.id,
+            title: '📋 Đơn Đăng Ký HLV Mới',
+            message: `HLV ${ptName} vừa gửi hồ sơ ứng tuyển, vui lòng vào duyệt.`,
+            type: 'PT_APPLICATION',
+            linkUrl: '/admin/CoachReview',
+          });
+        }
+      } catch (err) {
+        console.error('Failed to notify admins of PT application update:', err);
+      }
+    }
 
     return {
       success: true,

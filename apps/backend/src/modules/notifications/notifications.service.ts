@@ -204,8 +204,8 @@ export class NotificationsService implements OnModuleInit {
         const payload = JSON.stringify({
           title,
           body: message,
-          icon: '/logo.png',
-          badge: '/logo.png',
+          icon: '/android-chrome-192x192.png',
+          badge: '/favicon-32x32.png',
           url: linkUrl,
           data: {
             url: linkUrl,

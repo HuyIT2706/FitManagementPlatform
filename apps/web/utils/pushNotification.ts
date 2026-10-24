@@ -91,3 +91,61 @@ export async function subscribeToPushNotifications(): Promise<boolean> {
     return false;
   }
 }
+
+export async function autoSyncPushSubscription(): Promise<boolean> {
+  if (
+    typeof window === 'undefined' ||
+    !('serviceWorker' in navigator) ||
+    !('Notification' in window)
+  ) {
+    return false;
+  }
+
+  if (Notification.permission !== 'granted') {
+    return false;
+  }
+
+  const token = localStorage.getItem('jwt_token');
+  if (!token) {
+    return false;
+  }
+
+  try {
+    await registerServiceWorker();
+    const registration = await navigator.serviceWorker.ready;
+    if (!registration || !registration.pushManager) {
+      return false;
+    }
+
+    const keyRes = await apiClient.get<{ publicKey: string }>('/notifications/vapid-public-key');
+    const vapidPublicKey = keyRes.data?.publicKey;
+    if (!vapidPublicKey) {
+      return false;
+    }
+
+    const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
+
+    let subscription = await registration.pushManager.getSubscription();
+    if (!subscription) {
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: convertedVapidKey,
+      });
+    }
+
+    if (subscription) {
+      const subJson = subscription.toJSON();
+      if (subJson.endpoint && subJson.keys?.p256dh && subJson.keys?.auth) {
+        await apiClient.post('/notifications/subscribe', {
+          endpoint: subJson.endpoint,
+          keys: subJson.keys,
+        });
+        return true;
+      }
+    }
+    return false;
+  } catch (err) {
+    console.warn('Auto-sync push subscription failed silently:', err);
+    return false;
+  }
+}

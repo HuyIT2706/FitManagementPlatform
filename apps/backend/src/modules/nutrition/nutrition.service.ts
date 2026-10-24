@@ -1175,11 +1175,16 @@ export class NutritionService {
       ),
     );
 
-    // Danh sách dị ứng & bệnh lý
-    const allergies =
-      Array.isArray(dto.healthConditions) && dto.healthConditions.length > 0
+    // Danh sách dị ứng & bệnh lý: Hợp nhất cả healthConditions và dietaryPreferences (vì Onboarding lưu lựa chọn dị ứng vào dietaryPreferences)
+    const rawAllergies = [
+      ...(Array.isArray(dto.healthConditions) && dto.healthConditions.length > 0
         ? dto.healthConditions
-        : user.healthConditions || [];
+        : user.healthConditions || []),
+      ...(Array.isArray(dto.dietaryPreferences) &&
+      dto.dietaryPreferences.length > 0
+        ? dto.dietaryPreferences
+        : user.dietaryPreferences || []),
+    ];
 
     // Sở thích ăn uống
     const preferences =
@@ -1234,8 +1239,159 @@ export class NutritionService {
       );
     };
 
+    type MealKey =
+      | 'breakfast'
+      | 'morningSnack'
+      | 'lunch'
+      | 'afternoonSnack'
+      | 'dinner'
+      | 'snack';
+
+    // Lấy đúng số bữa mà học viên đã chọn trong hồ sơ Onboarding (user.mealFrequency)
+    const effectiveFrequency =
+      dto.mealFrequency ||
+      user.mealFrequency ||
+      (dto.selectedMeals?.length ? undefined : 3);
+
+    let activeMeals: MealKey[];
+    if (
+      dto.selectedMeals &&
+      Array.isArray(dto.selectedMeals) &&
+      dto.selectedMeals.length >= 1
+    ) {
+      activeMeals = dto.selectedMeals as MealKey[];
+    } else {
+      switch (effectiveFrequency) {
+        case 2:
+          activeMeals = ['breakfast', 'dinner'];
+          break;
+        case 3:
+          activeMeals = ['breakfast', 'lunch', 'dinner'];
+          break;
+        case 5:
+          activeMeals = [
+            'breakfast',
+            'morningSnack',
+            'lunch',
+            'afternoonSnack',
+            'dinner',
+          ];
+          break;
+        case 4:
+        default:
+          activeMeals = ['breakfast', 'lunch', 'dinner', 'snack'];
+          break;
+      }
+    }
+
+    const isFewMeals = activeMeals.length <= 2;
+
     // 2. Thuật toán lọc an toàn (Safety / Allergy Filter)
     const ALLERGY_SYNONYMS: Record<string, string[]> = {
+      // Dị ứng Đậu phộng / Các loại hạt (Hỗ trợ cả mã Onboarding PEANUT, tiếng Việt và tất cả các loại hạt)
+      peanut: [
+        'lac',
+        'dau phong',
+        'dau phung',
+        'bo dau phong',
+        'dau lac',
+        'hat lac',
+        'dau dau phong',
+        'hanh nhan',
+        'hat dieu',
+        'oc cho',
+        'mac ca',
+        'hat de',
+        'cac loai hat',
+        'hat dinh duong',
+      ],
+      'dau phong': [
+        'lac',
+        'dau phong',
+        'dau phung',
+        'bo dau phong',
+        'dau lac',
+        'hat lac',
+        'dau dau phong',
+        'hanh nhan',
+        'hat dieu',
+        'oc cho',
+        'mac ca',
+        'hat de',
+        'cac loai hat',
+        'hat dinh duong',
+      ],
+      lac: [
+        'lac',
+        'dau phong',
+        'dau phung',
+        'bo dau phong',
+        'dau lac',
+        'hat lac',
+        'dau dau phong',
+        'hanh nhan',
+        'hat dieu',
+        'oc cho',
+        'mac ca',
+        'hat de',
+        'cac loai hat',
+        'hat dinh duong',
+      ],
+      hat: [
+        'lac',
+        'dau phong',
+        'dau phung',
+        'bo dau phong',
+        'dau lac',
+        'hat lac',
+        'dau dau phong',
+        'hanh nhan',
+        'hat dieu',
+        'oc cho',
+        'mac ca',
+        'hat de',
+        'cac loai hat',
+        'hat dinh duong',
+      ],
+      nuts: [
+        'lac',
+        'dau phong',
+        'dau phung',
+        'bo dau phong',
+        'dau lac',
+        'hat lac',
+        'dau dau phong',
+        'hanh nhan',
+        'hat dieu',
+        'oc cho',
+        'mac ca',
+        'hat de',
+        'cac loai hat',
+        'hat dinh duong',
+      ],
+
+      // Dị ứng Hải sản (SEAFOOD)
+      seafood: [
+        'tom',
+        'cua',
+        'ca',
+        'muc',
+        'ngheu',
+        'so',
+        'oc',
+        'hau',
+        'bach tuoc',
+        'basa',
+        'hoi',
+        'thu',
+        'loc',
+        'ro',
+        'ngu',
+        'luon',
+        'hai san',
+        'tep',
+        'ghe',
+      ],
       'hai san': [
         'tom',
         'cua',
@@ -1254,13 +1410,25 @@ export class NutritionService {
         'ngu',
         'luon',
         'hai san',
+        'tep',
+        'ghe',
       ],
       tom: ['tom', 'tep'],
       cua: ['cua', 'ghe'],
       ca: ['ca', 'basa', 'hoi', 'thu', 'loc', 'ro', 'ngu', 'luon'],
       muc: ['muc', 'bach tuoc'],
-      'dau phong': ['lac', 'dau phong', 'dau phung', 'bo dau phong'],
-      lac: ['lac', 'dau phong', 'dau phung'],
+
+      // Dị ứng Sữa & Lactose (MILK)
+      milk: [
+        'sua',
+        'pho mai',
+        'pho mat',
+        'cheese',
+        'sua chua',
+        'vang sua',
+        'whey',
+        'lactose',
+      ],
       sua: [
         'sua',
         'pho mai',
@@ -1271,10 +1439,28 @@ export class NutritionService {
         'whey',
         'lactose',
       ],
+
+      // Dị ứng Trứng (EGG)
+      egg: ['trung', 'hot ga', 'hot vit'],
       trung: ['trung', 'hot ga', 'hot vit'],
-      'dau nanh': ['dau nanh', 'dau phu', 'dau hu', 'tau hu'],
-      gout: ['long', 'gan', 'tim', 'cat', 'noi tang', 'thit bo'],
-      'thit bo': ['bo', 'be', 'nam bo', 'than bo'],
+
+      // Dị ứng Đậu nành
+      'dau nanh': ['dau nanh', 'dau phu', 'dau hu', 'tau hu', 'soy'],
+      soy: ['dau nanh', 'dau phu', 'dau hu', 'tau hu', 'soy'],
+
+      // Bệnh lý Gout: Kiêng nội tạng, thịt đỏ giàu purine
+      gout: [
+        'long',
+        'gan',
+        'tim',
+        'cat',
+        'noi tang',
+        'thit bo',
+        'nam bo',
+        'than bo',
+        'bap bo',
+      ],
+      'thit bo': ['bo', 'be', 'nam bo', 'than bo', 'bap bo'],
       'thit heo': [
         'heo',
         'lon',
@@ -1284,13 +1470,73 @@ export class NutritionService {
         'cha lua',
         'gio lua',
       ],
+
+      // Bệnh lý Tiểu đường (DIABETES): Kiêng đồ ngọt, đường tinh luyện, nước ngọt, siro
+      diabetes: [
+        'duong',
+        'ngot',
+        'che',
+        'banh',
+        'keo',
+        'sua dac',
+        'nuoc ngot',
+        'sting',
+        'coca',
+        'pepsi',
+        'siro',
+        'kem',
+      ],
+      'tieu duong': [
+        'duong',
+        'ngot',
+        'che',
+        'banh',
+        'keo',
+        'sua dac',
+        'nuoc ngot',
+        'sting',
+        'coca',
+        'pepsi',
+        'siro',
+        'kem',
+      ],
+
+      // Bệnh lý Huyết áp cao (BLOOD_PRESSURE): Kiêng đồ muối mặn, thực phẩm chế biến sẵn nhiều sodium
+      blood_pressure: [
+        'ca muoi',
+        'dua muoi',
+        'mam',
+        'kho quet',
+        'xuc xich',
+        'thit xong khoi',
+        'do hop',
+      ],
+      'huyet ap': [
+        'ca muoi',
+        'dua muoi',
+        'mam',
+        'kho quet',
+        'xuc xich',
+        'thit xong khoi',
+        'do hop',
+      ],
+
+      // Bệnh lý Dạ dày (STOMACH): Kiêng cay nóng, chua, cà phê, chất kích thích
+      stomach: ['ot', 'tieu', 'cay', 'giam', 'chanh', 'ca phe', 'ruou', 'bia'],
+      'da day': ['ot', 'tieu', 'cay', 'giam', 'chanh', 'ca phe', 'ruou', 'bia'],
     };
 
     const bannedKeywords = new Set<string>();
 
-    for (const allergy of allergies) {
-      const norm = removeTones(allergy);
-      if (!norm) continue;
+    for (const item of rawAllergies) {
+      const norm = removeTones(item);
+      if (
+        !norm ||
+        norm === 'none' ||
+        norm === 'healthy' ||
+        norm === 'parq_attention'
+      )
+        continue;
       let matchedSynonym = false;
       for (const [key, syns] of Object.entries(ALLERGY_SYNONYMS)) {
         if (norm.includes(key) || key.includes(norm)) {
@@ -1379,6 +1625,39 @@ export class NutritionService {
       return !bannedArr.some((b) => n.includes(b));
     };
 
+    interface PoolFoodItem {
+      id: string;
+      name: string;
+      caloriesPer100g: number;
+      proteinPer100g: number;
+      carbsPer100g: number;
+      fatPer100g: number;
+      category?: string | null;
+      imageUrl?: string | null;
+      minGrams?: number;
+      maxGrams?: number;
+      fixedGrams?: number;
+    }
+
+    // Dự phòng các rổ thực phẩm an toàn nếu người dùng có nhiều dị ứng / bệnh lý nghiêm ngặt
+    const safeProteinFallback: PoolFoodItem[] = allFoods
+      .filter((f) => f.proteinPer100g >= 12 && isSafe(f))
+      .map((f) => ({ ...f, minGrams: 100, maxGrams: 250 }));
+
+    const safeCarbFallback: PoolFoodItem[] = allFoods
+      .filter((f) => f.carbsPer100g >= 20 && isSafe(f))
+      .map((f) => ({ ...f, minGrams: 100, maxGrams: 300 }));
+
+    const safeVegFallback: PoolFoodItem[] = allFoods
+      .filter((f) => f.caloriesPer100g < 50 && f.carbsPer100g < 10 && isSafe(f))
+      .map((f) => ({ ...f, fixedGrams: 150 }));
+
+    const safeFruitFallback: PoolFoodItem[] = allFoods
+      .filter(
+        (f) => f.caloriesPer100g < 100 && f.carbsPer100g > 10 && isSafe(f),
+      )
+      .map((f) => ({ ...f, fixedGrams: 100 }));
+
     // 1. Đạm Bữa Sáng (Từ CSDL): Protein nhẹ (Trứng gà luộc, ốp la, sữa chua Hy Lạp)
     const bProtPool = allFoods
       .filter((f) => {
@@ -1396,7 +1675,7 @@ export class NutritionService {
       })
       .map((f) => ({
         ...f,
-        minGrams: 100,
+        minGrams: 50,
         maxGrams: 150,
       }));
 
@@ -1479,9 +1758,6 @@ export class NutritionService {
       }));
 
     // 5. Đạm Bữa Chính (Trưa & Tối) từ CSDL: Thịt nạc, hải sản thật (ức gà, bắp bò, thăn heo, tôm, cá hồi)
-    // - Loại trừ đậu phụ cho người thường; chỉ dùng đậu phụ nếu isVegan === true
-    // - Khi giảm cân / siết mỡ / duy trì (!isGainingWeight): TUYỆT ĐỐI LOẠI BỎ THỊT CÓ DA (nhiều mỡ xấu & calo cao)
-    // - Chỉ người có mục tiêu tăng cân (isGainingWeight) mới cho phép thịt có da
     const mProtPool = allFoods
       .filter((f) => {
         const n = removeTones(f.name);
@@ -1524,8 +1800,8 @@ export class NutritionService {
       })
       .map((f) => ({
         ...f,
-        minGrams: 150,
-        maxGrams: 300,
+        minGrams: 100, // Đặt mức tối thiểu 100g (thay vì 150g) để kiểm soát chính xác lượng protein, không bị vượt target khi tăng cân
+        maxGrams: isFewMeals ? 350 : 300,
       }));
 
     // 6. Rau Củ (Từ CSDL): Súp lơ xanh/trắng, bắp cải, rau cải thìa, rau muống luộc
@@ -1589,8 +1865,7 @@ export class NutritionService {
       })
       .map((f) => ({ ...f, fixedGrams: 100 }));
 
-    // 9. Dầu Ăn & Chất Béo Lành Mạnh (Từ CSDL): Ưu tiên Dầu ô liu (olive) > Dầu lạc (đậu phộng)
-    // Tuyệt đối loại bỏ dầu đậu nành hoặc dầu công nghiệp không phổ biến trong chế độ fitness
+    // 9. Dầu Ăn & Chất Béo Lành Mạnh (Từ CSDL): Tuyệt đối an toàn theo bộ lọc dị ứng
     const oliveOilFood = allFoods.find((f) => {
       const n = removeTones(f.name);
       return (
@@ -1600,27 +1875,27 @@ export class NutritionService {
       );
     });
 
-    const peanutOilFood = allFoods.find((f) => {
-      const n = removeTones(f.name);
-      return (
-        (n.includes('dau lac') || n.includes('dau dau phong')) &&
-        f.caloriesPer100g > 800 &&
-        isSafe(f)
-      );
-    });
+    const safeOils = allFoods.filter(
+      (f) =>
+        removeTones(f.name).includes('dau') &&
+        f.caloriesPer100g > 700 &&
+        isSafe(f),
+    );
 
-    const dbHealthyOil =
-      oliveOilFood ||
-      peanutOilFood ||
-      allFoods.find(
-        (f) => removeTones(f.name).includes('dau') && f.caloriesPer100g > 800,
-      ) ||
-      allFoods[0];
+    const dbHealthyOil: PoolFoodItem = oliveOilFood ||
+      safeOils[0] || {
+        id: 'safe-olive-oil',
+        name: 'Dầu ô liu (Olive oil)',
+        caloriesPer100g: 884,
+        proteinPer100g: 0,
+        carbsPer100g: 0,
+        fatPer100g: 100,
+        category: 'HEALTHY_FAT',
+      };
 
-    const dbDinnerOil = peanutOilFood || oliveOilFood || dbHealthyOil;
+    const dbDinnerOil: PoolFoodItem = oliveOilFood || dbHealthyOil;
 
-    // 10. Hạt & Đậu Phộng Bữa Phụ (Từ CSDL): Hạt lạc (đậu phộng) tươi/khô luộc hoặc rang, Hạnh nhân, Hạt điều nguyên chất
-    // Loại bỏ kẹo, bánh, kem, socola, đồ uống có đường, sữa, lương khô
+    // 10. Hạt & Bữa Phụ: Hạnh nhân, Hạt điều, Hạt lạc (loại trừ sạch khi dị ứng hạt / đậu phộng)
     const sNutPool = allFoods
       .filter((f) => {
         const n = removeTones(f.name);
@@ -1659,19 +1934,20 @@ export class NutritionService {
       })
       .map((f) => ({ ...f, fixedGrams: 25 }));
 
-    interface PoolFoodItem {
-      id: string;
-      name: string;
-      caloriesPer100g: number;
-      proteinPer100g: number;
-      carbsPer100g: number;
-      fatPer100g: number;
-      category?: string | null;
-      imageUrl?: string | null;
-      minGrams?: number;
-      maxGrams?: number;
-      fixedGrams?: number;
-    }
+    // Thiết lập rổ thực phẩm hiệu lực (Effective Pools with Fallback)
+    const effectiveMProtPool =
+      mProtPool.length > 0 ? mProtPool : safeProteinFallback;
+    const effectiveBProtPool =
+      bProtPool.length > 0 ? bProtPool : effectiveMProtPool;
+    const effectiveLCarbPool =
+      lCarbPool.length > 0 ? lCarbPool : safeCarbFallback;
+    const effectiveDCarbPool =
+      dCarbPool.length > 0 ? dCarbPool : effectiveLCarbPool;
+    const effectiveBCarbPool =
+      bCarbPool.length > 0 ? bCarbPool : effectiveLCarbPool;
+    const effectiveVegPool = vegPool.length > 0 ? vegPool : safeVegFallback;
+    const effectiveFruitPool =
+      sFruitPool.length > 0 ? sFruitPool : safeFruitFallback;
 
     const usedFoodIds = new Set<string>();
 
@@ -1679,6 +1955,7 @@ export class NutritionService {
       pool: PoolFoodItem[],
       excludedIds: Set<string> = new Set(),
       preferredKeyword: string | null = null,
+      fallbackPool: PoolFoodItem[] = [],
     ): PoolFoodItem => {
       let candidates = pool.filter((p) => !excludedIds.has(p.id));
       if (
@@ -1689,13 +1966,31 @@ export class NutritionService {
           removeTones(c.name).includes(preferredKeyword),
         );
       }
-      if (candidates.length === 0) {
-        return pool[Math.floor(Math.random() * pool.length)] || pool[0];
+      if (candidates.length > 0) {
+        return candidates[Math.floor(Math.random() * candidates.length)];
       }
-      return (
-        candidates[Math.floor(Math.random() * candidates.length)] ||
-        candidates[0]
-      );
+      if (pool.length > 0) {
+        return pool[Math.floor(Math.random() * pool.length)];
+      }
+      if (fallbackPool && fallbackPool.length > 0) {
+        const fallbackCandidates = fallbackPool.filter(
+          (p) => !excludedIds.has(p.id),
+        );
+        return (
+          fallbackCandidates[
+            Math.floor(Math.random() * fallbackCandidates.length)
+          ] || fallbackPool[0]
+        );
+      }
+      return {
+        id: 'safe-fallback-item',
+        name: 'Thực phẩm dinh dưỡng tiêu chuẩn',
+        caloriesPer100g: 120,
+        proteinPer100g: 10,
+        carbsPer100g: 15,
+        fatPer100g: 2,
+        category: 'FITNESS_STAPLE',
+      };
     };
 
     const createPlanItem = (
@@ -1720,53 +2015,6 @@ export class NutritionService {
         imageUrl: food.imageUrl,
       };
     };
-
-    type MealKey =
-      | 'breakfast'
-      | 'morningSnack'
-      | 'lunch'
-      | 'afternoonSnack'
-      | 'dinner'
-      | 'snack';
-
-    // Lấy đúng số bữa mà học viên đã chọn trong hồ sơ Onboarding (user.mealFrequency)
-    const effectiveFrequency =
-      dto.mealFrequency ||
-      user.mealFrequency ||
-      (dto.selectedMeals?.length ? undefined : 3);
-
-    let activeMeals: MealKey[];
-    if (
-      dto.selectedMeals &&
-      Array.isArray(dto.selectedMeals) &&
-      dto.selectedMeals.length >= 1
-    ) {
-      activeMeals = dto.selectedMeals as MealKey[];
-    } else {
-      switch (effectiveFrequency) {
-        case 2:
-          activeMeals = ['breakfast', 'dinner'];
-          break;
-        case 3:
-          activeMeals = ['breakfast', 'lunch', 'dinner'];
-          break;
-        case 5:
-          activeMeals = [
-            'breakfast',
-            'morningSnack',
-            'lunch',
-            'afternoonSnack',
-            'dinner',
-          ];
-          break;
-        case 4:
-        default:
-          activeMeals = ['breakfast', 'lunch', 'dinner', 'snack'];
-          break;
-      }
-    }
-
-    const isFewMeals = activeMeals.length <= 2;
 
     const calWeights: Record<MealKey, number> = {
       breakfast: 0.85,
@@ -1845,7 +2093,7 @@ export class NutritionService {
     // ========================================================
     // THUẬT TOÁN ĐA MỤC TIÊU CÂN BẰNG (MULTI-OBJECTIVE BALANCED SOLVER)
     // Cân bằng đồng thời Calo + Đạm (Protein) + Tinh bột (Carbs)
-    // Tự động kiểm soát lượng Carb không bị vượt quá định mức (tránh carb overshoot)
+    // Tự động kiểm soát lượng Carb và Protein không bị vượt quá định mức (tránh protein/carb overshoot khi tăng cân)
     // ========================================================
     const solveDiscreteMeal = (
       targetCal: number,
@@ -1865,15 +2113,17 @@ export class NutritionService {
 
       const minP = protFood.minGrams || 100;
       const maxP = isFewMeals
-        ? Math.max(protFood.maxGrams || 300, 350)
-        : protFood.maxGrams || 300;
+        ? Math.max(protFood.maxGrams || 250, 300)
+        : protFood.maxGrams || 250;
       const minC = carbFood.minGrams || 50;
-      const maxC = isFewMeals
-        ? Math.max(carbFood.maxGrams || 300, 400)
-        : carbFood.maxGrams || 300;
+      const maxC =
+        isFewMeals || isGainingWeight
+          ? Math.max(carbFood.maxGrams || 300, 450)
+          : carbFood.maxGrams || 300;
 
-      for (let pG = minP; pG <= maxP; pG += 50) {
-        for (let cG = minC; cG <= maxC; cG += 50) {
+      // Bước nhảy 25g giúp cân bằng macro chính xác, tránh protein bị nhảy vọt
+      for (let pG = minP; pG <= maxP; pG += 25) {
+        for (let cG = minC; cG <= maxC; cG += 25) {
           const pCal = (protFood.caloriesPer100g * pG) / 100;
           const cCal = (carbFood.caloriesPer100g * cG) / 100;
           const totalCal = extraCal + pCal + cCal;
@@ -1887,15 +2137,25 @@ export class NutritionService {
           const totalCarb = extraCarb + pCarb + cCarb;
 
           const calErr = Math.abs(totalCal - targetCal);
-          const protErr = Math.abs(totalProt - targetProt) * 3;
-          const carbErr = Math.abs(totalCarb - targetCarb) * 2.5;
+          const protErr = Math.abs(totalProt - targetProt) * 6;
+          const carbErr = Math.abs(totalCarb - targetCarb) * 2;
+
+          // Phạt nếu Protein vượt quá định mức bữa > 1.5g (ngăn chặn protein overshoot khi tăng cân, đồng thời bám sát target)
+          const protOverPenalty =
+            totalProt > targetProt + 1.5
+              ? (totalProt - (targetProt + 1.5)) * 12
+              : 0;
 
           // Phạt nếu Carb vượt quá định mức bữa > 5g
           const carbOverPenalty =
             totalCarb > targetCarb + 5 ? (totalCarb - targetCarb) * 6 : 0;
 
           const combinedScore =
-            calErr * 1.0 + protErr + carbErr + carbOverPenalty;
+            calErr * 1.0 +
+            protErr +
+            carbErr +
+            protOverPenalty +
+            carbOverPenalty;
 
           if (combinedScore < minError) {
             minError = combinedScore;
@@ -1912,14 +2172,28 @@ export class NutritionService {
       ];
     };
 
-    // 4.1 BỮA SÁNG (Protein nhẹ Trứng / Sữa chua Hy Lạp từ CSDL)
+    // 4.1 BỮA SÁNG (Protein nhẹ Trứng / Sữa chua Hy Lạp / Thịt nạc từ CSDL)
     let breakfastItems: GeneratedMealPlanItem[] = [];
     if (activeMeals.includes('breakfast')) {
-      const bProtFood = pickFood(bProtPool, usedFoodIds, 'trung ga ta luoc');
+      const bProtFood = pickFood(
+        effectiveBProtPool,
+        usedFoodIds,
+        'trung ga ta luoc',
+        effectiveMProtPool,
+      );
       usedFoodIds.add(bProtFood.id);
-      const bCarbFood = pickFood(bCarbPool, usedFoodIds, 'banh mi den');
+      const bCarbFood = pickFood(
+        effectiveBCarbPool,
+        usedFoodIds,
+        'banh mi den',
+        effectiveLCarbPool,
+      );
       usedFoodIds.add(bCarbFood.id);
-      const bFruitFood = pickFood(sFruitPool, usedFoodIds, 'chuoi tieu');
+      const bFruitFood = pickFood(
+        effectiveFruitPool,
+        usedFoodIds,
+        'chuoi tieu',
+      );
       usedFoodIds.add(bFruitFood.id);
       const bFruitItem = createPlanItem(bFruitFood, 100);
 
@@ -1936,11 +2210,11 @@ export class NutritionService {
     // 4.2 BỮA TRƯA (Cơm trắng/gạo lứt, Thịt nạc, Rau luộc, Dầu ăn từ CSDL)
     let lunchItems: GeneratedMealPlanItem[] = [];
     if (activeMeals.includes('lunch')) {
-      const lProtFood = pickFood(mProtPool, usedFoodIds, 'uc ga');
+      const lProtFood = pickFood(effectiveMProtPool, usedFoodIds, 'uc ga');
       usedFoodIds.add(lProtFood.id);
-      const lCarbFood = pickFood(lCarbPool, usedFoodIds, 'com trang');
+      const lCarbFood = pickFood(effectiveLCarbPool, usedFoodIds, 'com trang');
       usedFoodIds.add(lCarbFood.id);
-      const lVegFood = pickFood(vegPool, usedFoodIds, 'sup lo');
+      const lVegFood = pickFood(effectiveVegPool, usedFoodIds, 'sup lo');
       usedFoodIds.add(lVegFood.id);
 
       const lVegItem = createPlanItem(lVegFood, 150);
@@ -1963,18 +2237,18 @@ export class NutritionService {
       const isLunchChicken = lunchItems.some((it) =>
         removeTones(it.foodName).includes('ga'),
       );
-      const dProtCandidates = mProtPool.filter(
+      const dProtCandidates = effectiveMProtPool.filter(
         (p) =>
           !usedFoodIds.has(p.id) &&
           (isLunchChicken ? !removeTones(p.name).includes('ga') : true),
       );
       const dProtFood =
-        dProtCandidates[0] || pickFood(mProtPool, usedFoodIds, 'bo');
+        dProtCandidates[0] || pickFood(effectiveMProtPool, usedFoodIds, 'bo');
       usedFoodIds.add(dProtFood.id);
 
-      const dCarbFood = pickFood(dCarbPool, usedFoodIds, 'gao lut');
+      const dCarbFood = pickFood(effectiveDCarbPool, usedFoodIds, 'gao lut');
       usedFoodIds.add(dCarbFood.id);
-      const dVegFood = pickFood(vegPool, usedFoodIds, 'cai');
+      const dVegFood = pickFood(effectiveVegPool, usedFoodIds, 'cai');
       usedFoodIds.add(dVegFood.id);
 
       const dVegItem = createPlanItem(dVegFood, 150);
@@ -1994,45 +2268,105 @@ export class NutritionService {
     // 4.4 BỮA PHỤ SÁNG (Dành cho chế độ 5 bữa)
     let morningSnackItems: GeneratedMealPlanItem[] = [];
     if (activeMeals.includes('morningSnack')) {
-      const msFruitFood = pickFood(sFruitPool, usedFoodIds, 'chuoi');
+      const msFruitFood = pickFood(effectiveFruitPool, usedFoodIds, 'chuoi');
       usedFoodIds.add(msFruitFood.id);
-      const msDairyFood = pickFood(sDairyPool, usedFoodIds, 'hy lap');
-      usedFoodIds.add(msDairyFood.id);
 
-      morningSnackItems = [
-        createPlanItem(msFruitFood, 100),
-        createPlanItem(msDairyFood, 100),
-      ];
+      if (sDairyPool.length > 0) {
+        const msDairyFood = pickFood(sDairyPool, usedFoodIds, 'hy lap');
+        usedFoodIds.add(msDairyFood.id);
+        morningSnackItems = [
+          createPlanItem(msFruitFood, 100),
+          createPlanItem(msDairyFood, 100),
+        ];
+      } else if (sNutPool.length > 0) {
+        const msNutFood = pickFood(sNutPool, usedFoodIds);
+        usedFoodIds.add(msNutFood.id);
+        morningSnackItems = [
+          createPlanItem(msFruitFood, 100),
+          createPlanItem(msNutFood, 25),
+        ];
+      } else {
+        const msExtraCarb = pickFood(
+          effectiveBCarbPool,
+          usedFoodIds,
+          'khoai lang',
+        );
+        usedFoodIds.add(msExtraCarb.id);
+        morningSnackItems = [
+          createPlanItem(msFruitFood, 100),
+          createPlanItem(msExtraCarb, 100),
+        ];
+      }
     }
 
     // 4.5 BỮA PHỤ CHIỀU (Dành cho chế độ 5 bữa)
     let afternoonSnackItems: GeneratedMealPlanItem[] = [];
     if (activeMeals.includes('afternoonSnack')) {
-      const asFruitFood = pickFood(sFruitPool, usedFoodIds, 'tao');
+      const asFruitFood = pickFood(effectiveFruitPool, usedFoodIds, 'tao');
       usedFoodIds.add(asFruitFood.id);
-      const asNutFood = pickFood(sNutPool, usedFoodIds, 'hanh nhan');
-      usedFoodIds.add(asNutFood.id);
 
-      afternoonSnackItems = [
-        createPlanItem(asFruitFood, 100),
-        createPlanItem(asNutFood, 25),
-      ];
+      if (sNutPool.length > 0) {
+        const asNutFood = pickFood(sNutPool, usedFoodIds, 'hanh nhan');
+        usedFoodIds.add(asNutFood.id);
+        afternoonSnackItems = [
+          createPlanItem(asFruitFood, 100),
+          createPlanItem(asNutFood, 25),
+        ];
+      } else if (sDairyPool.length > 0) {
+        const asDairyFood = pickFood(sDairyPool, usedFoodIds);
+        usedFoodIds.add(asDairyFood.id);
+        afternoonSnackItems = [
+          createPlanItem(asFruitFood, 100),
+          createPlanItem(asDairyFood, 100),
+        ];
+      } else {
+        const asExtraCarb = pickFood(effectiveBCarbPool, usedFoodIds, 'bap');
+        usedFoodIds.add(asExtraCarb.id);
+        afternoonSnackItems = [
+          createPlanItem(asFruitFood, 100),
+          createPlanItem(asExtraCarb, 100),
+        ];
+      }
     }
 
     // 4.6 BỮA PHỤ (Dành cho chế độ 4 bữa)
     let snackItems: GeneratedMealPlanItem[] = [];
     if (activeMeals.includes('snack')) {
-      const sFruitFood = pickFood(sFruitPool, usedFoodIds, 'tao');
+      const sFruitFood = pickFood(effectiveFruitPool, usedFoodIds, 'tao');
       usedFoodIds.add(sFruitFood.id);
-      const sDairyFood = pickFood(sDairyPool, usedFoodIds, 'khong duong');
-      usedFoodIds.add(sDairyFood.id);
 
-      snackItems = [
-        createPlanItem(sFruitFood, 100),
-        createPlanItem(sDairyFood, 100),
-      ];
+      if (sDairyPool.length > 0) {
+        const sDairyFood = pickFood(sDairyPool, usedFoodIds, 'khong duong');
+        usedFoodIds.add(sDairyFood.id);
+        snackItems = [
+          createPlanItem(sFruitFood, 100),
+          createPlanItem(sDairyFood, 100),
+        ];
+      } else if (sNutPool.length > 0) {
+        const sNutFood = pickFood(sNutPool, usedFoodIds);
+        usedFoodIds.add(sNutFood.id);
+        snackItems = [
+          createPlanItem(sFruitFood, 100),
+          createPlanItem(sNutFood, 25),
+        ];
+      } else {
+        const sExtraCarb = pickFood(
+          effectiveBCarbPool,
+          usedFoodIds,
+          'khoai lang',
+        );
+        usedFoodIds.add(sExtraCarb.id);
+        snackItems = [
+          createPlanItem(sFruitFood, 100),
+          createPlanItem(sExtraCarb, 100),
+        ];
+      }
 
-      if (targetCalories >= 2000 || mealCalTarget('snack') > 250) {
+      if (
+        (targetCalories >= 2000 || mealCalTarget('snack') > 250) &&
+        sDairyPool.length > 0 &&
+        sNutPool.length > 0
+      ) {
         const sNutFood = pickFood(sNutPool, usedFoodIds);
         usedFoodIds.add(sNutFood.id);
         snackItems.push(createPlanItem(sNutFood, 25));
