@@ -105,7 +105,7 @@ export class AuthService {
         for (const admin of admins) {
           await this.notificationsService.sendNotification({
             userId: admin.id,
-            title: '📋 Đơn Đăng Ký HLV Mới',
+            title: 'Đơn Đăng Ký HLV Mới',
             message: `HLV ${ptName} vừa gửi hồ sơ ứng tuyển, vui lòng vào duyệt.`,
             type: 'PT_APPLICATION',
             linkUrl: '/admin/CoachReview',

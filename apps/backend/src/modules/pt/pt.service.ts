@@ -1641,7 +1641,7 @@ export class PtService {
         for (const admin of admins) {
           await this.notificationsService.sendNotification({
             userId: admin.id,
-            title: '📋 Đơn Đăng Ký HLV Mới',
+            title: 'Đơn Đăng Ký HLV Mới',
             message: `HLV ${ptName} vừa gửi hồ sơ ứng tuyển, vui lòng vào duyệt.`,
             type: 'PT_APPLICATION',
             linkUrl: '/admin/CoachReview',
@@ -1788,6 +1788,23 @@ export class PtService {
         )
       : new Date();
 
+    if (dto.timeSlot) {
+      const match = dto.timeSlot.match(
+        /^(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})$/,
+      );
+      if (match) {
+        const [startH, startM] = match[1].split(':').map(Number);
+        const [endH, endM] = match[2].split(':').map(Number);
+        const startMins = startH * 60 + startM;
+        const endMins = endH * 60 + endM;
+        if (endMins <= startMins) {
+          throw new BadRequestException(
+            'Giờ kết thúc ca tập phải sau giờ bắt đầu',
+          );
+        }
+      }
+    }
+
     const note = dto.timeSlot
       ? `Khung giờ: ${dto.timeSlot}${dto.note ? ` | ${dto.note}` : ''}`
       : dto.note || 'Lịch tập được xếp bởi HLV';
@@ -1859,6 +1876,23 @@ export class PtService {
       throw new BadRequestException(
         'Vui lòng chọn ít nhất một ngày để xếp lịch',
       );
+    }
+
+    if (dto.timeSlot) {
+      const match = dto.timeSlot.match(
+        /^(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})$/,
+      );
+      if (match) {
+        const [startH, startM] = match[1].split(':').map(Number);
+        const [endH, endM] = match[2].split(':').map(Number);
+        const startMins = startH * 60 + startM;
+        const endMins = endH * 60 + endM;
+        if (endMins <= startMins) {
+          throw new BadRequestException(
+            'Giờ kết thúc ca tập phải sau giờ bắt đầu',
+          );
+        }
+      }
     }
 
     const note = dto.timeSlot

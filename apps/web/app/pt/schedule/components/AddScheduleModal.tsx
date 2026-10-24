@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Clock,
   Dumbbell,
@@ -15,6 +15,7 @@ import {
 import type { PTSessionItem } from '@repo/types';
 import { formatYYYYMMDD, formatDisplayDate, getCalendarMonthInfo } from '../../../../utils/date';
 import type { AddScheduleModalProps } from '../../../../interface';
+import { toast } from '../../../../utils/toast';
 
 const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
   const hour = Math.floor(i / 2)
@@ -23,6 +24,18 @@ const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
   const minute = i % 2 === 0 ? '00' : '30';
   return `${hour}:${minute}`;
 });
+
+const timeToMinutes = (t: string) => {
+  const [h, m] = t.split(':').map(Number);
+  return (h || 0) * 60 + (m || 0);
+};
+
+const minutesToTime = (mins: number) => {
+  const safeMins = Math.max(0, Math.min(mins, 23 * 60 + 30));
+  const h = String(Math.floor(safeMins / 60)).padStart(2, '0');
+  const m = String(safeMins % 60).padStart(2, '0');
+  return `${h}:${m}`;
+};
 
 const AddScheduleModal = ({
   isOpen,
@@ -65,10 +78,46 @@ const AddScheduleModal = ({
     }
   }, [isOpen, defaultStartTime, defaultDate]);
 
+  const startMins = useMemo(() => timeToMinutes(startTime), [startTime]);
+  const endMins = useMemo(() => timeToMinutes(endTime), [endTime]);
+  const durationMinutes = endMins - startMins;
+  const isTimeValid = durationMinutes >= 30;
+
+  const validEndOptions = useMemo(() => {
+    return TIME_OPTIONS.filter((t) => timeToMinutes(t) > startMins);
+  }, [startMins]);
+
+  const handleStartTimeChange = (newStartTime: string) => {
+    setStartTime(newStartTime);
+    setIsStartDropdownOpen(false);
+
+    const newStartMins = timeToMinutes(newStartTime);
+    const curEndMins = timeToMinutes(endTime);
+
+    if (curEndMins <= newStartMins || curEndMins - newStartMins < 30) {
+      setEndTime(minutesToTime(newStartMins + 60));
+    }
+  };
+
+  const handleEndTimeChange = (newEndTime: string) => {
+    const newEndMins = timeToMinutes(newEndTime);
+    if (newEndMins <= startMins) {
+      toast.error('Giờ kết thúc ca tập phải sau giờ bắt đầu!');
+      return;
+    }
+    setEndTime(newEndTime);
+    setIsEndDropdownOpen(false);
+  };
+
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isTimeValid) {
+      toast.error('Thời gian ca tập không hợp lệ! Ca tập phải kéo dài tối thiểu 30 phút.');
+      return;
+    }
 
     const studentObj = students.find((s) => s.id === selectedStudentId) ||
       students[0] || {
@@ -407,10 +456,7 @@ const AddScheduleModal = ({
                         <button
                           key={`start-${time}`}
                           type="button"
-                          onClick={() => {
-                            setStartTime(time);
-                            setIsStartDropdownOpen(false);
-                          }}
+                          onClick={() => handleStartTimeChange(time)}
                           className={`w-full px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center justify-between transition-all cursor-pointer ${
                             isSelected
                               ? 'bg-primary text-dark-slate shadow-[0_0_12px_rgba(102,200,28,0.4)]'
@@ -456,16 +502,13 @@ const AddScheduleModal = ({
                   ></div>
 
                   <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-white dark:bg-[#181d26] border border-slate-200 dark:border-primary/30 rounded-2xl shadow-2xl max-h-52 overflow-y-auto no-scrollbar p-1.5 space-y-0.5 animate-in fade-in zoom-in-95 duration-150">
-                    {TIME_OPTIONS.map((time) => {
+                    {validEndOptions.map((time) => {
                       const isSelected = time === endTime;
                       return (
                         <button
                           key={`end-${time}`}
                           type="button"
-                          onClick={() => {
-                            setEndTime(time);
-                            setIsEndDropdownOpen(false);
-                          }}
+                          onClick={() => handleEndTimeChange(time)}
                           className={`w-full px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center justify-between transition-all cursor-pointer ${
                             isSelected
                               ? 'bg-primary text-dark-slate shadow-[0_0_12px_rgba(102,200,28,0.4)]'
@@ -481,6 +524,24 @@ const AddScheduleModal = ({
                 </>
               )}
             </div>
+          </div>
+
+          {/* Duration badge */}
+          <div className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-white/5 text-xs">
+            <span className="text-slate-500 dark:text-white/60 font-semibold flex items-center gap-1.5">
+              <Clock size={13} className="text-primary" />
+              Thời lượng ca tập:
+            </span>
+            {isTimeValid ? (
+              <span className="font-extrabold text-primary">
+                {Math.floor(durationMinutes / 60) > 0 ? `${Math.floor(durationMinutes / 60)} tiếng ` : ''}
+                {durationMinutes % 60 > 0 ? `${durationMinutes % 60} phút` : ''}
+              </span>
+            ) : (
+              <span className="font-bold text-rose-500">
+                Không hợp lệ (tối thiểu 30 phút)
+              </span>
+            )}
           </div>
 
           {/* Workout Title */}

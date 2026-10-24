@@ -3,19 +3,52 @@ import {
   NotFoundException,
   BadRequestException,
   Logger,
+  OnModuleInit,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Role, type FoodLibrary } from '@prisma/client';
 import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
-export class AdminService {
+export class AdminService implements OnModuleInit {
   private readonly logger = new Logger(AdminService.name);
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly notificationsService: NotificationsService,
   ) {}
+
+  async onModuleInit() {
+    try {
+      await this.prisma.$executeRawUnsafe(`
+        DO $$
+        BEGIN
+          IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'PtApplicationStatus') THEN
+            CREATE TYPE "PtApplicationStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
+          END IF;
+          IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'StudentBindStatus') THEN
+            CREATE TYPE "StudentBindStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
+          END IF;
+        END $$;
+
+        CREATE TABLE IF NOT EXISTS pt_applications (
+          "id" TEXT PRIMARY KEY,
+          "userId" TEXT UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          "experienceYears" INTEGER NOT NULL DEFAULT 1,
+          "specialties" TEXT[] DEFAULT ARRAY[]::TEXT[],
+          "certificateUrl" TEXT,
+          "bio" TEXT,
+          "status" "PtApplicationStatus" NOT NULL DEFAULT 'PENDING',
+          "adminNote" TEXT,
+          "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+      this.logger.log('Verified pt_applications table and required enums.');
+    } catch (err) {
+      this.logger.warn('Error verifying pt_applications table:', err);
+    }
+  }
 
   // ==========================================
   // 1. PT APPLICATIONS
@@ -72,10 +105,10 @@ export class AdminService {
           status: app.status,
           adminNote: app.adminNote || undefined,
           createdAt: app.createdAt
-            ? app.createdAt.toISOString()
+            ? new Date(app.createdAt).toISOString()
             : new Date().toISOString(),
           updatedAt: app.updatedAt
-            ? app.updatedAt.toISOString()
+            ? new Date(app.updatedAt).toISOString()
             : new Date().toISOString(),
         };
       });
@@ -188,14 +221,20 @@ export class AdminService {
         totalExercises,
         totalFoods,
       ] = await Promise.all([
-        this.prisma.user.count(),
-        this.prisma.user.count({ where: { role: 'PT' } }),
-        this.prisma.user.count({ where: { role: 'ADMIN' } }),
-        this.prisma.ptApplication.count({ where: { status: 'PENDING' } }),
-        this.prisma.ptApplication.count({ where: { status: 'APPROVED' } }),
-        this.prisma.ptApplication.count({ where: { status: 'REJECTED' } }),
-        this.prisma.exerciseLibrary.count(),
-        this.prisma.foodLibrary.count(),
+        this.prisma.user.count().catch(() => 0),
+        this.prisma.user.count({ where: { role: 'PT' } }).catch(() => 0),
+        this.prisma.user.count({ where: { role: 'ADMIN' } }).catch(() => 0),
+        this.prisma.ptApplication
+          .count({ where: { status: 'PENDING' } })
+          .catch(() => 0),
+        this.prisma.ptApplication
+          .count({ where: { status: 'APPROVED' } })
+          .catch(() => 0),
+        this.prisma.ptApplication
+          .count({ where: { status: 'REJECTED' } })
+          .catch(() => 0),
+        this.prisma.exerciseLibrary.count().catch(() => 0),
+        this.prisma.foodLibrary.count().catch(() => 0),
       ]);
 
       return {
@@ -697,26 +736,59 @@ export class AdminService {
   // ==========================================
   async getAnalyticsOverview() {
     try {
-      const [
-        totalUsers,
-        totalPts,
-        totalAdmins,
-        totalExercises,
-        totalFoods,
-        totalMealLogs,
-        totalWorkouts,
-        recentUsers,
-        recentApplications,
-        ptUsers,
-      ] = await Promise.all([
-        this.prisma.user.count({ where: { role: 'USER' } }),
-        this.prisma.user.count({ where: { role: 'PT' } }),
-        this.prisma.user.count({ where: { role: 'ADMIN' } }),
-        this.prisma.exerciseLibrary.count(),
-        this.prisma.foodLibrary.count(),
-        this.prisma.mealLog.count(),
-        this.prisma.workoutSchedule.count(),
-        this.prisma.user.findMany({
+      let totalUsers = 0;
+      let totalPts = 0;
+      let totalAdmins = 0;
+      let totalExercises = 0;
+      let totalFoods = 0;
+      let totalMealLogs = 0;
+      let totalWorkouts = 0;
+      let recentUsers: Array<{
+        id: string;
+        fullName: string;
+        email: string;
+        role: Role;
+        avatarUrl: string | null;
+        createdAt: Date | string;
+      }> = [];
+      let recentApplications: Array<{
+        id: string;
+        status: string;
+        createdAt: Date | string;
+        user?: { fullName?: string; email?: string } | null;
+      }> = [];
+      let ptUsers: Array<{
+        id: string;
+        fullName: string;
+        email: string;
+        avatarUrl: string | null;
+        trainerProfiles?: Array<{ id: string }>;
+      }> = [];
+
+      try {
+        const [uCount, pCount, aCount, eCount, fCount, mCount, wCount] =
+          await Promise.all([
+            this.prisma.user.count({ where: { role: 'USER' } }).catch(() => 0),
+            this.prisma.user.count({ where: { role: 'PT' } }).catch(() => 0),
+            this.prisma.user.count({ where: { role: 'ADMIN' } }).catch(() => 0),
+            this.prisma.exerciseLibrary.count().catch(() => 0),
+            this.prisma.foodLibrary.count().catch(() => 0),
+            this.prisma.mealLog.count().catch(() => 0),
+            this.prisma.workoutSchedule.count().catch(() => 0),
+          ]);
+        totalUsers = uCount;
+        totalPts = pCount;
+        totalAdmins = aCount;
+        totalExercises = eCount;
+        totalFoods = fCount;
+        totalMealLogs = mCount;
+        totalWorkouts = wCount;
+      } catch (err) {
+        this.logger.error('Error fetching overview counts:', err);
+      }
+
+      try {
+        recentUsers = await this.prisma.user.findMany({
           take: 5,
           orderBy: { createdAt: 'desc' },
           select: {
@@ -727,8 +799,13 @@ export class AdminService {
             avatarUrl: true,
             createdAt: true,
           },
-        }),
-        this.prisma.ptApplication.findMany({
+        });
+      } catch (err) {
+        this.logger.error('Error fetching recent users:', err);
+      }
+
+      try {
+        recentApplications = await this.prisma.ptApplication.findMany({
           take: 5,
           orderBy: { createdAt: 'desc' },
           include: {
@@ -739,8 +816,13 @@ export class AdminService {
               },
             },
           },
-        }),
-        this.prisma.user.findMany({
+        });
+      } catch (err) {
+        this.logger.error('Error fetching recent applications:', err);
+      }
+
+      try {
+        ptUsers = await this.prisma.user.findMany({
           where: { role: 'PT' },
           select: {
             id: true,
@@ -752,65 +834,90 @@ export class AdminService {
               select: { id: true },
             },
           },
-        }),
-      ]);
+        });
+      } catch (err) {
+        this.logger.error('Error fetching PT users:', err);
+      }
 
       // Calculate goal distribution among users safely
-      const usersWithGoals = await this.prisma.user.groupBy({
-        by: ['goal'],
-        _count: { id: true },
-        where: { goal: { not: null } },
-      });
+      let goalDistribution: { goal: string; count: number }[] = [];
+      try {
+        const usersWithGoals = await this.prisma.user.groupBy({
+          by: ['goal'],
+          _count: { id: true },
+          where: { NOT: { goal: null } },
+        });
 
-      const goalDistribution = usersWithGoals.map((g) => ({
-        goal: g.goal || 'Khác',
-        count: g._count.id,
-      }));
+        goalDistribution = usersWithGoals
+          .filter((g) => Boolean(g.goal))
+          .map((g) => ({
+            goal: g.goal || 'Khác',
+            count: g._count.id,
+          }));
+      } catch (err) {
+        this.logger.warn('Failed to group users by goal:', err);
+      }
 
       // Calculate PT Performance safely
-      const ptPerformance = await Promise.all(
-        ptUsers.map(async (pt) => {
-          let workoutCount = 0;
-          try {
-            workoutCount = await this.prisma.workoutSchedule.count({
-              where: {
-                student: {
-                  studentProfiles: {
-                    some: { trainerId: pt.id, status: 'APPROVED' },
+      let ptPerformance: Array<{
+        ptId: string;
+        fullName: string;
+        email: string;
+        avatarUrl?: string;
+        activeStudentsCount: number;
+        workoutCount: number;
+      }> = [];
+
+      try {
+        ptPerformance = await Promise.all(
+          ptUsers.map(async (pt) => {
+            let workoutCount = 0;
+            try {
+              workoutCount = await this.prisma.workoutSchedule.count({
+                where: {
+                  student: {
+                    studentProfiles: {
+                      some: { trainerId: pt.id, status: 'APPROVED' },
+                    },
                   },
                 },
-              },
-            });
-          } catch {
-            workoutCount = 0;
-          }
+              });
+            } catch {
+              workoutCount = 0;
+            }
 
-          return {
-            ptId: pt.id,
-            fullName: pt.fullName,
-            email: pt.email,
-            avatarUrl: pt.avatarUrl || undefined,
-            activeStudentsCount: pt.trainerProfiles.length,
-            workoutCount,
-          };
-        }),
-      );
+            return {
+              ptId: pt.id,
+              fullName: pt.fullName || 'Huấn luyện viên',
+              email: pt.email,
+              avatarUrl: pt.avatarUrl || undefined,
+              activeStudentsCount: pt.trainerProfiles?.length || 0,
+              workoutCount,
+            };
+          }),
+        );
+      } catch (err) {
+        this.logger.error('Error mapping ptPerformance:', err);
+      }
 
       const safeRecentUsers = recentUsers.map((u) => ({
         ...u,
         avatarUrl: u.avatarUrl || undefined,
-        createdAt: u.createdAt.toISOString(),
+        createdAt: u.createdAt
+          ? new Date(u.createdAt).toISOString()
+          : new Date().toISOString(),
       }));
 
       const safeRecentApplications = recentApplications.map((a) => {
-        const userObj = a.user as
-          { fullName?: string; email?: string } | null | undefined;
+        const userObj = a.user;
         return {
           id: a.id,
           fullName: userObj?.fullName || 'Huấn luyện viên',
           email: userObj?.email || 'N/A',
           status: a.status,
-          createdAt: a.createdAt.toISOString(),
+          createdAt: a.createdAt
+            ? new Date(a.createdAt).toISOString()
+            : new Date().toISOString(),
         };
       });
 
