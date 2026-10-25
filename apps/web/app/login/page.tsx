@@ -54,6 +54,7 @@ const LoginContent = () => {
         })
         .catch(() => {
           localStorage.removeItem('jwt_token');
+          localStorage.removeItem('refresh_token');
           apiClient.post('/auth/logout', {}).catch(() => {});
         });
     }
@@ -69,6 +70,7 @@ const LoginContent = () => {
         setLoading(true);
         // Clear old stale token before starting new Google auth session
         localStorage.removeItem('jwt_token');
+        localStorage.removeItem('refresh_token');
 
         // Safely fetch user info from Google client-side if possible
         let userInfo: { email?: string; name?: string; picture?: string } | undefined;
@@ -86,7 +88,9 @@ const LoginContent = () => {
         // Send token to backend via apiClient, falling back to native fetch if Axios encounters Network Error
         let data: {
           access_token: string;
+          refresh_token?: string;
           user: UserDataHome;
+          isPendingPtApproval?: boolean;
         };
 
         try {
@@ -119,6 +123,9 @@ const LoginContent = () => {
 
         if (data.access_token) {
           localStorage.setItem('jwt_token', data.access_token);
+          if (data.refresh_token) {
+            localStorage.setItem('refresh_token', data.refresh_token);
+          }
           autoSyncPushSubscription();
         }
 
@@ -288,6 +295,9 @@ const LoginContent = () => {
           });
         const data = response.data;
         localStorage.setItem('jwt_token', data.access_token);
+        if (data.refresh_token) {
+          localStorage.setItem('refresh_token', data.refresh_token);
+        }
         autoSyncPushSubscription();
 
         if (data.isPendingPtApproval) {
@@ -327,6 +337,9 @@ const LoginContent = () => {
           });
         const data = response.data;
         localStorage.setItem('jwt_token', data.access_token);
+        if (data.refresh_token) {
+          localStorage.setItem('refresh_token', data.refresh_token);
+        }
         autoSyncPushSubscription();
 
         if (role === 'PT') {

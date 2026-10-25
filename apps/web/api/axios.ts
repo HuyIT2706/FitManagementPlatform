@@ -37,27 +37,41 @@ function isTokenExpiringSoon(token: string, bufferSeconds = 120): boolean {
   return exp - nowInSeconds <= bufferSeconds;
 }
 
-async function getFreshToken(): Promise<string | null> {
+async function getFreshToken(shouldRedirectOnFail = true): Promise<string | null> {
   if (refreshTokenPromise) {
     return refreshTokenPromise;
   }
 
   refreshTokenPromise = (async () => {
     try {
+      const storedRefreshToken =
+        typeof window !== 'undefined'
+          ? localStorage.getItem('refresh_token')
+          : null;
+
       const res = await axios.post(
         `${API_BASE_URL}/auth/refresh`,
-        {},
-        { withCredentials: true }
+        { refreshToken: storedRefreshToken },
+        {
+          withCredentials: true,
+          headers: storedRefreshToken
+            ? { 'x-refresh-token': storedRefreshToken }
+            : {},
+        }
       );
       const newToken = res.data.access_token;
       if (newToken && typeof window !== 'undefined') {
         localStorage.setItem('jwt_token', newToken);
+        if (res.data.refresh_token) {
+          localStorage.setItem('refresh_token', res.data.refresh_token);
+        }
         return newToken;
       }
       return null;
     } catch {
-      if (typeof window !== 'undefined') {
+      if (shouldRedirectOnFail && typeof window !== 'undefined') {
         localStorage.removeItem('jwt_token');
+        localStorage.removeItem('refresh_token');
         window.location.href = '/login';
       }
       return null;
@@ -88,7 +102,8 @@ apiClient.interceptors.request.use(
       let token = localStorage.getItem('jwt_token');
       if (token && isTokenExpiringSoon(token, 120)) {
         // Proactively refresh token BEFORE sending the request!
-        const newToken = await getFreshToken();
+        // Pass false so a failed proactive attempt doesn't wipe valid session
+        const newToken = await getFreshToken(false);
         if (newToken) {
           token = newToken;
         }
@@ -124,6 +139,7 @@ apiClient.interceptors.response.use(
       if (originalRequest?.url?.includes('/auth/logout')) {
         if (typeof window !== 'undefined') {
           localStorage.removeItem('jwt_token');
+          localStorage.removeItem('refresh_token');
         }
       }
       return Promise.reject(error);
@@ -138,7 +154,7 @@ apiClient.interceptors.response.use(
       }
 
       try {
-        const newAccessToken = await getFreshToken();
+        const newAccessToken = await getFreshToken(true);
         if (newAccessToken && typeof window !== 'undefined') {
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           return apiClient(originalRequest);
@@ -146,6 +162,7 @@ apiClient.interceptors.response.use(
       } catch (refreshError) {
         if (typeof window !== 'undefined') {
           localStorage.removeItem('jwt_token');
+          localStorage.removeItem('refresh_token');
           window.location.href = '/login';
         }
         return Promise.reject(refreshError);

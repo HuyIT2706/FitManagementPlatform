@@ -10,9 +10,10 @@ import { mutate } from 'swr';
  */
 export const performLogout = async (redirectPath = '/login'): Promise<void> => {
   try {
-    // 1. Immediately remove access token from local storage
+    // 1. Immediately remove tokens from local storage
     if (typeof window !== 'undefined') {
       localStorage.removeItem('jwt_token');
+      localStorage.removeItem('refresh_token');
     }
 
     // 2. Clear SWR in-memory cache to prevent background queries
@@ -29,9 +30,10 @@ export const performLogout = async (redirectPath = '/login'): Promise<void> => {
   } catch (error) {
     console.warn('Logout error:', error);
   } finally {
-    // 4. Ensure token is cleared and force a clean browser navigation
+    // 4. Ensure tokens are cleared and force a clean browser navigation
     if (typeof window !== 'undefined') {
       localStorage.removeItem('jwt_token');
+      localStorage.removeItem('refresh_token');
       window.location.href = redirectPath;
     }
   }

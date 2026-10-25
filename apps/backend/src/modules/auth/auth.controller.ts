@@ -24,7 +24,7 @@ export class AuthController {
       secure: isProd,
       sameSite: isProd ? 'none' : 'lax',
       path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
     });
   }
 
@@ -48,6 +48,7 @@ export class AuthController {
     this.setRefreshTokenCookie(res, result.refresh_token);
     return {
       access_token: result.access_token,
+      refresh_token: result.refresh_token,
       isPendingPtApproval: result.isPendingPtApproval,
       message: result.message,
       user: result.user,
@@ -63,7 +64,7 @@ export class AuthController {
     const { access_token, refresh_token, isPendingPtApproval, user } =
       await this.authService.login(signInDto.email, signInDto.password);
     this.setRefreshTokenCookie(res, refresh_token);
-    return { access_token, isPendingPtApproval, user };
+    return { access_token, refresh_token, isPendingPtApproval, user };
   }
 
   @HttpCode(HttpStatus.OK)
@@ -79,30 +80,47 @@ export class AuthController {
     const { access_token, refresh_token, user, isPendingPtApproval } =
       await this.authService.googleLogin(googleDto.token, googleDto.userInfo);
     this.setRefreshTokenCookie(res, refresh_token);
-    return { access_token, user, isPendingPtApproval };
+    return { access_token, refresh_token, user, isPendingPtApproval };
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
   async refreshTokens(
     @Req() req: Request,
+    @Body() body: { refreshToken?: string },
     @Res({ passthrough: true }) res: Response,
   ) {
-    const refreshToken = (req.cookies as Record<string, string> | undefined)
+    const cookieToken = (req.cookies as Record<string, string> | undefined)
       ?.refresh_token;
-    if (!refreshToken) {
+    const headerToken = req.headers['x-refresh-token'] as string | undefined;
+    const refreshToken = cookieToken || body?.refreshToken || headerToken;
+
+    if (!refreshToken || typeof refreshToken !== 'string') {
       res.status(HttpStatus.FORBIDDEN).send({ message: 'Access Denied' });
       return;
     }
 
-    const jwtPayload = JSON.parse(
-      Buffer.from(refreshToken.split('.')[1], 'base64').toString(),
-    ) as { sub: string };
-    const userId = jwtPayload.sub;
+    try {
+      const parts = refreshToken.split('.');
+      if (parts.length < 2 || !parts[1]) {
+        res.status(HttpStatus.FORBIDDEN).send({ message: 'Access Denied' });
+        return;
+      }
+      const jwtPayload = JSON.parse(
+        Buffer.from(parts[1], 'base64').toString(),
+      ) as { sub: string };
+      const userId = jwtPayload.sub;
 
-    const tokens = await this.authService.refreshTokens(userId, refreshToken);
-    this.setRefreshTokenCookie(res, tokens.refreshToken);
-    return { access_token: tokens.accessToken };
+      const tokens = await this.authService.refreshTokens(userId, refreshToken);
+      this.setRefreshTokenCookie(res, tokens.refreshToken);
+      return {
+        access_token: tokens.accessToken,
+        refresh_token: tokens.refreshToken,
+      };
+    } catch {
+      res.status(HttpStatus.FORBIDDEN).send({ message: 'Access Denied' });
+      return;
+    }
   }
 
   @HttpCode(HttpStatus.OK)
