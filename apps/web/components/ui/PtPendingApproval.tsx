@@ -9,7 +9,6 @@ import {
   RotateCcw,
   LogOut,
   ShieldAlert,
-  ShieldCheck,
   CheckCircle,
   Upload,
   Check,
@@ -300,16 +299,6 @@ const PtPendingApproval = ({
                 }`}
               >
                 {isRejected ? 'REJECTED' : 'PENDING'}
-              </span>
-            </div>
-
-            {/* Coach Category row */}
-            <div className="flex items-center justify-between text-white/70 pt-0.5">
-              <span className="flex items-center gap-1.5">
-                <ShieldCheck size={14} className="text-primary" /> Phân loại HLV:
-              </span>
-              <span className="text-primary font-bold text-[11px]">
-                PT Freelance / Tự Do
               </span>
             </div>
 

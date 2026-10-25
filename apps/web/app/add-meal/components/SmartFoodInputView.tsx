@@ -142,7 +142,7 @@ export const SmartFoodInputView = ({
       latestTranscriptRef.current = '';
 
       const recognition = new SpeechRecognitionClass();
-      recognition.continuous = true;
+      recognition.continuous = false;
       recognition.interimResults = true;
       recognition.lang = 'vi-VN';
 
@@ -152,25 +152,47 @@ export const SmartFoodInputView = ({
       };
 
       recognition.onresult = (event: SpeechRecognitionEvent) => {
-        let sessionFinalTranscript = '';
-        let sessionInterimTranscript = '';
+        let finalTranscript = '';
+        let interimTranscript = '';
 
         for (let i = 0; i < event.results.length; ++i) {
           const item = event.results[i];
-          if (item && item[0]) {
-            const transcriptPiece = item[0].transcript || '';
-            if (item.isFinal) {
-              sessionFinalTranscript += (sessionFinalTranscript ? ' ' : '') + transcriptPiece.trim();
-            } else {
-              sessionInterimTranscript += (sessionInterimTranscript ? ' ' : '') + transcriptPiece.trim();
+          if (!item || !item[0]) continue;
+          const piece = (item[0].transcript || '').trim();
+          if (!piece) continue;
+
+          if (item.isFinal) {
+            const pieceLower = piece.toLowerCase();
+            const finalLower = finalTranscript.toLowerCase();
+
+            // Ignore identical duplicates emitted by Android speech service
+            if (finalLower === pieceLower || finalLower.endsWith(pieceLower)) {
+              continue;
             }
+
+            // Android cumulative superset: if new final piece starts with previous final text,
+            // it means Android re-emitted the full sentence so far. Replace instead of appending!
+            if (finalLower && pieceLower.startsWith(finalLower)) {
+              finalTranscript = piece;
+            } else {
+              finalTranscript += (finalTranscript ? ' ' : '') + piece;
+            }
+          } else {
+            interimTranscript = piece;
           }
         }
 
-        const rawText = [sessionFinalTranscript, sessionInterimTranscript]
-          .filter(Boolean)
-          .join(' ')
-          .trim();
+        let rawText = '';
+        if (finalTranscript && interimTranscript) {
+          if (interimTranscript.toLowerCase().startsWith(finalTranscript.toLowerCase())) {
+            rawText = interimTranscript;
+          } else {
+            rawText = `${finalTranscript} ${interimTranscript}`;
+          }
+        } else {
+          rawText = finalTranscript || interimTranscript;
+        }
+
         const fullText = sanitizeSpeechTranscript(rawText);
 
         if (fullText) {
@@ -680,22 +702,6 @@ export const SmartFoodInputView = ({
               <span className="mt-4 text-xs font-bold text-slate-500 dark:text-white/60">
                 {isListening ? 'Đang lắng nghe...' : 'Nhấn vào micro để nói'}
               </span>
-
-              {/* Instant Analyze button while recording */}
-              {isListening && speechTranscript && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const text = latestTranscriptRef.current.trim() || speechTranscript.trim();
-                    if (text) {
-                      triggerAnalyze(text);
-                    }
-                  }}
-                  className="mt-3.5 px-5 py-2.5 rounded-full bg-primary text-black font-extrabold text-xs sm:text-sm hover:opacity-95 active:scale-95 transition-all shadow-[0_0_15px_rgba(102,200,28,0.35)] flex items-center gap-2 cursor-pointer animate-in fade-in zoom-in-95 duration-200"
-                >
-                  <span>Xong & Phân tích ngay</span>
-                </button>
-              )}
             </div>
           </>
         )}
