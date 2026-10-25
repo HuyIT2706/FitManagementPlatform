@@ -73,7 +73,15 @@ export class PtController {
 
   @Get('code-qr')
   async getPtCodeAndQr(@Request() req: RequestWithUser) {
-    return this.ptService.getPtCodeAndQr(req.user.sub);
+    let origin = req.headers?.origin as string | undefined;
+    if (!origin && req.headers?.referer) {
+      try {
+        origin = new URL(req.headers.referer as string).origin;
+      } catch {
+        // Ignore malformed referer
+      }
+    }
+    return this.ptService.getPtCodeAndQr(req.user.sub, origin);
   }
 
   @Get('profile')
@@ -140,7 +148,15 @@ export class PtController {
     @Request() req: RequestWithUser,
     @Body() dto: SendInviteDto,
   ) {
-    return this.ptService.sendStudentInvite(req.user.sub, dto);
+    let origin = req.headers?.origin as string | undefined;
+    if (!origin && req.headers?.referer) {
+      try {
+        origin = new URL(req.headers.referer as string).origin;
+      } catch {
+        // Ignore malformed referer
+      }
+    }
+    return this.ptService.sendStudentInvite(req.user.sub, dto, origin);
   }
 
   @Post('students/bind')

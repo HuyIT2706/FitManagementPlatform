@@ -192,6 +192,7 @@ export interface SendInviteDto {
   totalSessions: number;
   remainingSessions: number;
   note?: string;
+  clientBaseUrl?: string;
 }
 
 export interface BindPtDto {

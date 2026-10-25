@@ -29,9 +29,16 @@ export const getRoleRedirectPath = (
 
 export const handleRoleRedirect = (
   user?: Pick<UserData, 'role' | 'onboardingCompleted'> | null,
-  router?: { replace: (url: string) => void }
+  router?: { replace: (url: string) => void },
+  customRedirect?: string | null
 ): void => {
-  const targetPath = getRoleRedirectPath(user);
+  let targetPath = customRedirect || getRoleRedirectPath(user);
+  if (user?.role === 'PT' && (!customRedirect || !customRedirect.startsWith('/pt'))) {
+    targetPath = '/pt';
+  }
+  if (user?.role === 'ADMIN' && (!customRedirect || !customRedirect.startsWith('/admin'))) {
+    targetPath = '/admin';
+  }
   if (router) {
     router.replace(targetPath);
     return;

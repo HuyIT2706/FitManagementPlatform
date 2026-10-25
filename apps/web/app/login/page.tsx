@@ -3,8 +3,8 @@
 import { ArrowLeft, Eye, EyeOff, User, Dumbbell, Award, Briefcase, Info, Upload, Check, Loader2, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
 import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 import LogoApp from '../../assets/imgs/logoApp.jpg';
 import apiClient from '../../api/axios';
@@ -17,7 +17,13 @@ const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
 
 const LoginContent = () => {
   const router = useRouter();
-  const [authMode, setAuthMode] = useState<'LOGIN' | 'REGISTER'>('LOGIN');
+  const searchParams = useSearchParams();
+  const redirectPath = searchParams.get('redirect');
+  const initialMode = searchParams.get('mode');
+
+  const [authMode, setAuthMode] = useState<'LOGIN' | 'REGISTER'>(
+    initialMode === 'register' ? 'REGISTER' : 'LOGIN'
+  );
   const [role, setRole] = useState<'USER' | 'PT'>('USER');
 
   const [fullName, setFullName] = useState('');
@@ -50,15 +56,14 @@ const LoginContent = () => {
             );
             return;
           }
-          handleRoleRedirect(res.data, router);
+          handleRoleRedirect(res.data, router, redirectPath);
         })
         .catch(() => {
           localStorage.removeItem('jwt_token');
-          localStorage.removeItem('refresh_token');
           apiClient.post('/auth/logout', {}).catch(() => {});
         });
     }
-  }, [router]);
+  }, [router, redirectPath]);
 
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -70,7 +75,6 @@ const LoginContent = () => {
         setLoading(true);
         // Clear old stale token before starting new Google auth session
         localStorage.removeItem('jwt_token');
-        localStorage.removeItem('refresh_token');
 
         // Safely fetch user info from Google client-side if possible
         let userInfo: { email?: string; name?: string; picture?: string } | undefined;
@@ -88,7 +92,6 @@ const LoginContent = () => {
         // Send token to backend via apiClient, falling back to native fetch if Axios encounters Network Error
         let data: {
           access_token: string;
-          refresh_token?: string;
           user: UserDataHome;
           isPendingPtApproval?: boolean;
         };
@@ -123,9 +126,6 @@ const LoginContent = () => {
 
         if (data.access_token) {
           localStorage.setItem('jwt_token', data.access_token);
-          if (data.refresh_token) {
-            localStorage.setItem('refresh_token', data.refresh_token);
-          }
           autoSyncPushSubscription();
         }
 
@@ -146,7 +146,7 @@ const LoginContent = () => {
           'Đăng nhập Google thành công'
         );
 
-        handleRoleRedirect(data.user, router);
+        handleRoleRedirect(data.user, router, redirectPath);
       } catch (err: unknown) {
         console.error('Google login error:', err);
         const errObj = err as {
@@ -295,9 +295,6 @@ const LoginContent = () => {
           });
         const data = response.data;
         localStorage.setItem('jwt_token', data.access_token);
-        if (data.refresh_token) {
-          localStorage.setItem('refresh_token', data.refresh_token);
-        }
         autoSyncPushSubscription();
 
         if (data.isPendingPtApproval) {
@@ -314,7 +311,7 @@ const LoginContent = () => {
           'Đăng nhập thành công'
         );
 
-        handleRoleRedirect(data.user, router);
+        handleRoleRedirect(data.user, router, redirectPath);
       } else {
         // Register Mode
         const payload = {
@@ -337,9 +334,6 @@ const LoginContent = () => {
           });
         const data = response.data;
         localStorage.setItem('jwt_token', data.access_token);
-        if (data.refresh_token) {
-          localStorage.setItem('refresh_token', data.refresh_token);
-        }
         autoSyncPushSubscription();
 
         if (role === 'PT') {
@@ -754,7 +748,9 @@ const LoginContent = () => {
 const LoginPage = () => {
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <LoginContent />
+      <Suspense fallback={<div className="min-h-screen bg-background" />}>
+        <LoginContent />
+      </Suspense>
     </GoogleOAuthProvider>
   );
 };

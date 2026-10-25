@@ -1181,7 +1181,10 @@ export class PtService {
     };
   }
 
-  async getPtCodeAndQr(ptUserId: string): Promise<PTCodeQrData> {
+  async getPtCodeAndQr(
+    ptUserId: string,
+    origin?: string,
+  ): Promise<PTCodeQrData> {
     const ptUser = await this.prisma.user.findUnique({
       where: { id: ptUserId },
     });
@@ -1211,7 +1214,13 @@ export class PtService {
       ptCode = `PT-${cleanName}${idPart}`;
     }
 
-    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://fitmanagement.app/bind?ptCode=${ptCode}&user=${ptUserId}`;
+    const baseUrl = (
+      origin ||
+      process.env.FRONTEND_URL ||
+      'https://nutricore-olive.vercel.app'
+    ).replace(/\/+$/, '');
+    const qrTargetUrl = `${baseUrl}/invite?code=${ptCode}&pt=${ptUserId}`;
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrTargetUrl)}`;
 
     return {
       ptCode,
@@ -1220,9 +1229,19 @@ export class PtService {
     };
   }
 
-  async sendStudentInvite(ptUserId: string, dto: SendInviteDto) {
+  async sendStudentInvite(
+    ptUserId: string,
+    dto: SendInviteDto,
+    origin?: string,
+  ) {
     const inviteCode = `INV-${Math.floor(1000 + Math.random() * 9000)}`;
-    const inviteUrl = `https://fitmanagement.app/invite?code=${inviteCode}&pt=${ptUserId}`;
+    const baseUrl = (
+      dto.clientBaseUrl ||
+      origin ||
+      process.env.FRONTEND_URL ||
+      'https://nutricore-olive.vercel.app'
+    ).replace(/\/+$/, '');
+    const inviteUrl = `${baseUrl}/invite?code=${inviteCode}&pt=${ptUserId}`;
 
     const studentUser = await this.prisma.user.findFirst({
       where: { email: dto.studentEmail },

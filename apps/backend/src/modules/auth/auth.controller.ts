@@ -48,7 +48,6 @@ export class AuthController {
     this.setRefreshTokenCookie(res, result.refresh_token);
     return {
       access_token: result.access_token,
-      refresh_token: result.refresh_token,
       isPendingPtApproval: result.isPendingPtApproval,
       message: result.message,
       user: result.user,
@@ -64,7 +63,7 @@ export class AuthController {
     const { access_token, refresh_token, isPendingPtApproval, user } =
       await this.authService.login(signInDto.email, signInDto.password);
     this.setRefreshTokenCookie(res, refresh_token);
-    return { access_token, refresh_token, isPendingPtApproval, user };
+    return { access_token, isPendingPtApproval, user };
   }
 
   @HttpCode(HttpStatus.OK)
@@ -80,20 +79,17 @@ export class AuthController {
     const { access_token, refresh_token, user, isPendingPtApproval } =
       await this.authService.googleLogin(googleDto.token, googleDto.userInfo);
     this.setRefreshTokenCookie(res, refresh_token);
-    return { access_token, refresh_token, user, isPendingPtApproval };
+    return { access_token, user, isPendingPtApproval };
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
   async refreshTokens(
     @Req() req: Request,
-    @Body() body: { refreshToken?: string },
     @Res({ passthrough: true }) res: Response,
   ) {
-    const cookieToken = (req.cookies as Record<string, string> | undefined)
+    const refreshToken = (req.cookies as Record<string, string> | undefined)
       ?.refresh_token;
-    const headerToken = req.headers['x-refresh-token'] as string | undefined;
-    const refreshToken = cookieToken || body?.refreshToken || headerToken;
 
     if (!refreshToken || typeof refreshToken !== 'string') {
       res.status(HttpStatus.FORBIDDEN).send({ message: 'Access Denied' });
@@ -113,10 +109,7 @@ export class AuthController {
 
       const tokens = await this.authService.refreshTokens(userId, refreshToken);
       this.setRefreshTokenCookie(res, tokens.refreshToken);
-      return {
-        access_token: tokens.accessToken,
-        refresh_token: tokens.refreshToken,
-      };
+      return { access_token: tokens.accessToken };
     } catch {
       res.status(HttpStatus.FORBIDDEN).send({ message: 'Access Denied' });
       return;

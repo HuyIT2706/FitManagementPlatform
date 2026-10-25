@@ -45,16 +45,31 @@ const PTStudentsPage = () => {
     }
 
     setSendingInvite(true);
+    const clientBaseUrl =
+      typeof window !== 'undefined'
+        ? window.location.origin
+        : 'https://nutricore-olive.vercel.app';
+
     apiClient
       .post<{ inviteUrl: string; inviteCode: string }>('/pt/students/invite', {
         studentEmail,
         packageName,
         totalSessions,
         remainingSessions: totalSessions,
+        clientBaseUrl,
       })
       .then((res) => {
         setSendingInvite(false);
-        const url = res.data.inviteUrl || 'https://nutricore.app/invite?code=INV-9921';
+        const code = res.data.inviteCode;
+        const ptId = userData?.id || '';
+        const currentOrigin =
+          typeof window !== 'undefined'
+            ? window.location.origin
+            : 'https://nutricore-olive.vercel.app';
+        const url =
+          res.data.inviteUrl && !res.data.inviteUrl.includes('fitmanagement.app') && !res.data.inviteUrl.includes('nutricore.app')
+            ? res.data.inviteUrl
+            : `${currentOrigin}/invite?code=${code}&pt=${ptId}`;
         setGeneratedInviteUrl(url);
         toast.success('Đã khởi tạo Link mời liên kết học viên thành công!');
       })

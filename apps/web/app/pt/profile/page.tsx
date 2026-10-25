@@ -53,10 +53,19 @@ const PTProfilePage = () => {
     return <PtPendingApproval currentUser={userData} onLogout={handleLogout} />;
   }
 
+  const currentOrigin =
+    typeof window !== 'undefined'
+      ? window.location.origin
+      : 'https://nutricore-olive.vercel.app';
   const ptCode = codeQrData?.ptCode || 'PT-HUY066';
   const qrUrl =
-    codeQrData?.qrCodeUrl ||
-    `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://nutricore.app/bind?ptCode=${ptCode}`;
+    codeQrData?.qrCodeUrl &&
+    !codeQrData.qrCodeUrl.includes('fitmanagement.app') &&
+    !codeQrData.qrCodeUrl.includes('nutricore.app')
+      ? codeQrData.qrCodeUrl
+      : `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
+          `${currentOrigin}/invite?code=${ptCode}&pt=${userData?.id || ''}`
+        )}`;
 
   const totalStudents = dashboardData?.totalVipStudents ?? dashboardData?.students?.length ?? 0;
   const completedHours = dashboardData?.completedSessionsCount ?? 0;

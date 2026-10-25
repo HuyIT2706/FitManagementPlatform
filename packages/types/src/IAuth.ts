@@ -22,4 +22,5 @@ export interface LoginResponse {
 
 export interface RequestWithUser {
   user: JwtPayloadUser;
+  headers?: Record<string, string | string[] | undefined>;
 }
