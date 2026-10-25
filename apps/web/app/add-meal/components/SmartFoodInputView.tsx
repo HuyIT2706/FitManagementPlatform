@@ -13,7 +13,10 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from '../../../utils/toast';
-import { parseVietnameseFoodTokens } from '../../../utils/smartFoodParser';
+import {
+  parseVietnameseFoodTokens,
+  sanitizeSpeechTranscript,
+} from '../../../utils/smartFoodParser';
 
 interface SmartFoodInputViewProps {
   initialTab?: 'voice' | 'text' | 'camera';
@@ -77,11 +80,11 @@ export const SmartFoodInputView = ({
 
   const isListeningRef = useRef(false);
   const latestTranscriptRef = useRef('');
-  const accumulatedFinalRef = useRef('');
   const hasTriggeredAnalyzeRef = useRef(false);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const SILENCE_TIMEOUT_MS = 3500;
+  const SILENCE_TIMEOUT_MS = 2500;
+
   useEffect(() => {
     if (initialTab) {
       setActiveTab(initialTab);
@@ -106,7 +109,7 @@ export const SmartFoodInputView = ({
 
   const triggerAnalyze = useCallback(
     (textToAnalyze: string) => {
-      const q = textToAnalyze.trim();
+      const q = sanitizeSpeechTranscript(textToAnalyze);
       if (!q || hasTriggeredAnalyzeRef.current) return;
       hasTriggeredAnalyzeRef.current = true;
       stopListening();
@@ -137,7 +140,6 @@ export const SmartFoodInputView = ({
 
       hasTriggeredAnalyzeRef.current = false;
       latestTranscriptRef.current = '';
-      accumulatedFinalRef.current = '';
 
       const recognition = new SpeechRecognitionClass();
       recognition.continuous = true;
@@ -153,7 +155,6 @@ export const SmartFoodInputView = ({
         let sessionFinalTranscript = '';
         let sessionInterimTranscript = '';
 
-        // Accumulate ALL results in this recognition session from index 0 to avoid dropping earlier words
         for (let i = 0; i < event.results.length; ++i) {
           const item = event.results[i];
           if (item && item[0]) {
@@ -166,25 +167,23 @@ export const SmartFoodInputView = ({
           }
         }
 
-        // Combine previously accumulated text (across browser auto-restarts) with current session text
-        const parts = [
-          accumulatedFinalRef.current,
-          sessionFinalTranscript,
-          sessionInterimTranscript,
-        ].filter(Boolean);
-
-        const fullText = parts.join(' ').replace(/\s+/g, ' ').trim();
+        const rawText = [sessionFinalTranscript, sessionInterimTranscript]
+          .filter(Boolean)
+          .join(' ')
+          .trim();
+        const fullText = sanitizeSpeechTranscript(rawText);
 
         if (fullText) {
           setSpeechTranscript(fullText);
           latestTranscriptRef.current = fullText;
 
-          // Auto-trigger analyze after 2.8s of silence after user finishes speaking
           if (silenceTimeoutRef.current) {
             clearTimeout(silenceTimeoutRef.current);
           }
           silenceTimeoutRef.current = setTimeout(() => {
-            triggerAnalyze(latestTranscriptRef.current);
+            if (latestTranscriptRef.current.trim() && !hasTriggeredAnalyzeRef.current) {
+              triggerAnalyze(latestTranscriptRef.current);
+            }
           }, SILENCE_TIMEOUT_MS);
         }
       };
@@ -201,24 +200,20 @@ export const SmartFoodInputView = ({
       };
 
       recognition.onend = () => {
-        // If Chrome/browser ended on its own due to momentary silence, but user is still speaking
-        // and silence timer has not fired yet:
-        if (isListeningRef.current && !hasTriggeredAnalyzeRef.current) {
-          if (latestTranscriptRef.current) {
-            accumulatedFinalRef.current = latestTranscriptRef.current;
-          }
-          try {
-            recognition.start();
-            return;
-          } catch {
-            // Cannot restart, finish gracefully below
-          }
-        }
-
         isListeningRef.current = false;
         setIsListening(false);
-        if (latestTranscriptRef.current.trim() && !hasTriggeredAnalyzeRef.current) {
-          triggerAnalyze(latestTranscriptRef.current);
+        if (silenceTimeoutRef.current) {
+          clearTimeout(silenceTimeoutRef.current);
+          silenceTimeoutRef.current = null;
+        }
+
+        const text = latestTranscriptRef.current.trim();
+        if (text && !hasTriggeredAnalyzeRef.current) {
+          setTimeout(() => {
+            if (!hasTriggeredAnalyzeRef.current) {
+              triggerAnalyze(text);
+            }
+          }, 350);
         }
       };
 
@@ -261,7 +256,6 @@ export const SmartFoodInputView = ({
     } else {
       hasTriggeredAnalyzeRef.current = false;
       latestTranscriptRef.current = '';
-      accumulatedFinalRef.current = '';
       setSpeechTranscript('');
       startListening();
     }

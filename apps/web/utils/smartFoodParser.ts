@@ -3,10 +3,52 @@ export interface ParsedFoodToken {
   weight: number;
 }
 
+export function sanitizeSpeechTranscript(input: string): string {
+  if (!input || typeof input !== 'string') return '';
+  const words = input.trim().replace(/\s+/g, ' ').split(' ');
+  if (words.length <= 1) return input.trim();
+
+  // Remove consecutive identical words
+  const dedupedWords: string[] = [];
+  for (const word of words) {
+    if (!word) continue;
+    const curr = word.toLowerCase();
+    const lastWord = dedupedWords.length > 0 ? dedupedWords[dedupedWords.length - 1] : undefined;
+    const prev = lastWord ? lastWord.toLowerCase() : null;
+    if (curr !== prev) {
+      dedupedWords.push(word);
+    }
+  }
+
+  // Remove consecutive identical multi-word phrases (length 2 to 6)
+  let changed = true;
+  const tokens: string[] = [...dedupedWords];
+  while (changed) {
+    changed = false;
+    for (let phraseLen = 6; phraseLen >= 2; phraseLen--) {
+      for (let i = 0; i <= tokens.length - 2 * phraseLen; i++) {
+        const slice1 = tokens.slice(i, i + phraseLen);
+        const slice2 = tokens.slice(i + phraseLen, i + 2 * phraseLen);
+        const p1 = slice1.map((w) => w.toLowerCase()).join(' ');
+        const p2 = slice2.map((w) => w.toLowerCase()).join(' ');
+        if (p1 && p1 === p2) {
+          tokens.splice(i + phraseLen, phraseLen);
+          changed = true;
+          break;
+        }
+      }
+      if (changed) break;
+    }
+  }
+
+  return tokens.join(' ').trim();
+}
+
 export function parseVietnameseFoodTokens(input: string): ParsedFoodToken[] {
   if (!input || typeof input !== 'string') return [];
 
-  let text = input.trim().toLowerCase();
+  const sanitized = sanitizeSpeechTranscript(input);
+  let text = sanitized.trim().toLowerCase();
 
   // 1. Normalize voice-to-text artifacts:
   text = text.replace(/(\d+)[.,]000(?!\d)/g, '$1g');
@@ -90,5 +132,18 @@ export function parseVietnameseFoodTokens(input: string): ParsedFoodToken[] {
     }
   }
 
-  return results;
+  // Deduplicate identical items (same query & weight)
+  const uniqueResults: ParsedFoodToken[] = [];
+  for (const item of results) {
+    const isDup = uniqueResults.some(
+      (u) =>
+        u.query.trim().toLowerCase() === item.query.trim().toLowerCase() &&
+        u.weight === item.weight
+    );
+    if (!isDup) {
+      uniqueResults.push(item);
+    }
+  }
+
+  return uniqueResults;
 }
