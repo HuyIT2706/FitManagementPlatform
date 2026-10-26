@@ -2,7 +2,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true, // Re-enabled: helps detect side-effect bugs and deprecated APIs
-  output: "standalone",
+  output: process.env.VERCEL ? undefined : "standalone",
   compress: true,
   experimental: {
     optimizePackageImports: ["lucide-react", "framer-motion"],
