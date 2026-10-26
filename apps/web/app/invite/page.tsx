@@ -17,17 +17,7 @@ import LogoApp from '../../assets/imgs/logoApp.jpg';
 import apiClient from '../../api/axios';
 import { toast } from '../../utils/toast';
 import { isAxiosError } from 'axios';
-
-// ---------------------------------------------------------------------------
-// Reusable error message extractor — replaces unsafe manual type casting
-// ---------------------------------------------------------------------------
-function getApiErrorMessage(err: unknown, fallback = ''): string {
-  if (isAxiosError(err)) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
-    return (err.response?.data as { message?: string })?.message || err.message || fallback;
-  }
-  return fallback;
-}
+import { getApiErrorMessage } from '../../utils/apiError';
 
 function InviteContent() {
   const searchParams = useSearchParams();

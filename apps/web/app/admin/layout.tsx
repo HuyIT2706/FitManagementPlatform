@@ -11,7 +11,7 @@ import {
   Moon,
 } from 'lucide-react';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import AppLoading from '../../components/ui/AppLoading';
 import AccessDenied from '../../components/ui/AccessDenied';
 import { useCurrentUser } from '../../hooks/swr';

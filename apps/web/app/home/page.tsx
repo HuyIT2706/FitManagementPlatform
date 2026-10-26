@@ -82,27 +82,8 @@ const Home = () => {
     performLogout();
   };
 
-  if (userLoading && !userData) {
-    return <AppLoading fullScreen size="lg" message="Đang nạp dữ liệu dinh dưỡng hôm nay..." />;
-  }
-
-  if (userData && userData.role !== 'USER') {
-    return (
-      <AccessDenied
-        requiredRole="USER"
-        currentUser={userData}
-        onLogout={handleLogout}
-        title="Không Phải Tài Khoản Học Viên"
-        message="Khu vực này dành riêng cho Học viên (Member) theo dõi chế độ dinh dưỡng & tập luyện cá nhân. Huấn luyện viên (PT) vui lòng sử dụng Không gian PT."
-      />
-    );
-  }
-
-  const weekDays = getWeekDays(currentMonday);
-  const dayLabelMap = ['CN', 'Th 2', 'Th 3', 'Th 4', 'Th 5', 'Th 6', 'Th 7'];
-
   // ---------------------------------------------------------------------------
-  // Memoised derived values — only recalculated when dailyData / userData change
+  // Memoised derived values — MUST be called unconditionally before early returns!
   // ---------------------------------------------------------------------------
   const nutritionStats = useMemo(() => {
     const targetCalo = dailyData?.targets?.calories || userData?.nutritionTargets?.[0]?.targetCalo || 0;
@@ -137,6 +118,25 @@ const Home = () => {
     proteinPercentage, carbsPercentage, fatPercentage,
     strokeDashoffset, remainingCalories,
   } = nutritionStats;
+
+  if (userLoading && !userData) {
+    return <AppLoading fullScreen size="lg" message="Đang nạp dữ liệu dinh dưỡng hôm nay..." />;
+  }
+
+  if (userData && userData.role !== 'USER') {
+    return (
+      <AccessDenied
+        requiredRole="USER"
+        currentUser={userData}
+        onLogout={handleLogout}
+        title="Không Phải Tài Khoản Học Viên"
+        message="Khu vực này dành riêng cho Học viên theo dõi chế độ dinh dưỡng & tập luyện cá nhân. Huấn luyện viên vui lòng sử dụng Không gian PT."
+      />
+    );
+  }
+
+  const weekDays = getWeekDays(currentMonday);
+  const dayLabelMap = ['CN', 'Th 2', 'Th 3', 'Th 4', 'Th 5', 'Th 6', 'Th 7'];
 
   const mealSlots: MealSlotConfig[] = dailyData?.mealSlots || [
     { id: 'BREAKFAST', name: 'Bữa Sáng', icon: 'wb_twilight' },

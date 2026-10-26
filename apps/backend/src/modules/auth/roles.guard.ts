@@ -8,6 +8,14 @@ import { Reflector } from '@nestjs/core';
 import { Role } from '@prisma/client';
 import { ROLES_KEY } from './roles.decorator';
 
+interface AuthenticatedRequest {
+  user?: {
+    sub?: string;
+    email?: string;
+    role?: Role;
+  };
+}
+
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
@@ -22,12 +30,15 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const { user } = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const user = request.user;
     if (!user || !user.role) {
-      throw new ForbiddenException('Bạn không có quyền truy cập tài nguyên này');
+      throw new ForbiddenException(
+        'Bạn không có quyền truy cập tài nguyên này',
+      );
     }
 
-    const hasRole = requiredRoles.includes(user.role as Role);
+    const hasRole = requiredRoles.includes(user.role);
     if (!hasRole) {
       throw new ForbiddenException(
         `Yêu cầu quyền ${requiredRoles.join(' hoặc ')} để thực hiện hành động này`,

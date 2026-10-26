@@ -541,10 +541,13 @@ export class UsersService {
 
     const hasBiometricsChanged =
       weightChanged ||
-      (dto.height !== undefined && Number(dto.height) !== existingUser?.height) ||
-      (dto.targetWeight !== undefined && Number(dto.targetWeight) !== existingUser?.targetWeight) ||
+      (dto.height !== undefined &&
+        Number(dto.height) !== existingUser?.height) ||
+      (dto.targetWeight !== undefined &&
+        Number(dto.targetWeight) !== existingUser?.targetWeight) ||
       (dto.gender !== undefined && dto.gender !== existingUser?.gender) ||
-      (dto.activityLevel !== undefined && dto.activityLevel !== existingUser?.activityLevel) ||
+      (dto.activityLevel !== undefined &&
+        dto.activityLevel !== existingUser?.activityLevel) ||
       (dto.goal !== undefined && dto.goal !== existingUser?.goal);
 
     return this.prisma.$transaction(async (tx) => {
