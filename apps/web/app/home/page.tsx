@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, useMemo, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Header from '../../components/ui/Header';
 import BottomNavBar from '../../components/navigation/BottomNavBar';
 import AppLoading from '../../components/ui/AppLoading';
 import AccessDenied from '../../components/ui/AccessDenied';
+import { Loader2 } from 'lucide-react';
 import type { MealSlotConfig } from '../../interface';
 import {
   formatYYYYMMDD,
@@ -22,15 +23,55 @@ import CalendarStrip from './components/CalendarStrip';
 import DailyFuelHeroCard from './components/DailyFuelHeroCard';
 import MacroCards from './components/MacroCards';
 import DailyMealGrid from './components/DailyMealGrid';
+import HomeLoading from './loading';
 
-const Home = () => {
+const HomeContent = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const dateQuery = searchParams.get('date');
+  const isSavingQuery = searchParams.get('saving') === 'true';
+
   const { data: userData, isLoading: userLoading } = useCurrentUser();
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
   const [currentMonday, setCurrentMonday] = useState<Date>(() => getMonday(new Date()));
+  const [isSavingMeal, setIsSavingMeal] = useState(isSavingQuery);
+
+  // Sync date from URL if user is redirected after saving meal
+  useEffect(() => {
+    if (dateQuery) {
+      const parts = dateQuery.split('-');
+      if (parts.length === 3) {
+        const y = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10) - 1;
+        const d = parseInt(parts[2], 10);
+        const target = new Date(y, m, d);
+        if (!isNaN(target.getTime())) {
+          setSelectedDate(target);
+          setCurrentMonday(getMonday(target));
+        }
+      }
+    }
+  }, [dateQuery]);
+
+  useEffect(() => {
+    if (isSavingQuery) {
+      setIsSavingMeal(true);
+    }
+  }, [isSavingQuery]);
 
   const selectedDateStr = formatYYYYMMDD(selectedDate);
   const { data: dailyData, isLoading: dailyLoading, mutate: mutateDaily } = useDailyNutrition(selectedDateStr);
+
+  // Automatically dismiss saving banner once fresh daily data is hydrated
+  useEffect(() => {
+    if (isSavingMeal) {
+      const timer = setTimeout(() => {
+        setIsSavingMeal(false);
+        router.replace(`/home?date=${selectedDateStr}`, { scroll: false });
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [isSavingMeal, dailyData, router, selectedDateStr]);
 
   useEffect(() => {
     const unsubscribe = subscribeSync((type) => {
@@ -176,10 +217,21 @@ const Home = () => {
           isSameDay={isSameDay}
         />
 
+        {/* Live Saving Feedback Banner */}
+        {isSavingMeal && (
+          <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs sm:text-sm font-semibold shadow-[0_0_20px_rgba(16,185,129,0.15)] animate-pulse">
+            <div className="flex items-center gap-2.5">
+              <Loader2 size={17} className="animate-spin text-[#10b981] shrink-0" />
+              <span>Đang lưu và nạp số liệu bữa ăn vào nhật ký hôm nay...</span>
+            </div>
+            <span className="text-[11px] text-emerald-300/80 font-bold hidden sm:inline-block">Đang đồng bộ</span>
+          </div>
+        )}
+
         {/* Bento Grid Layout */}
         <div
-          className={`grid grid-cols-1 md:grid-cols-12 gap-gutter transition-opacity duration-200 ${
-            dailyLoading ? 'opacity-50 pointer-events-none' : 'opacity-100'
+          className={`grid grid-cols-1 md:grid-cols-12 gap-gutter transition-all duration-300 ${
+            dailyLoading || isSavingMeal ? 'opacity-80' : 'opacity-100'
           }`}
         >
           {/* Hero Fuel Card */}
@@ -216,6 +268,14 @@ const Home = () => {
 
       <BottomNavBar activeTab="diary" />
     </div>
+  );
+};
+
+const Home = () => {
+  return (
+    <Suspense fallback={<HomeLoading />}>
+      <HomeContent />
+    </Suspense>
   );
 };
 

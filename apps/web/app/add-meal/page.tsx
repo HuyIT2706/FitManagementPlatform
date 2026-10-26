@@ -192,7 +192,7 @@ const AddMealContent = () => {
   };
 
   const handleSaveMeal = async () => {
-    if (addedItems.length === 0) return;
+    if (addedItems.length === 0 || isSaving) return;
 
     if (currentDateStr) {
       const targetDate = new Date(currentDateStr);
@@ -204,31 +204,42 @@ const AddMealContent = () => {
       }
     }
 
+    // 1. Snapshot items to save & meal info before clearing builder state
+    const itemsToSave = [...addedItems];
+    const mealTypeToSave = currentMealType;
+    const dateToSave = currentDateStr;
+    const mealTitle = mealFullTitleMap[mealTypeToSave] || 'bữa ăn';
+
+    clearItems();
     setIsSaving(true);
+
+    // 2. Instant Navigation: Immediately route to Home with saving flag so user doesn't wait
+    router.push(`/home?date=${dateToSave}&saving=true`);
+
+    // 3. Save meal in background and trigger SWR updates on Home
     try {
       await apiClient.post('/nutrition/meals', {
-        mealName: currentMealType,
-        logDate: currentDateStr,
-        items: addedItems.map((item) => ({
+        mealName: mealTypeToSave,
+        logDate: dateToSave,
+        items: itemsToSave.map((item) => ({
           foodId: item.food.id,
           weightInGram: item.weightInGram,
         })),
       });
-      toast.success(`Đã ghi nhận ${mealFullTitleMap[currentMealType] || 'bữa ăn'}!`);
-      clearItems();
 
-      // Trigger realtime SWR cache invalidation immediately
+      toast.success(`Đã ghi nhận ${mealTitle}!`);
+
+      // Trigger realtime SWR cache invalidation
       await Promise.all([
-        mutate(`/nutrition/daily?date=${currentDateStr}`),
+        mutate(`/nutrition/daily?date=${dateToSave}`),
         mutate((key) => typeof key === 'string' && key.startsWith('/nutrition/daily')),
         mutate('/users/me'),
       ]);
       broadcastSync('MEAL_PLAN_UPDATED');
-
-      router.push(`/home?date=${currentDateStr}`);
     } catch (error) {
       console.error('Failed to save meal:', error);
       toast.error('Không thể lưu bữa ăn. Vui lòng thử lại!');
+    } finally {
       setIsSaving(false);
     }
   };
