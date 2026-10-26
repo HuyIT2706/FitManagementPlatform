@@ -26,7 +26,7 @@ export const useOnboardingStore = create<OnboardingState>()(
   persist(
     (set) => ({
       currentStep: 1,
-      birthYear: 2002,
+      birthYear: null,
       age: null,
       gender: null,
       weight: null,
@@ -64,7 +64,7 @@ export const useOnboardingStore = create<OnboardingState>()(
       resetOnboarding: () =>
         set({
           currentStep: 1,
-          birthYear: 2002,
+          birthYear: null,
           age: null,
           gender: null,
           weight: null,

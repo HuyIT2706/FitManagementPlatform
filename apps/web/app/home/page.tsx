@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '../../components/ui/Header';
 import BottomNavBar from '../../components/navigation/BottomNavBar';
@@ -101,23 +101,42 @@ const Home = () => {
   const weekDays = getWeekDays(currentMonday);
   const dayLabelMap = ['CN', 'Th 2', 'Th 3', 'Th 4', 'Th 5', 'Th 6', 'Th 7'];
 
-  const targetCalo = dailyData?.targets?.calories || userData?.nutritionTargets?.[0]?.targetCalo || 0;
-  const targetProtein = dailyData?.targets?.protein || userData?.nutritionTargets?.[0]?.targetProtein || 0;
-  const targetCarbs = dailyData?.targets?.carbs || userData?.nutritionTargets?.[0]?.targetCarbs || 0;
-  const targetFat = dailyData?.targets?.fat || userData?.nutritionTargets?.[0]?.targetFat || 0;
+  // ---------------------------------------------------------------------------
+  // Memoised derived values — only recalculated when dailyData / userData change
+  // ---------------------------------------------------------------------------
+  const nutritionStats = useMemo(() => {
+    const targetCalo = dailyData?.targets?.calories || userData?.nutritionTargets?.[0]?.targetCalo || 0;
+    const targetProtein = dailyData?.targets?.protein || userData?.nutritionTargets?.[0]?.targetProtein || 0;
+    const targetCarbs = dailyData?.targets?.carbs || userData?.nutritionTargets?.[0]?.targetCarbs || 0;
+    const targetFat = dailyData?.targets?.fat || userData?.nutritionTargets?.[0]?.targetFat || 0;
 
-  const consumedCalo = Math.round(dailyData?.consumed?.calories || 0);
-  const consumedProtein = Math.round((dailyData?.consumed?.protein || 0) * 10) / 10;
-  const consumedCarbs = Math.round((dailyData?.consumed?.carbs || 0) * 10) / 10;
-  const consumedFat = Math.round((dailyData?.consumed?.fat || 0) * 10) / 10;
+    const consumedCalo = Math.round(dailyData?.consumed?.calories || 0);
+    const consumedProtein = Math.round((dailyData?.consumed?.protein || 0) * 10) / 10;
+    const consumedCarbs = Math.round((dailyData?.consumed?.carbs || 0) * 10) / 10;
+    const consumedFat = Math.round((dailyData?.consumed?.fat || 0) * 10) / 10;
 
-  const proteinPercentage = Math.round((dailyData?.progress?.proteinPercent || 0) * 10) / 10;
-  const carbsPercentage = Math.round((dailyData?.progress?.carbsPercent || 0) * 10) / 10;
-  const fatPercentage = Math.round((dailyData?.progress?.fatPercent || 0) * 10) / 10;
-  const strokeDashoffset = dailyData?.progress?.strokeDashoffset ?? 816;
-  const remainingCalories = Math.round(
-    dailyData?.progress?.remainingCalories ?? Math.max(0, targetCalo - consumedCalo)
-  );
+    const proteinPercentage = Math.round((dailyData?.progress?.proteinPercent || 0) * 10) / 10;
+    const carbsPercentage = Math.round((dailyData?.progress?.carbsPercent || 0) * 10) / 10;
+    const fatPercentage = Math.round((dailyData?.progress?.fatPercent || 0) * 10) / 10;
+    const strokeDashoffset = dailyData?.progress?.strokeDashoffset ?? 816;
+    const remainingCalories = Math.round(
+      dailyData?.progress?.remainingCalories ?? Math.max(0, targetCalo - consumedCalo)
+    );
+
+    return {
+      targetCalo, targetProtein, targetCarbs, targetFat,
+      consumedCalo, consumedProtein, consumedCarbs, consumedFat,
+      proteinPercentage, carbsPercentage, fatPercentage,
+      strokeDashoffset, remainingCalories,
+    };
+  }, [dailyData, userData]);
+
+  const {
+    targetCalo, targetProtein, targetCarbs, targetFat,
+    consumedCalo, consumedProtein, consumedCarbs, consumedFat,
+    proteinPercentage, carbsPercentage, fatPercentage,
+    strokeDashoffset, remainingCalories,
+  } = nutritionStats;
 
   const mealSlots: MealSlotConfig[] = dailyData?.mealSlots || [
     { id: 'BREAKFAST', name: 'Bữa Sáng', icon: 'wb_twilight' },

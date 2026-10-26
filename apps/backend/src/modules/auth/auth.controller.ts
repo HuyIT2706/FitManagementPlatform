@@ -8,6 +8,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { AuthService, RegisterDto } from './auth.service';
 import type { Response, Request } from 'express';
 import { JwtGuard } from './jwt.guard';
@@ -38,6 +39,8 @@ export class AuthController {
     });
   }
 
+  // Strict rate limit on registration: 5 attempts / minute
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @HttpCode(HttpStatus.CREATED)
   @Post('register')
   async register(
@@ -54,6 +57,8 @@ export class AuthController {
     };
   }
 
+  // Strict rate limit on login: 10 attempts / minute per IP
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async signIn(
@@ -66,6 +71,8 @@ export class AuthController {
     return { access_token, isPendingPtApproval, user };
   }
 
+  // Strict rate limit on Google OAuth: 10 attempts / minute
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
   @Post('google')
   async googleAuth(
@@ -82,6 +89,8 @@ export class AuthController {
     return { access_token, user, isPendingPtApproval };
   }
 
+  // Refresh is called automatically by axios interceptor — skip global throttle
+  @SkipThrottle()
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
   async refreshTokens(

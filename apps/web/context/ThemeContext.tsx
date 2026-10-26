@@ -13,24 +13,21 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>('dark');
-  const [mounted, setMounted] = useState(false);
+  // Read theme directly from DOM class set by the inline <script> in layout.tsx.
+  // This avoids the mounted-flag pattern and the wrapper <div> that breaks layouts.
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === 'undefined') return 'dark';
+    return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+  });
 
+  // Keep DOM in sync whenever state changes (also covers SSR -> hydration edge case)
   useEffect(() => {
-    try {
-      const savedTheme = localStorage.getItem('nutricore-theme') as Theme | null;
-      if (savedTheme === 'light') {
-        setTheme('light');
-        document.documentElement.classList.remove('dark');
-      } else {
-        setTheme('dark');
-        document.documentElement.classList.add('dark');
-      }
-    } catch {
-      // fallback
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
     }
-    setMounted(true);
-  }, []);
+  }, [theme]);
 
   const toggleTheme = useCallback(
     (event?: React.MouseEvent) => {
@@ -106,8 +103,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
         toggleTheme,
       }}
     >
-      {/* Ensure initial hydration consistency */}
-      <div className={mounted ? '' : 'contents'}>{children}</div>
+      {children}
     </ThemeContext.Provider>
   );
 };

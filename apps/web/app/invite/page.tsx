@@ -1,7 +1,7 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useEffect, useRef } from 'react';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import {
   Dumbbell,
@@ -12,13 +12,27 @@ import {
   Loader2,
   UserPlus,
 } from 'lucide-react';
+import { Suspense, useState } from 'react';
 import LogoApp from '../../assets/imgs/logoApp.jpg';
 import apiClient from '../../api/axios';
 import { toast } from '../../utils/toast';
+import { isAxiosError } from 'axios';
+
+// ---------------------------------------------------------------------------
+// Reusable error message extractor — replaces unsafe manual type casting
+// ---------------------------------------------------------------------------
+function getApiErrorMessage(err: unknown, fallback = ''): string {
+  if (isAxiosError(err)) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
+    return (err.response?.data as { message?: string })?.message || err.message || fallback;
+  }
+  return fallback;
+}
 
 function InviteContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const pathname = usePathname();
 
   const code = searchParams.get('code') || '';
   const ptId = searchParams.get('pt') || '';
@@ -28,6 +42,9 @@ function InviteContent() {
     'IDLE' | 'UNAUTHENTICATED' | 'BINDING' | 'SUCCESS' | 'ALREADY_BOUND' | 'ERROR'
   >('IDLE');
   const [message, setMessage] = useState<string>('');
+
+  // AbortController ref to cancel in-flight request if component unmounts
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     const token =
@@ -47,11 +64,17 @@ function InviteContent() {
       return;
     }
 
+    // Create a new AbortController for this request
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setStatus('BINDING');
     apiClient
-      .post<{ message?: string }>('/pt/students/bind', {
-        ptCodeOrInviteCode: bindTarget,
-      })
+      .post<{ message?: string }>(
+        '/pt/students/bind',
+        { ptCodeOrInviteCode: bindTarget },
+        { signal: controller.signal }
+      )
       .then((res) => {
         setStatus('SUCCESS');
         setMessage(
@@ -61,9 +84,10 @@ function InviteContent() {
         toast.success('Kết nối thành công với Huấn luyện viên!');
       })
       .catch((err: unknown) => {
-        const errMsg =
-          (err as { response?: { data?: { message?: string } } })?.response
-            ?.data?.message || '';
+        // Ignore cancellation — component unmounted while request was in-flight
+        if (isAxiosError(err) && err.code === 'ERR_CANCELED') return;
+
+        const errMsg = getApiErrorMessage(err);
         if (
           errMsg.toLowerCase().includes('đã có') ||
           errMsg.toLowerCase().includes('already')
@@ -78,13 +102,16 @@ function InviteContent() {
           );
         }
       });
+
+    // Cleanup: abort the request when component unmounts or deps change
+    return () => {
+      controller.abort();
+    };
   }, [code, ptId, ptCode]);
 
   const handleLoginRedirect = (mode = 'login') => {
-    const currentPath =
-      typeof window !== 'undefined'
-        ? window.location.pathname + window.location.search
-        : '/home';
+    // Use Next.js hooks instead of window.location to stay framework-consistent
+    const currentPath = `${pathname}${searchParams.toString() ? '?' + searchParams.toString() : ''}`;
     router.push(
       `/login?redirect=${encodeURIComponent(currentPath)}${
         mode === 'register' ? '&mode=register' : ''

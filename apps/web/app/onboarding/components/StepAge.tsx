@@ -14,7 +14,7 @@ const StepAge = ({ store }: StepAgeProps) => {
   const maxYear = currentYear - 13;
 
   const [inputVal, setInputVal] = useState<string>(
-    store.birthYear ? store.birthYear.toString() : '2002'
+    store.birthYear ? store.birthYear.toString() : ''
   );
   const inputRef = useRef<HTMLInputElement>(null);
 

@@ -10,26 +10,21 @@ import { mutate } from 'swr';
  */
 export const performLogout = async (redirectPath = '/login'): Promise<void> => {
   try {
-    // 1. Immediately remove access token from local storage
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('jwt_token');
-    }
-
-    // 2. Clear SWR in-memory cache to prevent background queries
+    // 1. Clear SWR in-memory cache to prevent background queries
     try {
       await mutate(() => true, undefined, { revalidate: false });
     } catch {
       // Ignore mutate errors
     }
 
-    // 3. Notify backend to clear DB refreshTokenHash and clear cookie
+    // 2. Notify backend to clear DB refreshTokenHash and clear cookie
     await apiClient.post('/auth/logout', {}).catch(() => {
       // Ignore network errors or if already unauthenticated
     });
   } catch (error) {
     console.warn('Logout error:', error);
   } finally {
-    // 4. Ensure token is cleared and force a clean browser navigation
+    // 3. Always clear token and force a clean browser navigation
     if (typeof window !== 'undefined') {
       localStorage.removeItem('jwt_token');
       window.location.href = redirectPath;

@@ -108,6 +108,7 @@ export class UsersService {
           },
           studentProfiles: {
             orderBy: { assignedAt: 'desc' },
+            take: 1,
             select: {
               id: true,
               status: true,
@@ -538,6 +539,14 @@ export class UsersService {
       dto.muscleMass !== undefined &&
       (!latestMetric || Number(dto.muscleMass) !== latestMetric.muscleMass);
 
+    const hasBiometricsChanged =
+      weightChanged ||
+      (dto.height !== undefined && Number(dto.height) !== existingUser?.height) ||
+      (dto.targetWeight !== undefined && Number(dto.targetWeight) !== existingUser?.targetWeight) ||
+      (dto.gender !== undefined && dto.gender !== existingUser?.gender) ||
+      (dto.activityLevel !== undefined && dto.activityLevel !== existingUser?.activityLevel) ||
+      (dto.goal !== undefined && dto.goal !== existingUser?.goal);
+
     return this.prisma.$transaction(async (tx) => {
       if (weightChanged || bodyFatChanged || muscleMassChanged) {
         await tx.bodyMetric.create({
@@ -551,22 +560,25 @@ export class UsersService {
         });
       }
 
-      // Automatically update/create NutritionTarget with newly calculated BMR, TDEE & macros
-      await tx.nutritionTarget.create({
-        data: {
-          studentId: userId,
-          bmr: calc.bmr,
-          tdee: calc.tdee,
-          caloriesOffset:
-            existingUser?.caloriesOffset !== undefined
-              ? existingUser.caloriesOffset
-              : calc.suggestedOffset,
-          targetCalo: calc.targetCalo,
-          targetProtein: calc.targetProtein,
-          targetCarbs: calc.targetCarbs,
-          targetFat: calc.targetFat,
-        },
-      });
+      // Only recalculate and overwrite NutritionTarget if key biometrics/goals changed.
+      // This protects PT-prescribed meal plans and custom macros when user updates phone, avatar, etc.
+      if (hasBiometricsChanged) {
+        await tx.nutritionTarget.create({
+          data: {
+            studentId: userId,
+            bmr: calc.bmr,
+            tdee: calc.tdee,
+            caloriesOffset:
+              existingUser?.caloriesOffset !== undefined
+                ? existingUser.caloriesOffset
+                : calc.suggestedOffset,
+            targetCalo: calc.targetCalo,
+            targetProtein: calc.targetProtein,
+            targetCarbs: calc.targetCarbs,
+            targetFat: calc.targetFat,
+          },
+        });
+      }
 
       return tx.user.update({
         where: { id: userId },

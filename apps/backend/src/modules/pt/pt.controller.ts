@@ -12,6 +12,9 @@ import {
 } from '@nestjs/common';
 import { PtService } from './pt.service';
 import { JwtGuard } from '../auth/jwt.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
+import { Role } from '@prisma/client';
 import type { RequestWithUser } from '@repo/types';
 import type {
   AssignNutritionDto,
@@ -23,7 +26,8 @@ import type {
   UpdateStudentSessionsDto,
 } from '@repo/types';
 
-@UseGuards(JwtGuard)
+@UseGuards(JwtGuard, RolesGuard)
+@Roles(Role.PT)
 @Controller('pt')
 export class PtController {
   constructor(private readonly ptService: PtService) {}
@@ -159,11 +163,13 @@ export class PtController {
     return this.ptService.sendStudentInvite(req.user.sub, dto, origin);
   }
 
+  @Roles(Role.USER, Role.PT)
   @Post('students/bind')
   async bindPt(@Request() req: RequestWithUser, @Body() dto: BindPtDto) {
     return this.ptService.bindPtByStudent(req.user.sub, dto);
   }
 
+  @Roles(Role.USER, Role.PT)
   @Delete('students/bind')
   async cancelBindPt(@Request() req: RequestWithUser) {
     return this.ptService.cancelBindRequest(req.user.sub);

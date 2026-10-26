@@ -36,8 +36,10 @@ async function bootstrap() {
   });
   app.use(compression());
   app.use(cookieParser());
-  app.use(json({ limit: '50mb' }));
-  app.use(urlencoded({ limit: '50mb', extended: true }));
+  // Keep payload limit small to prevent DoS — only image-upload routes need higher limits
+  // and those should use multipart/form-data with dedicated middleware, not JSON base64
+  app.use(json({ limit: '2mb' }));
+  app.use(urlencoded({ limit: '2mb', extended: true }));
   await app.listen(process.env.PORT ?? 3100);
 }
 void bootstrap();

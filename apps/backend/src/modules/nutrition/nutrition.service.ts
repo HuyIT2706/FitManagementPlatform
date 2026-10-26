@@ -689,10 +689,16 @@ export class NutritionService {
   }
 
   async getStreakData(userId: string) {
+    // Bound to the last 90 days to utilize @@index([userId, logDate]) and prevent unbound table scan
+    const ninetyDaysAgo = new Date();
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+    ninetyDaysAgo.setHours(0, 0, 0, 0);
+
     const mealLogs = await this.prisma.mealLog.findMany({
       where: {
         userId,
         totalCalories: { gt: 0 },
+        logDate: { gte: ninetyDaysAgo },
       },
       select: {
         logDate: true,
@@ -700,6 +706,7 @@ export class NutritionService {
       orderBy: {
         logDate: 'desc',
       },
+      take: 500,
     });
 
     const loggedDatesSet = new Set<string>();

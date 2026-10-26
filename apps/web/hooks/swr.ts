@@ -1,4 +1,4 @@
-import useSWR, { type SWRConfiguration } from 'swr';
+import useSWR, { type SWRConfiguration, mutate as globalMutate } from 'swr';
 import apiClient from '../api/axios';
 import type {
   UserDataHome,
@@ -11,22 +11,59 @@ import type {
 } from '../interface';
 import type { PTCodeQrData, PTSessionItem } from '@repo/types';
 
+// ---------------------------------------------------------------------------
+// Fetcher
+// ---------------------------------------------------------------------------
+
 export const swrFetcher = async <T>(url: string): Promise<T> => {
   const res = await apiClient.get<T>(url);
   return res.data;
 };
 
+// ---------------------------------------------------------------------------
+// Global SWR defaults — applied to all hooks unless overridden
+// Increased dedupingInterval to 5s to prevent duplicate in-flight requests
+// when multiple components mount simultaneously (e.g. page transitions)
+// ---------------------------------------------------------------------------
+
 const DEFAULT_SWR_OPTIONS: SWRConfiguration = {
   revalidateOnFocus: false,
   revalidateIfStale: true,
   revalidateOnReconnect: true,
-  dedupingInterval: 2000,
+  dedupingInterval: 5000,   // was 2000 — 5s window prevents thundering herd on route change
   errorRetryCount: 3,
 };
 
+// ---------------------------------------------------------------------------
+// useHasToken — single source of truth for auth gate
+// Previously duplicated 5 times across hooks — now centralised.
+// ---------------------------------------------------------------------------
+
+function useHasToken(): boolean {
+  if (typeof window === 'undefined') return false;
+  return Boolean(localStorage.getItem('jwt_token'));
+}
+
+// ---------------------------------------------------------------------------
+// Prefetch helper — call this in root page.tsx INSTEAD of raw apiClient.get
+// so the result is stored in SWR cache and reused by useCurrentUser()
+// ---------------------------------------------------------------------------
+
+export const prefetchCurrentUser = (): void => {
+  if (typeof window === 'undefined') return;
+  if (!localStorage.getItem('jwt_token')) return;
+  // Trigger a SWR-managed fetch that populates the cache key '/users/me'
+  void globalMutate('/users/me', () => swrFetcher<UserDataHome>('/users/me'), {
+    revalidate: false, // trust the fetched value, no immediate re-fetch
+  });
+};
+
+// ---------------------------------------------------------------------------
+// Hooks
+// ---------------------------------------------------------------------------
+
 export const useCurrentUser = (options?: SWRConfiguration) => {
-  const hasToken =
-    typeof window !== 'undefined' && Boolean(localStorage.getItem('jwt_token'));
+  const hasToken = useHasToken();
   return useSWR<UserDataHome>(
     hasToken ? '/users/me' : null,
     swrFetcher,
@@ -69,7 +106,7 @@ export const useDailyNutrition = (dateStr?: string, options?: SWRConfiguration) 
   return useSWR<DailyNutritionData>(
     url,
     swrFetcher,
-    { ...DEFAULT_SWR_OPTIONS, ...options }
+    { ...DEFAULT_SWR_OPTIONS, keepPreviousData: true, ...options }
   );
 };
 
@@ -105,8 +142,7 @@ export const useExerciseLibrary = (
 };
 
 export const usePtDashboard = (options?: SWRConfiguration) => {
-  const hasToken =
-    typeof window !== 'undefined' && Boolean(localStorage.getItem('jwt_token'));
+  const hasToken = useHasToken();
   return useSWR<PTDashboardData>(
     hasToken ? '/pt/dashboard' : null,
     swrFetcher,
@@ -115,8 +151,7 @@ export const usePtDashboard = (options?: SWRConfiguration) => {
 };
 
 export const usePtCodeQr = (options?: SWRConfiguration) => {
-  const hasToken =
-    typeof window !== 'undefined' && Boolean(localStorage.getItem('jwt_token'));
+  const hasToken = useHasToken();
   return useSWR<PTCodeQrData>(
     hasToken ? '/pt/code-qr' : null,
     swrFetcher,
@@ -125,8 +160,7 @@ export const usePtCodeQr = (options?: SWRConfiguration) => {
 };
 
 export const usePtSchedule = (startDate?: string, endDate?: string, options?: SWRConfiguration) => {
-  const hasToken =
-    typeof window !== 'undefined' && Boolean(localStorage.getItem('jwt_token'));
+  const hasToken = useHasToken();
   const query = startDate && endDate ? `?startDate=${startDate}&endDate=${endDate}` : '';
   return useSWR<PTSessionItem[]>(
     hasToken ? `/pt/schedule${query}` : null,
@@ -140,16 +174,24 @@ export interface NotificationsResponse {
   unreadCount: number;
 }
 
+// Notification polling: only poll when the tab is visible to save server resources.
+// 1000 concurrent users × 1 req/60s = 1000 req/min for notifications alone.
+function getNotificationRefreshInterval(): number {
+  if (typeof document === 'undefined') return 0;
+  return document.visibilityState === 'hidden' ? 0 : 60000;
+}
+
 export const useNotifications = (options?: SWRConfiguration) => {
-  const hasToken =
-    typeof window !== 'undefined' && Boolean(localStorage.getItem('jwt_token'));
+  const hasToken = useHasToken();
   return useSWR<NotificationsResponse>(
     hasToken ? '/notifications' : null,
     swrFetcher,
     {
       ...DEFAULT_SWR_OPTIONS,
-      refreshInterval: 60000,
+      refreshInterval: getNotificationRefreshInterval,
       shouldRetryOnError: false,
+      // Resume polling when tab becomes visible again
+      revalidateOnFocus: true,
       ...options,
     }
   );

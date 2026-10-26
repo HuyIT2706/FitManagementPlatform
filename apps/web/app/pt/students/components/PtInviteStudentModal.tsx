@@ -125,7 +125,7 @@ const PtInviteStudentModal = ({
         ) : (
           <div className="space-y-4 pt-2">
             <div className="bg-primary/10 border border-primary/30 p-3.5 sm:p-4 rounded-2xl text-center space-y-1.5">
-              <p className="text-xs text-primary-dark dark:text-primary font-bold">🎉 Khởi tạo Link thành công!</p>
+              <p className="text-xs text-primary-dark dark:text-primary font-bold">Khởi tạo Link thành công!</p>
               <p className="text-xs text-slate-600 dark:text-white/70">
                 Hãy sao chép đường dẫn này và gửi cho học viên để liên kết trực tiếp với bạn.
               </p>

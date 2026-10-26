@@ -14,8 +14,7 @@ import {
 import { useState, useEffect } from 'react';
 import AppLoading from '../../components/ui/AppLoading';
 import AccessDenied from '../../components/ui/AccessDenied';
-import apiClient from '../../api/axios';
-import type { UserData } from '../../interface';
+import { useCurrentUser } from '../../hooks/swr';
 import { useTheme } from '../../context/ThemeContext';
 import AdminBottomNavBar from '../../components/navigation/AdminBottomNavBar';
 import NotificationBellDropdown from '../../components/notifications/NotificationBellDropdown';
@@ -28,29 +27,13 @@ const AdminLayout = ({
 }) => {
   const pathname = usePathname();
   const { isDark, toggleTheme } = useTheme();
-  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
-  const [currentUser, setCurrentUser] = useState<UserData | null>(null);
+  const { data: currentUser, isLoading } = useCurrentUser();
 
   useEffect(() => {
     const token = localStorage.getItem('jwt_token');
     if (!token) {
-      window.location.href = '/login';
-      return;
+      performLogout();
     }
-
-    apiClient
-      .get<UserData>('/users/me')
-      .then((res) => {
-        setCurrentUser(res.data);
-        if (res.data?.role === 'ADMIN') {
-          setIsAuthorized(true);
-        } else {
-          setIsAuthorized(false);
-        }
-      })
-      .catch(() => {
-        performLogout();
-      });
   }, []);
 
   const handleLogout = () => {
@@ -80,11 +63,11 @@ const AdminLayout = ({
     },
   ];
 
-  if (isAuthorized === null) {
+  if (isLoading && !currentUser) {
     return <AppLoading fullScreen size="lg" message="Đang xác thực quyền Quản trị viên..." />;
   }
 
-  if (isAuthorized === false) {
+  if (currentUser && currentUser.role !== 'ADMIN') {
     return (
       <AccessDenied
         requiredRole="ADMIN"

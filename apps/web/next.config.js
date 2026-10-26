@@ -1,11 +1,20 @@
 /* global process */
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: false,
+  reactStrictMode: true, // Re-enabled: helps detect side-effect bugs and deprecated APIs
   output: "standalone",
   compress: true,
   experimental: {
     optimizePackageImports: ["lucide-react", "framer-motion"],
+  },
+  images: {
+    remotePatterns: [
+      // Google avatars (OAuth login)
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+      // Cloudinary / S3 — add your actual CDN host here
+      { protocol: 'https', hostname: '*.cloudinary.com' },
+      { protocol: 'https', hostname: '*.amazonaws.com' },
+    ],
   },
   compiler: {
     removeConsole:
