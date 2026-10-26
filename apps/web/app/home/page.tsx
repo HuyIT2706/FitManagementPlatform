@@ -40,10 +40,13 @@ const HomeContent = () => {
   useEffect(() => {
     if (dateQuery) {
       const parts = dateQuery.split('-');
-      if (parts.length === 3) {
-        const y = parseInt(parts[0], 10);
-        const m = parseInt(parts[1], 10) - 1;
-        const d = parseInt(parts[2], 10);
+      const p0 = parts[0];
+      const p1 = parts[1];
+      const p2 = parts[2];
+      if (parts.length === 3 && p0 && p1 && p2) {
+        const y = parseInt(p0, 10);
+        const m = parseInt(p1, 10) - 1;
+        const d = parseInt(p2, 10);
         const target = new Date(y, m, d);
         if (!isNaN(target.getTime())) {
           setSelectedDate(target);
