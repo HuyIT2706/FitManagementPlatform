@@ -1469,6 +1469,23 @@ export class PtService {
     studentId: string,
     dto: UpdateStudentSessionsDto,
   ) {
+    if (
+      dto.totalSessions !== undefined &&
+      dto.remainingSessions !== undefined &&
+      dto.remainingSessions > dto.totalSessions
+    ) {
+      throw new BadRequestException(
+        'Số buổi còn lại không được lớn hơn tổng số buổi!',
+      );
+    }
+
+    if (
+      (dto.totalSessions !== undefined && dto.totalSessions < 0) ||
+      (dto.remainingSessions !== undefined && dto.remainingSessions < 0)
+    ) {
+      throw new BadRequestException('Số buổi không được nhỏ hơn 0!');
+    }
+
     if (dto.fullName || dto.phone) {
       await this.prisma.user.update({
         where: { id: studentId },

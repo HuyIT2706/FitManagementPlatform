@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings2, X } from 'lucide-react';
+import { Settings2, X, AlertCircle } from 'lucide-react';
 import type { EditSessionModalProps } from '../../../../../interface';
 
 const EditSessionModal = ({
@@ -15,6 +15,10 @@ const EditSessionModal = ({
   onSaveSessions,
 }: EditSessionModalProps) => {
   if (!isOpen) return null;
+
+  const isRemainingExceeded = remainingSessions > totalSessions;
+  const isNegative = totalSessions < 0 || remainingSessions < 0;
+  const isInvalid = isRemainingExceeded || isNegative;
 
   return (
     <div
@@ -74,12 +78,17 @@ const EditSessionModal = ({
               </label>
               <input
                 type="number"
+                min="0"
                 placeholder="0"
                 value={totalSessions === 0 ? '' : totalSessions}
                 onChange={(e) =>
                   onTotalSessionsChange(e.target.value === '' ? 0 : Number(e.target.value))
                 }
-                className="w-full bg-slate-50 dark:bg-white/[0.05] border border-slate-300 dark:border-white/15 rounded-xl sm:rounded-2xl px-3 sm:px-4 py-3 sm:py-3.5 text-sm sm:text-base font-extrabold text-slate-900 dark:text-white text-center focus:outline-none focus:border-primary transition-colors"
+                className={`w-full bg-slate-50 dark:bg-white/[0.05] border rounded-xl sm:rounded-2xl px-3 sm:px-4 py-3 sm:py-3.5 text-sm sm:text-base font-extrabold text-slate-900 dark:text-white text-center focus:outline-none transition-colors ${
+                  totalSessions < 0
+                    ? 'border-rose-500 focus:border-rose-500 text-rose-500'
+                    : 'border-slate-300 dark:border-white/15 focus:border-primary'
+                }`}
               />
             </div>
 
@@ -89,15 +98,35 @@ const EditSessionModal = ({
               </label>
               <input
                 type="number"
+                min="0"
                 placeholder="0"
                 value={remainingSessions === 0 ? '' : remainingSessions}
                 onChange={(e) =>
                   onRemainingSessionsChange(e.target.value === '' ? 0 : Number(e.target.value))
                 }
-                className="w-full bg-slate-50 dark:bg-white/[0.05] border border-slate-300 dark:border-white/15 rounded-xl sm:rounded-2xl px-3 sm:px-4 py-3 sm:py-3.5 text-sm sm:text-base font-extrabold text-primary-dark dark:text-primary text-center focus:outline-none focus:border-primary transition-colors"
+                className={`w-full bg-slate-50 dark:bg-white/[0.05] border rounded-xl sm:rounded-2xl px-3 sm:px-4 py-3 sm:py-3.5 text-sm sm:text-base font-extrabold text-center focus:outline-none transition-colors ${
+                  isRemainingExceeded || remainingSessions < 0
+                    ? 'border-rose-500 focus:border-rose-500 text-rose-500'
+                    : 'border-slate-300 dark:border-white/15 text-primary-dark dark:text-primary focus:border-primary'
+                }`}
               />
             </div>
           </div>
+
+          {/* Validation Warning Messages */}
+          {isRemainingExceeded && (
+            <div className="flex items-center gap-1.5 p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-[11px] sm:text-xs font-semibold animate-in fade-in duration-150">
+              <AlertCircle size={14} className="shrink-0" />
+              <span>Số buổi còn lại ({remainingSessions}) không được lớn hơn tổng số buổi ({totalSessions})!</span>
+            </div>
+          )}
+
+          {isNegative && (
+            <div className="flex items-center gap-1.5 p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-[11px] sm:text-xs font-semibold animate-in fade-in duration-150">
+              <AlertCircle size={14} className="shrink-0" />
+              <span>Số buổi không được nhỏ hơn 0!</span>
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="pt-2 flex flex-col-reverse sm:flex-row justify-end gap-2.5 sm:gap-3 border-t border-slate-200 dark:border-white/10">
@@ -113,8 +142,8 @@ const EditSessionModal = ({
               type="button"
               suppressHydrationWarning
               onClick={onSaveSessions}
-              disabled={saving}
-              className="w-full sm:w-auto px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-primary text-dark-slate font-extrabold text-xs shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:opacity-90 transition-all cursor-pointer disabled:opacity-50 text-center"
+              disabled={saving || isInvalid}
+              className="w-full sm:w-auto px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-primary text-dark-slate font-extrabold text-xs shadow-[0_0_15px_rgba(102,200,28,0.4)] hover:opacity-90 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-center"
             >
               {saving ? 'Đang lưu...' : 'Lưu Thay Đổi'}
             </button>

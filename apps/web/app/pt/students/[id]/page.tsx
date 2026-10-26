@@ -328,6 +328,19 @@ const PTStudentDetailPage = () => {
   };
 
   const handleSaveStudentSessions = () => {
+    if (editRemainingSessions > editTotalSessions) {
+      toast.warning(
+        `Số buổi còn lại (${editRemainingSessions}) không được lớn hơn tổng số buổi (${editTotalSessions})!`,
+        'Dữ liệu không hợp lệ'
+      );
+      return;
+    }
+
+    if (editTotalSessions < 0 || editRemainingSessions < 0) {
+      toast.warning('Số buổi không được nhỏ hơn 0!', 'Dữ liệu không hợp lệ');
+      return;
+    }
+
     setSaving(true);
     apiClient
       .patch(`/pt/students/${studentId}`, {
