@@ -27,6 +27,11 @@ export const performLogout = async (redirectPath = '/login'): Promise<void> => {
     // 3. Always clear token and force a clean browser navigation
     if (typeof window !== 'undefined') {
       localStorage.removeItem('jwt_token');
+      try {
+        sessionStorage.removeItem('nutricore_push_synced');
+      } catch {
+        // ignore
+      }
       window.location.href = redirectPath;
     }
   }

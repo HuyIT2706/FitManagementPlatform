@@ -69,12 +69,14 @@ export const useCurrentUser = (options?: SWRConfiguration) => {
     swrFetcher,
     {
       ...DEFAULT_SWR_OPTIONS,
+      revalidateIfStale: false, 
+      dedupingInterval: 60000,  
       refreshInterval: (latestData) => {
         if (
           latestData?.assignedPt?.status === 'PENDING' ||
           latestData?.isPendingPtApproval
         ) {
-          return 10000;
+          return 15000;
         }
         return 0;
       },
@@ -97,7 +99,12 @@ export const useBodyMetrics = (options?: SWRConfiguration) => {
   return useSWR<BodyMetricItem[]>(
     '/progress/metrics',
     swrFetcher,
-    { ...DEFAULT_SWR_OPTIONS, ...options }
+    {
+      ...DEFAULT_SWR_OPTIONS,
+      revalidateIfStale: false,
+      dedupingInterval: 30000,
+      ...options,
+    }
   );
 };
 

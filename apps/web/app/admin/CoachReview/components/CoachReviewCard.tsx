@@ -116,7 +116,7 @@ const CoachReviewCard = ({
         ) : (
           <span className="text-xs text-slate-500 dark:text-white/60 font-medium inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10">
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            PT Freelance (Tự Do)
+            PT Freelance
           </span>
         )}
 

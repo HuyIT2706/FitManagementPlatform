@@ -92,6 +92,8 @@ export async function subscribeToPushNotifications(): Promise<boolean> {
   }
 }
 
+let isAutoSyncing = false;
+
 export async function autoSyncPushSubscription(): Promise<boolean> {
   if (
     typeof window === 'undefined' ||
@@ -110,6 +112,21 @@ export async function autoSyncPushSubscription(): Promise<boolean> {
     return false;
   }
 
+  // Deduplication check: sync only ONCE per browser session unless token changes
+  try {
+    const syncedToken = sessionStorage.getItem('nutricore_push_synced');
+    if (syncedToken === token) {
+      return true; // Already synced this session, skip redundant network calls!
+    }
+  } catch {
+    // Ignore sessionStorage errors (e.g. private mode)
+  }
+
+  if (isAutoSyncing) {
+    return false;
+  }
+
+  isAutoSyncing = true;
   try {
     await registerServiceWorker();
     const registration = await navigator.serviceWorker.ready;
@@ -140,6 +157,13 @@ export async function autoSyncPushSubscription(): Promise<boolean> {
           endpoint: subJson.endpoint,
           keys: subJson.keys,
         });
+
+        // Mark as synced for this session
+        try {
+          sessionStorage.setItem('nutricore_push_synced', token);
+        } catch {
+          // Ignore storage quota errors
+        }
         return true;
       }
     }
@@ -147,5 +171,7 @@ export async function autoSyncPushSubscription(): Promise<boolean> {
   } catch (err) {
     console.warn('Auto-sync push subscription failed silently:', err);
     return false;
+  } finally {
+    isAutoSyncing = false;
   }
 }
