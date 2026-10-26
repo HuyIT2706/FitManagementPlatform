@@ -221,4 +221,5 @@ export interface InBodyStockChartProps {
   historyPoints: InBodyHistoryPoint[];
   metric: 'weight' | 'fat' | 'muscle';
   onMetricChange: (metric: 'weight' | 'fat' | 'muscle') => void;
+  targetWeight?: number;
 }

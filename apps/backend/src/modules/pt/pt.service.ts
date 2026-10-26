@@ -889,7 +889,7 @@ export class PtService {
       try {
         await this.notificationsService.sendNotification({
           userId: dto.studentId,
-          title: '💪 Kế Hoạch Tập Luyện Mới',
+          title: 'Kế Hoạch Tập Luyện Mới',
           message: `HLV vừa giao giáo án tập luyện mới: ${dto.title || 'Lịch tập 1:1'}`,
           type: 'WORKOUT_ASSIGNED',
           linkUrl: '/training',

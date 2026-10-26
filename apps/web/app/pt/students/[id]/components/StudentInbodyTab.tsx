@@ -162,11 +162,12 @@ const StudentInbodyTab = ({
           </div>
         )}
 
-        {/* Stock-Market Style InBody Interactive Chart */}
+        {/* InBody Interactive Chart */}
         <InBodyStockChart
           historyPoints={historyPoints}
           metric={chartMetric}
           onMetricChange={onChartMetricChange}
+          targetWeight={targetWeight}
         />
 
         {/* Historical Table */}
