@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { X } from 'lucide-react';
+import { X, ExternalLink } from 'lucide-react';
 import type { ExerciseDetailModalProps } from '../../../interface';
 
 const ExerciseDetailModal = ({
@@ -100,6 +100,24 @@ const ExerciseDetailModal = ({
             </div>
           </div>
         </div>
+
+        {/* YouTube Watch Video Tutorial Action Button */}
+        <a
+          href={`https://www.youtube.com/results?search_query=${encodeURIComponent(activeExercise.name + ' exercise tutorial')}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-2.5 w-full py-3 sm:py-3.5 px-4 rounded-xl sm:rounded-2xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold text-xs sm:text-sm shadow-[0_4px_16px_rgba(239,68,68,0.3)] hover:shadow-[0_6px_22px_rgba(239,68,68,0.5)] transition-all cursor-pointer group/ytbtn"
+        >
+          <svg viewBox="0 0 28 20" className="w-5 sm:w-6 h-auto group-hover/ytbtn:scale-110 transition-transform">
+            <path
+              d="M27.4 3.1c-.3-1.2-1.2-2.1-2.4-2.4C22.9.2 14 .2 14 .2s-8.9 0-11 .5C1.8.9.9 1.9.6 3.1 0 5.2 0 10 0 10s0 4.8.6 6.9c.3 1.2 1.2 2.1 2.4 2.4 2.1.5 11 .5 11 .5s8.9 0 11-.5c1.2-.3 2.1-1.2 2.4-2.4.6-2.1.6-6.9.6-6.9s0-4.8-.6-6.9z"
+              fill="#FFFFFF"
+            />
+            <polygon points="11.2,14.3 18.5,10 11.2,5.7" fill="#DC2626" />
+          </svg>
+          <span>Xem Video Hướng Dẫn Bài Tập Trên YouTube</span>
+          <ExternalLink size={16} className="group-hover/ytbtn:translate-x-0.5 transition-transform" />
+        </a>
 
         {/* Bento Specs Section */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 pt-1 sm:pt-2">

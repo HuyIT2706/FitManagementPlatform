@@ -284,7 +284,13 @@ export class WorkoutService {
     let exercises: Array<{
       id: string;
       name: string;
-      category: string;
+      category?: string;
+      force?: string | null;
+      level?: string | null;
+      mechanic?: string | null;
+      equipment?: string | null;
+      primaryMuscles?: string[];
+      secondaryMuscles?: string[];
       sets: number;
       reps: number;
       weightInKg: number;
@@ -299,6 +305,12 @@ export class WorkoutService {
         const ex = se.exercise as {
           name?: string;
           category?: string;
+          force?: string;
+          level?: string;
+          mechanic?: string;
+          equipment?: string;
+          primaryMuscles?: string[];
+          secondaryMuscles?: string[];
           instructions?: string[];
           setupImageUrl?: string;
           startImageUrl?: string;
@@ -308,6 +320,12 @@ export class WorkoutService {
           id: se.id,
           name: ex?.name || 'Bài tập 1:1',
           category: ex?.category || 'FULL_BODY',
+          force: ex?.force,
+          level: ex?.level,
+          mechanic: ex?.mechanic,
+          equipment: ex?.equipment,
+          primaryMuscles: ex?.primaryMuscles || [],
+          secondaryMuscles: ex?.secondaryMuscles || [],
           sets: se.sets,
           reps: se.reps,
           weightInKg: se.weight || 0,

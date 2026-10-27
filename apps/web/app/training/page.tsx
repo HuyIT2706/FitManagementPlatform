@@ -114,6 +114,7 @@ const WorkoutPage = () => {
           assignedWorkoutPlan={assignedWorkoutPlan || null}
           checkedExercises={checkedExercises}
           onToggleExerciseCheck={handleToggleExerciseCheck}
+          onSelectExercise={(ex) => setActiveExercise(ex)}
         />
 
         {/* Assigned 1:1 Meal Plan Section from Backend */}

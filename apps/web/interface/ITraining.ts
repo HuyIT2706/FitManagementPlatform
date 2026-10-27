@@ -45,21 +45,28 @@ export interface AssignedWorkoutPlanData {
   exercises: Array<{
     id: string;
     name: string;
-    category: string;
+    category?: string | null;
+    force?: string | null;
+    level?: string | null;
+    mechanic?: string | null;
+    equipment?: string | null;
+    primaryMuscles?: string[];
+    secondaryMuscles?: string[];
     sets: number;
     reps: number;
     weightInKg: number;
     instructions?: string[];
-    setupImageUrl?: string;
-    startImageUrl?: string;
-    imageUrl?: string;
+    setupImageUrl?: string | null;
+    startImageUrl?: string | null;
+    imageUrl?: string | null;
   }>;
 }
 
 export interface AssignedWorkoutPlanCardProps {
   assignedWorkoutPlan: AssignedWorkoutPlanData | null;
-  checkedExercises: Record<string, boolean>;
-  onToggleExerciseCheck: (id: string) => void;
+  checkedExercises?: Record<string, boolean>;
+  onToggleExerciseCheck?: (id: string) => void;
+  onSelectExercise?: (exercise: ExerciseItem) => void;
 }
 
 export interface ExerciseDetailModalProps {
