@@ -282,6 +282,42 @@ export class AuthService {
     return tokens;
   }
 
+  /**
+   * Sync active session with current Supabase/Database state (e.g. after manual role change)
+   */
+  async syncSession(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { ptApplication: true },
+    });
+    if (!user) {
+      throw new UnauthorizedException('Người dùng không tồn tại');
+    }
+
+    const tokens = await this.getTokens(user.id, user.email, user.role);
+    await this.updateRefreshTokenHash(user.id, tokens.refreshToken);
+
+    const isPendingPt =
+      user.role === 'PT' && user.ptApplication?.status === 'PENDING';
+    const isApprovedPt =
+      user.role === 'PT' ? user.ptApplication?.status === 'APPROVED' : true;
+
+    return {
+      access_token: tokens.accessToken,
+      refresh_token: tokens.refreshToken,
+      isPendingPtApproval: isPendingPt,
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
+        role: user.role,
+        isApprovedPt,
+        isPendingPtApproval: isPendingPt,
+        onboardingCompleted: user.onboardingCompleted,
+      },
+    };
+  }
+
   async changePassword(userId: string, currentPass: string, newPass: string) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) {

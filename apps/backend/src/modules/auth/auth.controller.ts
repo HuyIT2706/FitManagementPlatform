@@ -190,4 +190,20 @@ export class AuthController {
       dto.newPassword,
     );
   }
+
+  @UseGuards(JwtGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('sync-session')
+  async syncSession(
+    @Req() req: RequestWithUser,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.authService.syncSession(req.user.sub);
+    this.setRefreshTokenCookie(res, result.refresh_token);
+    return {
+      access_token: result.access_token,
+      isPendingPtApproval: result.isPendingPtApproval,
+      user: result.user,
+    };
+  }
 }

@@ -203,3 +203,26 @@ export const useNotifications = (options?: SWRConfiguration) => {
     }
   );
 };
+
+// ---------------------------------------------------------------------------
+// syncUserSession — Call this to immediately sync role/session from DB/Supabase
+// ---------------------------------------------------------------------------
+export const syncUserSession = async (): Promise<UserDataHome | null> => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const res = await apiClient.post<{
+      access_token: string;
+      user: UserDataHome;
+      isPendingPtApproval?: boolean;
+    }>('/auth/sync-session');
+    if (res.data?.access_token) {
+      localStorage.setItem('jwt_token', res.data.access_token);
+      await globalMutate('/users/me');
+      return res.data.user;
+    }
+    return null;
+  } catch (err) {
+    console.warn('Sync session failed:', err);
+    return null;
+  }
+};

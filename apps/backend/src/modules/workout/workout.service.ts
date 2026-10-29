@@ -94,7 +94,13 @@ export class WorkoutService {
       include: {
         studentProfiles: {
           include: {
-            trainer: true,
+            trainer: {
+              select: {
+                id: true,
+                fullName: true,
+                avatarUrl: true,
+              },
+            },
           },
         },
         nutritionTargets: {
@@ -240,7 +246,13 @@ export class WorkoutService {
       include: {
         studentProfiles: {
           include: {
-            trainer: true,
+            trainer: {
+              select: {
+                id: true,
+                fullName: true,
+                avatarUrl: true,
+              },
+            },
           },
         },
         workoutSchedules: {
