@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { mutate as globalMutate } from 'swr';
 import Header from '../../components/ui/Header';
 import PTBottomNavBar from '../../components/navigation/PTBottomNavBar';
 import AppLoading from '../../components/ui/AppLoading';
@@ -38,9 +39,17 @@ const PTPage = () => {
       .post<{ success: boolean; message: string; remainingSessions?: number }>(
         `/pt/check-in/${sessionId}`,
       )
-      .then((res) => {
+      .then(async (res) => {
         toast.success(res.data.message || 'Đã check-in điểm danh thành công!');
         mutatePt();
+        await globalMutate(
+          (key) =>
+            typeof key === 'string' &&
+            (key.startsWith('/pt/dashboard') || key.startsWith('/pt/schedule')),
+          undefined,
+          { revalidate: true },
+        );
+        broadcastSync('SCHEDULE_UPDATED');
         broadcastSync('PT_BIND_UPDATED');
       })
       .catch((err) => {

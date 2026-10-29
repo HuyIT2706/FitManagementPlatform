@@ -197,7 +197,8 @@ export const usePtSchedule = (
     swrFetcher,
     {
       ...DEFAULT_SWR_OPTIONS,
-      dedupingInterval: 15000,
+      revalidateIfStale: true,
+      dedupingInterval: 5000,
       ...options,
     }
   );

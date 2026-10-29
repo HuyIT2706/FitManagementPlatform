@@ -149,10 +149,18 @@ export class PtService {
 
       // Check attendance history from DB for all PT students (ONLY for today's sessions)
       const studentIds = validApprovedProfiles.map((sp) => sp.studentId);
-      const startOfToday = new Date();
-      startOfToday.setHours(0, 0, 0, 0);
-      const endOfToday = new Date();
-      endOfToday.setHours(23, 59, 59, 999);
+      const now = new Date();
+      // Calculate Vietnam timezone window (UTC+7)
+      const vnDate = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+      const y = vnDate.getUTCFullYear();
+      const m = vnDate.getUTCMonth();
+      const d = vnDate.getUTCDate();
+      const startOfToday = new Date(
+        Date.UTC(y, m, d, 0, 0, 0) - 7 * 60 * 60 * 1000,
+      );
+      const endOfToday = new Date(
+        Date.UTC(y, m, d, 23, 59, 59, 999) - 7 * 60 * 60 * 1000,
+      );
 
       // Query actual workout schedules created for today
       const todaySchedules = await this.prisma.workoutSchedule.findMany({
@@ -166,6 +174,8 @@ export class PtService {
         select: {
           id: true,
           title: true,
+          note: true,
+          scheduledDate: true,
           studentId: true,
           isCompleted: true,
           student: {
@@ -191,6 +201,8 @@ export class PtService {
         '10:00 - 11:00',
         '14:00 - 15:00',
         '16:30 - 17:30',
+        '18:00 - 19:00',
+        '19:30 - 20:30',
       ];
 
       const todaySessions: PTSessionItem[] = (todaySchedules || []).map(
@@ -199,9 +211,21 @@ export class PtService {
           const pkg = student?.userPackages?.[0];
           const isCheckedIn = Boolean(ws.isCompleted);
 
+          let timeSlot = timeSlots[idx % timeSlots.length] || '08:00 - 09:00';
+          if (ws.note && ws.note.includes(' - ')) {
+            const match = ws.note.match(/\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}/);
+            if (match) timeSlot = match[0];
+          }
+
+          const dateObj = new Date(ws.scheduledDate);
+          const year = dateObj.getFullYear();
+          const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+          const day = String(dateObj.getDate()).padStart(2, '0');
+          const scheduledDateFormatted = `${year}-${month}-${day}`;
+
           return {
             id: ws.id,
-            timeSlot: timeSlots[idx % timeSlots.length] || '08:00 - 09:00',
+            timeSlot,
             studentId: ws.studentId,
             studentName: student?.fullName || 'Học viên',
             studentAvatar: student?.avatarUrl || '/default-avatar.svg',
@@ -209,6 +233,7 @@ export class PtService {
             status: isCheckedIn ? 'CHECKED_IN' : 'PENDING',
             remainingSessions: pkg?.remainingSessions ?? 0,
             totalSessions: pkg?.totalSessions ?? 0,
+            scheduledDate: scheduledDateFormatted,
           };
         },
       );
@@ -1189,12 +1214,40 @@ export class PtService {
         id: true,
         studentId: true,
         title: true,
+        isCompleted: true,
       },
     });
 
     if (schedule) {
       studentId = schedule.studentId;
       workoutScheduleTitle = schedule.title;
+
+      // IDEMPOTENT GUARD: Nếu ca dạy đã hoàn thành/điểm danh rồi -> không trừ thêm buổi!
+      if (schedule.isCompleted) {
+        const activePkg = await this.prisma.memberPackage.findFirst({
+          where: {
+            userId: studentId,
+            isActive: true,
+          },
+          orderBy: { startDate: 'desc' },
+        });
+
+        const studentUser = await this.prisma.user.findUnique({
+          where: { id: studentId },
+          select: { fullName: true },
+        });
+
+        return {
+          success: true,
+          sessionId,
+          alreadyCheckedIn: true,
+          studentName: studentUser?.fullName || 'Học viên',
+          remainingSessions: activePkg?.remainingSessions ?? 0,
+          totalSessions: activePkg?.totalSessions ?? 0,
+          message: 'Ca dạy này đã được điểm danh trước đó rồi!',
+        };
+      }
+
       // Đánh dấu ca tập đã hoàn thành
       await this.prisma.workoutSchedule.update({
         where: { id: schedule.id },
@@ -1238,6 +1291,37 @@ export class PtService {
           'Không tìm thấy học viên hoặc ca dạy để điểm danh',
         );
       }
+    }
+
+    // 2.5. Deduplication check: Kiểm tra lịch sử điểm danh gần đây (trong vòng 15 phút)
+    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
+    const recentAttendance = await this.prisma.attendanceHistory.findFirst({
+      where: {
+        studentId: studentId,
+        checkInTime: { gte: fifteenMinutesAgo },
+      },
+    });
+
+    if (recentAttendance) {
+      const activePkg = await this.prisma.memberPackage.findFirst({
+        where: { userId: studentId, isActive: true },
+        orderBy: { startDate: 'desc' },
+      });
+
+      const studentUser = await this.prisma.user.findUnique({
+        where: { id: studentId },
+        select: { fullName: true },
+      });
+
+      return {
+        success: true,
+        sessionId,
+        alreadyCheckedIn: true,
+        studentName: studentUser?.fullName || 'Học viên',
+        remainingSessions: activePkg?.remainingSessions ?? 0,
+        totalSessions: activePkg?.totalSessions ?? 0,
+        message: 'Học viên vừa được điểm danh gần đây, không trừ thêm buổi!',
+      };
     }
 
     // 3. Tìm hoặc tạo gói tập active của học viên

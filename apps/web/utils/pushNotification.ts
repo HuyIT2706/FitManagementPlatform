@@ -112,16 +112,6 @@ export async function autoSyncPushSubscription(): Promise<boolean> {
     return false;
   }
 
-  // Deduplication check: sync only ONCE per browser session unless token changes
-  try {
-    const syncedToken = sessionStorage.getItem('nutricore_push_synced');
-    if (syncedToken === token) {
-      return true; // Already synced this session, skip redundant network calls!
-    }
-  } catch {
-    // Ignore sessionStorage errors (e.g. private mode)
-  }
-
   if (isAutoSyncing) {
     return false;
   }

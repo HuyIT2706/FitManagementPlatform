@@ -57,18 +57,28 @@ export interface WebPushErrorLike {
 export class NotificationsService implements OnModuleInit {
   private readonly logger = new Logger(NotificationsService.name);
 
-  public readonly vapidPublicKey = process.env.VAPID_PUBLIC_KEY!;
-  private readonly vapidPrivateKey = process.env.VAPID_PRIVATE_KEY!;
-  private readonly vapidSubject = process.env.VAPID_SUBJECT!;
+  public readonly vapidPublicKey =
+    process.env.VAPID_PUBLIC_KEY ||
+    'BJznxhmzusTKjOPidEXnMdtFyES4cU8i00t9ZwGBJk1UZizbIByNIrVxZggR72LRzbm3JYfsYt907OzFfoRLR2I';
+  private readonly vapidPrivateKey =
+    process.env.VAPID_PRIVATE_KEY ||
+    'iTdcAwDueONNxBd6yF4wYswGSX5QfiG9tjUI--hmEL8';
+  private readonly vapidSubject =
+    process.env.VAPID_SUBJECT || 'mailto:support@nutricore.vn';
 
   constructor(private readonly prisma: PrismaService) {}
 
   async onModuleInit() {
-    webpush.setVapidDetails(
-      this.vapidSubject,
-      this.vapidPublicKey,
-      this.vapidPrivateKey,
-    );
+    try {
+      webpush.setVapidDetails(
+        this.vapidSubject,
+        this.vapidPublicKey,
+        this.vapidPrivateKey,
+      );
+      this.logger.log('WebPush VAPID details configured successfully.');
+    } catch (err) {
+      this.logger.error('Failed to configure VAPID details:', err);
+    }
 
     try {
       await this.prisma.$executeRawUnsafe(`
@@ -149,20 +159,21 @@ export class NotificationsService implements OnModuleInit {
     }
 
     try {
-      const id = randomUUID();
-      await this.prisma.$executeRawUnsafe(
-        `
-        INSERT INTO push_subscriptions (id, user_id, endpoint, p256dh, auth, updated_at)
-        VALUES ($1, $2, $3, $4, $5, NOW())
-        ON CONFLICT (endpoint) 
-        DO UPDATE SET user_id = $2, p256dh = $4, auth = $5, updated_at = NOW();
-        `,
-        id,
-        userId,
-        subscription.endpoint,
-        subscription.keys.p256dh,
-        subscription.keys.auth,
-      );
+      await this.prisma.pushSubscription.upsert({
+        where: { endpoint: subscription.endpoint },
+        create: {
+          userId,
+          endpoint: subscription.endpoint,
+          p256dh: subscription.keys.p256dh,
+          auth: subscription.keys.auth,
+        },
+        update: {
+          userId,
+          p256dh: subscription.keys.p256dh,
+          auth: subscription.keys.auth,
+          updatedAt: new Date(),
+        },
+      });
 
       this.logger.log(`Saved push subscription for user ${userId}`);
       return {
@@ -186,37 +197,36 @@ export class NotificationsService implements OnModuleInit {
     linkUrl?: string;
   }) {
     const { userId, title, message, type = 'INFO', linkUrl = '/home' } = data;
-    const notifId = randomUUID();
+    let notifId: string;
 
     try {
-      await this.prisma.$executeRawUnsafe(
-        `
-        INSERT INTO notifications (id, user_id, title, message, type, is_read, link_url, created_at)
-        VALUES ($1, $2, $3, $4, $5, FALSE, $6, NOW());
-        `,
-        notifId,
-        userId,
-        title,
-        message,
-        type,
-        linkUrl,
-      );
+      const created = await this.prisma.notification.create({
+        data: {
+          userId,
+          title,
+          message,
+          type,
+          linkUrl,
+        },
+      });
+      notifId = created.id;
     } catch (err) {
       this.logger.error(
         `Failed to store notification for user ${userId}:`,
         err,
       );
+      notifId = randomUUID();
     }
 
     try {
-      const subscriptions = await this.prisma.$queryRawUnsafe<
-        PushSubscriptionRecord[]
-      >(
-        `
-        SELECT endpoint, p256dh, auth FROM push_subscriptions WHERE user_id = $1;
-        `,
-        userId,
-      );
+      const subscriptions = await this.prisma.pushSubscription.findMany({
+        where: { userId },
+        select: {
+          endpoint: true,
+          p256dh: true,
+          auth: true,
+        },
+      });
 
       if (subscriptions && subscriptions.length > 0) {
         const payload = JSON.stringify({
@@ -243,14 +253,17 @@ export class NotificationsService implements OnModuleInit {
                 },
               },
               payload,
+              {
+                TTL: 86400,
+                urgency: 'high',
+              },
             );
           } catch (err) {
             const pushErr = err as WebPushErrorLike;
             if (pushErr.statusCode === 410 || pushErr.statusCode === 404) {
-              await this.prisma.$executeRawUnsafe(
-                `DELETE FROM push_subscriptions WHERE endpoint = $1;`,
-                sub.endpoint,
-              );
+              await this.prisma.pushSubscription.deleteMany({
+                where: { endpoint: sub.endpoint },
+              });
             } else {
               this.logger.warn(
                 `Push failed for endpoint ${sub.endpoint}:`,
@@ -269,30 +282,16 @@ export class NotificationsService implements OnModuleInit {
 
   async getNotifications(userId: string, limit = 20) {
     try {
-      const rows = await this.prisma.$queryRawUnsafe<NotificationRecord[]>(
-        `
-        SELECT id, user_id as "userId", title, message, type, is_read as "isRead", link_url as "linkUrl", created_at as "createdAt"
-        FROM notifications
-        WHERE user_id = $1
-        ORDER BY created_at DESC
-        LIMIT $2;
-        `,
-        userId,
-        limit,
-      );
-
-      const unreadCountRow = await this.prisma.$queryRawUnsafe<
-        UnreadCountRecord[]
-      >(
-        `
-        SELECT COUNT(*)::int as "unreadCount"
-        FROM notifications
-        WHERE user_id = $1 AND is_read = FALSE;
-        `,
-        userId,
-      );
-
-      const unreadCount = unreadCountRow[0]?.unreadCount || 0;
+      const [rows, unreadCount] = await Promise.all([
+        this.prisma.notification.findMany({
+          where: { userId },
+          orderBy: { createdAt: 'desc' },
+          take: limit,
+        }),
+        this.prisma.notification.count({
+          where: { userId, isRead: false },
+        }),
+      ]);
 
       return {
         notifications: rows.map((r) => ({
@@ -300,10 +299,10 @@ export class NotificationsService implements OnModuleInit {
           userId: r.userId,
           title: r.title,
           message: r.message,
-          type: r.type,
-          isRead: Boolean(r.isRead),
+          type: r.type || 'INFO',
+          isRead: r.isRead,
           linkUrl: r.linkUrl || null,
-          createdAt: new Date(r.createdAt).toISOString(),
+          createdAt: r.createdAt.toISOString(),
         })),
         unreadCount,
       };
@@ -314,27 +313,18 @@ export class NotificationsService implements OnModuleInit {
   }
 
   async markAsRead(notificationId: string, userId: string) {
-    await this.prisma.$executeRawUnsafe(
-      `
-      UPDATE notifications
-      SET is_read = TRUE
-      WHERE id = $1 AND user_id = $2;
-      `,
-      notificationId,
-      userId,
-    );
+    await this.prisma.notification.updateMany({
+      where: { id: notificationId, userId },
+      data: { isRead: true },
+    });
     return { success: true };
   }
 
   async markAllAsRead(userId: string) {
-    await this.prisma.$executeRawUnsafe(
-      `
-      UPDATE notifications
-      SET is_read = TRUE
-      WHERE user_id = $1 AND is_read = FALSE;
-      `,
-      userId,
-    );
+    await this.prisma.notification.updateMany({
+      where: { userId, isRead: false },
+      data: { isRead: true },
+    });
     return { success: true };
   }
 }

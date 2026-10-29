@@ -9,6 +9,7 @@ export type SyncEventType =
   | 'PROFILE_UPDATED'
   | 'MEAL_PLAN_UPDATED'
   | 'WORKOUT_UPDATED'
+  | 'SCHEDULE_UPDATED'
   | 'NOTIFICATION_RECEIVED';
 
 const CHANNEL_NAME = 'nutricore_realtime_sync';
@@ -51,11 +52,17 @@ export const executeSync = (type: SyncEventType): void => {
     case 'PT_REQUEST_UPDATED':
       mutate('/users/me');
       mutate('/pt/dashboard');
+      mutate((key) => typeof key === 'string' && key.startsWith('/pt/schedule'));
       mutate('/pt/students/requests');
       mutate('/notifications');
       mutate('/workout/assigned-meal-plan');
       mutate('/workout/assigned-workout-plan');
       mutate((key) => typeof key === 'string' && key.startsWith('/nutrition/daily'));
+      break;
+    case 'SCHEDULE_UPDATED':
+      mutate('/pt/dashboard');
+      mutate((key) => typeof key === 'string' && key.startsWith('/pt/schedule'));
+      mutate('/notifications');
       break;
     case 'PT_APPLICATION_UPDATED':
       mutate('/users/me');

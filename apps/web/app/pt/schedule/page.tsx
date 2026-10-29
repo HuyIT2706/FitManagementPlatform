@@ -17,6 +17,8 @@ import apiClient from "../../../api/axios";
 import type { PTSessionItem } from "@repo/types";
 import { formatYYYYMMDD, isSameDay, MONTH_NAMES_VI } from "../../../utils/date";
 import { toast } from "../../../utils/toast";
+import { mutate as globalMutate } from "swr";
+import { broadcastSync, subscribeSync } from "../../../utils/realtimeSync";
 
 import dynamic from "next/dynamic";
 import AccessDenied from "../../../components/ui/AccessDenied";
@@ -99,6 +101,16 @@ const PTSchedulePage = () => {
     endQueryStr,
   );
 
+  useEffect(() => {
+    const unsubscribe = subscribeSync((event) => {
+      if (event === "SCHEDULE_UPDATED" || event === "PT_BIND_UPDATED") {
+        mutateSchedule();
+        mutatePt();
+      }
+    });
+    return unsubscribe;
+  }, [mutateSchedule, mutatePt]);
+
   const handleLogout = () => {
     performLogout();
   };
@@ -107,12 +119,21 @@ const PTSchedulePage = () => {
     setCheckedSessions((prev) => ({ ...prev, [sessionId]: true }));
     apiClient
       .post<{ message?: string }>(`/pt/check-in/${sessionId}`)
-      .then((res) => {
+      .then(async (res) => {
         toast.success(
           res.data.message || "Đã điểm danh học viên & trừ số buổi thành công!",
         );
         mutateSchedule();
         mutatePt();
+        await globalMutate(
+          (key) =>
+            typeof key === "string" &&
+            (key.startsWith("/pt/dashboard") || key.startsWith("/pt/schedule")),
+          undefined,
+          { revalidate: true },
+        );
+        broadcastSync("SCHEDULE_UPDATED");
+        broadcastSync("PT_BIND_UPDATED");
       })
       .catch((err) => {
         console.error(err);

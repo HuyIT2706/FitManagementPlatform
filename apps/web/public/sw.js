@@ -29,6 +29,8 @@ self.addEventListener('push', (event) => {
     icon: data.icon || '/android-chrome-192x192.png',
     badge: data.badge || '/favicon-32x32.png',
     vibrate: [100, 50, 100],
+    tag: 'nutricore-notif-' + (data.data?.notifId || Date.now()),
+    renotify: true,
     data: {
       url: data.url || (data.data && data.data.url) || '/home',
       dateOfArrival: Date.now(),
