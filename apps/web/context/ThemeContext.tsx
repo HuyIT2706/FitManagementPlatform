@@ -13,12 +13,24 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  // Read theme directly from DOM class set by the inline <script> in layout.tsx.
-  // This avoids the mounted-flag pattern and the wrapper <div> that breaks layouts.
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === 'undefined') return 'dark';
-    return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-  });
+  // Always initialize with 'dark' on both SSR and client to ensure identical initial hydration
+  const [theme, setTheme] = useState<Theme>('dark');
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('nutricore-theme') as Theme | null;
+      if (saved === 'light' || saved === 'dark') {
+        setTheme(saved);
+        if (saved === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   // Keep DOM in sync whenever state changes (also covers SSR -> hydration edge case)
   useEffect(() => {
