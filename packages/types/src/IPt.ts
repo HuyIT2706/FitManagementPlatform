@@ -80,6 +80,7 @@ export interface AssignedExerciseItem {
 
 export interface InBodyHistoryPoint {
   date: string;
+  displayDate?: string;
   weightKg: number;
   bodyFatPercent: number;
   muscleMassKg: number;

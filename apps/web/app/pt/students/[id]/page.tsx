@@ -298,7 +298,8 @@ const PTStudentDetailPage = () => {
         setIsEditingInBody(false);
         if (studentDetail) {
           const newHistoryPoint: InBodyHistoryPoint = {
-            date: `T${new Date().getMonth() + 1}/${new Date().getFullYear()}`,
+            date: new Date().toISOString(),
+            displayDate: new Date().toLocaleDateString('vi-VN'),
             weightKg: inbodyWeight,
             bodyFatPercent: inbodyFat,
             muscleMassKg: inbodyMuscle,

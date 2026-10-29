@@ -8,6 +8,8 @@ const InBodyStockChart = ({
   metric,
   onMetricChange,
   targetWeight,
+  initialWeight,
+  currentWeight,
 }: InBodyStockChartProps) => {
   const chartHeight = 220; // SVG viewBox height for grid
   const chartWidth = 1000; // SVG viewBox width for grid
@@ -46,6 +48,10 @@ const InBodyStockChart = ({
 
     const parseDate = (dStr: string) => {
       if (!dStr) return 0;
+      if (dStr.includes('T')) {
+        const t = new Date(dStr).getTime();
+        if (!isNaN(t)) return t;
+      }
       if (dStr.includes('/')) {
         const parts = dStr.split('/');
         const p0 = parts[0];
@@ -58,7 +64,8 @@ const InBodyStockChart = ({
           return new Date(year, month, day).getTime();
         }
       }
-      return new Date(dStr).getTime() || 0;
+      const parsed = new Date(dStr).getTime();
+      return isNaN(parsed) ? 0 : parsed;
     };
 
     return [...historyPoints].sort((a, b) => parseDate(a.date) - parseDate(b.date));
@@ -67,6 +74,12 @@ const InBodyStockChart = ({
   // Format short date (e.g. "24/10/2026" -> "24-10")
   const formatShortDate = (dStr: string) => {
     if (!dStr) return '';
+    if (dStr.includes('T')) {
+      const d = new Date(dStr);
+      if (!isNaN(d.getTime())) {
+        return `${d.getDate()}-${d.getMonth() + 1}`;
+      }
+    }
     if (dStr.includes('/')) {
       const parts = dStr.split('/');
       if (parts.length >= 2 && parts[0] && parts[1]) {
@@ -96,19 +109,25 @@ const InBodyStockChart = ({
 
   // 1. Initial, Current, Target Values for Top 3 Summary Cards
   const initialVal = useMemo(() => {
+    if (metric === 'weight' && initialWeight && initialWeight > 0) {
+      return initialWeight;
+    }
     if (dataSeries.length > 0 && dataSeries[0]) {
       return dataSeries[0].value;
     }
     return 0;
-  }, [dataSeries]);
+  }, [metric, initialWeight, dataSeries]);
 
   const currentVal = useMemo(() => {
+    if (metric === 'weight' && currentWeight && currentWeight > 0) {
+      return currentWeight;
+    }
     if (dataSeries.length > 0) {
       const last = dataSeries[dataSeries.length - 1];
       return last ? last.value : initialVal;
     }
     return initialVal;
-  }, [dataSeries, initialVal]);
+  }, [metric, currentWeight, dataSeries, initialVal]);
 
   const targetVal = useMemo(() => {
     if (metric === 'weight' && targetWeight && targetWeight > 0) {

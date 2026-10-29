@@ -774,12 +774,18 @@ export class PtService {
           ? latestMetric.recordedAt.toLocaleDateString('vi-VN')
           : 'Chưa có',
       },
-      bodyMetricsHistory: student.bodyMetrics.map((bm) => ({
-        date: bm.recordedAt.toLocaleDateString('vi-VN'),
-        weightKg: bm.weight,
-        bodyFatPercent: bm.bodyFat ?? 0,
-        muscleMassKg: bm.muscleMass ?? 0,
-      })),
+      bodyMetricsHistory: [...student.bodyMetrics]
+        .sort(
+          (a, b) =>
+            new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime(),
+        )
+        .map((bm) => ({
+          date: bm.recordedAt.toISOString(),
+          displayDate: bm.recordedAt.toLocaleDateString('vi-VN'),
+          weightKg: bm.weight,
+          bodyFatPercent: bm.bodyFat ?? 0,
+          muscleMassKg: bm.muscleMass ?? 0,
+        })),
       beforeAfterPhotos: {
         beforeUrl: beforePhoto?.photoUrl || undefined,
         afterUrl: afterPhoto?.photoUrl || undefined,

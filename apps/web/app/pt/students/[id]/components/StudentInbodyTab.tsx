@@ -169,6 +169,8 @@ const StudentInbodyTab = ({
           metric={chartMetric}
           onMetricChange={onChartMetricChange}
           targetWeight={targetWeight}
+          initialWeight={initialWeight}
+          currentWeight={inbodyWeight}
         />
 
         {/* Historical Table */}
@@ -233,9 +235,14 @@ const StudentInbodyTab = ({
                     </td>
                   </tr>
                 ) : (
-                  historyPoints.map((pt, i) => (
+                  [...historyPoints].reverse().map((pt, i) => (
                     <tr key={i} className="hover:bg-white/5 transition-colors">
-                      <td className="py-2.5 px-3 font-bold text-on-surface whitespace-nowrap">{pt.date}</td>
+                      <td className="py-2.5 px-3 font-bold text-on-surface whitespace-nowrap">
+                        {pt.displayDate ||
+                          (pt.date.includes('T')
+                            ? new Date(pt.date).toLocaleDateString('vi-VN')
+                            : pt.date)}
+                      </td>
                       <td className="py-2.5 px-3 font-extrabold text-primary">{pt.weightKg}</td>
                       <td className="py-2.5 px-3 font-extrabold text-amber-400">
                         {pt.bodyFatPercent}%
