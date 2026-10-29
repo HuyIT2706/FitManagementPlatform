@@ -33,8 +33,6 @@ async function bootstrap() {
     helmet({
       // Allow cross-origin requests from the frontend (CORS handles this)
       crossOriginResourcePolicy: { policy: 'cross-origin' },
-      // Disable COOP on API to avoid interfering with OAuth popups (Google Sign-In)
-      crossOriginOpenerPolicy: false,
       // HSTS: enforce HTTPS for 1 year, include subdomains
       hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
     }),
