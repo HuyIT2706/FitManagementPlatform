@@ -21,22 +21,20 @@ export const swrFetcher = async <T>(url: string): Promise<T> => {
 };
 
 // ---------------------------------------------------------------------------
-// Global SWR defaults — applied to all hooks unless overridden
-// Increased dedupingInterval to 5s to prevent duplicate in-flight requests
-// when multiple components mount simultaneously (e.g. page transitions)
+// Global SWR defaults — persistent caching to avoid redundant calls on tab switch
 // ---------------------------------------------------------------------------
 
 const DEFAULT_SWR_OPTIONS: SWRConfiguration = {
   revalidateOnFocus: false,
-  revalidateIfStale: true,
-  revalidateOnReconnect: true,
-  dedupingInterval: 5000,   // was 2000 — 5s window prevents thundering herd on route change
+  revalidateIfStale: false,
+  revalidateOnReconnect: false,
+  revalidateOnMount: false,
+  dedupingInterval: 30000,   // 30s deduping window prevents spamming on rapid navigation
   errorRetryCount: 3,
 };
 
 // ---------------------------------------------------------------------------
 // useHasToken — single source of truth for auth gate
-// Previously duplicated 5 times across hooks — now centralised.
 // ---------------------------------------------------------------------------
 
 function useHasToken(): boolean {
@@ -52,7 +50,6 @@ function useHasToken(): boolean {
 export const prefetchCurrentUser = (): void => {
   if (typeof window === 'undefined') return;
   if (!localStorage.getItem('jwt_token')) return;
-  // Trigger a SWR-managed fetch that populates the cache key '/users/me'
   void globalMutate('/users/me', () => swrFetcher<UserDataHome>('/users/me'), {
     revalidate: false, // trust the fetched value, no immediate re-fetch
   });
@@ -70,16 +67,10 @@ export const useCurrentUser = (options?: SWRConfiguration) => {
     {
       ...DEFAULT_SWR_OPTIONS,
       revalidateIfStale: false, 
-      dedupingInterval: 60000,  
-      refreshInterval: (latestData) => {
-        if (
-          latestData?.assignedPt?.status === 'PENDING' ||
-          latestData?.isPendingPtApproval
-        ) {
-          return 15000;
-        }
-        return 0;
-      },
+      revalidateOnMount: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 3600000, // 1 hour persistent cache during session
       ...options,
     }
   );
@@ -102,7 +93,8 @@ export const useBodyMetrics = (options?: SWRConfiguration) => {
     {
       ...DEFAULT_SWR_OPTIONS,
       revalidateIfStale: false,
-      dedupingInterval: 30000,
+      revalidateOnMount: false,
+      dedupingInterval: 300000, // 5 minutes cache
       ...options,
     }
   );
@@ -113,7 +105,13 @@ export const useDailyNutrition = (dateStr?: string, options?: SWRConfiguration) 
   return useSWR<DailyNutritionData>(
     url,
     swrFetcher,
-    { ...DEFAULT_SWR_OPTIONS, keepPreviousData: true, ...options }
+    {
+      ...DEFAULT_SWR_OPTIONS,
+      revalidateIfStale: false,
+      keepPreviousData: true,
+      dedupingInterval: 60000, // 1 minute
+      ...options,
+    }
   );
 };
 
@@ -140,11 +138,22 @@ export const useExerciseLibrary = (
   search = '',
   options?: SWRConfiguration
 ) => {
-  const query = `?page=${page}&limit=${limit}&muscle=${muscle}&search=${encodeURIComponent(search)}`;
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+  });
+  if (muscle && muscle !== 'ALL') params.set('muscle', muscle);
+  if (search.trim()) params.set('search', search.trim());
+
   return useSWR<ExercisePaginatedResponse>(
-    `/workout/exercises${query}`,
+    `/workout/exercises?${params.toString()}`,
     swrFetcher,
-    { ...DEFAULT_SWR_OPTIONS, keepPreviousData: true, ...options }
+    {
+      ...DEFAULT_SWR_OPTIONS,
+      dedupingInterval: 30000,
+      keepPreviousData: true,
+      ...options,
+    }
   );
 };
 
@@ -153,7 +162,11 @@ export const usePtDashboard = (options?: SWRConfiguration) => {
   return useSWR<PTDashboardData>(
     hasToken ? '/pt/dashboard' : null,
     swrFetcher,
-    { ...DEFAULT_SWR_OPTIONS, ...options }
+    {
+      ...DEFAULT_SWR_OPTIONS,
+      dedupingInterval: 30000,
+      ...options,
+    }
   );
 };
 
@@ -162,27 +175,44 @@ export const usePtCodeQr = (options?: SWRConfiguration) => {
   return useSWR<PTCodeQrData>(
     hasToken ? '/pt/code-qr' : null,
     swrFetcher,
-    { ...DEFAULT_SWR_OPTIONS, ...options }
+    {
+      ...DEFAULT_SWR_OPTIONS,
+      dedupingInterval: 3600000,
+      revalidateIfStale: false,
+      ...options,
+    }
   );
 };
 
-export const usePtSchedule = (startDate?: string, endDate?: string, options?: SWRConfiguration) => {
+export const usePtSchedule = (
+  startDate?: string,
+  endDate?: string,
+  options?: SWRConfiguration
+) => {
   const hasToken = useHasToken();
-  const query = startDate && endDate ? `?startDate=${startDate}&endDate=${endDate}` : '';
+  const params = new URLSearchParams();
+  if (startDate) params.set('startDate', startDate);
+  if (endDate) params.set('endDate', endDate);
+  const query = params.toString() ? `?${params.toString()}` : '';
+
   return useSWR<PTSessionItem[]>(
     hasToken ? `/pt/schedule${query}` : null,
     swrFetcher,
-    { ...DEFAULT_SWR_OPTIONS, ...options }
+    {
+      ...DEFAULT_SWR_OPTIONS,
+      dedupingInterval: 15000,
+      ...options,
+    }
   );
 };
+
+export const usePtScheduleSessions = usePtSchedule;
 
 export interface NotificationsResponse {
   notifications: NotificationItem[];
   unreadCount: number;
 }
 
-// Notification polling: only poll when the tab is visible to save server resources.
-// 1000 concurrent users × 1 req/60s = 1000 req/min for notifications alone.
 function getNotificationRefreshInterval(): number {
   if (typeof document === 'undefined') return 0;
   return document.visibilityState === 'hidden' ? 0 : 60000;
@@ -197,8 +227,8 @@ export const useNotifications = (options?: SWRConfiguration) => {
       ...DEFAULT_SWR_OPTIONS,
       refreshInterval: getNotificationRefreshInterval,
       shouldRetryOnError: false,
-      // Resume polling when tab becomes visible again
-      revalidateOnFocus: true,
+      revalidateOnFocus: false,
+      dedupingInterval: 60000,
       ...options,
     }
   );
@@ -217,7 +247,7 @@ export const syncUserSession = async (): Promise<UserDataHome | null> => {
     }>('/auth/sync-session');
     if (res.data?.access_token) {
       localStorage.setItem('jwt_token', res.data.access_token);
-      await globalMutate('/users/me');
+      await globalMutate('/users/me', res.data.user, false);
       return res.data.user;
     }
     return null;

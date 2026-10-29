@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import type {
   FoodItem,
@@ -20,6 +21,8 @@ import { LogMealDto } from './dto/log-meal.dto';
 
 @Injectable()
 export class NutritionService {
+  private readonly logger = new Logger(NutritionService.name);
+
   constructor(private prisma: PrismaService) {}
 
   async searchFoods(
@@ -529,226 +532,276 @@ export class NutritionService {
   }
 
   async getDailyNutrition(userId: string, date: Date) {
-    // Tạo start of day và end of day
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
+    try {
+      const validDate = date && !isNaN(date.getTime()) ? date : new Date();
+      // Tạo start of day và end of day
+      const startOfDay = new Date(validDate);
+      startOfDay.setHours(0, 0, 0, 0);
 
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
+      const endOfDay = new Date(validDate);
+      endOfDay.setHours(23, 59, 59, 999);
 
-    const [meals, user, streak] = await Promise.all([
-      this.prisma.mealLog.findMany({
-        where: {
-          userId,
-          logDate: {
-            gte: startOfDay,
-            lte: endOfDay,
-          },
-        },
-        include: {
-          items: true,
-        },
-      }),
-      this.prisma.user.findUnique({
-        where: { id: userId },
-        include: {
-          nutritionTargets: {
-            orderBy: { effectiveDate: 'desc' },
-            take: 1,
-          },
-        },
-      }),
-      this.getStreakData(userId),
-    ]);
+      let meals: any[] = [];
+      let user: any = null;
+      let streak = { currentStreak: 0, totalLoggedDays: 0, loggedDates: [] as string[] };
 
-    // Tổng kết toàn ngày & Nhóm theo bữa ăn (mealName)
-    let totalCalories = 0;
-    let totalProtein = 0;
-    let totalCarbs = 0;
-    let totalFat = 0;
+      try {
+        const results = await Promise.allSettled([
+          this.prisma.mealLog.findMany({
+            where: {
+              userId,
+              logDate: {
+                gte: startOfDay,
+                lte: endOfDay,
+              },
+            },
+            include: {
+              items: true,
+            },
+          }),
+          this.prisma.user.findUnique({
+            where: { id: userId },
+            include: {
+              nutritionTargets: {
+                orderBy: { effectiveDate: 'desc' },
+                take: 1,
+              },
+            },
+          }),
+          this.getStreakData(userId),
+        ]);
 
-    const mealSummaryMap: Record<
-      string,
-      {
-        mealName: string;
-        totalCalories: number;
-        totalProtein: number;
-        totalCarbs: number;
-        totalFat: number;
-        items: Array<{
-          foodName: string;
-          weightInGram: number;
-          calories: number;
-        }>;
-      }
-    > = {};
-
-    meals.forEach((meal) => {
-      totalCalories += meal.totalCalories;
-      totalProtein += meal.totalProtein;
-      totalCarbs += meal.totalCarbs;
-      totalFat += meal.totalFat;
-
-      const type = meal.mealName;
-      if (!mealSummaryMap[type]) {
-        mealSummaryMap[type] = {
-          mealName: type,
-          totalCalories: 0,
-          totalProtein: 0,
-          totalCarbs: 0,
-          totalFat: 0,
-          items: [],
-        };
+        if (results[0].status === 'fulfilled') meals = results[0].value || [];
+        if (results[1].status === 'fulfilled') user = results[1].value;
+        if (results[2].status === 'fulfilled') streak = results[2].value;
+      } catch (dbErr) {
+        this.logger.error('Database query failed in getDailyNutrition:', dbErr);
       }
 
-      mealSummaryMap[type].totalCalories += meal.totalCalories;
-      mealSummaryMap[type].totalProtein += meal.totalProtein;
-      mealSummaryMap[type].totalCarbs += meal.totalCarbs;
-      mealSummaryMap[type].totalFat += meal.totalFat;
+      // Tổng kết toàn ngày & Nhóm theo bữa ăn (mealName)
+      let totalCalories = 0;
+      let totalProtein = 0;
+      let totalCarbs = 0;
+      let totalFat = 0;
 
-      if (meal.items) {
-        meal.items.forEach((item) => {
-          mealSummaryMap[type].items.push({
-            foodName: item.foodName,
-            weightInGram: item.weightInGram,
-            calories: item.calories,
+      const mealSummaryMap: Record<
+        string,
+        {
+          mealName: string;
+          totalCalories: number;
+          totalProtein: number;
+          totalCarbs: number;
+          totalFat: number;
+          items: Array<{
+            foodName: string;
+            weightInGram: number;
+            calories: number;
+          }>;
+        }
+      > = {};
+
+      meals.forEach((meal) => {
+        totalCalories += meal.totalCalories || 0;
+        totalProtein += meal.totalProtein || 0;
+        totalCarbs += meal.totalCarbs || 0;
+        totalFat += meal.totalFat || 0;
+
+        const type = meal.mealName || 'OTHER';
+        if (!mealSummaryMap[type]) {
+          mealSummaryMap[type] = {
+            mealName: type,
+            totalCalories: 0,
+            totalProtein: 0,
+            totalCarbs: 0,
+            totalFat: 0,
+            items: [],
+          };
+        }
+
+        mealSummaryMap[type].totalCalories += meal.totalCalories || 0;
+        mealSummaryMap[type].totalProtein += meal.totalProtein || 0;
+        mealSummaryMap[type].totalCarbs += meal.totalCarbs || 0;
+        mealSummaryMap[type].totalFat += meal.totalFat || 0;
+
+        if (meal.items && Array.isArray(meal.items)) {
+          meal.items.forEach((item: any) => {
+            mealSummaryMap[type].items.push({
+              foodName: item.foodName || 'Món ăn',
+              weightInGram: item.weightInGram || 0,
+              calories: item.calories || 0,
+            });
           });
-        });
-      }
-    });
+        }
+      });
 
-    // Làm tròn số liệu cho từng bữa ăn
-    Object.values(mealSummaryMap).forEach((summary) => {
-      summary.totalCalories = Math.round(summary.totalCalories);
-      summary.totalProtein = Math.round(summary.totalProtein * 10) / 10;
-      summary.totalCarbs = Math.round(summary.totalCarbs * 10) / 10;
-      summary.totalFat = Math.round(summary.totalFat * 10) / 10;
-    });
+      // Làm tròn số liệu cho từng bữa ăn
+      Object.values(mealSummaryMap).forEach((summary) => {
+        summary.totalCalories = Math.round(summary.totalCalories || 0);
+        summary.totalProtein = Math.round((summary.totalProtein || 0) * 10) / 10;
+        summary.totalCarbs = Math.round((summary.totalCarbs || 0) * 10) / 10;
+        summary.totalFat = Math.round((summary.totalFat || 0) * 10) / 10;
+      });
 
-    const target = user?.nutritionTargets?.[0];
-    const targetCalo = target?.targetCalo || 2000;
-    const targetProtein = target?.targetProtein || 150;
-    const targetCarbs = target?.targetCarbs || 200;
-    const targetFat = target?.targetFat || 65;
+      const target = user?.nutritionTargets?.[0];
+      const targetCalo = target?.targetCalo || 2000;
+      const targetProtein = target?.targetProtein || 150;
+      const targetCarbs = target?.targetCarbs || 200;
+      const targetFat = target?.targetFat || 65;
 
-    const consumedCaloRound = Math.round(totalCalories);
-    const consumedProteinRound = Math.round(totalProtein * 10) / 10;
-    const consumedCarbsRound = Math.round(totalCarbs * 10) / 10;
-    const consumedFatRound = Math.round(totalFat * 10) / 10;
+      const consumedCaloRound = Math.round(totalCalories || 0);
+      const consumedProteinRound = Math.round((totalProtein || 0) * 10) / 10;
+      const consumedCarbsRound = Math.round((totalCarbs || 0) * 10) / 10;
+      const consumedFatRound = Math.round((totalFat || 0) * 10) / 10;
 
-    const caloPercentage = targetCalo
-      ? Math.min((consumedCaloRound / targetCalo) * 100, 100)
-      : 0;
-    const proteinPercentage = targetProtein
-      ? Math.min((consumedProteinRound / targetProtein) * 100, 100)
-      : 0;
-    const carbsPercentage = targetCarbs
-      ? Math.min((consumedCarbsRound / targetCarbs) * 100, 100)
-      : 0;
-    const fatPercentage = targetFat
-      ? Math.min((consumedFatRound / targetFat) * 100, 100)
-      : 0;
+      const caloPercentage = targetCalo
+        ? Math.min((consumedCaloRound / targetCalo) * 100, 100)
+        : 0;
+      const proteinPercentage = targetProtein
+        ? Math.min((consumedProteinRound / targetProtein) * 100, 100)
+        : 0;
+      const carbsPercentage = targetCarbs
+        ? Math.min((consumedCarbsRound / targetCarbs) * 100, 100)
+        : 0;
+      const fatPercentage = targetFat
+        ? Math.min((consumedFatRound / targetFat) * 100, 100)
+        : 0;
 
-    const circumference = 816;
-    const strokeDashoffset = Math.round(
-      circumference - (caloPercentage / 100) * circumference,
-    );
-    const remainingCalories = Math.round(
-      Math.max(0, targetCalo - consumedCaloRound),
-    );
+      const circumference = 816;
+      const strokeDashoffset = Math.round(
+        circumference - (caloPercentage / 100) * circumference,
+      );
+      const remainingCalories = Math.round(
+        Math.max(0, targetCalo - consumedCaloRound),
+      );
 
-    const mealSlots = this.getMealSlotsByFrequency(user?.mealFrequency);
+      const mealSlots = this.getMealSlotsByFrequency(user?.mealFrequency);
 
-    return {
-      date: startOfDay.toISOString(),
-      targets: {
-        calories: targetCalo,
-        protein: targetProtein,
-        carbs: targetCarbs,
-        fat: targetFat,
-      },
-      consumed: {
-        calories: consumedCaloRound,
-        protein: consumedProteinRound,
-        carbs: consumedCarbsRound,
-        fat: consumedFatRound,
-      },
-      progress: {
-        caloriesPercent: Math.round(caloPercentage * 10) / 10,
-        proteinPercent: Math.round(proteinPercentage * 10) / 10,
-        carbsPercent: Math.round(carbsPercentage * 10) / 10,
-        fatPercent: Math.round(fatPercentage * 10) / 10,
-        strokeDashoffset,
-        remainingCalories,
-      },
-      streak,
-      mealSlots,
-      meals,
-      mealSummary: mealSummaryMap,
-    };
+      return {
+        date: startOfDay.toISOString(),
+        targets: {
+          calories: targetCalo,
+          protein: targetProtein,
+          carbs: targetCarbs,
+          fat: targetFat,
+        },
+        consumed: {
+          calories: consumedCaloRound,
+          protein: consumedProteinRound,
+          carbs: consumedCarbsRound,
+          fat: consumedFatRound,
+        },
+        progress: {
+          caloriesPercent: Math.round(caloPercentage * 10) / 10,
+          proteinPercent: Math.round(proteinPercentage * 10) / 10,
+          carbsPercent: Math.round(carbsPercentage * 10) / 10,
+          fatPercent: Math.round(fatPercentage * 10) / 10,
+          strokeDashoffset,
+          remainingCalories,
+        },
+        streak,
+        mealSlots,
+        meals,
+        mealSummary: mealSummaryMap,
+      };
+    } catch (err) {
+      this.logger.error(`getDailyNutrition unexpected error for user ${userId}:`, err);
+      const validDate = date && !isNaN(date.getTime()) ? date : new Date();
+      const startOfDay = new Date(validDate);
+      startOfDay.setHours(0, 0, 0, 0);
+
+      return {
+        date: startOfDay.toISOString(),
+        targets: { calories: 2000, protein: 150, carbs: 200, fat: 65 },
+        consumed: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+        progress: {
+          caloriesPercent: 0,
+          proteinPercent: 0,
+          carbsPercent: 0,
+          fatPercent: 0,
+          strokeDashoffset: 816,
+          remainingCalories: 2000,
+        },
+        streak: { currentStreak: 0, totalLoggedDays: 0, loggedDates: [] },
+        mealSlots: this.getMealSlotsByFrequency(4),
+        meals: [],
+        mealSummary: {},
+      };
+    }
   }
 
   async getStreakData(userId: string) {
-    // Bound to the last 90 days to utilize @@index([userId, logDate]) and prevent unbound table scan
-    const ninetyDaysAgo = new Date();
-    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
-    ninetyDaysAgo.setHours(0, 0, 0, 0);
+    try {
+      // Bound to the last 90 days to utilize @@index([userId, logDate]) and prevent unbound table scan
+      const ninetyDaysAgo = new Date();
+      ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+      ninetyDaysAgo.setHours(0, 0, 0, 0);
 
-    const mealLogs = await this.prisma.mealLog.findMany({
-      where: {
-        userId,
-        totalCalories: { gt: 0 },
-        logDate: { gte: ninetyDaysAgo },
-      },
-      select: {
-        logDate: true,
-      },
-      orderBy: {
-        logDate: 'desc',
-      },
-      take: 500,
-    });
+      const mealLogs = await this.prisma.mealLog.findMany({
+        where: {
+          userId,
+          totalCalories: { gt: 0 },
+          logDate: { gte: ninetyDaysAgo },
+        },
+        select: {
+          logDate: true,
+        },
+        orderBy: {
+          logDate: 'desc',
+        },
+        take: 500,
+      });
 
-    const loggedDatesSet = new Set<string>();
-    mealLogs.forEach((log) => {
-      const d = new Date(log.logDate);
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const dd = String(d.getDate()).padStart(2, '0');
-      loggedDatesSet.add(`${yyyy}-${mm}-${dd}`);
-    });
+      const loggedDatesSet = new Set<string>();
+      mealLogs.forEach((log) => {
+        if (!log?.logDate) return;
+        const d = new Date(log.logDate);
+        if (isNaN(d.getTime())) return;
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        loggedDatesSet.add(`${yyyy}-${mm}-${dd}`);
+      });
 
-    const loggedDates = Array.from(loggedDatesSet);
-    const totalLoggedDays = loggedDates.length;
+      const loggedDates = Array.from(loggedDatesSet);
+      const totalLoggedDays = loggedDates.length;
 
-    let currentStreak = 0;
-    const now = new Date();
-    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      let currentStreak = 0;
+      const now = new Date();
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
-    const checkDate = new Date(now);
-    if (!loggedDatesSet.has(todayStr)) {
-      checkDate.setDate(checkDate.getDate() - 1);
-    }
-
-    while (true) {
-      const yyyy = checkDate.getFullYear();
-      const mm = String(checkDate.getMonth() + 1).padStart(2, '0');
-      const dd = String(checkDate.getDate()).padStart(2, '0');
-      const dateKey = `${yyyy}-${mm}-${dd}`;
-
-      if (loggedDatesSet.has(dateKey)) {
-        currentStreak++;
+      const checkDate = new Date(now);
+      if (!loggedDatesSet.has(todayStr)) {
         checkDate.setDate(checkDate.getDate() - 1);
-      } else {
-        break;
       }
-    }
 
-    return {
-      currentStreak,
-      totalLoggedDays,
-      loggedDates,
-    };
+      let maxDays = 100;
+      while (maxDays-- > 0) {
+        const yyyy = checkDate.getFullYear();
+        const mm = String(checkDate.getMonth() + 1).padStart(2, '0');
+        const dd = String(checkDate.getDate()).padStart(2, '0');
+        const dateKey = `${yyyy}-${mm}-${dd}`;
+
+        if (loggedDatesSet.has(dateKey)) {
+          currentStreak++;
+          checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+
+      return {
+        currentStreak,
+        totalLoggedDays,
+        loggedDates,
+      };
+    } catch (err) {
+      this.logger.error(`getStreakData unexpected error for user ${userId}:`, err);
+      return {
+        currentStreak: 0,
+        totalLoggedDays: 0,
+        loggedDates: [],
+      };
+    }
   }
 
   private getMealSlotsByFrequency(freq?: number | null) {

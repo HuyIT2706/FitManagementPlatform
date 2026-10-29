@@ -176,30 +176,37 @@ export default function WeightTrackingPage() {
         await apiClient.patch('/users/me', {
           targetWeight: val,
         });
-        await mutateUser();
+        await mutateUser((prev) => (prev ? { ...prev, targetWeight: val } : prev), false);
         toast.success(`Đã cập nhật mục tiêu cân nặng: ${val} kg`, 'Thành công');
       } else if (editMode === 'INITIAL') {
         if (selectedMetricId) {
           // Update earliest metric
-          await apiClient.patch(`/progress/metrics/${selectedMetricId}`, {
+          const res = await apiClient.patch(`/progress/metrics/${selectedMetricId}`, {
             weight: val,
           });
+          const updated = res.data;
+          await mutateMetrics(
+            (prev) => (prev ? prev.map((m) => (m.id === selectedMetricId ? { ...m, weight: val } : m)) : [updated]),
+            false
+          );
         } else {
           // Create initial baseline
-          await apiClient.post('/progress/metrics', {
+          const res = await apiClient.post('/progress/metrics', {
             weight: val,
           });
+          const created = res.data;
+          await mutateMetrics((prev) => (prev ? [created, ...prev] : [created]), false);
         }
-        await mutateMetrics();
-        await mutateUser();
+        await mutateUser((prev) => (prev ? { ...prev, weight: val } : prev), false);
         toast.success(`Đã cập nhật cân nặng ban đầu: ${val} kg`, 'Thành công');
       } else {
         // CURRENT: Add new metric entry
-        await apiClient.post('/progress/metrics', {
+        const res = await apiClient.post('/progress/metrics', {
           weight: val,
         });
-        await mutateMetrics();
-        await mutateUser();
+        const created = res.data;
+        await mutateMetrics((prev) => (prev ? [...prev, created] : [created]), false);
+        await mutateUser((prev) => (prev ? { ...prev, weight: val } : prev), false);
         toast.success(`Đã ghi nhận cân nặng hôm nay: ${val} kg`, 'Thành công');
       }
       closeEditModal();
@@ -216,8 +223,7 @@ export default function WeightTrackingPage() {
     setIsDeletingId(id);
     try {
       await apiClient.delete(`/progress/metrics/${id}`);
-      await mutateMetrics();
-      await mutateUser();
+      await mutateMetrics((prev) => (prev ? prev.filter((m) => m.id !== id) : prev), false);
       toast.success('Đã xóa bản ghi cân nặng thành công');
     } catch (err) {
       console.error('Delete metric error:', err);

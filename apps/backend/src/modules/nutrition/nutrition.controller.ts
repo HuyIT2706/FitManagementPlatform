@@ -88,7 +88,23 @@ export class NutritionController {
     @Request() req: RequestWithUser,
     @Query('date') dateString?: string,
   ) {
-    const date = dateString ? new Date(dateString) : new Date();
+    let date = new Date();
+    if (dateString) {
+      const parts = dateString.split('-');
+      if (parts.length === 3) {
+        const y = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10) - 1;
+        const d = parseInt(parts[2], 10);
+        if (!isNaN(y) && !isNaN(m) && !isNaN(d)) {
+          date = new Date(y, m, d);
+        }
+      } else {
+        const parsed = new Date(dateString);
+        if (!isNaN(parsed.getTime())) {
+          date = parsed;
+        }
+      }
+    }
     return this.nutritionService.getDailyNutrition(req.user.sub, date);
   }
 
