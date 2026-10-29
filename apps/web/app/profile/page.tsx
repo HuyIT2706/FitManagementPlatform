@@ -119,6 +119,7 @@ const ProfilePage = () => {
         <TransformationJourneySlider
           goal={goal}
           weightKg={weightKg}
+          initialWeightKg={userData?.initialWeight ?? weightKg}
           targetWeightKg={targetWeightKg}
           goalTextMap={goalTextMap}
         />

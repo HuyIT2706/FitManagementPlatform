@@ -7,6 +7,7 @@ import type { StudentInbodyTabProps } from '../../../../../interface';
 const StudentInbodyTab = ({
   studentId,
   inbodyWeight,
+  initialWeight,
   inbodyHeight,
   inbodyFat,
   inbodyMuscle,
@@ -255,6 +256,7 @@ const StudentInbodyTab = ({
       <TransformationJourneySlider
         goal={goal || 'MAINTAIN'}
         weightKg={inbodyWeight}
+        initialWeightKg={initialWeight ?? inbodyWeight}
         targetWeightKg={targetWeight || 0}
         goalTextMap={{
           LOSE_WEIGHT: 'Giảm mỡ & Tăng cơ',

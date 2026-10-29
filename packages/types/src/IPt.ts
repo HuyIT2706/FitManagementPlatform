@@ -97,6 +97,7 @@ export interface PTStudentDetail {
   totalSessions: number;
   goal?: string;
   targetWeight?: number;
+  initialWeight?: number;
   assignedExercises?: AssignedExerciseItem[];
   targetCalories?: number;
   targetProtein?: number;

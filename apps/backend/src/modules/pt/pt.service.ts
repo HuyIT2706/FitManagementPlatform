@@ -618,9 +618,12 @@ export class PtService {
           (s.note && s.note.trim().startsWith('[')),
       ) || student.workoutSchedules?.[0];
 
-    const beforePhoto = student.progressPhotos.find((p) => p.tag === 'BEFORE');
+    const beforePhoto = student.progressPhotos.find(
+      (p) => p.tag === 'BEFORE' || p.tag?.startsWith('BEFORE|'),
+    );
     const afterPhoto = student.progressPhotos.find(
-      (p) => p.tag === 'AFTER' || p.tag === 'FRONT',
+      (p) =>
+        p.tag === 'AFTER' || p.tag?.startsWith('AFTER|') || p.tag === 'FRONT',
     );
 
     let assignedExercises: Array<{
@@ -691,6 +694,54 @@ export class PtService {
       }
     }
 
+    const earliestMetric = await this.prisma.bodyMetric.findFirst({
+      where: { userId: studentId },
+      orderBy: { recordedAt: 'asc' },
+      select: { weight: true },
+    });
+    const initialWeight =
+      earliestMetric?.weight ??
+      student.targetWeight ??
+      latestMetric?.weight ??
+      0;
+
+    let beforeWeight = initialWeight;
+    let afterWeight = latestMetric?.weight ?? 0;
+
+    if (beforePhoto) {
+      if (beforePhoto.tag && beforePhoto.tag.includes('|')) {
+        const parsed = parseFloat(beforePhoto.tag.split('|')[1]);
+        beforeWeight = !isNaN(parsed) ? parsed : initialWeight;
+      } else {
+        beforeWeight = initialWeight;
+      }
+    }
+
+    if (afterPhoto) {
+      if (afterPhoto.tag && afterPhoto.tag.includes('|')) {
+        const parsed = parseFloat(afterPhoto.tag.split('|')[1]);
+        afterWeight = !isNaN(parsed) ? parsed : afterWeight;
+      }
+    }
+
+    const currentWeight = latestMetric?.weight ?? student.targetWeight ?? 0;
+    let targetWeight = student.targetWeight ?? undefined;
+    if (targetWeight && currentWeight > 0) {
+      const isGain =
+        student.goal === 'GAIN_WEIGHT' ||
+        student.goal === 'GAIN_MUSCLE' ||
+        Boolean(initialWeight > 0 && targetWeight > initialWeight);
+      const isLoss =
+        student.goal === 'LOSE_WEIGHT' ||
+        Boolean(initialWeight > 0 && targetWeight < initialWeight);
+
+      if (isGain && currentWeight > targetWeight) {
+        targetWeight = currentWeight;
+      } else if (isLoss && currentWeight < targetWeight) {
+        targetWeight = currentWeight;
+      }
+    }
+
     return {
       id: student.id,
       fullName: student.fullName,
@@ -699,7 +750,8 @@ export class PtService {
       phone: student.phone || undefined,
       gender: student.gender || 'MALE',
       goal: student.goal || undefined,
-      targetWeight: student.targetWeight ?? undefined,
+      targetWeight,
+      initialWeight,
       packageName: pkg ? 'Gói PT 1:1' : 'Gói Tiêu chuẩn',
       remainingSessions: pkg?.remainingSessions ?? 0,
       totalSessions: pkg?.totalSessions ?? 0,
@@ -731,8 +783,8 @@ export class PtService {
       beforeAfterPhotos: {
         beforeUrl: beforePhoto?.photoUrl || undefined,
         afterUrl: afterPhoto?.photoUrl || undefined,
-        beforeWeight: beforePhoto ? (student.targetWeight ?? 0) : 0,
-        afterWeight: afterPhoto ? (latestMetric?.weight ?? 0) : 0,
+        beforeWeight,
+        afterWeight,
       },
       targetCalories: latestTarget?.targetCalo ?? 0,
       targetProtein: latestTarget?.targetProtein ?? 0,
@@ -762,9 +814,51 @@ export class PtService {
     if (ptId) {
       await this.verifyPtOwnsStudent(ptId, studentId);
     }
-    return this.prisma.progressPhoto.findMany({
-      where: { userId: studentId },
-      orderBy: { takenAt: 'desc' },
+    const [photos, bodyMetrics] = await Promise.all([
+      this.prisma.progressPhoto.findMany({
+        where: { userId: studentId },
+        orderBy: { takenAt: 'desc' },
+      }),
+      this.prisma.bodyMetric.findMany({
+        where: { userId: studentId },
+        orderBy: { recordedAt: 'asc' },
+        select: { weight: true, recordedAt: true },
+      }),
+    ]);
+
+    const earliestWeight =
+      bodyMetrics.length > 0 ? bodyMetrics[0].weight : null;
+    const latestWeight =
+      bodyMetrics.length > 0
+        ? bodyMetrics[bodyMetrics.length - 1].weight
+        : null;
+
+    return photos.map((p) => {
+      let cleanTag = p.tag || 'AFTER';
+      let weightAtTime: number | null = null;
+
+      if (cleanTag.includes('|')) {
+        const parts = cleanTag.split('|');
+        cleanTag = parts[0];
+        const parsed = parseFloat(parts[1]);
+        if (!isNaN(parsed)) {
+          weightAtTime = parsed;
+        }
+      }
+
+      if (weightAtTime === null) {
+        if (cleanTag === 'BEFORE') {
+          weightAtTime = earliestWeight;
+        } else if (cleanTag === 'AFTER') {
+          weightAtTime = latestWeight;
+        }
+      }
+
+      return {
+        ...p,
+        tag: cleanTag,
+        weightAtTime,
+      };
     });
   }
 
@@ -785,14 +879,26 @@ export class PtService {
         },
       });
     }
-    return this.prisma.progressPhoto.create({
+
+    const tagToSave =
+      dto.weightAtTime && dto.weightAtTime > 0
+        ? `${dto.tag || 'AFTER'}|${dto.weightAtTime}`
+        : dto.tag || 'AFTER';
+
+    const created = await this.prisma.progressPhoto.create({
       data: {
         userId: studentId,
         photoUrl: dto.photoUrl,
-        tag: dto.tag || 'AFTER',
+        tag: tagToSave,
         takenAt: dto.takenAt ? new Date(dto.takenAt) : new Date(),
       },
     });
+
+    return {
+      ...created,
+      tag: dto.tag || 'AFTER',
+      weightAtTime: dto.weightAtTime || null,
+    };
   }
 
   async deleteStudentPhoto(studentId: string, photoId: string, ptId?: string) {
@@ -1031,6 +1137,31 @@ export class PtService {
           where: { id: dto.studentId },
           data: { height: dto.heightCm },
         });
+      }
+
+      if (dto.weightKg && dto.weightKg > 0) {
+        const student = await this.prisma.user.findUnique({
+          where: { id: dto.studentId },
+          select: { targetWeight: true, goal: true },
+        });
+
+        if (student?.targetWeight) {
+          const isGain =
+            student.goal === 'GAIN_WEIGHT' ||
+            student.goal === 'GAIN_MUSCLE';
+          const isLoss = student.goal === 'LOSE_WEIGHT';
+
+          if (
+            (isGain && dto.weightKg > student.targetWeight) ||
+            (isLoss && dto.weightKg < student.targetWeight) ||
+            (!student.goal && dto.weightKg > student.targetWeight)
+          ) {
+            await this.prisma.user.update({
+              where: { id: dto.studentId },
+              data: { targetWeight: dto.weightKg },
+            });
+          }
+        }
       }
     }
 

@@ -11,21 +11,84 @@ export class ProgressService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getPhotos(userId: string) {
-    return this.prisma.progressPhoto.findMany({
-      where: { userId },
-      orderBy: { takenAt: 'desc' },
+    const [photos, bodyMetrics] = await Promise.all([
+      this.prisma.progressPhoto.findMany({
+        where: { userId },
+        orderBy: { takenAt: 'desc' },
+      }),
+      this.prisma.bodyMetric.findMany({
+        where: { userId },
+        orderBy: { recordedAt: 'asc' },
+        select: { weight: true, recordedAt: true },
+      }),
+    ]);
+
+    const earliestWeight =
+      bodyMetrics.length > 0 ? bodyMetrics[0].weight : null;
+    const latestWeight =
+      bodyMetrics.length > 0
+        ? bodyMetrics[bodyMetrics.length - 1].weight
+        : null;
+
+    return photos.map((p) => {
+      let cleanTag = p.tag || 'AFTER';
+      let weightAtTime: number | null = null;
+
+      if (cleanTag.includes('|')) {
+        const parts = cleanTag.split('|');
+        cleanTag = parts[0];
+        const parsed = parseFloat(parts[1]);
+        if (!isNaN(parsed)) {
+          weightAtTime = parsed;
+        }
+      }
+
+      if (weightAtTime === null) {
+        if (cleanTag === 'BEFORE') {
+          weightAtTime = earliestWeight;
+        } else if (cleanTag === 'AFTER') {
+          weightAtTime = latestWeight;
+        }
+      }
+
+      return {
+        ...p,
+        tag: cleanTag,
+        weightAtTime,
+      };
     });
   }
 
   async addPhoto(userId: string, dto: CreateProgressPhotoDto) {
-    return this.prisma.progressPhoto.create({
+    if (dto.weightAtTime && dto.weightAtTime > 0) {
+      await this.prisma.bodyMetric.create({
+        data: {
+          userId,
+          weight: dto.weightAtTime,
+          recordedAt: dto.takenAt ? new Date(dto.takenAt) : new Date(),
+        },
+      });
+    }
+
+    const tagToSave =
+      dto.weightAtTime && dto.weightAtTime > 0
+        ? `${dto.tag || 'AFTER'}|${dto.weightAtTime}`
+        : dto.tag || 'AFTER';
+
+    const created = await this.prisma.progressPhoto.create({
       data: {
         userId,
         photoUrl: dto.photoUrl,
-        tag: dto.tag || 'AFTER',
+        tag: tagToSave,
         takenAt: dto.takenAt ? new Date(dto.takenAt) : new Date(),
       },
     });
+
+    return {
+      ...created,
+      tag: dto.tag || 'AFTER',
+      weightAtTime: dto.weightAtTime || null,
+    };
   }
 
   async deletePhoto(userId: string, photoId: string) {

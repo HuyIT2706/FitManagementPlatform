@@ -57,6 +57,7 @@ export interface UserDataHome extends UserData {
   age?: number;
   height?: number;
   weight?: number;
+  initialWeight?: number;
   targetWeight?: number;
   dateOfBirth?: Date | string;
   gender?: string;

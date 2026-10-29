@@ -219,9 +219,25 @@ export class UsersService {
 
       const isLosing = (weight || 70) > (user.targetWeight || 70);
       const suggestedOffset = isLosing ? -400 : 300;
+      const earliestMetric = await this.prisma.bodyMetric.findFirst({
+        where: { userId },
+        orderBy: { recordedAt: 'asc' },
+        select: { weight: true },
+      });
+      const initialWeight =
+        earliestMetric?.weight ?? user.targetWeight ?? weight;
 
       return {
         ...user,
+        targetWeight:
+          user.targetWeight && weight > 0
+            ? ((user.goal === 'GAIN_WEIGHT' || (initialWeight > 0 && user.targetWeight > initialWeight)) && weight > user.targetWeight)
+              ? weight
+              : ((user.goal === 'LOSE_WEIGHT' || (initialWeight > 0 && user.targetWeight < initialWeight)) && weight < user.targetWeight)
+                ? weight
+                : user.targetWeight
+            : user.targetWeight,
+        initialWeight,
         isApprovedPt,
         ptApplicationStatus,
         isPendingPtApproval,

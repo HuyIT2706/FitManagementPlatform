@@ -8,6 +8,8 @@ import {
   Trash2,
   X,
   Upload,
+  Loader2,
+  Sparkles,
 } from "lucide-react";
 import apiClient from "../../../api/axios";
 import type {
@@ -15,10 +17,12 @@ import type {
   ProgressPhotoItem,
 } from "../../../interface";
 import { toastStore } from "../../../utils/toast/toastStore";
+import { compressImageFile } from "../../../utils/image-compression";
 
 const TransformationJourneySlider = ({
   goal,
   weightKg,
+  initialWeightKg,
   targetWeightKg,
   goalTextMap,
   studentId,
@@ -37,6 +41,67 @@ const TransformationJourneySlider = ({
     setMounted(true);
   }, []);
 
+  // Determine Before & After photos (fallback to stock images if none uploaded)
+  const beforePhotoRaw = photos.find((p) => p.tag === "BEFORE");
+  const beforeWeight =
+    beforePhotoRaw?.weightAtTime ||
+    (initialWeightKg && initialWeightKg > 0 ? initialWeightKg : null) ||
+    (weightKg && weightKg > 0 ? weightKg : null);
+
+  const beforePhoto = beforePhotoRaw
+    ? {
+        ...beforePhotoRaw,
+        weightAtTime: beforeWeight,
+      }
+    : {
+        id: "default-before",
+        photoUrl:
+          "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1000&q=80",
+        takenAt: "Ban đầu",
+        weightAtTime: beforeWeight,
+      };
+
+  const afterPhotoRaw = photos.find((p) => p.tag === "AFTER");
+  const afterWeight =
+    afterPhotoRaw?.weightAtTime ||
+    (weightKg && weightKg > 0 ? weightKg : null) ||
+    (initialWeightKg && initialWeightKg > 0 ? initialWeightKg : null);
+
+  const afterPhoto = afterPhotoRaw
+    ? {
+        ...afterPhotoRaw,
+        weightAtTime: afterWeight,
+      }
+    : {
+        id: "default-after",
+        photoUrl:
+          "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1000&q=80",
+        takenAt: "Hôm nay",
+        weightAtTime: afterWeight,
+      };
+
+  // Adjust target weight when exceeded:
+  // When current weight exceeds target (e.g. start 40kg, target 45kg, now 52kg),
+  // target updates to current weight so progress reflects the achievement
+  const currentWeight = afterWeight || weightKg || 0;
+  let effectiveTargetWeight = targetWeightKg;
+
+  if (effectiveTargetWeight && effectiveTargetWeight > 0 && currentWeight > 0) {
+    const isGain =
+      goal === "GAIN_WEIGHT" ||
+      goal === "GAIN_MUSCLE" ||
+      Boolean(beforeWeight && beforeWeight > 0 && effectiveTargetWeight > beforeWeight);
+    const isLoss =
+      goal === "LOSE_WEIGHT" ||
+      Boolean(beforeWeight && beforeWeight > 0 && effectiveTargetWeight < beforeWeight);
+
+    if (isGain && currentWeight > effectiveTargetWeight) {
+      effectiveTargetWeight = currentWeight;
+    } else if (isLoss && currentWeight < effectiveTargetWeight) {
+      effectiveTargetWeight = currentWeight;
+    }
+  }
+
   // New photo form
   const [newPhotoUrl, setNewPhotoUrl] = useState("");
   const [newTag, setNewTag] = useState<"BEFORE" | "AFTER">("AFTER");
@@ -44,27 +109,55 @@ const TransformationJourneySlider = ({
     weightKg && weightKg > 0 ? String(weightKg) : "",
   );
   const [submitting, setSubmitting] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
 
   useEffect(() => {
     if (isUploadOpen) {
-      setNewWeight(weightKg && weightKg > 0 ? String(weightKg) : "");
+      const defaultW =
+        newTag === "BEFORE"
+          ? beforeWeight || initialWeightKg || weightKg
+          : afterWeight || weightKg;
+      setNewWeight(defaultW && defaultW > 0 ? String(defaultW) : "");
     }
-  }, [isUploadOpen, weightKg]);
+  }, [isUploadOpen, newTag, beforeWeight, initialWeightKg, afterWeight, weightKg]);
+
+  const handleTagChange = (tag: "BEFORE" | "AFTER") => {
+    setNewTag(tag);
+    if (tag === "BEFORE") {
+      const defaultW = beforeWeight || initialWeightKg || weightKg;
+      if (defaultW && defaultW > 0) setNewWeight(String(defaultW));
+    } else {
+      const defaultW = afterWeight || weightKg;
+      if (defaultW && defaultW > 0) setNewWeight(String(defaultW));
+    }
+  };
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toastStore.addToast("Kích thước ảnh tối đa 5MB", "error");
+      if (file.size > 12 * 1024 * 1024) {
+        toastStore.addToast("Kích thước ảnh tối đa 12MB", "error");
         return;
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewPhotoUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      setIsCompressing(true);
+      try {
+        // Fast client-side image compression downscales to max 1200px, 75% quality JPEG
+        // Reduces 4-5MB phone photos to ~80-150KB for near-instant upload & retrieval
+        const compressedBase64 = await compressImageFile(file, 1200, 1200, 0.75);
+        setNewPhotoUrl(compressedBase64);
+        toastStore.addToast("Đã tối ưu hóa dung lượng ảnh", "success");
+      } catch (err) {
+        console.error("Compression failed, fallback to raw reader", err);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setNewPhotoUrl(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      } finally {
+        setIsCompressing(false);
+      }
     }
   };
 
@@ -126,23 +219,6 @@ const TransformationJourneySlider = ({
     };
   }, [isDragging, handleMove]);
 
-  // Determine Before & After photos (fallback to stock images if none uploaded)
-  const beforePhoto = photos.find((p) => p.tag === "BEFORE") || {
-    id: "default-before",
-    photoUrl:
-      "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1000&q=80",
-    takenAt: "Ban đầu",
-    weightAtTime: weightKg && weightKg > 0 ? weightKg : null,
-  };
-
-  const afterPhoto = photos.find((p) => p.tag === "AFTER") || {
-    id: "default-after",
-    photoUrl:
-      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1000&q=80",
-    takenAt: "Hôm nay",
-    weightAtTime: weightKg && weightKg > 0 ? weightKg : null,
-  };
-
   const handleAddPhoto = () => {
     if (!newPhotoUrl.trim()) {
       toastStore.addToast(
@@ -157,7 +233,10 @@ const TransformationJourneySlider = ({
       .post(apiEndpoint, {
         photoUrl: newPhotoUrl.trim(),
         tag: newTag,
-        weightAtTime: parseFloat(newWeight) || weightKg,
+        weightAtTime:
+          parseFloat(newWeight) ||
+          (newTag === "BEFORE" ? beforeWeight : afterWeight) ||
+          weightKg,
       })
       .then(() => {
         toastStore.addToast(
@@ -206,10 +285,10 @@ const TransformationJourneySlider = ({
           </h3>
           <div className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-green-light/10 border border-green-light/30 text-green-light text-[10px] font-bold shadow-[0_0_10px_rgba(102,200,28,0.3)] w-max max-w-full truncate">
             {goalTextMap[goal] || "Mục tiêu tập luyện"}
-            {weightKg && weightKg > 0 && targetWeightKg && targetWeightKg > 0
-              ? ` (${weightKg}kg -> ${targetWeightKg}kg)`
-              : weightKg && weightKg > 0
-                ? ` (${weightKg}kg)`
+            {beforeWeight && beforeWeight > 0 && effectiveTargetWeight && effectiveTargetWeight > 0
+              ? ` (${beforeWeight}kg -> ${effectiveTargetWeight}kg)`
+              : currentWeight > 0
+                ? ` (${currentWeight}kg)`
                 : ""}
           </div>
         </div>
@@ -238,16 +317,18 @@ const TransformationJourneySlider = ({
         ref={containerRef}
         onMouseDown={handleMouseDown}
         onTouchStart={handleMouseDown}
-        className="relative w-full h-64 sm:h-80 md:h-96 rounded-xl overflow-hidden border border-white/10 group cursor-ew-resize select-none touch-none"
+        className="relative w-full h-64 sm:h-80 md:h-96 rounded-xl overflow-hidden border border-white/10 group cursor-ew-resize select-none touch-none bg-slate-900"
       >
         {/* AFTER Image (Full background) */}
         <img
           alt="After"
+          decoding="async"
+          loading="eager"
           className="absolute inset-0 w-full h-full object-cover pointer-events-none"
           src={afterPhoto.photoUrl}
         />
         <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 px-2.5 py-0.5 sm:px-3 sm:py-1 bg-surface-dim/90 backdrop-blur-md border border-green-light rounded-lg text-green-light text-[11px] sm:text-xs font-bold z-20 pointer-events-none shadow-lg">
-          Hiện tại{afterPhoto.weightAtTime || (weightKg && weightKg > 0) ? ` • ${afterPhoto.weightAtTime || weightKg} kg` : ""}
+          Hiện tại{afterWeight && afterWeight > 0 ? ` • ${afterWeight} kg` : ""}
         </div>
 
         {/* BEFORE Image (Clipped by sliderPosition %) */}
@@ -257,6 +338,8 @@ const TransformationJourneySlider = ({
         >
           <img
             alt="Before"
+            decoding="async"
+            loading="eager"
             className="absolute inset-0 h-full object-cover max-w-none pointer-events-none"
             style={{
               width: containerRef.current
@@ -266,7 +349,7 @@ const TransformationJourneySlider = ({
             src={beforePhoto.photoUrl}
           />
           <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 px-2.5 py-0.5 sm:px-3 sm:py-1 bg-surface-dim/90 backdrop-blur-md border border-white/20 rounded-lg text-on-surface text-[11px] sm:text-xs font-bold pointer-events-none shadow-lg">
-            Bắt đầu{beforePhoto.weightAtTime ? ` • ${beforePhoto.weightAtTime} kg` : (weightKg && weightKg > 0 ? ` • ${weightKg} kg` : "")}
+            Bắt đầu{beforeWeight && beforeWeight > 0 ? ` • ${beforeWeight} kg` : ""}
           </div>
         </div>
 
@@ -286,7 +369,7 @@ const TransformationJourneySlider = ({
           <p className="text-[11px] sm:text-xs">
             Kéo thanh trượt để so sánh ảnh Trước & Sau.{" "}
             {isPtView
-              ? "PT có quyền CRUD ảnh tiến trình."
+              ? "PT có quyền quản lý ảnh tiến trình của học viên."
               : "Ảnh bảo mật chỉ bạn và PT xem."}
           </p>
         </div>
@@ -345,7 +428,7 @@ const TransformationJourneySlider = ({
                         key={tag}
                         type="button"
                         onClick={() =>
-                          setNewTag(tag as "BEFORE" | "AFTER")
+                          handleTagChange(tag as "BEFORE" | "AFTER")
                         }
                         className={`py-2 sm:py-2.5 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
                           newTag === tag
@@ -386,19 +469,26 @@ const TransformationJourneySlider = ({
                   </label>
                   <label className="cursor-pointer flex flex-col items-center justify-center gap-2 p-4 sm:p-5 rounded-2xl border-2 border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-all text-center group">
                     <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-primary/20 text-primary border border-primary/30 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
+                      {isCompressing ? (
+                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                      ) : (
+                        <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
+                      )}
                     </div>
                     <div>
                       <span className="text-xs font-bold text-white block">
-                        Tải ảnh từ máy tính hoặc điện thoại
+                        {isCompressing
+                          ? "Đang tối ưu & nén ảnh..."
+                          : "Tải ảnh từ máy tính hoặc điện thoại"}
                       </span>
                       <span className="text-[11px] text-white/50 block mt-0.5">
-                        Hỗ trợ định dạng PNG, JPG, JPEG (tối đa 5MB)
+                        Tự động nén ảnh nhanh, hỗ trợ PNG, JPG, JPEG (tối đa 12MB)
                       </span>
                     </div>
                     <input
                       type="file"
                       accept="image/*"
+                      disabled={isCompressing}
                       className="hidden"
                       onChange={handleFileUpload}
                     />
@@ -408,7 +498,7 @@ const TransformationJourneySlider = ({
                     type="text"
                     value={
                       newPhotoUrl.startsWith("data:")
-                        ? "Đã chọn ảnh từ tệp tin thiết bị"
+                        ? "Đã chọn ảnh từ thiết bị (Đã nén tốc độ cao)"
                         : newPhotoUrl
                     }
                     onChange={(e) => setNewPhotoUrl(e.target.value)}
@@ -426,10 +516,13 @@ const TransformationJourneySlider = ({
                         />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold text-primary">Ảnh đã sẵn sàng</p>
+                        <p className="text-xs font-bold text-primary flex items-center gap-1">
+                          <Sparkles size={12} />
+                          Ảnh đã sẵn sàng
+                        </p>
                         <p className="text-[11px] text-white/50 truncate">
                           {newPhotoUrl.startsWith("data:")
-                            ? "Ảnh tải từ tệp tin thiết bị"
+                            ? "Đã nén tối ưu hiển thị nhanh"
                             : newPhotoUrl}
                         </p>
                       </div>
@@ -458,7 +551,7 @@ const TransformationJourneySlider = ({
                 <button
                   type="button"
                   onClick={handleAddPhoto}
-                  disabled={submitting || !newPhotoUrl}
+                  disabled={submitting || !newPhotoUrl || isCompressing}
                   className="w-full sm:flex-1 py-2.5 sm:py-3 rounded-xl bg-primary text-dark-slate text-sm font-extrabold shadow-[0_0_20px_rgba(102,200,28,0.4)] hover:bg-primary/90 transition-all cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
                 >
                   {submitting ? "Đang lưu..." : "Lưu ảnh tiến trình"}
@@ -512,6 +605,8 @@ const TransformationJourneySlider = ({
                           <img
                             src={photo.photoUrl}
                             alt={photo.tag || "Ảnh tiến trình"}
+                            loading="lazy"
+                            decoding="async"
                             className="w-full h-full object-cover"
                           />
                           <span className="absolute top-2 left-2 px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-md text-[10px] font-bold text-primary border border-primary/30">

@@ -172,6 +172,7 @@ export interface StudentNutritionTabProps {
 export interface StudentInbodyTabProps {
   studentId: string;
   inbodyWeight: number;
+  initialWeight?: number;
   inbodyHeight: number;
   inbodyFat: number;
   inbodyMuscle: number;

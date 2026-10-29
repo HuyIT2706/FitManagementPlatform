@@ -305,8 +305,34 @@ const PTStudentDetailPage = () => {
           };
           const updatedHistory = [...(studentDetail.bodyMetricsHistory || []), newHistoryPoint];
 
+          const isGain =
+            studentDetail.goal === 'GAIN_WEIGHT' ||
+            studentDetail.goal === 'GAIN_MUSCLE' ||
+            Boolean(
+              studentDetail.initialWeight &&
+                studentDetail.targetWeight &&
+                studentDetail.targetWeight > studentDetail.initialWeight,
+            );
+          const isLoss =
+            studentDetail.goal === 'LOSE_WEIGHT' ||
+            Boolean(
+              studentDetail.initialWeight &&
+                studentDetail.targetWeight &&
+                studentDetail.targetWeight < studentDetail.initialWeight,
+            );
+
+          let updatedTarget = studentDetail.targetWeight;
+          if (studentDetail.targetWeight) {
+            if (isGain && inbodyWeight > studentDetail.targetWeight) {
+              updatedTarget = inbodyWeight;
+            } else if (isLoss && inbodyWeight < studentDetail.targetWeight) {
+              updatedTarget = inbodyWeight;
+            }
+          }
+
           setStudentDetail({
             ...studentDetail,
+            targetWeight: updatedTarget,
             bodyMetrics: {
               weightKg: inbodyWeight,
               heightCm: inbodyHeight,
@@ -539,6 +565,7 @@ const PTStudentDetailPage = () => {
           <StudentInbodyTab
             studentId={studentId}
             inbodyWeight={inbodyWeight}
+            initialWeight={studentDetail?.initialWeight ?? inbodyWeight}
             inbodyHeight={inbodyHeight}
             inbodyFat={inbodyFat}
             inbodyMuscle={inbodyMuscle}

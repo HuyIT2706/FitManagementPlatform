@@ -33,6 +33,7 @@ export interface ProfileBiometricsGridProps {
 export interface TransformationJourneyProps {
   goal: string;
   weightKg: number;
+  initialWeightKg?: number;
   targetWeightKg: number;
   goalTextMap: Record<string, string>;
   studentId?: string;
