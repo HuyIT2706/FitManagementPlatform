@@ -135,6 +135,29 @@ export class ProgressService {
       });
     }
 
+    if (dto.weight && dto.weight > 0) {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { targetWeight: true, goal: true },
+      });
+
+      if (user?.targetWeight) {
+        const isGain = user.goal === 'GAIN_WEIGHT';
+        const isLoss = user.goal === 'LOSE_WEIGHT';
+
+        if (
+          (isGain && dto.weight > user.targetWeight) ||
+          (isLoss && dto.weight < user.targetWeight) ||
+          (!user.goal && dto.weight > user.targetWeight)
+        ) {
+          await this.prisma.user.update({
+            where: { id: userId },
+            data: { targetWeight: dto.weight },
+          });
+        }
+      }
+    }
+
     return metric;
   }
 

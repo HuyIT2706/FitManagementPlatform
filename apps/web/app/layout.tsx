@@ -7,14 +7,12 @@ import PushNotificationSync from "../components/common/PushNotificationSync";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin", "vietnamese"],
-  weight: ["700", "800"],
   variable: "--font-plus-jakarta-sans",
   display: "swap",
 });
 
 const inter = Inter({
   subsets: ["latin", "vietnamese"],
-  weight: ["400", "500", "600", "700"],
   variable: "--font-inter",
   display: "swap",
 });

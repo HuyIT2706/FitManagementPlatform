@@ -231,9 +231,13 @@ export class UsersService {
         ...user,
         targetWeight:
           user.targetWeight && weight > 0
-            ? ((user.goal === 'GAIN_WEIGHT' || (initialWeight > 0 && user.targetWeight > initialWeight)) && weight > user.targetWeight)
+            ? (user.goal === 'GAIN_WEIGHT' ||
+                (initialWeight > 0 && user.targetWeight > initialWeight)) &&
+              weight > user.targetWeight
               ? weight
-              : ((user.goal === 'LOSE_WEIGHT' || (initialWeight > 0 && user.targetWeight < initialWeight)) && weight < user.targetWeight)
+              : (user.goal === 'LOSE_WEIGHT' ||
+                    (initialWeight > 0 && user.targetWeight < initialWeight)) &&
+                  weight < user.targetWeight
                 ? weight
                 : user.targetWeight
             : user.targetWeight,

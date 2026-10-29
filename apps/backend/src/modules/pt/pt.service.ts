@@ -1147,8 +1147,7 @@ export class PtService {
 
         if (student?.targetWeight) {
           const isGain =
-            student.goal === 'GAIN_WEIGHT' ||
-            student.goal === 'GAIN_MUSCLE';
+            student.goal === 'GAIN_WEIGHT' || student.goal === 'GAIN_MUSCLE';
           const isLoss = student.goal === 'LOSE_WEIGHT';
 
           if (
