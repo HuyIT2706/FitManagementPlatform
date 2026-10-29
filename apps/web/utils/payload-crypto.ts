@@ -3,10 +3,16 @@
  * Uses native Web Crypto API (AES-256-GCM) with random 96-bit IV per message.
  */
 
-const ENCRYPTION_SECRET =
-  (typeof process !== 'undefined' &&
-    process.env.NEXT_PUBLIC_API_ENCRYPTION_KEY) ||
-  'NutriCore@AES-256-GCM#PayloadSecurity!2026';
+function getEncryptionSecret(): string {
+  const secret =
+    typeof process !== 'undefined'
+      ? process.env.NEXT_PUBLIC_API_ENCRYPTION_KEY
+      : undefined;
+  if (!secret) {
+    throw new Error('Thiếu mã Key Api');
+  }
+  return secret;
+}
 
 let cachedKey: CryptoKey | null = null;
 
@@ -23,7 +29,7 @@ async function getCryptoKey(): Promise<CryptoKey> {
   }
 
   const enc = new TextEncoder();
-  const secretBytes = enc.encode(ENCRYPTION_SECRET);
+  const secretBytes = enc.encode(getEncryptionSecret());
   // Derive deterministic 256-bit key using SHA-256
   const keyHash = await cryptoObj.subtle.digest('SHA-256', secretBytes);
 
