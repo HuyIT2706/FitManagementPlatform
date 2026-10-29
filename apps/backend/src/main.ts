@@ -5,6 +5,9 @@ import cookieParser from 'cookie-parser';
 import { json, urlencoded } from 'express';
 import compression from 'compression';
 import * as dns from 'dns';
+import { decryptionMiddleware } from './common/middleware/decryption.middleware';
+import { EncryptionInterceptor } from './common/interceptors/encryption.interceptor';
+import { EncryptionExceptionFilter } from './common/filters/encryption-exception.filter';
 
 dns.setDefaultResultOrder('ipv4first');
 
@@ -18,6 +21,9 @@ async function bootstrap() {
       transformOptions: { enableImplicitConversion: true },
     }),
   );
+
+  app.useGlobalInterceptors(new EncryptionInterceptor());
+  app.useGlobalFilters(new EncryptionExceptionFilter());
 
   const defaultOrigins: (string | RegExp)[] = [
     'http://localhost:3000',
@@ -41,6 +47,17 @@ async function bootstrap() {
   app.enableCors({
     origin: allowedOrigins,
     credentials: true,
+    allowedHeaders: [
+      'Origin',
+      'X-Requested-With',
+      'Content-Type',
+      'Accept',
+      'Authorization',
+      'X-Encrypted-Payload',
+      'X-Encrypt-Payload',
+      'X-Response-Encrypted',
+    ],
+    exposedHeaders: ['X-Encrypted-Response'],
   });
   app.use(compression());
   app.use(cookieParser());
@@ -48,6 +65,7 @@ async function bootstrap() {
   // and those should use multipart/form-data with dedicated middleware, not JSON base64
   app.use(json({ limit: '2mb' }));
   app.use(urlencoded({ limit: '2mb', extended: true }));
+  app.use(decryptionMiddleware);
   await app.listen(process.env.PORT ?? 3100);
 }
 void bootstrap();

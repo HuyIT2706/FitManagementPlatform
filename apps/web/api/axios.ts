@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { encryptPayload, decryptPayload } from '../utils/payload-crypto';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3100';
 
@@ -47,9 +48,16 @@ async function getFreshToken(shouldRedirectOnFail = true): Promise<string | null
       const res = await axios.post(
         `${API_BASE_URL}/auth/refresh`,
         {},
-        { withCredentials: true }
+        {
+          withCredentials: true,
+          headers: { 'X-Encrypted-Payload': '1' },
+        }
       );
-      const newToken = res.data?.access_token;
+      let data = res.data;
+      if (data && typeof data === 'object' && typeof data._enc === 'string') {
+        data = await decryptPayload(data._enc);
+      }
+      const newToken = data?.access_token;
       if (newToken && typeof window !== 'undefined') {
         localStorage.setItem('jwt_token', newToken);
         return newToken;
@@ -69,9 +77,13 @@ async function getFreshToken(shouldRedirectOnFail = true): Promise<string | null
   return refreshTokenPromise;
 }
 
-// Proactive Token Refresh Request Interceptor
+// Request Interceptor: Proactive Auth + End-to-End Payload Encryption
 apiClient.interceptors.request.use(
   async (config) => {
+    config.headers = config.headers || {};
+    // Signal backend that client supports encrypted responses
+    config.headers['X-Encrypted-Payload'] = '1';
+
     // Skip proactive refresh check for authentication endpoints
     const isAuthEndpoint =
       config.url?.includes('/auth/refresh') ||
@@ -80,15 +92,10 @@ apiClient.interceptors.request.use(
       config.url?.includes('/auth/register') ||
       config.url?.includes('/auth/google');
 
-    if (isAuthEndpoint) {
-      return config;
-    }
-
-    if (typeof window !== 'undefined') {
+    if (!isAuthEndpoint && typeof window !== 'undefined') {
       let token = localStorage.getItem('jwt_token');
       if (token && isTokenExpiringSoon(token, 120)) {
         // Proactively refresh token BEFORE sending the request!
-        // Pass false so a failed proactive attempt doesn't wipe valid session
         const newToken = await getFreshToken(false);
         if (newToken) {
           token = newToken;
@@ -99,6 +106,28 @@ apiClient.interceptors.request.use(
         config.headers.Authorization = `Bearer ${token}`;
       }
     }
+
+    // Encrypt outgoing mutation payload (POST, PUT, PATCH, DELETE)
+    if (config.data !== undefined && config.data !== null) {
+      const isFormData = typeof FormData !== 'undefined' && config.data instanceof FormData;
+      if (!isFormData) {
+        if (typeof config.data === 'object' && !config.data._enc) {
+          const encrypted = await encryptPayload(config.data);
+          config.data = { _enc: encrypted };
+        } else if (typeof config.data === 'string') {
+          try {
+            const parsed = JSON.parse(config.data);
+            if (parsed && typeof parsed === 'object' && !parsed._enc) {
+              const encrypted = await encryptPayload(parsed);
+              config.data = { _enc: encrypted };
+            }
+          } catch {
+            // Not a JSON string; leave intact
+          }
+        }
+      }
+    }
+
     return config;
   },
   (error) => {
@@ -106,12 +135,32 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Fallback Response Interceptor (for unexpected 401s)
+// Response Interceptor: End-to-End Decryption + Fallback 401 Refresh
 apiClient.interceptors.response.use(
-  (response) => {
+  async (response) => {
+    if (response.data && typeof response.data === 'object' && typeof response.data._enc === 'string') {
+      try {
+        response.data = await decryptPayload(response.data._enc);
+      } catch (err) {
+        console.error('Failed to decrypt response payload:', err);
+      }
+    }
     return response;
   },
   async (error) => {
+    // Decrypt encrypted error response so callers can read message and status
+    if (
+      error.response?.data &&
+      typeof error.response.data === 'object' &&
+      typeof error.response.data._enc === 'string'
+    ) {
+      try {
+        error.response.data = await decryptPayload(error.response.data._enc);
+      } catch (err) {
+        console.error('Failed to decrypt error response payload:', err);
+      }
+    }
+
     const originalRequest = error.config;
 
     const isAuthEndpoint =
