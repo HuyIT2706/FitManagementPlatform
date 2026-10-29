@@ -3,15 +3,14 @@
  * Uses native Web Crypto API (AES-256-GCM) with random 96-bit IV per message.
  */
 
+const FALLBACK_SECRET = 'NutriCore@AES-256-GCM#PayloadSecurity!2026';
+
 function getEncryptionSecret(): string {
-  const secret =
-    typeof process !== 'undefined'
-      ? process.env.NEXT_PUBLIC_API_ENCRYPTION_KEY
-      : undefined;
-  if (!secret) {
-    throw new Error('Thiếu mã Key Api');
-  }
-  return secret;
+  return (
+    (typeof process !== 'undefined' &&
+      process.env.NEXT_PUBLIC_API_ENCRYPTION_KEY) ||
+    FALLBACK_SECRET
+  );
 }
 
 let cachedKey: CryptoKey | null = null;

@@ -45,8 +45,10 @@ async function bootstrap() {
     'http://127.0.0.1:3000',
     'http://localhost:3001',
     'http://127.0.0.1:3001',
+    'https://nutricore-olive.vercel.app',
     /^http:\/\/localhost:\d+$/,
     /^http:\/\/127\.0\.0\.1:\d+$/,
+    /\.vercel\.app$/,
   ];
   const allowedOrigins: (string | RegExp)[] = [...defaultOrigins];
 
@@ -60,8 +62,22 @@ async function bootstrap() {
   }
 
   app.enableCors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (
+        !origin ||
+        allowedOrigins.some((allowed) =>
+          typeof allowed === 'string'
+            ? allowed.toLowerCase() === origin.toLowerCase()
+            : allowed.test(origin),
+        )
+      ) {
+        callback(null, true);
+      } else {
+        callback(null, false);
+      }
+    },
     credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
       'Origin',
       'X-Requested-With',
