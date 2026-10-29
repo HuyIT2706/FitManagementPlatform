@@ -9,11 +9,9 @@ const nextConfig = {
   },
   images: {
     remotePatterns: [
-      // Google avatars (OAuth login)
-      { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
-      // Cloudinary / S3 — add your actual CDN host here
-      { protocol: 'https', hostname: '*.cloudinary.com' },
-      { protocol: 'https', hostname: '*.amazonaws.com' },
+      { protocol: 'https', hostname: '**' },
+      { protocol: 'http', hostname: 'localhost' },
+      { protocol: 'http', hostname: '127.0.0.1' },
     ],
   },
   compiler: {

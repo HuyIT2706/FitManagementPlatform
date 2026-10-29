@@ -81,7 +81,7 @@ const AssignedMealPlanCard = ({
     <div className="space-y-3 sm:space-y-4">
       <div className="flex items-center justify-between px-1">
         <h3 className="font-headline-md font-bold text-lg sm:text-xl text-on-surface">
-          Thực đơn chỉ định hôm nay
+          Thực đơn chỉ định
         </h3>
 
         {onOpenAiPlanner && (

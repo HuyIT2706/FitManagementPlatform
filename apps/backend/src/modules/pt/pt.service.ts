@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
   Logger,
@@ -29,6 +30,24 @@ export class PtService {
     private readonly prisma: PrismaService,
     private readonly notificationsService: NotificationsService,
   ) {}
+
+  /**
+   * Enforce IDOR protection: Verify that this PT is assigned to and approved for the student
+   */
+  async verifyPtOwnsStudent(ptId: string, studentId: string): Promise<void> {
+    const relation = await this.prisma.studentProfile.findFirst({
+      where: {
+        trainerId: ptId,
+        studentId,
+        status: 'APPROVED',
+      },
+    });
+    if (!relation) {
+      throw new ForbiddenException(
+        'Bạn không có quyền truy cập hoặc thao tác trên dữ liệu học viên này',
+      );
+    }
+  }
 
   async getDashboardData(ptUserId: string): Promise<PTDashboardData> {
     try {
@@ -473,7 +492,13 @@ export class PtService {
     };
   }
 
-  async getStudentDetail(studentId: string): Promise<PTStudentDetail> {
+  async getStudentDetail(
+    studentId: string,
+    ptId?: string,
+  ): Promise<PTStudentDetail> {
+    if (ptId) {
+      await this.verifyPtOwnsStudent(ptId, studentId);
+    }
     const student = await this.prisma.user.findUnique({
       where: { id: studentId },
       select: {
@@ -733,14 +758,24 @@ export class PtService {
     };
   }
 
-  async getStudentPhotos(studentId: string) {
+  async getStudentPhotos(studentId: string, ptId?: string) {
+    if (ptId) {
+      await this.verifyPtOwnsStudent(ptId, studentId);
+    }
     return this.prisma.progressPhoto.findMany({
       where: { userId: studentId },
       orderBy: { takenAt: 'desc' },
     });
   }
 
-  async addStudentPhoto(studentId: string, dto: CreateProgressPhotoDto) {
+  async addStudentPhoto(
+    studentId: string,
+    dto: CreateProgressPhotoDto,
+    ptId?: string,
+  ) {
+    if (ptId) {
+      await this.verifyPtOwnsStudent(ptId, studentId);
+    }
     if (dto.weightAtTime && dto.weightAtTime > 0) {
       await this.prisma.bodyMetric.create({
         data: {
@@ -760,7 +795,10 @@ export class PtService {
     });
   }
 
-  async deleteStudentPhoto(studentId: string, photoId: string) {
+  async deleteStudentPhoto(studentId: string, photoId: string, ptId?: string) {
+    if (ptId) {
+      await this.verifyPtOwnsStudent(ptId, studentId);
+    }
     const photo = await this.prisma.progressPhoto.findUnique({
       where: { id: photoId },
     });
@@ -772,7 +810,10 @@ export class PtService {
     });
   }
 
-  async getStudentMeals(studentId: string) {
+  async getStudentMeals(studentId: string, ptId?: string) {
+    if (ptId) {
+      await this.verifyPtOwnsStudent(ptId, studentId);
+    }
     return this.prisma.mealLog.findMany({
       where: { userId: studentId },
       orderBy: { logDate: 'desc' },
@@ -813,8 +854,11 @@ export class PtService {
     });
   }
 
-  async assignWorkoutToStudent(dto: AssignWorkoutDto) {
+  async assignWorkoutToStudent(dto: AssignWorkoutDto, ptId?: string) {
     if (dto.studentId) {
+      if (ptId) {
+        await this.verifyPtOwnsStudent(ptId, dto.studentId);
+      }
       const schedule = await this.prisma.workoutSchedule.create({
         data: {
           studentId: dto.studentId,
@@ -907,8 +951,11 @@ export class PtService {
     };
   }
 
-  async assignNutritionToStudent(dto: AssignNutritionDto) {
+  async assignNutritionToStudent(dto: AssignNutritionDto, ptId?: string) {
     if (dto.studentId) {
+      if (ptId) {
+        await this.verifyPtOwnsStudent(ptId, dto.studentId);
+      }
       const targetCalories = Number(dto.targetCalories ?? 2200);
       const targetProtein = Number(
         dto.targetProtein ??
@@ -945,7 +992,7 @@ export class PtService {
         const targetCalories = Number(dto.targetCalories ?? 2200);
         await this.notificationsService.sendNotification({
           userId: dto.studentId,
-          title: '🥗 Thực Đơn & Dinh Dưỡng Mới',
+          title: 'Thực Đơn & Dinh Dưỡng Mới',
           message: `HLV vừa cập nhật mục tiêu dinh dưỡng (${targetCalories} kcal) & thực đơn mới cho bạn.`,
           type: 'NUTRITION_ASSIGNED',
           linkUrl: '/nutrition',
@@ -965,8 +1012,11 @@ export class PtService {
     };
   }
 
-  async updateInBody(dto: UpdateInBodyDto) {
+  async updateInBody(dto: UpdateInBodyDto, ptId?: string) {
     if (dto.studentId) {
+      if (ptId) {
+        await this.verifyPtOwnsStudent(ptId, dto.studentId);
+      }
       await this.prisma.bodyMetric.create({
         data: {
           userId: dto.studentId,
@@ -1468,14 +1518,18 @@ export class PtService {
   async updateStudentSessions(
     studentId: string,
     dto: UpdateStudentSessionsDto,
+    ptId?: string,
   ) {
+    if (ptId) {
+      await this.verifyPtOwnsStudent(ptId, studentId);
+    }
     if (
       dto.totalSessions !== undefined &&
       dto.remainingSessions !== undefined &&
       dto.remainingSessions > dto.totalSessions
     ) {
       throw new BadRequestException(
-        'Số buổi còn lại không được lớn hơn tổng số buổi!',
+        'Số buổi còn lại không được lớn hơn tổng số buổi',
       );
     }
 

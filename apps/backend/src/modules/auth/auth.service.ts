@@ -174,45 +174,42 @@ export class AuthService {
     token: string,
     clientUserInfo?: { email?: string; name?: string; picture?: string },
   ) {
-    if (!token && !clientUserInfo?.email) {
-      throw new UnauthorizedException('Token required');
+    if (!token) {
+      throw new UnauthorizedException('Google access token is required');
     }
     try {
-      let payload: { email?: string; name?: string; picture?: string } | null =
-        null;
+      let payload: {
+        email?: string;
+        name?: string;
+        picture?: string;
+      } | null = null;
 
-      if (token) {
-        try {
-          const googleResponse = await fetch(
-            'https://www.googleapis.com/oauth2/v3/userinfo',
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            },
-          );
-          if (googleResponse.ok) {
-            payload = (await googleResponse.json()) as {
-              email?: string;
-              name?: string;
-              picture?: string;
-            };
-          }
-        } catch (fetchErr) {
-          console.warn('Backend fetch to Google userinfo failed:', fetchErr);
+      try {
+        const googleResponse = await fetch(
+          'https://www.googleapis.com/oauth2/v3/userinfo',
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+        if (googleResponse.ok) {
+          payload = (await googleResponse.json()) as {
+            email?: string;
+            name?: string;
+            picture?: string;
+          };
         }
+      } catch (fetchErr) {
+        console.warn('Backend fetch to Google userinfo failed:', fetchErr);
       }
 
+      // STRICT SECURITY: Never trust unverified clientUserInfo for email/identity
       if (!payload || !payload.email) {
-        if (clientUserInfo && clientUserInfo.email) {
-          payload = clientUserInfo;
-        } else {
-          throw new UnauthorizedException('Invalid Google Token');
-        }
+        throw new UnauthorizedException(
+          'Xác thực Google thất bại: Token không hợp lệ hoặc đã hết hạn',
+        );
       }
 
-      const email = payload.email;
-      if (!email) {
-        throw new UnauthorizedException('Invalid Google Token: missing email');
-      }
+      const email = payload.email.toLowerCase().trim();
       let user = await this.prisma.user.findUnique({
         where: { email },
         include: { ptApplication: true },
@@ -222,9 +219,9 @@ export class AuthService {
         user = await this.prisma.user.create({
           data: {
             email: email,
-            fullName: payload.name || 'Google User',
+            fullName: payload.name || clientUserInfo?.name || 'Google User',
             passwordHash: '',
-            avatarUrl: payload.picture,
+            avatarUrl: payload.picture || clientUserInfo?.picture,
           },
           include: { ptApplication: true },
         });

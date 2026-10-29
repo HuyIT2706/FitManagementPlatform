@@ -176,60 +176,87 @@ export class PtController {
   }
 
   @Get('students/:id/photos')
-  async getStudentPhotos(@Param('id') id: string) {
-    return this.ptService.getStudentPhotos(id);
+  async getStudentPhotos(
+    @Request() req: RequestWithUser,
+    @Param('id') id: string,
+  ) {
+    return this.ptService.getStudentPhotos(id, req.user.sub);
   }
 
   @Post('students/:id/photos')
   async addStudentPhoto(
+    @Request() req: RequestWithUser,
     @Param('id') id: string,
     @Body() dto: CreateProgressPhotoDto,
   ) {
-    return this.ptService.addStudentPhoto(id, dto);
+    return this.ptService.addStudentPhoto(id, dto, req.user.sub);
   }
 
   @Delete('students/:id/photos/:photoId')
   async deleteStudentPhoto(
+    @Request() req: RequestWithUser,
     @Param('id') id: string,
     @Param('photoId') photoId: string,
   ) {
-    return this.ptService.deleteStudentPhoto(id, photoId);
+    return this.ptService.deleteStudentPhoto(id, photoId, req.user.sub);
   }
 
   @Get('students/:id/meals')
-  async getStudentMeals(@Param('id') id: string) {
-    return this.ptService.getStudentMeals(id);
+  async getStudentMeals(
+    @Request() req: RequestWithUser,
+    @Param('id') id: string,
+  ) {
+    return this.ptService.getStudentMeals(id, req.user.sub);
   }
 
   @Post('students/:id/assign-workout')
-  async assignWorkout(@Param('id') id: string, @Body() dto: AssignWorkoutDto) {
-    return this.ptService.assignWorkoutToStudent({ ...dto, studentId: id });
+  async assignWorkout(
+    @Request() req: RequestWithUser,
+    @Param('id') id: string,
+    @Body() dto: AssignWorkoutDto,
+  ) {
+    return this.ptService.assignWorkoutToStudent(
+      { ...dto, studentId: id },
+      req.user.sub,
+    );
   }
 
   @Post('students/:id/assign-nutrition')
   async assignNutrition(
+    @Request() req: RequestWithUser,
     @Param('id') id: string,
     @Body() dto: AssignNutritionDto,
   ) {
-    return this.ptService.assignNutritionToStudent({ ...dto, studentId: id });
+    return this.ptService.assignNutritionToStudent(
+      { ...dto, studentId: id },
+      req.user.sub,
+    );
   }
 
   @Post('students/:id/inbody')
-  async updateInBody(@Param('id') id: string, @Body() dto: UpdateInBodyDto) {
-    return this.ptService.updateInBody({ ...dto, studentId: id });
+  async updateInBody(
+    @Request() req: RequestWithUser,
+    @Param('id') id: string,
+    @Body() dto: UpdateInBodyDto,
+  ) {
+    return this.ptService.updateInBody({ ...dto, studentId: id }, req.user.sub);
   }
 
   @Patch('students/:id')
   async updateStudent(
+    @Request() req: RequestWithUser,
     @Param('id') id: string,
     @Body() dto: UpdateStudentSessionsDto,
   ) {
-    return this.ptService.updateStudentSessions(id, dto);
+    return this.ptService.updateStudentSessions(id, dto, req.user.sub);
   }
 
   @Get('students/:id')
-  async getStudentDetail(@Param('id') id: string) {
-    return this.ptService.getStudentDetail(id);
+  async getStudentDetail(
+    @Request() req: RequestWithUser,
+    @Param('id') id: string,
+  ) {
+    return this.ptService.getStudentDetail(id, req.user.sub);
   }
 
   @Post('check-in/:sessionId')

@@ -18,9 +18,13 @@ export class JwtGuard implements CanActivate {
     if (!token) {
       throw new UnauthorizedException();
     }
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new UnauthorizedException('JWT_SECRET is not configured on server');
+    }
     try {
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET || 'fallback_secret_key_for_dev',
+        secret,
       });
       request['user'] = payload;
     } catch {

@@ -116,8 +116,7 @@ const EditSessionModal = ({
           {/* Validation Warning Messages */}
           {isRemainingExceeded && (
             <div className="flex items-center gap-1.5 p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-[11px] sm:text-xs font-semibold animate-in fade-in duration-150">
-              <AlertCircle size={14} className="shrink-0" />
-              <span>Số buổi còn lại ({remainingSessions}) không được lớn hơn tổng số buổi ({totalSessions})!</span>
+              <span>Số buổi còn lại ({remainingSessions}) không được lớn hơn tổng số buổi ({totalSessions})</span>
             </div>
           )}
 

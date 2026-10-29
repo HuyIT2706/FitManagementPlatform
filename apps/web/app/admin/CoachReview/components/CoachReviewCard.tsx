@@ -1,7 +1,7 @@
-/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import {
   UserCheck,
   UserX,
@@ -44,8 +44,15 @@ const CoachReviewCard = ({
     >
       {/* Left Column: Avatar & Basic Info */}
       <div className="flex flex-col sm:flex-row items-start gap-3.5 sm:gap-4">
-        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200 dark:border-white/10 shrink-0 bg-slate-100 dark:bg-white/5 flex items-center justify-center font-extrabold text-2xl text-emerald-600 dark:text-[#10b981]">
-          <img src={getAvatarUrl(avatarUrl)} alt={fullName} className="w-full h-full object-cover" />
+        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200 dark:border-white/10 shrink-0 bg-slate-100 dark:bg-white/5 flex items-center justify-center font-extrabold text-2xl text-emerald-600 dark:text-[#10b981] relative">
+          <Image
+            src={getAvatarUrl(avatarUrl)}
+            alt={fullName}
+            width={64}
+            height={64}
+            className="w-full h-full object-cover"
+            unoptimized={getAvatarUrl(avatarUrl).startsWith('data:')}
+          />
         </div>
 
         <div className="space-y-1.5 min-w-0 flex-1">

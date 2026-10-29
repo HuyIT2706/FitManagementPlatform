@@ -1,6 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
 'use client';
 
+import Image from 'next/image';
 import { Dumbbell, UserCheck, Flame } from 'lucide-react';
 import type { AssignedWorkoutPlanCardProps, ExerciseItem } from '../../../interface';
 
@@ -30,9 +30,16 @@ const AssignedWorkoutPlanCard = ({
         {/* PT Coach Banner */}
         <div className="flex items-center justify-between gap-3 pb-3 sm:pb-4 border-b border-white/10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border border-primary/40 shrink-0 bg-primary/20 flex items-center justify-center text-primary font-extrabold">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border border-primary/40 shrink-0 bg-primary/20 flex items-center justify-center text-primary font-extrabold relative">
               {coachAvatar ? (
-                <img src={coachAvatar} alt={coachName} className="w-full h-full object-cover" />
+                <Image
+                  src={coachAvatar}
+                  alt={coachName}
+                  width={44}
+                  height={44}
+                  className="w-full h-full object-cover"
+                  unoptimized={coachAvatar.startsWith('data:')}
+                />
               ) : (
                 <UserCheck size={18} className="sm:w-5 sm:h-5" />
               )}
@@ -62,12 +69,15 @@ const AssignedWorkoutPlanCard = ({
                 className="p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all flex items-center justify-between gap-3 bg-surface-bright/30 border-white/5 text-on-surface hover:border-primary/40 hover:bg-surface-bright/50 cursor-pointer group"
               >
                 <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl overflow-hidden border border-white/15 shrink-0 bg-surface-bright/80 flex items-center justify-center group-hover:border-primary/40 transition-colors">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl overflow-hidden border border-white/15 shrink-0 bg-surface-bright/80 flex items-center justify-center group-hover:border-primary/40 transition-colors relative">
                     {imageSrc ? (
-                      <img
+                      <Image
                         src={imageSrc}
                         alt={ex.name}
+                        width={48}
+                        height={48}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        unoptimized={imageSrc.startsWith('data:')}
                       />
                     ) : (
                       <Dumbbell size={18} className="text-primary sm:w-5 sm:h-5" />

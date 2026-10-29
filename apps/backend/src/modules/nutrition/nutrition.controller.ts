@@ -7,6 +7,7 @@ import {
   Request,
   Query,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { NutritionService } from './nutrition.service';
 import { LogMealDto } from './dto/log-meal.dto';
 import {
@@ -58,11 +59,15 @@ export class NutritionController {
     return this.nutritionService.createFood(dto);
   }
 
+  // Strict rate limit on AI text parsing: max 10 requests / minute
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('smart-parse')
   async smartParseFood(@Body() dto: SmartParseFoodDto) {
     return this.nutritionService.smartParseFoodInput(dto.text);
   }
 
+  // Very strict rate limit on AI image parsing to prevent financial DoS & Gemini API exhaustion: max 5 requests / minute
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('smart-image-parse')
   async smartImageParse(@Body() dto: SmartParseFoodImageDto) {
     return this.nutritionService.smartParseFoodImage(dto.imageBase64);

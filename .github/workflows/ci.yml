@@ -30,6 +30,8 @@ jobs:
         run: npx turbo run lint
       - name: Type check
         run: npx turbo run check-types
+      - name: Run unit & integration tests
+        run: npx turbo run test
       - name: Build applications
         run: npx turbo run build
 
