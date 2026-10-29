@@ -28,8 +28,7 @@ const DEFAULT_SWR_OPTIONS: SWRConfiguration = {
   revalidateOnFocus: false,
   revalidateIfStale: false,
   revalidateOnReconnect: false,
-  revalidateOnMount: false,
-  dedupingInterval: 30000,   // 30s deduping window prevents spamming on rapid navigation
+  dedupingInterval: 30000, // 30s deduping window prevents spamming on rapid navigation
   errorRetryCount: 3,
 };
 
@@ -66,8 +65,7 @@ export const useCurrentUser = (options?: SWRConfiguration) => {
     swrFetcher,
     {
       ...DEFAULT_SWR_OPTIONS,
-      revalidateIfStale: false, 
-      revalidateOnMount: false,
+      revalidateIfStale: false,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       dedupingInterval: 3600000, // 1 hour persistent cache during session
@@ -93,7 +91,6 @@ export const useBodyMetrics = (options?: SWRConfiguration) => {
     {
       ...DEFAULT_SWR_OPTIONS,
       revalidateIfStale: false,
-      revalidateOnMount: false,
       dedupingInterval: 300000, // 5 minutes cache
       ...options,
     }

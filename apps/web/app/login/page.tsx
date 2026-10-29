@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, Eye, EyeOff, User, Dumbbell, Award, Briefcase, Info, Upload, Check, Loader2, Trash2 } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, User, Award, Briefcase, Info, Upload, Check, Loader2, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -12,6 +12,7 @@ import type { UserDataHome } from '../../interface';
 import { handleRoleRedirect } from '../../utils/authRedirect';
 import { toast } from '../../utils/toast';
 import { autoSyncPushSubscription } from '../../utils/pushNotification';
+import { mutate as globalMutate } from 'swr';
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
 
@@ -55,6 +56,9 @@ const LoginContent = () => {
                 : 'Tài khoản PT của bạn đã đăng ký thành công và đang chờ Admin kiểm duyệt trước khi truy cập!'
             );
             return;
+          }
+          if (res.data) {
+            void globalMutate('/users/me', res.data, false);
           }
           handleRoleRedirect(res.data, router, redirectPath);
         })
@@ -459,7 +463,7 @@ const LoginContent = () => {
                     : 'border-white/10 bg-surface-bright/20 text-on-surface-variant hover:bg-surface-bright/40'
                 }`}
               >
-                <User size={16} /> Học Viên
+                Người dùng
               </button>
               <button
                 type="button"
@@ -471,7 +475,7 @@ const LoginContent = () => {
                     : 'border-white/10 bg-surface-bright/20 text-on-surface-variant hover:bg-surface-bright/40'
                 }`}
               >
-                <Dumbbell size={16} /> HLV PT
+                Huấn luyện viên
               </button>
             </div>
           </div>
