@@ -5,8 +5,7 @@
 
 const ENCRYPTION_SECRET =
   (typeof process !== 'undefined' &&
-    (process.env.API_ENCRYPTION_KEY ||
-      process.env.NEXT_PUBLIC_API_ENCRYPTION_KEY)) ||
+    process.env.NEXT_PUBLIC_API_ENCRYPTION_KEY) ||
   'NutriCore@AES-256-GCM#PayloadSecurity!2026';
 
 let cachedKey: CryptoKey | null = null;
@@ -101,7 +100,7 @@ export async function encryptPayload(data: unknown): Promise<string> {
 /**
  * Decrypt an AES-256-GCM Base64 string back into original JSON data.
  */
-export async function decryptPayload<T = any>(encryptedString: string): Promise<T> {
+export async function decryptPayload<T = unknown>(encryptedString: string): Promise<T> {
   if (!encryptedString) {
     return null as unknown as T;
   }
@@ -130,4 +129,3 @@ export async function decryptPayload<T = any>(encryptedString: string): Promise<
   const jsonString = new TextDecoder().decode(decryptedBuffer);
   return JSON.parse(jsonString) as T;
 }
-

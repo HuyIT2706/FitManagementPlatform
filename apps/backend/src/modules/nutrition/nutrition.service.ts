@@ -532,6 +532,18 @@ export class NutritionService {
   }
 
   async getDailyNutrition(userId: string, date: Date) {
+    type MealLogWithItems = Prisma.MealLogGetPayload<{
+      include: { items: true };
+    }>;
+    type UserWithTargets = Prisma.UserGetPayload<{
+      include: {
+        nutritionTargets: {
+          orderBy: { effectiveDate: 'desc' };
+          take: 1;
+        };
+      };
+    }>;
+
     try {
       const validDate = date && !isNaN(date.getTime()) ? date : new Date();
       // Tạo start of day và end of day
@@ -541,9 +553,13 @@ export class NutritionService {
       const endOfDay = new Date(validDate);
       endOfDay.setHours(23, 59, 59, 999);
 
-      let meals: any[] = [];
-      let user: any = null;
-      let streak = { currentStreak: 0, totalLoggedDays: 0, loggedDates: [] as string[] };
+      let meals: MealLogWithItems[] = [];
+      let user: UserWithTargets | null = null;
+      let streak = {
+        currentStreak: 0,
+        totalLoggedDays: 0,
+        loggedDates: [] as string[],
+      };
 
       try {
         const results = await Promise.allSettled([
@@ -571,9 +587,15 @@ export class NutritionService {
           this.getStreakData(userId),
         ]);
 
-        if (results[0].status === 'fulfilled') meals = results[0].value || [];
-        if (results[1].status === 'fulfilled') user = results[1].value;
-        if (results[2].status === 'fulfilled') streak = results[2].value;
+        if (results[0].status === 'fulfilled' && results[0].value) {
+          meals = results[0].value;
+        }
+        if (results[1].status === 'fulfilled' && results[1].value) {
+          user = results[1].value;
+        }
+        if (results[2].status === 'fulfilled' && results[2].value) {
+          streak = results[2].value;
+        }
       } catch (dbErr) {
         this.logger.error('Database query failed in getDailyNutrition:', dbErr);
       }
@@ -624,7 +646,7 @@ export class NutritionService {
         mealSummaryMap[type].totalFat += meal.totalFat || 0;
 
         if (meal.items && Array.isArray(meal.items)) {
-          meal.items.forEach((item: any) => {
+          meal.items.forEach((item) => {
             mealSummaryMap[type].items.push({
               foodName: item.foodName || 'Món ăn',
               weightInGram: item.weightInGram || 0,
@@ -637,7 +659,8 @@ export class NutritionService {
       // Làm tròn số liệu cho từng bữa ăn
       Object.values(mealSummaryMap).forEach((summary) => {
         summary.totalCalories = Math.round(summary.totalCalories || 0);
-        summary.totalProtein = Math.round((summary.totalProtein || 0) * 10) / 10;
+        summary.totalProtein =
+          Math.round((summary.totalProtein || 0) * 10) / 10;
         summary.totalCarbs = Math.round((summary.totalCarbs || 0) * 10) / 10;
         summary.totalFat = Math.round((summary.totalFat || 0) * 10) / 10;
       });
@@ -704,7 +727,10 @@ export class NutritionService {
         mealSummary: mealSummaryMap,
       };
     } catch (err) {
-      this.logger.error(`getDailyNutrition unexpected error for user ${userId}:`, err);
+      this.logger.error(
+        `getDailyNutrition unexpected error for user ${userId}:`,
+        err,
+      );
       const validDate = date && !isNaN(date.getTime()) ? date : new Date();
       const startOfDay = new Date(validDate);
       startOfDay.setHours(0, 0, 0, 0);
@@ -795,7 +821,10 @@ export class NutritionService {
         loggedDates,
       };
     } catch (err) {
-      this.logger.error(`getStreakData unexpected error for user ${userId}:`, err);
+      this.logger.error(
+        `getStreakData unexpected error for user ${userId}:`,
+        err,
+      );
       return {
         currentStreak: 0,
         totalLoggedDays: 0,

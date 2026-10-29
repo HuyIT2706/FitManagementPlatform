@@ -9,20 +9,24 @@ import { switchMap } from 'rxjs/operators';
 import { Request, Response } from 'express';
 import { encryptPayload } from '../utils/payload-crypto.util';
 
+interface EncryptedRequest extends Request {
+  _isEncryptedPayload?: boolean;
+}
+
 @Injectable()
 export class EncryptionInterceptor implements NestInterceptor {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const http = context.switchToHttp();
-    const req = http.getRequest<Request>();
+    const req = http.getRequest<EncryptedRequest>();
     const res = http.getResponse<Response>();
 
     const shouldEncrypt =
       req.headers['x-encrypted-payload'] === '1' ||
       req.headers['x-encrypt-payload'] === '1' ||
-      Boolean((req as any)._isEncryptedPayload);
+      Boolean(req._isEncryptedPayload);
 
     return next.handle().pipe(
-      switchMap(async (data) => {
+      switchMap(async (data: unknown): Promise<unknown> => {
         if (!shouldEncrypt) {
           return data;
         }
@@ -39,4 +43,3 @@ export class EncryptionInterceptor implements NestInterceptor {
     );
   }
 }
-

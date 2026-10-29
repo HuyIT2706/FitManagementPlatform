@@ -9,6 +9,10 @@ import {
 import { Request, Response } from 'express';
 import { encryptPayload } from '../utils/payload-crypto.util';
 
+interface EncryptedRequest extends Request {
+  _isEncryptedPayload?: boolean;
+}
+
 @Catch()
 export class EncryptionExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(EncryptionExceptionFilter.name);
@@ -16,14 +20,14 @@ export class EncryptionExceptionFilter implements ExceptionFilter {
   async catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<Request>();
+    const request = ctx.getRequest<EncryptedRequest>();
 
     const status =
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const exceptionResponse =
+    const exceptionResponse: unknown =
       exception instanceof HttpException
         ? exception.getResponse()
         : {
@@ -34,7 +38,7 @@ export class EncryptionExceptionFilter implements ExceptionFilter {
                 : 'Internal server error',
           };
 
-    const errorBody =
+    const errorBody: unknown =
       typeof exceptionResponse === 'object' && exceptionResponse !== null
         ? exceptionResponse
         : { statusCode: status, message: String(exceptionResponse) };
@@ -49,7 +53,7 @@ export class EncryptionExceptionFilter implements ExceptionFilter {
     const shouldEncrypt =
       request.headers['x-encrypted-payload'] === '1' ||
       request.headers['x-encrypt-payload'] === '1' ||
-      Boolean((request as any)._isEncryptedPayload);
+      Boolean(request._isEncryptedPayload);
 
     if (shouldEncrypt) {
       try {
@@ -65,4 +69,3 @@ export class EncryptionExceptionFilter implements ExceptionFilter {
     return response.status(status).json(errorBody);
   }
 }
-

@@ -37,4 +37,3 @@ export function maskFullName(name?: string | null): string {
   const others = parts.slice(0, -1).join(' ');
   return `${others} ${lastName ? lastName[0] : ''}***`;
 }
-

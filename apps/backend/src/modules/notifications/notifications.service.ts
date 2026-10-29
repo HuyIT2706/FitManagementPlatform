@@ -1,4 +1,9 @@
-import { Injectable, OnModuleInit, Logger, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleInit,
+  Logger,
+  BadRequestException,
+} from '@nestjs/common';
 import * as webpush from 'web-push';
 import { PrismaService } from '../../prisma/prisma.service';
 import { randomUUID } from 'crypto';
@@ -138,7 +143,9 @@ export class NotificationsService implements OnModuleInit {
       !subscription?.keys?.p256dh ||
       !subscription?.keys?.auth
     ) {
-      throw new BadRequestException('Thông tin push subscription không hợp lệ hoặc thiếu keys');
+      throw new BadRequestException(
+        'Thông tin push subscription không hợp lệ hoặc thiếu keys',
+      );
     }
 
     try {
@@ -158,9 +165,15 @@ export class NotificationsService implements OnModuleInit {
       );
 
       this.logger.log(`Saved push subscription for user ${userId}`);
-      return { success: true, message: 'Đăng ký nhận thông báo đẩy thành công!' };
+      return {
+        success: true,
+        message: 'Đăng ký nhận thông báo đẩy thành công!',
+      };
     } catch (dbErr) {
-      this.logger.error(`Failed to save push subscription for user ${userId}:`, dbErr);
+      this.logger.error(
+        `Failed to save push subscription for user ${userId}:`,
+        dbErr,
+      );
       return { success: false, message: 'Không thể lưu subscription vào CSDL' };
     }
   }

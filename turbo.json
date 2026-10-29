@@ -1,7 +1,14 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
-  "globalEnv": ["NODE_ENV", "VERCEL"],
+  "globalEnv": [
+    "NODE_ENV",
+    "VERCEL",
+    "API_ENCRYPTION_KEY",
+    "NEXT_PUBLIC_API_ENCRYPTION_KEY",
+    "NEXT_PUBLIC_API_URL",
+    "JWT_SECRET"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

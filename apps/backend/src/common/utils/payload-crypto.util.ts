@@ -14,9 +14,7 @@ async function getCryptoKey(): Promise<CryptoKey> {
   if (cachedKey) return cachedKey;
 
   const cryptoObj =
-    typeof window !== 'undefined'
-      ? window.crypto
-      : (globalThis.crypto as Crypto);
+    typeof window !== 'undefined' ? window.crypto : globalThis.crypto;
 
   if (!cryptoObj || !cryptoObj.subtle) {
     throw new Error('Web Crypto API is not available in current runtime');
@@ -40,15 +38,16 @@ async function getCryptoKey(): Promise<CryptoKey> {
 
 function uint8ArrayToBase64(bytes: Uint8Array): string {
   if (typeof Buffer !== 'undefined') {
-    return Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString('base64');
+    return Buffer.from(
+      bytes.buffer,
+      bytes.byteOffset,
+      bytes.byteLength,
+    ).toString('base64');
   }
   let binary = '';
   const chunkSize = 0x8000;
   for (let i = 0; i < bytes.length; i += chunkSize) {
-    binary += String.fromCharCode.apply(
-      null,
-      bytes.subarray(i, i + chunkSize) as unknown as number[],
-    );
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
   }
   return btoa(binary);
 }
@@ -75,9 +74,7 @@ export async function encryptPayload(data: unknown): Promise<string> {
   }
 
   const cryptoObj =
-    typeof window !== 'undefined'
-      ? window.crypto
-      : (globalThis.crypto as Crypto);
+    typeof window !== 'undefined' ? window.crypto : globalThis.crypto;
 
   const key = await getCryptoKey();
   const iv = cryptoObj.getRandomValues(new Uint8Array(12)); // 96-bit IV
@@ -100,15 +97,15 @@ export async function encryptPayload(data: unknown): Promise<string> {
 /**
  * Decrypt an AES-256-GCM Base64 string back into original JSON data.
  */
-export async function decryptPayload<T = any>(encryptedString: string): Promise<T> {
+export async function decryptPayload<T = unknown>(
+  encryptedString: string,
+): Promise<T> {
   if (!encryptedString) {
     return null as unknown as T;
   }
 
   const cryptoObj =
-    typeof window !== 'undefined'
-      ? window.crypto
-      : (globalThis.crypto as Crypto);
+    typeof window !== 'undefined' ? window.crypto : globalThis.crypto;
 
   const key = await getCryptoKey();
   const combined = base64ToUint8Array(encryptedString);
@@ -117,8 +114,12 @@ export async function decryptPayload<T = any>(encryptedString: string): Promise<
     throw new Error('Encrypted payload is malformed or too short');
   }
 
-  const iv = new Uint8Array(combined.subarray(0, 12)) as unknown as BufferSource;
-  const ciphertextWithTag = new Uint8Array(combined.subarray(12)) as unknown as BufferSource;
+  const iv = new Uint8Array(
+    combined.subarray(0, 12),
+  ) as unknown as BufferSource;
+  const ciphertextWithTag = new Uint8Array(
+    combined.subarray(12),
+  ) as unknown as BufferSource;
 
   const decryptedBuffer = await cryptoObj.subtle.decrypt(
     { name: 'AES-GCM', iv },
