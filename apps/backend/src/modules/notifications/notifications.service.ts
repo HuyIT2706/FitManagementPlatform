@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { Injectable, OnModuleInit, Logger, BadRequestException } from '@nestjs/common';
 import * as webpush from 'web-push';
 import { PrismaService } from '../../prisma/prisma.service';
 import { randomUUID } from 'crypto';
@@ -138,26 +138,31 @@ export class NotificationsService implements OnModuleInit {
       !subscription?.keys?.p256dh ||
       !subscription?.keys?.auth
     ) {
-      throw new Error('Push subscription data is incomplete');
+      throw new BadRequestException('Thông tin push subscription không hợp lệ hoặc thiếu keys');
     }
 
-    const id = randomUUID();
-    await this.prisma.$executeRawUnsafe(
-      `
-      INSERT INTO push_subscriptions (id, user_id, endpoint, p256dh, auth, updated_at)
-      VALUES ($1, $2, $3, $4, $5, NOW())
-      ON CONFLICT (endpoint) 
-      DO UPDATE SET user_id = $2, p256dh = $4, auth = $5, updated_at = NOW();
-      `,
-      id,
-      userId,
-      subscription.endpoint,
-      subscription.keys.p256dh,
-      subscription.keys.auth,
-    );
+    try {
+      const id = randomUUID();
+      await this.prisma.$executeRawUnsafe(
+        `
+        INSERT INTO push_subscriptions (id, user_id, endpoint, p256dh, auth, updated_at)
+        VALUES ($1, $2, $3, $4, $5, NOW())
+        ON CONFLICT (endpoint) 
+        DO UPDATE SET user_id = $2, p256dh = $4, auth = $5, updated_at = NOW();
+        `,
+        id,
+        userId,
+        subscription.endpoint,
+        subscription.keys.p256dh,
+        subscription.keys.auth,
+      );
 
-    this.logger.log(`Saved push subscription for user ${userId}`);
-    return { success: true, message: 'Đăng ký nhận thông báo đẩy thành công!' };
+      this.logger.log(`Saved push subscription for user ${userId}`);
+      return { success: true, message: 'Đăng ký nhận thông báo đẩy thành công!' };
+    } catch (dbErr) {
+      this.logger.error(`Failed to save push subscription for user ${userId}:`, dbErr);
+      return { success: false, message: 'Không thể lưu subscription vào CSDL' };
+    }
   }
 
   async sendNotification(data: {
