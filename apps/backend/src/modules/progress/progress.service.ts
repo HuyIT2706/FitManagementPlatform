@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Logger,
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
@@ -8,55 +9,64 @@ import type { CreateProgressPhotoDto, CreateBodyMetricDto } from '@repo/types';
 
 @Injectable()
 export class ProgressService {
+  private readonly logger = new Logger(ProgressService.name);
   constructor(private readonly prisma: PrismaService) {}
 
   async getPhotos(userId: string) {
-    const [photos, bodyMetrics] = await Promise.all([
-      this.prisma.progressPhoto.findMany({
-        where: { userId },
-        orderBy: { takenAt: 'desc' },
-      }),
-      this.prisma.bodyMetric.findMany({
-        where: { userId },
-        orderBy: { recordedAt: 'asc' },
-        select: { weight: true, recordedAt: true },
-      }),
-    ]);
+    try {
+      const [photos, bodyMetrics] = await Promise.all([
+        this.prisma.progressPhoto.findMany({
+          where: { userId },
+          orderBy: { takenAt: 'desc' },
+        }),
+        this.prisma.bodyMetric.findMany({
+          where: { userId },
+          orderBy: { recordedAt: 'asc' },
+          select: { weight: true, recordedAt: true },
+        }),
+      ]);
 
-    const earliestWeight =
-      bodyMetrics.length > 0 ? bodyMetrics[0].weight : null;
-    const latestWeight =
-      bodyMetrics.length > 0
-        ? bodyMetrics[bodyMetrics.length - 1].weight
-        : null;
+      const earliestWeight =
+        bodyMetrics.length > 0 ? bodyMetrics[0].weight : null;
+      const latestWeight =
+        bodyMetrics.length > 0
+          ? bodyMetrics[bodyMetrics.length - 1].weight
+          : null;
 
-    return photos.map((p) => {
-      let cleanTag = p.tag || 'AFTER';
-      let weightAtTime: number | null = null;
+      return photos.map((p) => {
+        let cleanTag = p.tag || 'AFTER';
+        let weightAtTime: number | null = null;
 
-      if (cleanTag.includes('|')) {
-        const parts = cleanTag.split('|');
-        cleanTag = parts[0];
-        const parsed = parseFloat(parts[1]);
-        if (!isNaN(parsed)) {
-          weightAtTime = parsed;
+        if (cleanTag.includes('|')) {
+          const parts = cleanTag.split('|');
+          cleanTag = parts[0];
+          const parsed = parseFloat(parts[1]);
+          if (!isNaN(parsed)) {
+            weightAtTime = parsed;
+          }
         }
-      }
 
-      if (weightAtTime === null) {
-        if (cleanTag === 'BEFORE') {
-          weightAtTime = earliestWeight;
-        } else if (cleanTag === 'AFTER') {
-          weightAtTime = latestWeight;
+        if (weightAtTime === null) {
+          if (cleanTag === 'BEFORE') {
+            weightAtTime = earliestWeight;
+          } else if (cleanTag === 'AFTER') {
+            weightAtTime = latestWeight;
+          }
         }
-      }
 
-      return {
-        ...p,
-        tag: cleanTag,
-        weightAtTime,
-      };
-    });
+        return {
+          ...p,
+          tag: cleanTag,
+          weightAtTime,
+        };
+      });
+    } catch (err) {
+      this.logger.error(
+        `Failed to fetch progress photos for user ${userId}:`,
+        err,
+      );
+      return [];
+    }
   }
 
   async addPhoto(userId: string, dto: CreateProgressPhotoDto) {

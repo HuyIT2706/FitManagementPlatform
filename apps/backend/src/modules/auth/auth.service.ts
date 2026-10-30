@@ -9,16 +9,48 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import * as bcrypt from 'bcryptjs';
+import {
+  IsEmail,
+  IsString,
+  MinLength,
+  IsOptional,
+  IsNumber,
+  IsArray,
+} from 'class-validator';
 
 export class RegisterDto {
+  @IsEmail()
   email!: string;
+
+  @IsString()
+  @MinLength(6)
   password!: string;
+
+  @IsString()
   fullName!: string;
+
+  @IsOptional()
+  @IsString()
   avatarUrl?: string;
+
+  @IsOptional()
+  @IsString()
   role?: 'USER' | 'PT';
+
+  @IsOptional()
+  @IsNumber()
   experienceYears?: number;
+
+  @IsOptional()
+  @IsArray()
   specialties?: string[];
+
+  @IsOptional()
+  @IsString()
   certificateUrl?: string;
+
+  @IsOptional()
+  @IsString()
   bio?: string;
 }
 

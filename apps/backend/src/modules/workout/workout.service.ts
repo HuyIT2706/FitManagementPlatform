@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import type { ExercisePaginatedResponse, MealPlanAssigned } from '@repo/types';
 
 @Injectable()
 export class WorkoutService {
+  private readonly logger = new Logger(WorkoutService.name);
   constructor(private readonly prisma: PrismaService) {}
 
   async getExercises(
@@ -68,24 +69,35 @@ export class WorkoutService {
       };
     }
 
-    const [total, exercises] = await Promise.all([
-      this.prisma.exerciseLibrary.count({ where }),
-      this.prisma.exerciseLibrary.findMany({
-        where,
-        skip: (pageNum - 1) * limitNum,
-        take: limitNum,
-      }),
-    ]);
+    try {
+      const [total, exercises] = await Promise.all([
+        this.prisma.exerciseLibrary.count({ where }),
+        this.prisma.exerciseLibrary.findMany({
+          where,
+          skip: (pageNum - 1) * limitNum,
+          take: limitNum,
+        }),
+      ]);
 
-    const totalPages = Math.ceil(total / limitNum) || 1;
+      const totalPages = Math.ceil(total / limitNum) || 1;
 
-    return {
-      data: exercises,
-      total,
-      page: pageNum,
-      limit: limitNum,
-      totalPages,
-    };
+      return {
+        data: exercises,
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages,
+      };
+    } catch (err) {
+      this.logger.error('Failed to query exercise library:', err);
+      return {
+        data: [],
+        total: 0,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: 1,
+      };
+    }
   }
 
   async getAssignedMealPlan(userId: string): Promise<MealPlanAssigned | null> {
