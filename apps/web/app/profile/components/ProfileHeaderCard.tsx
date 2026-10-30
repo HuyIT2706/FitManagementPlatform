@@ -5,10 +5,22 @@ import { UserCheck, Edit3 } from 'lucide-react';
 import type { ProfileHeaderCardProps } from '../../../interface';
 import { getAvatarUrl } from '../../../utils/avatar';
 
-const ProfileHeaderCard = ({ userData, onEditProfile }: ProfileHeaderCardProps) => {
-  const isApprovedPt =
-    userData?.assignedPt?.status === 'APPROVED' || userData?.assignedPt?.isApproved;
-  const ptName = isApprovedPt ? `PT Phụ trách: ${userData?.assignedPt?.fullName}` : '';
+const ProfileHeaderCard = ({
+  userData,
+  fallbackCoachName,
+  onEditProfile,
+}: ProfileHeaderCardProps) => {
+  const isApprovedPt = Boolean(
+    (userData?.assignedPt &&
+      (userData.assignedPt.status === 'APPROVED' || userData.assignedPt.isApproved)) ||
+      fallbackCoachName
+  );
+  const coachName = userData?.assignedPt?.fullName || fallbackCoachName;
+  const ptName = isApprovedPt
+    ? coachName?.startsWith('Coach ')
+      ? `PT Phụ trách: ${coachName.replace(/^Coach\s+/, '')}`
+      : `PT Phụ trách: ${coachName}`
+    : '';
 
   return (
     <section className="bento-card rounded-2xl p-5 sm:p-6 md:p-8 flex flex-col md:flex-row items-center md:items-start gap-4 sm:gap-6 relative overflow-hidden border border-outline-variant/30">

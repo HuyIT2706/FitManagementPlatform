@@ -2,6 +2,7 @@ import type { UserDataHome } from './IHome';
 
 export interface ProfileHeaderCardProps {
   userData: UserDataHome | null;
+  fallbackCoachName?: string | null;
   onEditProfile?: () => void;
 }
 
@@ -16,6 +17,7 @@ export interface PtCoachBindCardProps {
     isApproved?: boolean;
     isPending?: boolean;
   } | null;
+  fallbackCoachName?: string | null;
   onBindSuccess?: () => void;
 }
 

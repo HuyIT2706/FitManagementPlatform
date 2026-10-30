@@ -10,13 +10,14 @@ import PtCoachBindCard from './components/PtCoachBindCard';
 import ProfileBiometricsGrid from './components/ProfileBiometricsGrid';
 import TransformationJourneySlider from './components/TransformationJourneySlider';
 import DailyMacroTargetMaster from './components/DailyMacroTargetMaster';
-import { useCurrentUser } from '../../hooks/swr';
+import { useCurrentUser, useAssignedWorkoutPlan } from '../../hooks/swr';
 import { performLogout } from '../../utils/logout';
 import ProfileSettingsList from './components/ProfileSettingsList';
 import EditProfileModal from './components/EditProfileModal';
 
 const ProfilePage = () => {
   const { data: userData, isLoading: loading, mutate } = useCurrentUser();
+  const { data: assignedWorkoutPlan } = useAssignedWorkoutPlan();
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
   useEffect(() => {
@@ -94,12 +95,14 @@ const ProfilePage = () => {
         {/* 1. Profile Header Hero */}
         <ProfileHeaderCard
           userData={userData || null}
+          fallbackCoachName={assignedWorkoutPlan?.coachName}
           onEditProfile={() => setIsEditProfileOpen(true)}
         />
 
         {/* 2. PT Coach Code & QR Binding Card */}
         <PtCoachBindCard
           assignedPt={userData?.assignedPt}
+          fallbackCoachName={assignedWorkoutPlan?.coachName}
           onBindSuccess={fetchUserData}
         />
 

@@ -19,7 +19,8 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   private setRefreshTokenCookie(res: Response, refreshToken: string) {
-    const isProd = process.env.NODE_ENV === 'production';
+    const isProd =
+      process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
       secure: isProd,
@@ -30,7 +31,8 @@ export class AuthController {
   }
 
   private clearRefreshTokenCookie(res: Response) {
-    const isProd = process.env.NODE_ENV === 'production';
+    const isProd =
+      process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
     res.clearCookie('refresh_token', {
       httpOnly: true,
       secure: isProd,
@@ -97,8 +99,12 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const refreshToken = (req.cookies as Record<string, string> | undefined)
+    const cookieRt = (req.cookies as Record<string, string> | undefined)
       ?.refresh_token;
+    const bodyRt = (req.body as { refresh_token?: string } | undefined)
+      ?.refresh_token;
+    const headerRt = req.headers['x-refresh-token'] as string | undefined;
+    const refreshToken = cookieRt || bodyRt || headerRt;
 
     if (!refreshToken || typeof refreshToken !== 'string') {
       res.status(HttpStatus.FORBIDDEN).send({ message: 'Access Denied' });
@@ -118,7 +124,10 @@ export class AuthController {
 
       const tokens = await this.authService.refreshTokens(userId, refreshToken);
       this.setRefreshTokenCookie(res, tokens.refreshToken);
-      return { access_token: tokens.accessToken };
+      return {
+        access_token: tokens.accessToken,
+        refresh_token: tokens.refreshToken,
+      };
     } catch {
       res.status(HttpStatus.FORBIDDEN).send({ message: 'Access Denied' });
       return;
@@ -150,8 +159,13 @@ export class AuthController {
 
     // 2. Fallback to extracting userId from refresh_token cookie
     if (!userId) {
-      const refreshToken = (req.cookies as Record<string, string> | undefined)
+      const cookieRt = (req.cookies as Record<string, string> | undefined)
         ?.refresh_token;
+      const bodyRt = (req.body as { refresh_token?: string } | undefined)
+        ?.refresh_token;
+      const headerRt = req.headers['x-refresh-token'] as string | undefined;
+      const refreshToken = cookieRt || bodyRt || headerRt;
+
       if (refreshToken && refreshToken.includes('.')) {
         try {
           const payload = JSON.parse(

@@ -14,7 +14,7 @@ const TrainingVipBanner = ({
     Boolean(fallbackCoachName)
   );
   const isPendingPt = Boolean(
-    !isApprovedPt && 
+    !isApprovedPt &&
     userData?.assignedPt &&
       (userData.assignedPt.status === 'PENDING' || userData.assignedPt.isPending)
   );

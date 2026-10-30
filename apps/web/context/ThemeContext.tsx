@@ -27,6 +27,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
         }
       }
     } catch {
+      // ignore localStorage read errors in restricted contexts
     }
   }, []);
 

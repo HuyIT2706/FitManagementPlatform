@@ -72,6 +72,7 @@ async function bootstrap() {
       'X-Encrypted-Payload',
       'X-Encrypt-Payload',
       'X-Response-Encrypted',
+      'X-Refresh-Token',
     ],
     exposedHeaders: ['X-Encrypted-Response'],
   });

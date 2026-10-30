@@ -7,21 +7,30 @@ import apiClient from '../../../api/axios';
 import { toast } from '../../../utils/toast';
 import { broadcastSync } from '../../../utils/realtimeSync';
 
-const PtCoachBindCard = ({ assignedPt, onBindSuccess }: PtCoachBindCardProps) => {
+const PtCoachBindCard = ({
+  assignedPt,
+  fallbackCoachName,
+  onBindSuccess,
+}: PtCoachBindCardProps) => {
   const [ptCode, setPtCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
 
   // An active, approved PT
   const isApprovedPt = Boolean(
-    assignedPt &&
+    (assignedPt &&
       assignedPt.fullName &&
-      (assignedPt.status === 'APPROVED' || assignedPt.isApproved)
+      (assignedPt.status === 'APPROVED' || assignedPt.isApproved)) ||
+      fallbackCoachName
   );
+
+  const displayPtName =
+    assignedPt?.fullName || fallbackCoachName?.replace(/^Coach\s+/, '') || 'Huấn luyện viên';
 
   // A pending invitation waiting for PT to approve
   const isPendingPt = Boolean(
-    assignedPt &&
+    !isApprovedPt &&
+      assignedPt &&
       assignedPt.fullName &&
       (assignedPt.status === 'PENDING' || assignedPt.isPending)
   );
@@ -116,7 +125,7 @@ const PtCoachBindCard = ({ assignedPt, onBindSuccess }: PtCoachBindCardProps) =>
         <p className="text-xs text-on-surface-variant font-medium">
           Bạn đang tập luyện 1:1 cùng{' '}
           <strong className="text-green-light font-bold">
-            Coach {assignedPt?.fullName}
+            Coach {displayPtName}
           </strong>
           {assignedPt?.phone ? ` (SĐT: ${assignedPt.phone})` : ''}.
         </p>
@@ -124,7 +133,7 @@ const PtCoachBindCard = ({ assignedPt, onBindSuccess }: PtCoachBindCardProps) =>
         <p className="text-xs text-on-surface-variant font-medium">
           Bạn đã gửi lời mời liên kết tới{' '}
           <strong className="text-amber-400 font-bold">
-            Coach {assignedPt?.fullName}
+            Coach {displayPtName}
           </strong>
           . Vui lòng chờ Huấn luyện viên phê duyệt hoặc bấm <strong className="text-white">Hủy yêu cầu</strong> bên dưới nếu muốn nhập mã PT khác.
         </p>

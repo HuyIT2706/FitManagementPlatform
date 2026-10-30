@@ -116,6 +116,7 @@ const LoginContent = () => {
         }
         let data: {
           access_token: string;
+          refresh_token?: string;
           user: UserDataHome;
           isPendingPtApproval?: boolean;
         };
@@ -151,6 +152,9 @@ const LoginContent = () => {
 
         if (data.access_token) {
           localStorage.setItem("jwt_token", data.access_token);
+          if (data.refresh_token) {
+            localStorage.setItem("refresh_token", data.refresh_token);
+          }
           if (data.user) {
             void globalMutate("/users/me", data.user, true);
           }
@@ -345,6 +349,9 @@ const LoginContent = () => {
           });
         const data = response.data;
         localStorage.setItem("jwt_token", data.access_token);
+        if (data.refresh_token) {
+          localStorage.setItem("refresh_token", data.refresh_token);
+        }
         if (data.user) {
           void globalMutate("/users/me", data.user, true);
         }
@@ -392,6 +399,9 @@ const LoginContent = () => {
           });
         const data = response.data;
         localStorage.setItem("jwt_token", data.access_token);
+        if (data.refresh_token) {
+          localStorage.setItem("refresh_token", data.refresh_token);
+        }
         if (data.user) {
           void globalMutate("/users/me", data.user, true);
         }
