@@ -281,6 +281,7 @@ const Header = ({ userData, onLogout }: HeaderProps) => {
           {/* Mobile Theme Toggle right next to Bell button */}
           <button
             type="button"
+            suppressHydrationWarning
             onClick={toggleTheme}
             className="w-8 h-8 rounded-full bg-green-50 dark:bg-green-light/10 border border-green-200 dark:border-green-light/30 text-green-600 dark:text-green-light hover:bg-green-100 dark:hover:bg-green-light/20 flex items-center justify-center transition-all cursor-pointer active:scale-90 shadow-sm"
             aria-label={isDark ? "Chuyển sang giao diện sáng" : "Chuyển sang giao diện tối"}

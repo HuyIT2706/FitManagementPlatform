@@ -48,6 +48,7 @@ const PtProfileSettingsList = ({
           {/* Chế độ giao diện (Laptop / Desktop) */}
           <button
             type="button"
+            suppressHydrationWarning
             onClick={toggleTheme}
             className="hidden md:flex w-full p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-surface-bright/30 border border-slate-200 dark:border-white/5 items-center justify-between text-xs sm:text-sm font-semibold hover:bg-slate-100 dark:hover:bg-surface-bright/50 hover:border-primary/30 transition-all cursor-pointer"
           >

@@ -7,6 +7,7 @@ type Theme = 'dark' | 'light';
 interface ThemeContextType {
   theme: Theme;
   isDark: boolean;
+  mounted: boolean;
   toggleTheme: (event?: React.MouseEvent) => void;
 }
 
@@ -14,8 +15,10 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [theme, setTheme] = useState<Theme>('dark');
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     try {
       const saved = localStorage.getItem('nutricore-theme') as Theme | null;
       if (saved === 'light' || saved === 'dark') {
@@ -107,7 +110,8 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     <ThemeContext.Provider
       value={{
         theme,
-        isDark: theme === 'dark',
+        isDark: mounted ? theme === 'dark' : true,
+        mounted,
         toggleTheme,
       }}
     >
