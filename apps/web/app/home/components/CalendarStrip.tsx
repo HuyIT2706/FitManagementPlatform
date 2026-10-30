@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
 import toast from '../../../utils/toast';
 import { type CalendarStripProps } from '../../../interface';
@@ -16,6 +17,11 @@ const CalendarStrip = ({
   onGoToToday,
   isSameDay,
 }: CalendarStripProps) => {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const todayEnd = new Date();
   todayEnd.setHours(23, 59, 59, 999);
 
@@ -76,8 +82,8 @@ const CalendarStrip = ({
       <div className="grid grid-cols-7 gap-1 sm:gap-1.5 md:gap-3">
         {weekDays.map((day) => {
           const isSelected = isSameDay(day, selectedDate);
-          const isToday = isSameDay(day, new Date());
-          const isFuture = day > todayEnd;
+          const isToday = mounted ? isSameDay(day, new Date()) : false;
+          const isFuture = mounted ? day > todayEnd : false;
           const dayName = dayLabelMap[day.getDay()];
 
           return (

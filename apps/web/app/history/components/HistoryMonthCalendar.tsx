@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
 import type { HistoryMonthCalendarProps } from '../../../interface';
 
@@ -16,6 +17,11 @@ const HistoryMonthCalendar = ({
   onGoToToday,
   isSameDay,
 }: HistoryMonthCalendarProps) => {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const isLoggedDate = (cellDate: Date) => {
     const yyyy = cellDate.getFullYear();
     const mm = String(cellDate.getMonth() + 1).padStart(2, '0');
@@ -64,7 +70,7 @@ const HistoryMonthCalendar = ({
         <div className="grid grid-cols-7 gap-y-1.5 sm:gap-y-2 gap-x-1 text-center">
           {monthCells.map((cell, idx) => {
             const isSelected = isSameDay(cell.date, selectedDate);
-            const isToday = isSameDay(cell.date, new Date());
+            const isToday = mounted ? isSameDay(cell.date, new Date()) : false;
             const hasLog = cell.isCurrentMonth && isLoggedDate(cell.date);
 
             return (

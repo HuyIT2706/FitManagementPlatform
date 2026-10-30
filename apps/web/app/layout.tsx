@@ -55,14 +55,15 @@ const RootLayout = ({
       className={`dark ${plusJakartaSans.variable} ${inter.variable}`}
       suppressHydrationWarning
     >
-      <body suppressHydrationWarning className="bg-background text-on-surface font-sans">
+      <head>
         <script
           id="theme-script"
           dangerouslySetInnerHTML={{
             __html: `try{var t=localStorage.getItem('nutricore-theme');if(t==='light'){document.documentElement.classList.remove('dark')}else{document.documentElement.classList.add('dark')}}catch(e){}`,
           }}
-          suppressHydrationWarning
         />
+      </head>
+      <body suppressHydrationWarning className="bg-background text-on-surface font-sans">
         <ThemeProvider>
           {children}
           <PushNotificationSync />

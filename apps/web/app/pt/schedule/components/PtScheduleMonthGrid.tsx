@@ -45,6 +45,11 @@ const PtScheduleMonthGrid = ({
   onOpenDayDetails,
   filterStudentId,
 }: PtScheduleMonthGridProps) => {
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const today = new Date();
   const monthInfo = getCalendarMonthInfo(viewDate);
 
@@ -140,7 +145,7 @@ const PtScheduleMonthGrid = ({
       {/* Monthly Days Grid */}
       <div className="grid grid-cols-7 gap-1 sm:gap-1.5 md:gap-2">
         {calendarCells.map((cell) => {
-          const isToday = isSameDay(cell.date, today);
+          const isToday = mounted ? isSameDay(cell.date, today) : false;
           const isSelected = isSameDay(cell.date, selectedDate);
           const daySessions = scheduleMap[cell.dateStr] || [];
           const maxVisible = 3;

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Dumbbell, CheckCircle2 } from 'lucide-react';
 import type { PTSessionItem } from '@repo/types';
@@ -10,6 +11,11 @@ const PtScheduleList = ({
   checkedSessions,
   onCheckInSession,
 }: PtScheduleListProps) => {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const sessionList = sessions || [];
   const now = new Date();
 
@@ -42,11 +48,12 @@ const PtScheduleList = ({
             const [endHour, endMin] = endTimeStr.split(':').map(Number);
             const slotEnd = new Date(now);
             slotEnd.setHours(endHour ?? 9, endMin ?? 0, 0, 0);
-            const isOverdue = now > slotEnd && !isChecked;
+            const isOverdue = mounted ? now > slotEnd && !isChecked : false;
 
             return (
               <div
                 key={session.id}
+                suppressHydrationWarning
                 className={`bento-card rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 ${
                   isChecked
                     ? 'border-green-500/40 dark:border-green-light/40 bg-green-50/70 dark:bg-green-light/10'

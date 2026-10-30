@@ -53,6 +53,11 @@ const PTSchedulePage = () => {
     mutate: mutatePt,
   } = usePtDashboard();
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
   const [viewMonthDate, setViewMonthDate] = useState<Date>(() => new Date());
   const [checkedSessions, setCheckedSessions] = useState<
@@ -243,8 +248,8 @@ const PTSchedulePage = () => {
   const now = new Date();
   const selectedDateStr = formatYYYYMMDD(selectedDate);
   const isSelectedToday = isSameDay(selectedDate, now);
-  const isSelectedPast = selectedDate < now && !isSelectedToday;
-  const isSelectedFuture = selectedDate > now && !isSelectedToday;
+  const isSelectedPast = mounted ? selectedDate < now && !isSelectedToday : false;
+  const isSelectedFuture = mounted ? selectedDate > now && !isSelectedToday : false;
 
   const allSchedulesList: PTSessionItem[] = dbSchedules || [];
 
@@ -269,6 +274,8 @@ const PTSchedulePage = () => {
 
       if (isCheckedIn) {
         statusVal = "COMPLETED";
+      } else if (!mounted) {
+        statusVal = "UPCOMING";
       } else if (isSelectedPast) {
         statusVal = "OVERDUE";
       } else if (isSelectedFuture) {

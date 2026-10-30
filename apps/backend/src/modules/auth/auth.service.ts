@@ -109,7 +109,7 @@ export class AuthService {
     const pendingProfile = studentProfiles.find(
       (sp) => sp.status === 'PENDING',
     );
-    const studentProfile =
+    let studentProfile =
       approvedProfile || pendingProfile || studentProfiles[0] || null;
 
     // Auto-heal: If studentProfile is PENDING but the coach has already assigned schedules/packages
@@ -120,6 +120,27 @@ export class AuthService {
             where: { studentId: userId },
             select: { id: true },
           });
+        if (hasWorkoutsOrPackages) {
+          await this.prisma.studentProfile.update({
+            where: { id: studentProfile.id },
+            data: { status: 'APPROVED' },
+          });
+          studentProfile.status = 'APPROVED';
+          approvedProfile = studentProfile;
+        }
+      } catch {
+        // Safe fallback
+      }
+    }
+
+
+    // Auto-heal: If studentProfile is PENDING but the coach has already assigned schedules/packages
+    if (studentProfile && studentProfile.status !== 'APPROVED') {
+      try {
+        const hasWorkoutsOrPackages = await this.prisma.workoutSchedule.findFirst({
+          where: { studentId: userId },
+          select: { id: true },
+        });
         if (hasWorkoutsOrPackages) {
           await this.prisma.studentProfile.update({
             where: { id: studentProfile.id },
