@@ -13,7 +13,6 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  // Always initialize with 'dark' on both SSR and client to ensure identical initial hydration
   const [theme, setTheme] = useState<Theme>('dark');
 
   useEffect(() => {
@@ -28,11 +27,9 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
         }
       }
     } catch {
-      // ignore
     }
   }, []);
 
-  // Keep DOM in sync whenever state changes (also covers SSR -> hydration edge case)
   useEffect(() => {
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
@@ -56,11 +53,9 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
         try {
           localStorage.setItem('nutricore-theme', nextTheme);
         } catch {
-          // ignore
+          // ignore localStorage quota errors
         }
       };
-
-      // Check for View Transitions API support
       const doc = document as unknown as {
         startViewTransition?: (callback: () => void) => {
           ready: Promise<void>;

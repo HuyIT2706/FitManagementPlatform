@@ -107,7 +107,11 @@ const WorkoutPage = () => {
       <Header userData={userData} onLogout={handleLogout} />
 
       <main className="max-w-7xl mx-auto px-container-padding mt-4 md:mt-8 space-y-gutter">
-        <TrainingVipBanner userData={userData || null} assignedMealPlan={assignedMealPlan || null} />
+        <TrainingVipBanner
+          userData={userData || null}
+          assignedMealPlan={assignedMealPlan || null}
+          assignedWorkoutPlan={assignedWorkoutPlan || null}
+        />
 
         {/* Assigned 1:1 Workout Plan Section from Backend */}
         <AssignedWorkoutPlanCard

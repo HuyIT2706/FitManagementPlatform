@@ -5,16 +5,22 @@ import type { TrainingVipBannerProps } from '../../../interface';
 
 const TrainingVipBanner = ({
   userData,
+  assignedWorkoutPlan,
 }: TrainingVipBannerProps) => {
+  const fallbackCoachName = assignedWorkoutPlan?.coachName;
   const isApprovedPt = Boolean(
-    userData?.assignedPt &&
-      (userData.assignedPt.status === 'APPROVED' || userData.assignedPt.isApproved)
+    (userData?.assignedPt &&
+      (userData.assignedPt.status === 'APPROVED' || userData.assignedPt.isApproved)) ||
+    Boolean(fallbackCoachName)
   );
   const isPendingPt = Boolean(
+    !isApprovedPt && 
     userData?.assignedPt &&
       (userData.assignedPt.status === 'PENDING' || userData.assignedPt.isPending)
   );
-  const ptName = isApprovedPt ? (userData?.assignedPt?.fullName || 'Huấn luyện viên') : '';
+  const ptName = isApprovedPt
+    ? (userData?.assignedPt?.fullName || fallbackCoachName || 'Huấn luyện viên')
+    : '';
 
   const activePkg = userData?.activePackage;
   const hasPackage = Boolean(

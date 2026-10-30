@@ -28,6 +28,12 @@ describe('AuthService', () => {
       ptApplication: {
         create: jest.fn(),
       },
+      studentProfile: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      memberPackage: {
+        findFirst: jest.fn().mockResolvedValue(null),
+      },
       $transaction: jest.fn((cb: (tx: unknown) => unknown) =>
         Promise.resolve(cb(prismaMock)),
       ),

@@ -152,7 +152,7 @@ const LoginContent = () => {
         if (data.access_token) {
           localStorage.setItem("jwt_token", data.access_token);
           if (data.user) {
-            void globalMutate("/users/me", data.user, false);
+            void globalMutate("/users/me", data.user, true);
           }
           autoSyncPushSubscription();
         }
@@ -346,7 +346,7 @@ const LoginContent = () => {
         const data = response.data;
         localStorage.setItem("jwt_token", data.access_token);
         if (data.user) {
-          void globalMutate("/users/me", data.user, false);
+          void globalMutate("/users/me", data.user, true);
         }
         autoSyncPushSubscription();
 
@@ -393,7 +393,7 @@ const LoginContent = () => {
         const data = response.data;
         localStorage.setItem("jwt_token", data.access_token);
         if (data.user) {
-          void globalMutate("/users/me", data.user, false);
+          void globalMutate("/users/me", data.user, true);
         }
         autoSyncPushSubscription();
 

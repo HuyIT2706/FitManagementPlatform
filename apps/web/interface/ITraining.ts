@@ -11,6 +11,7 @@ export type {
 export interface TrainingVipBannerProps {
   userData: UserDataHome | null;
   assignedMealPlan: MealPlanAssigned | null;
+  assignedWorkoutPlan?: AssignedWorkoutPlanData | null;
 }
 
 export interface ExerciseLibraryGridProps {

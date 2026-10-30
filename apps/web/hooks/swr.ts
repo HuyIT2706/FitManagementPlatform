@@ -50,14 +50,9 @@ export const prefetchCurrentUser = (): void => {
   if (typeof window === 'undefined') return;
   if (!localStorage.getItem('jwt_token')) return;
   void globalMutate('/users/me', () => swrFetcher<UserDataHome>('/users/me'), {
-    revalidate: false, // trust the fetched value, no immediate re-fetch
+    revalidate: false,
   });
 };
-
-// ---------------------------------------------------------------------------
-// Hooks
-// ---------------------------------------------------------------------------
-
 export const useCurrentUser = (options?: SWRConfiguration) => {
   const hasToken = useHasToken();
   return useSWR<UserDataHome>(
@@ -65,10 +60,10 @@ export const useCurrentUser = (options?: SWRConfiguration) => {
     swrFetcher,
     {
       ...DEFAULT_SWR_OPTIONS,
-      revalidateIfStale: false,
+      revalidateIfStale: true,
       revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      dedupingInterval: 3600000, // 1 hour persistent cache during session
+      revalidateOnReconnect: true,
+      dedupingInterval: 5000,
       ...options,
     }
   );
@@ -245,7 +240,7 @@ export const syncUserSession = async (): Promise<UserDataHome | null> => {
     }>('/auth/sync-session');
     if (res.data?.access_token) {
       localStorage.setItem('jwt_token', res.data.access_token);
-      await globalMutate('/users/me', res.data.user, false);
+      await globalMutate('/users/me', res.data.user, true);
       return res.data.user;
     }
     return null;

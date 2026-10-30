@@ -108,10 +108,10 @@ export class UsersService {
           },
           studentProfiles: {
             orderBy: { assignedAt: 'desc' },
-            take: 1,
             select: {
               id: true,
               status: true,
+              assignedAt: true,
               trainer: {
                 select: {
                   id: true,
@@ -125,6 +125,7 @@ export class UsersService {
           },
           userPackages: {
             where: { isActive: true },
+            orderBy: { startDate: 'desc' },
             take: 1,
             select: {
               id: true,
@@ -156,7 +157,15 @@ export class UsersService {
 
       if (!user) return null;
 
-      const studentProfile = user.studentProfiles?.[0] || null;
+      // Prioritize APPROVED PT profile, then PENDING, then whatever profile is latest
+      const approvedProfile = user.studentProfiles?.find(
+        (sp) => sp.status === 'APPROVED',
+      );
+      const pendingProfile = user.studentProfiles?.find(
+        (sp) => sp.status === 'PENDING',
+      );
+      const studentProfile =
+        approvedProfile || pendingProfile || user.studentProfiles?.[0] || null;
       const ptBindStatus = studentProfile?.status || null;
       const assignedPt = studentProfile?.trainer
         ? {
@@ -166,7 +175,40 @@ export class UsersService {
             isPending: ptBindStatus === 'PENDING',
           }
         : null;
-      const activePackage = user.userPackages?.[0] || null;
+
+      let activePackage = user.userPackages?.[0] || null;
+      if (!activePackage && assignedPt?.isApproved) {
+        let gymPkg = await this.prisma.gymPackage.findFirst();
+        if (!gymPkg) {
+          gymPkg = await this.prisma.gymPackage.create({
+            data: {
+              title: 'Gói PT 1-1 (12 Buổi)',
+              description: 'Gói tập huấn luyện viên 1:1 cá nhân hóa',
+              price: 3600000,
+              durationDays: 90,
+              totalSessions: 12,
+            },
+          });
+        }
+        activePackage = await this.prisma.memberPackage.create({
+          data: {
+            userId: user.id,
+            packageId: gymPkg.id,
+            totalSessions: 12,
+            remainingSessions: 12,
+            endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+          },
+          include: {
+            gymPackage: {
+              select: {
+                id: true,
+                title: true,
+                price: true,
+              },
+            },
+          },
+        });
+      }
 
       const isApprovedPt =
         user.role === 'PT' ? user.ptApplication?.status === 'APPROVED' : true;
@@ -582,9 +624,6 @@ export class UsersService {
           },
         });
       }
-
-      // Only recalculate and overwrite NutritionTarget if key biometrics/goals changed.
-      // This protects PT-prescribed meal plans and custom macros when user updates phone, avatar, etc.
       if (hasBiometricsChanged) {
         await tx.nutritionTarget.create({
           data: {

@@ -51,6 +51,61 @@ export class AuthService {
     });
   }
 
+  private async getStudentPtAndPackage(userId: string) {
+    if (!this.prisma.studentProfile || !this.prisma.memberPackage) {
+      return { assignedPt: null, activePackage: null };
+    }
+    const studentProfiles = await this.prisma.studentProfile.findMany({
+      where: { studentId: userId },
+      include: {
+        trainer: {
+          select: {
+            id: true,
+            fullName: true,
+            avatarUrl: true,
+            phone: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: { assignedAt: 'desc' },
+    });
+
+    const approvedProfile = studentProfiles.find(
+      (sp) => sp.status === 'APPROVED',
+    );
+    const pendingProfile = studentProfiles.find(
+      (sp) => sp.status === 'PENDING',
+    );
+    const studentProfile =
+      approvedProfile || pendingProfile || studentProfiles[0] || null;
+    const ptBindStatus = studentProfile?.status || null;
+    const assignedPt = studentProfile?.trainer
+      ? {
+          ...studentProfile.trainer,
+          status: ptBindStatus,
+          isApproved: ptBindStatus === 'APPROVED',
+          isPending: ptBindStatus === 'PENDING',
+        }
+      : null;
+
+    const activePackage = await this.prisma.memberPackage.findFirst({
+      where: { userId, isActive: true },
+      orderBy: { startDate: 'desc' },
+      include: {
+        gymPackage: {
+          select: {
+            id: true,
+            title: true,
+            price: true,
+          },
+        },
+      },
+    });
+
+    return { assignedPt, activePackage };
+  }
+
   async register(dto: RegisterDto) {
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -155,6 +210,9 @@ export class AuthService {
 
     const tokens = await this.getTokens(user.id, user.email, user.role);
     await this.updateRefreshTokenHash(user.id, tokens.refreshToken);
+    const { assignedPt, activePackage } = await this.getStudentPtAndPackage(
+      user.id,
+    );
 
     return {
       access_token: tokens.accessToken,
@@ -171,6 +229,8 @@ export class AuthService {
           user.role === 'PT' ? user.ptApplication?.status === 'APPROVED' : true,
         isPendingPtApproval: isPendingPt,
         onboardingCompleted: user.onboardingCompleted,
+        assignedPt,
+        activePackage,
       },
     };
   }
@@ -239,6 +299,9 @@ export class AuthService {
 
       const tokens = await this.getTokens(user.id, user.email, user.role);
       await this.updateRefreshTokenHash(user.id, tokens.refreshToken);
+      const { assignedPt, activePackage } = await this.getStudentPtAndPackage(
+        user.id,
+      );
 
       return {
         access_token: tokens.accessToken,
@@ -254,6 +317,8 @@ export class AuthService {
           isApprovedPt,
           isPendingPtApproval: isPendingPt,
           onboardingCompleted: user.onboardingCompleted,
+          assignedPt,
+          activePackage,
         },
       };
     } catch (e) {
@@ -301,6 +366,9 @@ export class AuthService {
 
     const tokens = await this.getTokens(user.id, user.email, user.role);
     await this.updateRefreshTokenHash(user.id, tokens.refreshToken);
+    const { assignedPt, activePackage } = await this.getStudentPtAndPackage(
+      user.id,
+    );
 
     const isPendingPt =
       user.role === 'PT' && user.ptApplication?.status === 'PENDING';
@@ -319,6 +387,8 @@ export class AuthService {
         isApprovedPt,
         isPendingPtApproval: isPendingPt,
         onboardingCompleted: user.onboardingCompleted,
+        assignedPt,
+        activePackage,
       },
     };
   }
