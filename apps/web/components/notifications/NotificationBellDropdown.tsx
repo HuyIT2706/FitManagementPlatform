@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import apiClient from '../../api/axios';
 import { useNotifications } from '../../hooks/swr';
+import { toast } from '../../utils/toast';
 import {
   registerServiceWorker,
   subscribeToPushNotifications,
@@ -40,6 +41,25 @@ const NotificationBellDropdown = ({
   const { data, mutate } = useNotifications();
   const notifications = useMemo(() => data?.notifications || [], [data?.notifications]);
   const unreadCount = data?.unreadCount || 0;
+  const prevNotificationsRef = useRef<string[] | null>(null);
+
+  // Live Toast notification when a new unread item arrives
+  useEffect(() => {
+    if (!data?.notifications) return;
+    const currentIds = data.notifications.map((n) => n.id);
+    if (prevNotificationsRef.current !== null) {
+      const newNotifs = data.notifications.filter(
+        (n) => !prevNotificationsRef.current?.includes(n.id) && !n.isRead
+      );
+      if (newNotifs.length > 0) {
+        const latest = newNotifs[0];
+        if (latest) {
+          toast.info(latest.message, latest.title);
+        }
+      }
+    }
+    prevNotificationsRef.current = currentIds;
+  }, [data?.notifications]);
 
   useEffect(() => {
     registerServiceWorker();

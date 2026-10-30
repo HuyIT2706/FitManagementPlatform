@@ -77,9 +77,12 @@ const LoginContent = () => {
             handleRoleRedirect(res.data, router, redirectPath);
           }
         })
-        .catch(() => {
-          localStorage.removeItem("jwt_token");
-          apiClient.post("/auth/logout", {}).catch(() => {});
+        .catch((err: unknown) => {
+          const status = (err as { response?: { status?: number } })?.response?.status;
+          if (status === 401 || status === 403) {
+            localStorage.removeItem("jwt_token");
+            localStorage.removeItem("refresh_token");
+          }
         });
     }
   }, [router, redirectPath]);

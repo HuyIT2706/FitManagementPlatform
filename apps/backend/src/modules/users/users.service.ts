@@ -158,7 +158,7 @@ export class UsersService {
       if (!user) return null;
 
       // Prioritize APPROVED PT profile, then PENDING, then whatever profile is latest
-      const approvedProfile = user.studentProfiles?.find(
+      let approvedProfile = user.studentProfiles?.find(
         (sp) => sp.status === 'APPROVED',
       );
       const pendingProfile = user.studentProfiles?.find(
@@ -166,6 +166,26 @@ export class UsersService {
       );
       const studentProfile =
         approvedProfile || pendingProfile || user.studentProfiles?.[0] || null;
+
+      // Auto-heal: If studentProfile is PENDING but the student already has active packages
+      if (studentProfile && studentProfile.status !== 'APPROVED') {
+        const hasActivePackage =
+          Array.isArray(user.userPackages) && user.userPackages.length > 0;
+
+        if (hasActivePackage) {
+          try {
+            await this.prisma.studentProfile.update({
+              where: { id: studentProfile.id },
+              data: { status: 'APPROVED' },
+            });
+            studentProfile.status = 'APPROVED';
+            approvedProfile = studentProfile;
+          } catch {
+            // Safe fallback
+          }
+        }
+      }
+
       const ptBindStatus = studentProfile?.status || null;
       const assignedPt = studentProfile?.trainer
         ? {

@@ -76,8 +76,13 @@ async function getFreshToken(shouldRedirectOnFail = true): Promise<string | null
         return newToken;
       }
       return null;
-    } catch {
-      if (shouldRedirectOnFail && typeof window !== 'undefined') {
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      if (
+        shouldRedirectOnFail &&
+        typeof window !== 'undefined' &&
+        (status === 401 || status === 403)
+      ) {
         localStorage.removeItem('jwt_token');
         localStorage.removeItem('refresh_token');
         window.location.href = '/login';

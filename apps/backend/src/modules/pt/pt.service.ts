@@ -150,7 +150,7 @@ export class PtService {
             where: {
               studentId: compSched.studentId,
               checkInTime: { gte: startOfToday, lte: endOfToday },
-              note: { contains: compSched.title },
+              note: { contains: compSched.id },
             },
           });
 
@@ -173,7 +173,7 @@ export class PtService {
                   studentId: compSched.studentId,
                   checkInTime: new Date(),
                   status: 'CHECKED_IN',
-                  note: `Điểm danh thành công: ${compSched.title}`,
+                  note: `Điểm danh thành công: ${compSched.title} [ScheduleId:${compSched.id}]`,
                 },
               });
 
@@ -215,6 +215,7 @@ export class PtService {
               avatarUrl: true,
               userPackages: {
                 where: { isActive: true },
+                orderBy: { startDate: 'desc' },
                 take: 1,
                 select: {
                   totalSessions: true,
@@ -281,6 +282,7 @@ export class PtService {
               avatarUrl: true,
               userPackages: {
                 where: { isActive: true },
+                orderBy: { startDate: 'desc' },
                 take: 1,
                 select: {
                   totalSessions: true,
@@ -1321,13 +1323,13 @@ export class PtService {
       workoutScheduleTitle = schedule.title;
       scheduleId = schedule.id;
 
-      // IDEMPOTENT GUARD: Nếu ca dạy đã hoàn thành VÀ đã có attendance history tương ứng -> không trừ thêm!
+      // IDEMPOTENT GUARD: Nếu ca dạy đã hoàn thành VÀ đã có attendance history cho chính schedule này -> không trừ thêm!
       if (schedule.isCompleted) {
         const existingAttendance =
           await this.prisma.attendanceHistory.findFirst({
             where: {
               studentId: studentId,
-              note: { contains: schedule.title },
+              note: { contains: schedule.id },
             },
           });
 
@@ -1465,8 +1467,6 @@ export class PtService {
     }
 
     // 4. Trừ 1 buổi và cập nhật nguyên tử (Atomic transaction)
-    const newRemainingSessions = Math.max(0, activePkg.remainingSessions - 1);
-
     const { updatedPkg } = await this.prisma.$transaction(async (tx) => {
       if (scheduleId) {
         await tx.workoutSchedule.update({
@@ -1475,12 +1475,24 @@ export class PtService {
         });
       }
 
+      // Decrement atomically in Postgres
       const pkg = await tx.memberPackage.update({
         where: { id: activePkg.id },
         data: {
-          remainingSessions: newRemainingSessions,
+          remainingSessions: {
+            decrement: 1,
+          },
         },
       });
+
+      // Clamp to 0 if negative
+      if (pkg.remainingSessions < 0) {
+        await tx.memberPackage.update({
+          where: { id: activePkg.id },
+          data: { remainingSessions: 0 },
+        });
+        pkg.remainingSessions = 0;
+      }
 
       await tx.attendanceHistory.create({
         data: {
@@ -1488,8 +1500,18 @@ export class PtService {
           studentId: studentId,
           checkInTime: new Date(),
           status: 'CHECKED_IN',
-          note: `Điểm danh thành công: ${workoutScheduleTitle}`,
+          note: `Điểm danh thành công: ${workoutScheduleTitle} [ScheduleId:${scheduleId || sessionId}]`,
         },
+      });
+
+      // Keep only activePkg active for this student, mark obsolete duplicates inactive
+      await tx.memberPackage.updateMany({
+        where: {
+          userId: studentId,
+          id: { not: activePkg.id },
+          isActive: true,
+        },
+        data: { isActive: false },
       });
 
       return { updatedPkg: pkg };
@@ -1510,7 +1532,7 @@ export class PtService {
       await this.notificationsService.sendNotification({
         userId: studentId,
         title: 'Điểm Danh & Trừ Buổi Tập',
-        message: `HLV ${ptName} đã điểm danh (Trừ 1 buổi). Số buổi còn lại: ${updatedPkg.remainingSessions}/${activePkg.totalSessions} buổi.`,
+        message: `HLV ${ptName} đã điểm danh ca tập "${workoutScheduleTitle}" (Trừ 1 buổi). Số buổi còn lại: ${updatedPkg.remainingSessions}/${activePkg.totalSessions} buổi.`,
         type: 'SESSION_DEDUCT',
         linkUrl: '/training',
       });

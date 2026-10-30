@@ -57,24 +57,32 @@ export class NotificationsController {
     @Request() req: RequestWithUser,
     @Body() body: PushSubscriptionDto,
   ) {
-    return this.notificationsService.savePushSubscription(req.user.sub, body);
+    const userId =
+      req.user?.sub || (req.user as unknown as { id?: string })?.id || '';
+    return this.notificationsService.savePushSubscription(userId, body);
   }
 
   @UseGuards(JwtGuard)
   @Get()
   async getNotifications(@Request() req: RequestWithUser) {
-    return this.notificationsService.getNotifications(req.user.sub);
+    const userId =
+      req.user?.sub || (req.user as unknown as { id?: string })?.id || '';
+    return this.notificationsService.getNotifications(userId);
   }
 
   @UseGuards(JwtGuard)
   @Patch(':id/read')
   async markAsRead(@Request() req: RequestWithUser, @Param('id') id: string) {
-    return this.notificationsService.markAsRead(id, req.user.sub);
+    const userId =
+      req.user?.sub || (req.user as unknown as { id?: string })?.id || '';
+    return this.notificationsService.markAsRead(id, userId);
   }
 
   @UseGuards(JwtGuard)
   @Patch('read-all')
   async markAllAsRead(@Request() req: RequestWithUser) {
-    return this.notificationsService.markAllAsRead(req.user.sub);
+    const userId =
+      req.user?.sub || (req.user as unknown as { id?: string })?.id || '';
+    return this.notificationsService.markAllAsRead(userId);
   }
 }

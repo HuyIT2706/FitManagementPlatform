@@ -208,7 +208,7 @@ export interface NotificationsResponse {
 
 function getNotificationRefreshInterval(): number {
   if (typeof document === 'undefined') return 0;
-  return document.visibilityState === 'hidden' ? 0 : 60000;
+  return document.visibilityState === 'hidden' ? 0 : 15000;
 }
 
 export const useNotifications = (options?: SWRConfiguration) => {
@@ -220,8 +220,8 @@ export const useNotifications = (options?: SWRConfiguration) => {
       ...DEFAULT_SWR_OPTIONS,
       refreshInterval: getNotificationRefreshInterval,
       shouldRetryOnError: false,
-      revalidateOnFocus: false,
-      dedupingInterval: 60000,
+      revalidateOnFocus: true,
+      dedupingInterval: 10000,
       ...options,
     }
   );

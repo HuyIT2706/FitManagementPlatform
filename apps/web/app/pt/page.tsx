@@ -78,7 +78,7 @@ const PTPage = () => {
               completedSessionsCount: (currentData.completedSessionsCount || 0) + 1,
             };
           },
-          { revalidate: true },
+          { revalidate: false },
         );
         broadcastSync('SCHEDULE_UPDATED');
       })

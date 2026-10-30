@@ -281,6 +281,9 @@ export class NotificationsService implements OnModuleInit {
   }
 
   async getNotifications(userId: string, limit = 20) {
+    if (!userId) {
+      return { notifications: [], unreadCount: 0 };
+    }
     try {
       const [rows, unreadCount] = await Promise.all([
         this.prisma.notification.findMany({
@@ -302,7 +305,12 @@ export class NotificationsService implements OnModuleInit {
           type: r.type || 'INFO',
           isRead: r.isRead,
           linkUrl: r.linkUrl || null,
-          createdAt: r.createdAt.toISOString(),
+          createdAt:
+            r.createdAt instanceof Date
+              ? r.createdAt.toISOString()
+              : r.createdAt
+                ? new Date(r.createdAt).toISOString()
+                : new Date().toISOString(),
         })),
         unreadCount,
       };
@@ -313,18 +321,34 @@ export class NotificationsService implements OnModuleInit {
   }
 
   async markAsRead(notificationId: string, userId: string) {
-    await this.prisma.notification.updateMany({
-      where: { id: notificationId, userId },
-      data: { isRead: true },
-    });
+    if (!notificationId || !userId) return { success: true };
+    try {
+      await this.prisma.notification.updateMany({
+        where: { id: notificationId, userId },
+        data: { isRead: true },
+      });
+    } catch (err) {
+      this.logger.error(
+        `Failed to mark notification ${notificationId} as read:`,
+        err,
+      );
+    }
     return { success: true };
   }
 
   async markAllAsRead(userId: string) {
-    await this.prisma.notification.updateMany({
-      where: { userId, isRead: false },
-      data: { isRead: true },
-    });
+    if (!userId) return { success: true };
+    try {
+      await this.prisma.notification.updateMany({
+        where: { userId, isRead: false },
+        data: { isRead: true },
+      });
+    } catch (err) {
+      this.logger.error(
+        `Failed to mark all notifications as read for ${userId}:`,
+        err,
+      );
+    }
     return { success: true };
   }
 }

@@ -140,9 +140,9 @@ const PTSchedulePage = () => {
               return s;
             });
           },
-          { revalidate: true },
+          { revalidate: false },
         );
-        mutatePt(undefined, { revalidate: true });
+        mutatePt(undefined, { revalidate: false });
         broadcastSync("SCHEDULE_UPDATED");
       })
       .catch((err) => {
