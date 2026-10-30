@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { mutate as globalMutate } from 'swr';
 import Header from '../../components/ui/Header';
 import PTBottomNavBar from '../../components/navigation/PTBottomNavBar';
 import AppLoading from '../../components/ui/AppLoading';
@@ -39,20 +38,56 @@ const PTPage = () => {
       .post<{ success: boolean; message: string; remainingSessions?: number }>(
         `/pt/check-in/${sessionId}`,
       )
-      .then(async (res) => {
+      .then((res) => {
         toast.success(res.data.message || 'Đã check-in điểm danh thành công!');
-        mutatePt();
-        await globalMutate(
-          (key) =>
-            typeof key === 'string' &&
-            (key.startsWith('/pt/dashboard') || key.startsWith('/pt/schedule')),
-          undefined,
+        // Optimistic update of local PT dashboard data to prevent flashing/reloading
+        mutatePt(
+          (currentData) => {
+            if (!currentData) return currentData;
+            const updatedSessions = (currentData.todaySessions || []).map((s) => {
+              if (s.id === sessionId) {
+                return {
+                  ...s,
+                  status: 'CHECKED_IN' as const,
+                  remainingSessions:
+                    res.data.remainingSessions !== undefined
+                      ? res.data.remainingSessions
+                      : Math.max(0, s.remainingSessions - 1),
+                };
+              }
+              return s;
+            });
+            const sessionItem = currentData.todaySessions?.find((s) => s.id === sessionId);
+            const targetStudentId = sessionItem?.studentId;
+            const updatedStudents = (currentData.students || []).map((st) => {
+              if (targetStudentId && st.id === targetStudentId) {
+                return {
+                  ...st,
+                  remainingSessions:
+                    res.data.remainingSessions !== undefined
+                      ? res.data.remainingSessions
+                      : Math.max(0, st.remainingSessions - 1),
+                };
+              }
+              return st;
+            });
+            return {
+              ...currentData,
+              todaySessions: updatedSessions,
+              students: updatedStudents,
+              completedSessionsCount: (currentData.completedSessionsCount || 0) + 1,
+            };
+          },
           { revalidate: true },
         );
         broadcastSync('SCHEDULE_UPDATED');
-        broadcastSync('PT_BIND_UPDATED');
       })
       .catch((err) => {
+        setCheckedSessions((prev) => {
+          const next = { ...prev };
+          delete next[sessionId];
+          return next;
+        });
         console.error(err);
         toast.error('Check-in thất bại!');
       });

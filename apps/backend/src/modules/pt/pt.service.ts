@@ -118,36 +118,7 @@ export class PtService {
 
       const totalVipStudents = validApprovedProfiles.length;
 
-      // Calculate session counts from member packages
-      let totalPackageSessionsCount = 0;
-      let remainingSessionsSum = 0;
-
-      const students = validApprovedProfiles.map((sp) => {
-        const student = sp.student;
-        const pkg = student?.userPackages?.[0];
-        const totalSessions = pkg?.totalSessions ?? 0;
-        const remainingSessions = pkg?.remainingSessions ?? 0;
-
-        totalPackageSessionsCount += totalSessions;
-        remainingSessionsSum += remainingSessions;
-
-        return {
-          id: student.id,
-          fullName: student.fullName || 'Học viên',
-          avatarUrl: student.avatarUrl || '/default-avatar.svg',
-          packageName: pkg ? 'Gói PT 1:1' : 'Gói Tiêu chuẩn',
-          remainingSessions,
-          totalSessions,
-          lastWorkoutDate: 'Hôm nay',
-        };
-      });
-
-      const completedSessionsCount = Math.max(
-        0,
-        totalPackageSessionsCount - remainingSessionsSum,
-      );
-
-      // Check attendance history from DB for all PT students (ONLY for today's sessions)
+      // Timezone calculations for today
       const studentIds = validApprovedProfiles.map((sp) => sp.studentId);
       const now = new Date();
       // Calculate Vietnam timezone window (UTC+7)
@@ -160,6 +131,132 @@ export class PtService {
       );
       const endOfToday = new Date(
         Date.UTC(y, m, d, 23, 59, 59, 999) - 7 * 60 * 60 * 1000,
+      );
+
+      // Self-healing: Reconcile any completed workout schedule from today that missed attendance deduction
+      try {
+        const completedSchedulesToday =
+          await this.prisma.workoutSchedule.findMany({
+            where: {
+              studentId: { in: studentIds },
+              scheduledDate: { gte: startOfToday, lte: endOfToday },
+              isCompleted: true,
+            },
+            select: { id: true, studentId: true, title: true },
+          });
+
+        for (const compSched of completedSchedulesToday) {
+          const hasAttendance = await this.prisma.attendanceHistory.findFirst({
+            where: {
+              studentId: compSched.studentId,
+              checkInTime: { gte: startOfToday, lte: endOfToday },
+              note: { contains: compSched.title },
+            },
+          });
+
+          if (!hasAttendance) {
+            const activePkg = await this.prisma.memberPackage.findFirst({
+              where: { userId: compSched.studentId, isActive: true },
+              orderBy: { startDate: 'desc' },
+            });
+
+            if (activePkg) {
+              const newRemaining = Math.max(0, activePkg.remainingSessions - 1);
+              await this.prisma.memberPackage.update({
+                where: { id: activePkg.id },
+                data: { remainingSessions: newRemaining },
+              });
+
+              await this.prisma.attendanceHistory.create({
+                data: {
+                  memberPackageId: activePkg.id,
+                  studentId: compSched.studentId,
+                  checkInTime: new Date(),
+                  status: 'CHECKED_IN',
+                  note: `Điểm danh thành công: ${compSched.title}`,
+                },
+              });
+
+              try {
+                const ptDisplayName = ptUser?.fullName || 'HLV cá nhân';
+                await this.notificationsService.sendNotification({
+                  userId: compSched.studentId,
+                  title: 'Điểm Danh & Trừ Buổi Tập',
+                  message: `HLV ${ptDisplayName} đã điểm danh (Trừ 1 buổi). Số buổi còn lại: ${newRemaining}/${activePkg.totalSessions} buổi.`,
+                  type: 'SESSION_DEDUCT',
+                  linkUrl: '/training',
+                });
+              } catch (notifyErr) {
+                this.logger.warn(
+                  'Failed to send reconciled notification:',
+                  notifyErr,
+                );
+              }
+            }
+          }
+        }
+      } catch (reconcileErr) {
+        this.logger.warn(
+          'Reconcile completed schedules check skipped:',
+          reconcileErr,
+        );
+      }
+
+      // Re-query fresh packages to calculate session counts from member packages accurately
+      const freshApprovedProfiles = await this.prisma.studentProfile.findMany({
+        where: { trainerId: ptUserId, status: 'APPROVED' },
+        select: {
+          id: true,
+          studentId: true,
+          student: {
+            select: {
+              id: true,
+              fullName: true,
+              avatarUrl: true,
+              userPackages: {
+                where: { isActive: true },
+                take: 1,
+                select: {
+                  totalSessions: true,
+                  remainingSessions: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const profilesForStats =
+        freshApprovedProfiles.length > 0
+          ? freshApprovedProfiles
+          : validApprovedProfiles;
+
+      let totalPackageSessionsCount = 0;
+      let remainingSessionsSum = 0;
+
+      const students = profilesForStats.map((sp) => {
+        const student = sp.student;
+        const pkg = student?.userPackages?.[0];
+        const totalSessions = pkg?.totalSessions ?? 0;
+        const remainingSessions = pkg?.remainingSessions ?? 0;
+
+        totalPackageSessionsCount += totalSessions;
+        remainingSessionsSum += remainingSessions;
+
+        return {
+          id: student?.id || sp.studentId,
+          fullName: student?.fullName || 'Học viên',
+          avatarUrl: student?.avatarUrl || '/default-avatar.svg',
+          packageName: pkg ? 'Gói PT 1:1' : 'Gói Tiêu chuẩn',
+          remainingSessions,
+          totalSessions,
+          lastWorkoutDate: 'Hôm nay',
+        };
+      });
+
+      const completedSessionsCount = Math.max(
+        0,
+        totalPackageSessionsCount - remainingSessionsSum,
       );
 
       // Query actual workout schedules created for today
@@ -1206,6 +1303,7 @@ export class PtService {
   async checkInSession(sessionId: string) {
     let studentId: string | null = null;
     let workoutScheduleTitle = 'Ca tập 1:1';
+    let scheduleId: string | null = null;
 
     // 1. Kiểm tra xem sessionId có phải là WorkoutSchedule ID không
     const schedule = await this.prisma.workoutSchedule.findUnique({
@@ -1221,38 +1319,43 @@ export class PtService {
     if (schedule) {
       studentId = schedule.studentId;
       workoutScheduleTitle = schedule.title;
+      scheduleId = schedule.id;
 
-      // IDEMPOTENT GUARD: Nếu ca dạy đã hoàn thành/điểm danh rồi -> không trừ thêm buổi!
+      // IDEMPOTENT GUARD: Nếu ca dạy đã hoàn thành VÀ đã có attendance history tương ứng -> không trừ thêm!
       if (schedule.isCompleted) {
-        const activePkg = await this.prisma.memberPackage.findFirst({
-          where: {
-            userId: studentId,
-            isActive: true,
-          },
-          orderBy: { startDate: 'desc' },
-        });
+        const existingAttendance =
+          await this.prisma.attendanceHistory.findFirst({
+            where: {
+              studentId: studentId,
+              note: { contains: schedule.title },
+            },
+          });
 
-        const studentUser = await this.prisma.user.findUnique({
-          where: { id: studentId },
-          select: { fullName: true },
-        });
+        if (existingAttendance) {
+          const activePkg = await this.prisma.memberPackage.findFirst({
+            where: {
+              userId: studentId,
+              isActive: true,
+            },
+            orderBy: { startDate: 'desc' },
+          });
 
-        return {
-          success: true,
-          sessionId,
-          alreadyCheckedIn: true,
-          studentName: studentUser?.fullName || 'Học viên',
-          remainingSessions: activePkg?.remainingSessions ?? 0,
-          totalSessions: activePkg?.totalSessions ?? 0,
-          message: 'Ca dạy này đã được điểm danh trước đó rồi!',
-        };
+          const studentUser = await this.prisma.user.findUnique({
+            where: { id: studentId },
+            select: { fullName: true },
+          });
+
+          return {
+            success: true,
+            sessionId,
+            alreadyCheckedIn: true,
+            studentName: studentUser?.fullName || 'Học viên',
+            remainingSessions: activePkg?.remainingSessions ?? 0,
+            totalSessions: activePkg?.totalSessions ?? 0,
+            message: 'Ca dạy này đã được điểm danh trước đó rồi!',
+          };
+        }
       }
-
-      // Đánh dấu ca tập đã hoàn thành
-      await this.prisma.workoutSchedule.update({
-        where: { id: schedule.id },
-        data: { isCompleted: true },
-      });
     } else {
       // 2. Fallback nếu sessionId là dạng 'session-custom-...' hoặc Profile/User ID
       const cleanId = sessionId.replace(/^session-(custom-)?/, '').trim();
@@ -1293,35 +1396,38 @@ export class PtService {
       }
     }
 
-    // 2.5. Deduplication check: Kiểm tra lịch sử điểm danh gần đây (trong vòng 15 phút)
-    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
-    const recentAttendance = await this.prisma.attendanceHistory.findFirst({
-      where: {
-        studentId: studentId,
-        checkInTime: { gte: fifteenMinutesAgo },
-      },
-    });
-
-    if (recentAttendance) {
-      const activePkg = await this.prisma.memberPackage.findFirst({
-        where: { userId: studentId, isActive: true },
-        orderBy: { startDate: 'desc' },
+    // Quick 3-second debounce for non-schedule check-in to prevent double-click
+    if (!schedule) {
+      const threeSecondsAgo = new Date(Date.now() - 3000);
+      const recentAttendance = await this.prisma.attendanceHistory.findFirst({
+        where: {
+          studentId: studentId,
+          checkInTime: { gte: threeSecondsAgo },
+        },
       });
 
-      const studentUser = await this.prisma.user.findUnique({
-        where: { id: studentId },
-        select: { fullName: true },
-      });
+      if (recentAttendance) {
+        const activePkg = await this.prisma.memberPackage.findFirst({
+          where: { userId: studentId, isActive: true },
+          orderBy: { startDate: 'desc' },
+        });
 
-      return {
-        success: true,
-        sessionId,
-        alreadyCheckedIn: true,
-        studentName: studentUser?.fullName || 'Học viên',
-        remainingSessions: activePkg?.remainingSessions ?? 0,
-        totalSessions: activePkg?.totalSessions ?? 0,
-        message: 'Học viên vừa được điểm danh gần đây, không trừ thêm buổi!',
-      };
+        const studentUser = await this.prisma.user.findUnique({
+          where: { id: studentId },
+          select: { fullName: true },
+        });
+
+        return {
+          success: true,
+          sessionId,
+          alreadyCheckedIn: true,
+          studentName: studentUser?.fullName || 'Học viên',
+          remainingSessions: activePkg?.remainingSessions ?? 0,
+          totalSessions: activePkg?.totalSessions ?? 0,
+          message:
+            'Yêu cầu điểm danh đang được xử lý, vui lòng không bấm liên tục!',
+        };
+      }
     }
 
     // 3. Tìm hoặc tạo gói tập active của học viên
@@ -1358,24 +1464,35 @@ export class PtService {
       });
     }
 
-    // 4. Trừ 1 buổi và ghi vào cơ sở dữ liệu
+    // 4. Trừ 1 buổi và cập nhật nguyên tử (Atomic transaction)
     const newRemainingSessions = Math.max(0, activePkg.remainingSessions - 1);
-    const updatedPkg = await this.prisma.memberPackage.update({
-      where: { id: activePkg.id },
-      data: {
-        remainingSessions: newRemainingSessions,
-      },
-    });
 
-    // 5. Tạo lịch sử điểm danh trong attendance_histories
-    await this.prisma.attendanceHistory.create({
-      data: {
-        memberPackageId: activePkg.id,
-        studentId: studentId,
-        checkInTime: new Date(),
-        status: 'CHECKED_IN',
-        note: `Điểm danh thành công: ${workoutScheduleTitle}`,
-      },
+    const { updatedPkg } = await this.prisma.$transaction(async (tx) => {
+      if (scheduleId) {
+        await tx.workoutSchedule.update({
+          where: { id: scheduleId },
+          data: { isCompleted: true },
+        });
+      }
+
+      const pkg = await tx.memberPackage.update({
+        where: { id: activePkg.id },
+        data: {
+          remainingSessions: newRemainingSessions,
+        },
+      });
+
+      await tx.attendanceHistory.create({
+        data: {
+          memberPackageId: activePkg.id,
+          studentId: studentId,
+          checkInTime: new Date(),
+          status: 'CHECKED_IN',
+          note: `Điểm danh thành công: ${workoutScheduleTitle}`,
+        },
+      });
+
+      return { updatedPkg: pkg };
     });
 
     const studentUser = await this.prisma.user.findUnique({
@@ -1398,7 +1515,7 @@ export class PtService {
         linkUrl: '/training',
       });
     } catch (pushError) {
-      console.error(
+      this.logger.error(
         'Failed to dispatch session deduction notification:',
         pushError,
       );

@@ -164,7 +164,12 @@ export class AuthService {
         id: user.id,
         email: user.email,
         name: user.fullName,
+        fullName: user.fullName,
+        avatarUrl: user.avatarUrl,
         role: user.role,
+        isApprovedPt:
+          user.role === 'PT' ? user.ptApplication?.status === 'APPROVED' : true,
+        isPendingPtApproval: isPendingPt,
         onboardingCompleted: user.onboardingCompleted,
       },
     };

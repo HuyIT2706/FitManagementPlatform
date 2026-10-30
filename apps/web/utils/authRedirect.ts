@@ -8,7 +8,7 @@ export type UserRole = 'ADMIN' | 'PT' | 'USER';
 export const getRoleRedirectPath = (
   user?: Pick<UserData, 'role' | 'onboardingCompleted'> | null
 ): string => {
-  if (!user) {
+  if (!user || !user.role) {
     return '/login';
   }
 
@@ -20,8 +20,11 @@ export const getRoleRedirectPath = (
     return '/pt';
   }
 
-  if (user.onboardingCompleted === false) {
-    return '/onboarding';
+  if (user.role === 'USER') {
+    if (user.onboardingCompleted === false) {
+      return '/onboarding';
+    }
+    return '/home';
   }
 
   return '/home';
@@ -32,13 +35,44 @@ export const handleRoleRedirect = (
   router?: { replace: (url: string) => void },
   customRedirect?: string | null
 ): void => {
-  let targetPath = customRedirect || getRoleRedirectPath(user);
-  if (user?.role === 'PT' && (!customRedirect || !customRedirect.startsWith('/pt'))) {
-    targetPath = '/pt';
+  if (!user || !user.role) {
+    if (router) {
+      router.replace('/login');
+    } else if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+      window.location.href = '/login';
+    }
+    return;
   }
-  if (user?.role === 'ADMIN' && (!customRedirect || !customRedirect.startsWith('/admin'))) {
-    targetPath = '/admin';
+
+  // Clean customRedirect: Reject recursive redirects back to login/auth/root
+  let cleanRedirect = customRedirect?.trim();
+  if (
+    cleanRedirect === '/login' ||
+    cleanRedirect === '/register' ||
+    cleanRedirect?.startsWith('/auth') ||
+    cleanRedirect === '/'
+  ) {
+    cleanRedirect = undefined;
   }
+
+  let targetPath = cleanRedirect || getRoleRedirectPath(user);
+
+  // Role Boundary Enforcement: Prevent users from leaking into inappropriate role portals
+  if (user.role === 'PT') {
+    if (!cleanRedirect || !cleanRedirect.startsWith('/pt')) {
+      targetPath = '/pt';
+    }
+  } else if (user.role === 'ADMIN') {
+    if (!cleanRedirect || !cleanRedirect.startsWith('/admin')) {
+      targetPath = '/admin';
+    }
+  } else if (user.role === 'USER') {
+    // Member users can never access /pt or /admin portals
+    if (!cleanRedirect || cleanRedirect.startsWith('/pt') || cleanRedirect.startsWith('/admin')) {
+      targetPath = user.onboardingCompleted === false ? '/onboarding' : '/home';
+    }
+  }
+
   if (router) {
     router.replace(targetPath);
     return;

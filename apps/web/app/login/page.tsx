@@ -1,42 +1,57 @@
-'use client';
+/* eslint-disable @next/next/no-img-element */
+"use client";
 
-import { ArrowLeft, Eye, EyeOff, User, Award, Briefcase, Info, Upload, Check, Loader2, Trash2 } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect, Suspense } from 'react';
-import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
-import LogoApp from '../../assets/imgs/logoApp.jpg';
-import apiClient from '../../api/axios';
-import type { UserDataHome } from '../../interface';
-import { handleRoleRedirect } from '../../utils/authRedirect';
-import { toast } from '../../utils/toast';
-import { autoSyncPushSubscription } from '../../utils/pushNotification';
-import { mutate as globalMutate } from 'swr';
+import {
+  ArrowLeft,
+  Eye,
+  EyeOff,
+  User,
+  Award,
+  Briefcase,
+  Info,
+  Upload,
+  Check,
+  Loader2,
+  Trash2,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/google";
+import LogoApp from "../../assets/imgs/logoApp.jpg";
+import apiClient from "../../api/axios";
+import type { UserDataHome } from "../../interface";
+import { handleRoleRedirect } from "../../utils/authRedirect";
+import { toast } from "../../utils/toast";
+import { autoSyncPushSubscription } from "../../utils/pushNotification";
+import { mutate as globalMutate } from "swr";
 
-const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
 
 const LoginContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectPath = searchParams.get('redirect');
-  const initialMode = searchParams.get('mode');
+  const redirectPath = searchParams.get("redirect");
+  const initialMode = searchParams.get("mode");
 
-  const [authMode, setAuthMode] = useState<'LOGIN' | 'REGISTER'>(
-    initialMode === 'register' ? 'REGISTER' : 'LOGIN'
+  const [authMode, setAuthMode] = useState<"LOGIN" | "REGISTER">(
+    initialMode === "register" ? "REGISTER" : "LOGIN",
   );
-  const [role, setRole] = useState<'USER' | 'PT'>('USER');
+  const [role, setRole] = useState<"USER" | "PT">("USER");
 
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   // PT specific fields
-  const [avatarUrl, setAvatarUrl] = useState('');
-  const [experienceYears, setExperienceYears] = useState<number | ''>(2);
-  const [specialties, setSpecialties] = useState('Tăng cơ, Giảm mỡ, Calisthenics');
-  const [bio, setBio] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [experienceYears, setExperienceYears] = useState<number | "">(2);
+  const [specialties, setSpecialties] = useState(
+    "Tăng cơ, Giảm mỡ, Calisthenics",
+  );
+  const [bio, setBio] = useState("");
 
   const [isProcessingAvatar, setIsProcessingAvatar] = useState(false);
 
@@ -44,27 +59,27 @@ const LoginContent = () => {
   const [pendingPtNotice, setPendingPtNotice] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('jwt_token');
+    const token = localStorage.getItem("jwt_token");
     if (token) {
       apiClient
-        .get<UserDataHome>('/users/me')
+        .get<UserDataHome>("/users/me")
         .then((res) => {
-          if (res.data?.role === 'PT' && res.data?.isApprovedPt === false) {
+          if (res.data?.role === "PT" && res.data?.isApprovedPt === false) {
             setPendingPtNotice(
-              res.data?.ptApplicationStatus === 'REJECTED'
-                ? 'Hồ sơ Huấn luyện viên của bạn đã bị từ chối. Vui lòng liên hệ ban quản trị.'
-                : 'Tài khoản PT của bạn đã đăng ký thành công và đang chờ Admin kiểm duyệt trước khi truy cập!'
+              res.data?.ptApplicationStatus === "REJECTED"
+                ? "Hồ sơ Huấn luyện viên của bạn đã bị từ chối. Vui lòng liên hệ ban quản trị."
+                : "Tài khoản PT của bạn đã đăng ký thành công và đang chờ Admin kiểm duyệt trước khi truy cập!",
             );
             return;
           }
-          if (res.data) {
-            void globalMutate('/users/me', res.data, false);
+          if (res.data && res.data.role) {
+            void globalMutate("/users/me", res.data, false);
+            handleRoleRedirect(res.data, router, redirectPath);
           }
-          handleRoleRedirect(res.data, router, redirectPath);
         })
         .catch(() => {
-          localStorage.removeItem('jwt_token');
-          apiClient.post('/auth/logout', {}).catch(() => {});
+          localStorage.removeItem("jwt_token");
+          apiClient.post("/auth/logout", {}).catch(() => {});
         });
     }
   }, [router, redirectPath]);
@@ -73,27 +88,32 @@ const LoginContent = () => {
     onSuccess: async (tokenResponse) => {
       try {
         if (!tokenResponse.access_token) {
-          throw new Error('Không nhận được mã xác thực từ Google. Vui lòng thử lại.');
+          throw new Error(
+            "Không nhận được mã xác thực từ Google. Vui lòng thử lại.",
+          );
         }
-
         setLoading(true);
-        // Clear old stale token before starting new Google auth session
-        localStorage.removeItem('jwt_token');
-
-        // Safely fetch user info from Google client-side if possible
-        let userInfo: { email?: string; name?: string; picture?: string } | undefined;
+        localStorage.removeItem("jwt_token");
+        let userInfo:
+          { email?: string; name?: string; picture?: string } | undefined;
         try {
-          const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-            headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
-          });
+          const res = await fetch(
+            "https://www.googleapis.com/oauth2/v3/userinfo",
+            {
+              headers: {
+                Authorization: `Bearer ${tokenResponse.access_token}`,
+              },
+            },
+          );
           if (res.ok) {
             userInfo = await res.json();
           }
         } catch (fetchErr) {
-          console.warn('Client-side Google userinfo fetch skipped/failed:', fetchErr);
+          console.warn(
+            "Client-side Google userinfo fetch skipped/failed:",
+            fetchErr,
+          );
         }
-
-        // Send token to backend via apiClient, falling back to native fetch if Axios encounters Network Error
         let data: {
           access_token: string;
           user: UserDataHome;
@@ -101,19 +121,19 @@ const LoginContent = () => {
         };
 
         try {
-          const response = await apiClient.post('/auth/google', {
+          const response = await apiClient.post("/auth/google", {
             token: tokenResponse.access_token,
             userInfo,
           });
           data = response.data;
-        } catch (axiosErr: unknown) {
-          console.warn('apiClient.post(/auth/google) error, trying direct fetch fallback:', axiosErr);
+        } catch {
+          toast.error("Thiếu mã key Google");
           const API_BASE_URL =
-            process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3100';
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:3100";
           const nativeRes = await fetch(`${API_BASE_URL}/auth/google`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
             body: JSON.stringify({
               token: tokenResponse.access_token,
               userInfo,
@@ -122,37 +142,47 @@ const LoginContent = () => {
           if (!nativeRes.ok) {
             const errJson = await nativeRes.json().catch(() => null);
             throw new Error(
-              errJson?.message || `Xác thực Google thất bại (Mã lỗi ${nativeRes.status})`
+              errJson?.message ||
+                `Xác thực Google thất bại (Mã lỗi ${nativeRes.status})`,
             );
           }
           data = await nativeRes.json();
         }
 
         if (data.access_token) {
-          localStorage.setItem('jwt_token', data.access_token);
+          localStorage.setItem("jwt_token", data.access_token);
+          if (data.user) {
+            void globalMutate("/users/me", data.user, false);
+          }
           autoSyncPushSubscription();
         }
 
         if ((data as { isPendingPtApproval?: boolean }).isPendingPtApproval) {
           const notice =
-            'Tài khoản PT của bạn đã đăng ký thành công và đang chờ Admin kiểm duyệt trước khi truy cập giao diện PT!';
+            "Tài khoản PT của bạn đã đăng ký thành công và đang chờ Admin kiểm duyệt trước khi truy cập giao diện PT!";
           setPendingPtNotice(notice);
-          toast.info('Tài khoản Huấn luyện viên đang chờ Admin phê duyệt!', 'Thông báo');
+          toast.info(
+            "Tài khoản Huấn luyện viên đang chờ Admin phê duyệt!",
+            "Thông báo",
+          );
           setLoading(false);
           return;
         }
 
         const displayName =
-          data.user?.fullName || (data.user as unknown as { name?: string })?.name || userInfo?.name || '';
+          data.user?.fullName ||
+          (data.user as unknown as { name?: string })?.name ||
+          userInfo?.name ||
+          "";
 
         toast.success(
           `Chào mừng ${displayName} quay trở lại!`,
-          'Đăng nhập Google thành công'
+          "Đăng nhập Google thành công",
         );
 
         handleRoleRedirect(data.user, router, redirectPath);
       } catch (err: unknown) {
-        console.error('Google login error:', err);
+        console.error("Google login error:", err);
         const errObj = err as {
           response?: { data?: { message?: string } };
           message?: string;
@@ -160,54 +190,59 @@ const LoginContent = () => {
         const backendMessage = errObj.response?.data?.message;
         const msg =
           backendMessage ||
-          (errObj.message && errObj.message.includes('Network Error')
-            ? 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng hoặc backend!'
+          (errObj.message && errObj.message.includes("Network Error")
+            ? "Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng hoặc backend!"
             : err instanceof Error
-            ? err.message
-            : 'Đã có lỗi xảy ra khi xác thực Google');
-        toast.error(msg, 'Đăng nhập Google thất bại');
+              ? err.message
+              : "Đã có lỗi xảy ra khi xác thực Google");
+        toast.error(msg, "Đăng nhập Google thất bại");
       } finally {
         setLoading(false);
       }
     },
     onError: (errorResponse) => {
-      console.warn('Google login error or popup closed:', errorResponse);
-      toast.error('Đăng nhập Google không thành công hoặc cửa sổ đăng nhập đã bị đóng.', 'Đăng nhập thất bại');
+      console.warn("Google login error or popup closed:", errorResponse);
+      toast.error(
+        "Đăng nhập Google không thành công hoặc cửa sổ đăng nhập đã bị đóng.",
+        "Đăng nhập thất bại",
+      );
     },
   });
 
   const processImageFile = (
     file: File,
     maxDimension: number,
-    quality = 0.85
+    quality = 0.85,
   ): Promise<string> => {
     return new Promise((resolve, reject) => {
-      if (!file.type.startsWith('image/')) {
+      if (!file.type.startsWith("image/")) {
         return reject(
-          new Error('Vui lòng chọn tệp định dạng hình ảnh (.jpg, .jpeg, .png, .webp)')
+          new Error(
+            "Vui lòng chọn tệp định dạng hình ảnh (.jpg, .jpeg, .png, .webp)",
+          ),
         );
       }
       if (file.size > 15 * 1024 * 1024) {
-        return reject(new Error('Kích thước ảnh tối đa là 15MB'));
+        return reject(new Error("Kích thước ảnh tối đa là 15MB"));
       }
 
       const reader = new FileReader();
-      reader.onerror = () => reject(new Error('Không thể đọc tệp hình ảnh'));
+      reader.onerror = () => reject(new Error("Không thể đọc tệp hình ảnh"));
       reader.onload = (event) => {
         const result = event.target?.result as string;
-        if (!result) return reject(new Error('Tệp hình ảnh rỗng'));
+        if (!result) return reject(new Error("Tệp hình ảnh rỗng"));
 
         const img = new window.Image();
         img.onerror = () => {
           if (result.length < 2 * 1024 * 1024) {
             resolve(result);
           } else {
-            reject(new Error('Định dạng ảnh không hỗ trợ hoặc tệp bị lỗi'));
+            reject(new Error("Định dạng ảnh không hỗ trợ hoặc tệp bị lỗi"));
           }
         };
         img.onload = () => {
           try {
-            const canvas = document.createElement('canvas');
+            const canvas = document.createElement("canvas");
             let width = img.width;
             let height = img.height;
 
@@ -225,12 +260,12 @@ const LoginContent = () => {
 
             canvas.width = Math.max(1, width);
             canvas.height = Math.max(1, height);
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext("2d");
             if (!ctx) {
               return resolve(result);
             }
             ctx.drawImage(img, 0, 0, width, height);
-            const compressed = canvas.toDataURL('image/jpeg', quality);
+            const compressed = canvas.toDataURL("image/jpeg", quality);
             resolve(compressed);
           } catch {
             resolve(result);
@@ -249,13 +284,13 @@ const LoginContent = () => {
     try {
       const compressed = await processImageFile(file, 400, 0.85);
       setAvatarUrl(compressed);
-      toast.success('Đã tải ảnh đại diện HLV thành công!');
+      toast.success("Đã tải ảnh đại diện HLV thành công!");
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Lỗi tải ảnh đại diện';
+      const msg = err instanceof Error ? err.message : "Lỗi tải ảnh đại diện";
       toast.error(msg);
     } finally {
       setIsProcessingAvatar(false);
-      e.target.value = '';
+      e.target.value = "";
     }
   };
 
@@ -263,7 +298,10 @@ const LoginContent = () => {
     e.preventDefault();
 
     if (isProcessingAvatar) {
-      toast.warning('Ảnh đang được xử lý, vui lòng chờ trong giây lát...', 'Đang nạp ảnh');
+      toast.warning(
+        "Ảnh đang được xử lý, vui lòng chờ trong giây lát...",
+        "Đang nạp ảnh",
+      );
       return;
     }
 
@@ -272,47 +310,61 @@ const LoginContent = () => {
 
     // Client-side quick validations
     if (!email.trim() || !password) {
-      toast.warning('Vui lòng nhập đầy đủ địa chỉ Email và Mật khẩu.', 'Thiếu thông tin');
+      toast.warning(
+        "Vui lòng nhập đầy đủ địa chỉ Email và Mật khẩu.",
+        "Thiếu thông tin",
+      );
       setLoading(false);
       return;
     }
 
-    if (authMode === 'REGISTER') {
+    if (authMode === "REGISTER") {
       if (!fullName.trim()) {
-        toast.warning('Vui lòng nhập Họ và Tên của bạn.', 'Thiếu thông tin');
+        toast.warning("Vui lòng nhập Họ và Tên của bạn.", "Thiếu thông tin");
         setLoading(false);
         return;
       }
       if (password.length < 6) {
-        toast.warning('Mật khẩu phải có độ dài tối thiểu 6 ký tự.', 'Mật khẩu chưa an toàn');
+        toast.warning(
+          "Mật khẩu phải có độ dài tối thiểu 6 ký tự.",
+          "Mật khẩu chưa an toàn",
+        );
         setLoading(false);
         return;
       }
     }
 
     try {
-      if (authMode === 'LOGIN') {
+      if (authMode === "LOGIN") {
         const response = await apiClient
-          .post('/auth/login', { email: email.trim(), password })
+          .post("/auth/login", { email: email.trim(), password })
           .catch((err: { response?: { data?: { message?: string } } }) => {
-            throw new Error(err.response?.data?.message || 'Sai email hoặc mật khẩu');
+            throw new Error(
+              err.response?.data?.message || "Sai email hoặc mật khẩu",
+            );
           });
         const data = response.data;
-        localStorage.setItem('jwt_token', data.access_token);
+        localStorage.setItem("jwt_token", data.access_token);
+        if (data.user) {
+          void globalMutate("/users/me", data.user, false);
+        }
         autoSyncPushSubscription();
 
         if (data.isPendingPtApproval) {
           const notice =
-            'Tài khoản PT của bạn đã đăng ký thành công và đang chờ Admin kiểm duyệt trước khi truy cập giao diện PT!';
+            "Tài khoản PT của bạn đã đăng ký thành công và đang chờ Admin kiểm duyệt trước khi truy cập giao diện PT!";
           setPendingPtNotice(notice);
-          toast.info('Tài khoản Huấn luyện viên đang chờ Admin phê duyệt!', 'Thông báo');
+          toast.info(
+            "Tài khoản Huấn luyện viên đang chờ Admin phê duyệt!",
+            "Thông báo",
+          );
           setLoading(false);
           return;
         }
 
         toast.success(
-          `Chào mừng ${data.user?.fullName || ''} quay trở lại!`,
-          'Đăng nhập thành công'
+          `Chào mừng ${data.user?.fullName || ""} quay trở lại!`,
+          "Đăng nhập thành công",
         );
 
         handleRoleRedirect(data.user, router, redirectPath);
@@ -324,51 +376,63 @@ const LoginContent = () => {
           fullName: fullName.trim(),
           avatarUrl: avatarUrl.trim() || undefined,
           role,
-          ...(role === 'PT' && {
+          ...(role === "PT" && {
             experienceYears: Number(experienceYears) || 0,
-            specialties: specialties.split(',').map((s) => s.trim()),
+            specialties: specialties.split(",").map((s) => s.trim()),
             bio,
           }),
         };
 
         const response = await apiClient
-          .post('/auth/register', payload)
+          .post("/auth/register", payload)
           .catch((err: { response?: { data?: { message?: string } } }) => {
-            throw new Error(err.response?.data?.message || 'Không thể đăng ký tài khoản');
+            throw new Error(
+              err.response?.data?.message || "Không thể đăng ký tài khoản",
+            );
           });
         const data = response.data;
-        localStorage.setItem('jwt_token', data.access_token);
+        localStorage.setItem("jwt_token", data.access_token);
+        if (data.user) {
+          void globalMutate("/users/me", data.user, false);
+        }
         autoSyncPushSubscription();
 
-        if (role === 'PT') {
+        if (role === "PT") {
           const notice =
-            'Đã gửi đơn đăng ký làm Huấn luyện viên PT! Hồ sơ của bạn đang chờ Admin kiểm duyệt.';
+            "Đã gửi đơn đăng ký làm Huấn luyện viên PT! Hồ sơ của bạn đang chờ Admin kiểm duyệt.";
           setPendingPtNotice(notice);
           toast.success(
-            'Đăng ký tài khoản HLV thành công! Vui lòng chờ ban quản trị phê duyệt hồ sơ.',
-            'Đăng ký thành công'
+            "Đăng ký tài khoản HLV thành công! Vui lòng chờ ban quản trị phê duyệt hồ sơ.",
+            "Đăng ký thành công",
           );
         } else {
           toast.success(
-            'Tạo tài khoản Học viên thành công! Đang chuyển đến bước thiết lập hồ sơ...',
-            'Đăng ký thành công'
+            "Tạo tài khoản Học viên thành công! Đang chuyển đến bước thiết lập hồ sơ...",
+            "Đăng ký thành công",
           );
-          router.replace('/onboarding');
+          router.replace("/onboarding");
         }
       }
     } catch (err: unknown) {
-      let msg = 'Đã có lỗi xảy ra';
-      if (err && typeof err === 'object') {
-        const axErr = err as { message?: string; response?: { data?: { message?: string } } };
+      let msg = "Đã có lỗi xảy ra";
+      if (err && typeof err === "object") {
+        const axErr = err as {
+          message?: string;
+          response?: { data?: { message?: string } };
+        };
         if (axErr.response?.data?.message) {
           msg = axErr.response.data.message;
-        } else if (axErr.message?.includes('Network Error')) {
-          msg = 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng hoặc backend!';
+        } else if (axErr.message?.includes("Network Error")) {
+          msg =
+            "Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng hoặc backend!";
         } else if (axErr.message) {
           msg = axErr.message;
         }
       }
-      toast.error(msg, authMode === 'LOGIN' ? 'Đăng nhập thất bại' : 'Đăng ký thất bại');
+      toast.error(
+        msg,
+        authMode === "LOGIN" ? "Đăng nhập thất bại" : "Đăng ký thất bại",
+      );
     } finally {
       setLoading(false);
     }
@@ -380,7 +444,7 @@ const LoginContent = () => {
         className="absolute inset-0 pointer-events-none opacity-20"
         style={{
           backgroundImage:
-            'radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.1) 0%, transparent 100%)',
+            "radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.1) 0%, transparent 100%)",
         }}
       />
 
@@ -404,10 +468,11 @@ const LoginContent = () => {
           </div>
           <div className="space-y-1">
             <h1 className="text-2xl font-bold font-heading text-on-surface">
-              NutriCore 
+              NutriCore
             </h1>
             <p className="text-xs text-on-surface-variant px-4">
-              Nền tảng quản lý tập luyện & dinh dưỡng thông minh dành cho Học viên và PT.
+              Nền tảng quản lý tập luyện & dinh dưỡng thông minh dành cho Học
+              viên và PT.
             </p>
           </div>
         </section>
@@ -418,13 +483,13 @@ const LoginContent = () => {
             type="button"
             suppressHydrationWarning
             onClick={() => {
-              setAuthMode('LOGIN');
+              setAuthMode("LOGIN");
               setPendingPtNotice(null);
             }}
             className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              authMode === 'LOGIN'
-                ? 'bg-primary text-dark-slate shadow-[0_0_12px_rgba(102,200,28,0.4)]'
-                : 'text-on-surface-variant hover:text-on-surface'
+              authMode === "LOGIN"
+                ? "bg-primary text-dark-slate shadow-[0_0_12px_rgba(102,200,28,0.4)]"
+                : "text-on-surface-variant hover:text-on-surface"
             }`}
           >
             Đăng Nhập
@@ -433,13 +498,13 @@ const LoginContent = () => {
             type="button"
             suppressHydrationWarning
             onClick={() => {
-              setAuthMode('REGISTER');
+              setAuthMode("REGISTER");
               setPendingPtNotice(null);
             }}
             className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              authMode === 'REGISTER'
-                ? 'bg-primary text-dark-slate shadow-[0_0_12px_rgba(102,200,28,0.4)]'
-                : 'text-on-surface-variant hover:text-on-surface'
+              authMode === "REGISTER"
+                ? "bg-primary text-dark-slate shadow-[0_0_12px_rgba(102,200,28,0.4)]"
+                : "text-on-surface-variant hover:text-on-surface"
             }`}
           >
             Đăng Ký Mới
@@ -447,7 +512,7 @@ const LoginContent = () => {
         </div>
 
         {/* Role Switcher in Register Mode */}
-        {authMode === 'REGISTER' && (
+        {authMode === "REGISTER" && (
           <div className="w-full space-y-1.5">
             <label className="block text-[11px] font-semibold text-on-surface-variant text-center">
               Bạn đăng ký với vai trò:
@@ -456,11 +521,11 @@ const LoginContent = () => {
               <button
                 type="button"
                 suppressHydrationWarning
-                onClick={() => setRole('USER')}
+                onClick={() => setRole("USER")}
                 className={`py-2.5 px-3 rounded-xl border text-xs font-extrabold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                  role === 'USER'
-                    ? 'border-primary bg-primary/10 text-primary shadow-[0_0_12px_rgba(102,200,28,0.25)]'
-                    : 'border-white/10 bg-surface-bright/20 text-on-surface-variant hover:bg-surface-bright/40'
+                  role === "USER"
+                    ? "border-primary bg-primary/10 text-primary shadow-[0_0_12px_rgba(102,200,28,0.25)]"
+                    : "border-white/10 bg-surface-bright/20 text-on-surface-variant hover:bg-surface-bright/40"
                 }`}
               >
                 Người dùng
@@ -468,11 +533,11 @@ const LoginContent = () => {
               <button
                 type="button"
                 suppressHydrationWarning
-                onClick={() => setRole('PT')}
+                onClick={() => setRole("PT")}
                 className={`py-2.5 px-3 rounded-xl border text-xs font-extrabold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                  role === 'PT'
-                    ? 'border-primary bg-primary/10 text-primary shadow-[0_0_12px_rgba(102,200,28,0.25)]'
-                    : 'border-white/10 bg-surface-bright/20 text-on-surface-variant hover:bg-surface-bright/40'
+                  role === "PT"
+                    ? "border-primary bg-primary/10 text-primary shadow-[0_0_12px_rgba(102,200,28,0.25)]"
+                    : "border-white/10 bg-surface-bright/20 text-on-surface-variant hover:bg-surface-bright/40"
                 }`}
               >
                 Huấn luyện viên
@@ -494,7 +559,7 @@ const LoginContent = () => {
             onSubmit={handleSubmit}
             className="w-full space-y-3 animate-in fade-in zoom-in-95 duration-200"
           >
-            {authMode === 'REGISTER' && (
+            {authMode === "REGISTER" && (
               <div className="space-y-1">
                 <label className="block text-xs font-semibold text-on-surface-variant">
                   Họ và Tên (*):
@@ -532,7 +597,7 @@ const LoginContent = () => {
               </label>
               <div className="relative">
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   required
                   suppressHydrationWarning
                   placeholder="Mật khẩu"
@@ -546,13 +611,17 @@ const LoginContent = () => {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface cursor-pointer"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
                 </button>
               </div>
             </div>
 
             {/* PT Specific Application Fields */}
-            {authMode === 'REGISTER' && role === 'PT' && (
+            {authMode === "REGISTER" && role === "PT" && (
               <div className="p-4 rounded-2xl bg-surface-bright/30 border border-primary/30 space-y-3 pt-3">
                 <div className="text-xs font-bold text-primary flex items-center gap-1.5 uppercase">
                   <Award size={16} /> Hồ sơ Đăng ký Huấn luyện viên (PT):
@@ -573,9 +642,11 @@ const LoginContent = () => {
                   <div className="flex items-center gap-3 bg-black/40 p-2.5 rounded-xl border border-white/10">
                     <div className="w-12 h-12 rounded-full overflow-hidden border border-primary/50 bg-black/60 flex items-center justify-center shrink-0 relative">
                       {isProcessingAvatar ? (
-                        <Loader2 size={18} className="text-primary animate-spin" />
+                        <Loader2
+                          size={18}
+                          className="text-primary animate-spin"
+                        />
                       ) : avatarUrl ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
                         <img
                           src={avatarUrl}
                           alt="Avatar preview"
@@ -596,7 +667,9 @@ const LoginContent = () => {
                         ) : (
                           <>
                             <Upload size={13} />
-                            {avatarUrl ? 'Đổi ảnh đại diện' : 'Chọn ảnh đại diện'}
+                            {avatarUrl
+                              ? "Đổi ảnh đại diện"
+                              : "Chọn ảnh đại diện"}
                           </>
                         )}
                         <input
@@ -612,7 +685,7 @@ const LoginContent = () => {
                         <button
                           type="button"
                           suppressHydrationWarning
-                          onClick={() => setAvatarUrl('')}
+                          onClick={() => setAvatarUrl("")}
                           className="ml-2 text-[11px] text-rose-400 hover:underline inline-flex items-center gap-1 font-semibold cursor-pointer"
                         >
                           <Trash2 size={12} /> Xóa
@@ -637,10 +710,16 @@ const LoginContent = () => {
                       max="50"
                       placeholder="0"
                       suppressHydrationWarning
-                      value={experienceYears === 0 || experienceYears === '' ? '' : experienceYears}
+                      value={
+                        experienceYears === 0 || experienceYears === ""
+                          ? ""
+                          : experienceYears
+                      }
                       onChange={(e) =>
                         setExperienceYears(
-                          e.target.value === '' ? '' : Math.max(0, Number(e.target.value))
+                          e.target.value === ""
+                            ? ""
+                            : Math.max(0, Number(e.target.value)),
                         )
                       }
                       className="w-full h-9 pl-9 pr-3 rounded-lg bg-black/40 border border-white/10 text-xs text-white outline-none focus:border-primary"
@@ -685,12 +764,12 @@ const LoginContent = () => {
               className="w-full h-12 rounded-full bg-primary text-dark-slate font-extrabold flex items-center justify-center hover:bg-primary/90 transition-colors active:scale-95 disabled:opacity-50 cursor-pointer shadow-[0_0_15px_rgba(102,200,28,0.4)] text-sm mt-2"
             >
               {loading
-                ? 'Đang xử lý...'
-                : authMode === 'LOGIN'
-                ? 'Đăng nhập'
-                : role === 'PT'
-                ? 'Đăng ký làm HLV PT (Chờ Duyệt)'
-                : 'Tạo tài khoản Học viên'}
+                ? "Đang xử lý..."
+                : authMode === "LOGIN"
+                  ? "Đăng nhập"
+                  : role === "PT"
+                    ? "Đăng ký làm HLV PT (Chờ Duyệt)"
+                    : "Tạo tài khoản Học viên"}
             </button>
           </form>
 
@@ -709,7 +788,10 @@ const LoginContent = () => {
             suppressHydrationWarning
             onClick={() => {
               if (!GOOGLE_CLIENT_ID) {
-                toast.warning('Chưa cấu hình Google Client ID trong hệ thống.', 'Thông báo');
+                toast.warning(
+                  "Chưa cấu hình Google Client ID trong hệ thống.",
+                  "Thông báo",
+                );
                 return;
               }
               googleLogin();
@@ -735,7 +817,9 @@ const LoginContent = () => {
                 fill="#EA4335"
               ></path>
             </svg>
-            <span className="text-xs font-semibold text-on-surface">Tiếp tục với Google</span>
+            <span className="text-xs font-semibold text-on-surface">
+              Tiếp tục với Google
+            </span>
           </button>
         </section>
       </main>

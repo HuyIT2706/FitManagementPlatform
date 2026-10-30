@@ -9,7 +9,6 @@ import {
   X,
   Upload,
   Loader2,
-  Sparkles,
 } from "lucide-react";
 import apiClient from "../../../api/axios";
 import type {
@@ -517,7 +516,6 @@ const TransformationJourneySlider = ({
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-bold text-primary flex items-center gap-1">
-                          <Sparkles size={12} />
                           Ảnh đã sẵn sàng
                         </p>
                         <p className="text-[11px] text-white/50 truncate">

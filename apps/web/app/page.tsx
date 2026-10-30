@@ -13,11 +13,16 @@ const RootPage = () => {
   const { data: userData, error } = useCurrentUser();
 
   useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('jwt_token') : null;
+    if (!token) {
+      router.replace('/login');
+      return;
+    }
     if (error) {
       performLogout();
       return;
     }
-    if (userData) {
+    if (userData && userData.role) {
       handleRoleRedirect(userData, router);
     }
   }, [userData, error, router]);

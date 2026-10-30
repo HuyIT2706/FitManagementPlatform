@@ -6,6 +6,7 @@ import {
   Request,
   Get,
   Post,
+  NotFoundException,
 } from '@nestjs/common';
 import { UsersService, type UpdateProfileDto } from './users.service';
 import { OnboardingDto } from './dto/onboarding.dto';
@@ -19,7 +20,11 @@ export class UsersController {
   @UseGuards(JwtGuard)
   @Get('me')
   async getMe(@Request() req: RequestWithUser) {
-    return this.usersService.getMe(req.user.sub);
+    const user = await this.usersService.getMe(req.user.sub);
+    if (!user) {
+      throw new NotFoundException('Người dùng không tồn tại');
+    }
+    return user;
   }
 
   @UseGuards(JwtGuard)
