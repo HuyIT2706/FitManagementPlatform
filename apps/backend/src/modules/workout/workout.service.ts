@@ -18,7 +18,35 @@ export class WorkoutService implements OnModuleInit {
 
   private async seedInitialExercises(): Promise<void> {
     try {
-      const count = await this.prisma.exerciseLibrary.count();
+      // Ensure column compatibility between snake_case (Supabase import) and camelCase (Prisma)
+      await this.prisma
+        .$executeRawUnsafe(
+          `
+        DO $$
+        BEGIN
+          IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='exercise_libraries' AND column_name='setup_image_url') 
+             AND NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='exercise_libraries' AND column_name='setupImageUrl') THEN
+            ALTER TABLE exercise_libraries ADD COLUMN "setupImageUrl" TEXT;
+            UPDATE exercise_libraries SET "setupImageUrl" = setup_image_url WHERE "setupImageUrl" IS NULL;
+          END IF;
+
+          IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='exercise_libraries' AND column_name='start_image_url') 
+             AND NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='exercise_libraries' AND column_name='startImageUrl') THEN
+            ALTER TABLE exercise_libraries ADD COLUMN "startImageUrl" TEXT;
+            UPDATE exercise_libraries SET "startImageUrl" = start_image_url WHERE "startImageUrl" IS NULL;
+          END IF;
+
+          IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='exercise_libraries' AND column_name='primary_muscles') 
+             AND NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='exercise_libraries' AND column_name='primaryMuscles') THEN
+            ALTER TABLE exercise_libraries ADD COLUMN "primaryMuscles" TEXT[];
+            UPDATE exercise_libraries SET "primaryMuscles" = primary_muscles WHERE "primaryMuscles" IS NULL;
+          END IF;
+        END $$;
+      `,
+        )
+        .catch(() => {});
+
+      const count = await this.prisma.exerciseLibrary.count().catch(() => 0);
       if (count === 0) {
         this.logger.log('Seeding initial exercise library into database...');
         const BATCH_SIZE = 50;
@@ -207,9 +235,44 @@ export class WorkoutService implements OnModuleInit {
       }
     } catch (err) {
       this.logger.warn(
-        'Prisma exercise library query failed, using in-memory library:',
+        'Prisma exercise library query failed, attempting raw SQL:',
         err,
       );
+      try {
+        const rawRows = await this.prisma.$queryRawUnsafe<
+          Array<Record<string, unknown>>
+        >(`
+          SELECT 
+            id, name, category, force, level, mechanic, equipment,
+            COALESCE("primaryMuscles", primary_muscles, ARRAY[]::text[]) as "primaryMuscles",
+            COALESCE("secondaryMuscles", secondary_muscles, ARRAY[]::text[]) as "secondaryMuscles",
+            instructions,
+            COALESCE("setupImageUrl", setup_image_url) as "setupImageUrl",
+            COALESCE("startImageUrl", start_image_url) as "startImageUrl"
+          FROM exercise_libraries
+          LIMIT ${limitNum} OFFSET ${(pageNum - 1) * limitNum}
+        `);
+        if (rawRows && rawRows.length > 0) {
+          const rawCount = await this.prisma.$queryRawUnsafe<
+            Array<{ count: bigint | number }>
+          >(`
+            SELECT COUNT(*)::int as count FROM exercise_libraries
+          `);
+          const rawTotal = Number(rawCount[0]?.count) || rawRows.length;
+          return {
+            data: rawRows as unknown as ExercisePaginatedResponse['data'],
+            total: rawTotal,
+            page: pageNum,
+            limit: limitNum,
+            totalPages: Math.ceil(rawTotal / limitNum) || 1,
+          };
+        }
+      } catch (rawErr) {
+        this.logger.warn(
+          'Raw SQL query failed, falling back to memory library:',
+          rawErr,
+        );
+      }
     }
 
     // ── Resilient Fallback to Built-in Vietnamese Exercises ─────────
@@ -405,13 +468,12 @@ export class WorkoutService implements OnModuleInit {
 
     let trainer = user?.studentProfiles?.[0]?.trainer;
     let targetSchedule:
-      | (NonNullable<typeof user>['workoutSchedules'][0])
-      | null
-      | undefined = user?.workoutSchedules?.find(
-      (s) =>
-        (s.exercises && s.exercises.length > 0) ||
-        (s.note && s.note.startsWith('[')),
-    );
+      NonNullable<typeof user>['workoutSchedules'][0] | null | undefined =
+      user?.workoutSchedules?.find(
+        (s) =>
+          (s.exercises && s.exercises.length > 0) ||
+          (s.note && s.note.startsWith('[')),
+      );
 
     if (
       !targetSchedule &&
