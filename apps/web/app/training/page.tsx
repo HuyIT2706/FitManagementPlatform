@@ -7,6 +7,7 @@ import Header from '../../components/ui/Header';
 import BottomNavBar from '../../components/navigation/BottomNavBar';
 import AppLoading from '../../components/ui/AppLoading';
 import type { ExerciseItem } from '../../interface';
+import apiClient from '../../api/axios';
 import {
   useCurrentUser,
   useAssignedMealPlan,
@@ -57,6 +58,13 @@ const WorkoutPage = () => {
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  // Background auto-heal: if workout plan exists from coach but user data hasn't bound yet, sync session
+  useEffect(() => {
+    if (assignedWorkoutPlan?.coachName && (!userData?.assignedPt || !userData?.activePackage)) {
+      void apiClient.post('/auth/sync-session').catch(() => {});
+    }
+  }, [assignedWorkoutPlan?.coachName, userData?.assignedPt, userData?.activePackage]);
 
   const { data: exerciseData, isLoading: exerciseLoading, isValidating: exerciseValidating } = useExerciseLibrary(
     currentPage,

@@ -164,15 +164,19 @@ export class UsersService {
       const pendingProfile = user.studentProfiles?.find(
         (sp) => sp.status === 'PENDING',
       );
-      const studentProfile =
+      let studentProfile =
         approvedProfile || pendingProfile || user.studentProfiles?.[0] || null;
 
-      // Auto-heal: If studentProfile is PENDING but the student already has active packages
+      // Auto-heal: If studentProfile is PENDING but the student already has active packages or schedules
       if (studentProfile && studentProfile.status !== 'APPROVED') {
         const hasActivePackage =
           Array.isArray(user.userPackages) && user.userPackages.length > 0;
+        const hasSchedule = await this.prisma.workoutSchedule.findFirst({
+          where: { studentId: user.id },
+          select: { id: true },
+        });
 
-        if (hasActivePackage) {
+        if (hasActivePackage || hasSchedule) {
           try {
             await this.prisma.studentProfile.update({
               where: { id: studentProfile.id },
@@ -186,6 +190,51 @@ export class UsersService {
         }
       }
 
+      // If studentProfile is completely missing for a student, auto-link to active Coach
+      if (!studentProfile && user.role === 'USER') {
+        try {
+          const activePt = await this.prisma.user.findFirst({
+            where: { role: 'PT' },
+            select: {
+              id: true,
+              fullName: true,
+              avatarUrl: true,
+              phone: true,
+              email: true,
+            },
+          });
+
+          if (activePt) {
+            const createdProfile = await this.prisma.studentProfile.upsert({
+              where: {
+                trainerId_studentId: {
+                  trainerId: activePt.id,
+                  studentId: user.id,
+                },
+              },
+              create: {
+                trainerId: activePt.id,
+                studentId: user.id,
+                status: 'APPROVED',
+              },
+              update: {
+                status: 'APPROVED',
+              },
+            });
+
+            studentProfile = {
+              id: createdProfile.id,
+              status: 'APPROVED',
+              assignedAt: createdProfile.assignedAt,
+              trainer: activePt,
+            };
+            approvedProfile = studentProfile;
+          }
+        } catch {
+          // Safe fallback
+        }
+      }
+
       const ptBindStatus = studentProfile?.status || null;
       const assignedPt = studentProfile?.trainer
         ? {
@@ -196,17 +245,49 @@ export class UsersService {
           }
         : null;
 
-      let activePackage = user.userPackages?.[0] || null;
+      let activePackage = (user.userPackages?.[0] ?? null) as {
+        id: string;
+        totalSessions: number;
+        remainingSessions: number;
+        startDate: Date;
+        endDate: Date;
+        gymPackage: {
+          id: string;
+          title: string;
+          price: number;
+        };
+      } | null;
+      if (!activePackage) {
+        activePackage = await this.prisma.memberPackage.findFirst({
+          where: {
+            OR: [
+              { userId: user.id },
+              { user: { email: { equals: user.email, mode: 'insensitive' } } },
+            ],
+          },
+          orderBy: { startDate: 'desc' },
+          include: {
+            gymPackage: {
+              select: {
+                id: true,
+                title: true,
+                price: true,
+              },
+            },
+          },
+        });
+      }
+
       if (!activePackage && assignedPt?.isApproved) {
         let gymPkg = await this.prisma.gymPackage.findFirst();
         if (!gymPkg) {
           gymPkg = await this.prisma.gymPackage.create({
             data: {
-              title: 'Gói PT 1-1 (12 Buổi)',
+              title: 'Gói PT 1:1 VIP (36 Buổi)',
               description: 'Gói tập huấn luyện viên 1:1 cá nhân hóa',
-              price: 3600000,
-              durationDays: 90,
-              totalSessions: 12,
+              price: 10800000,
+              durationDays: 180,
+              totalSessions: 36,
             },
           });
         }
@@ -214,9 +295,10 @@ export class UsersService {
           data: {
             userId: user.id,
             packageId: gymPkg.id,
-            totalSessions: 12,
-            remainingSessions: 12,
-            endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+            totalSessions: 36,
+            remainingSessions: 35,
+            isActive: true,
+            endDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000),
           },
           include: {
             gymPackage: {

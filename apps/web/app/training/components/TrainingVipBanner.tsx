@@ -8,10 +8,13 @@ const TrainingVipBanner = ({
   assignedWorkoutPlan,
 }: TrainingVipBannerProps) => {
   const fallbackCoachName = assignedWorkoutPlan?.coachName;
+  const isSystemDefaultCoach = fallbackCoachName === 'Hệ Thống NutriCore';
+  const hasValidCoachName = Boolean(fallbackCoachName && !isSystemDefaultCoach);
+
   const isApprovedPt = Boolean(
     (userData?.assignedPt &&
       (userData.assignedPt.status === 'APPROVED' || userData.assignedPt.isApproved)) ||
-    Boolean(fallbackCoachName)
+    hasValidCoachName
   );
   const isPendingPt = Boolean(
     !isApprovedPt &&
@@ -19,7 +22,7 @@ const TrainingVipBanner = ({
       (userData.assignedPt.status === 'PENDING' || userData.assignedPt.isPending)
   );
   const ptName = isApprovedPt
-    ? (userData?.assignedPt?.fullName || fallbackCoachName || 'Huấn luyện viên')
+    ? (userData?.assignedPt?.fullName || (hasValidCoachName ? fallbackCoachName : '') || 'Huấn luyện viên')
     : '';
 
   const activePkg = userData?.activePackage;

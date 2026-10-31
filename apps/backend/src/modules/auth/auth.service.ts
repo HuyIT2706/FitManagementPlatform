@@ -133,20 +133,46 @@ export class AuthService {
       }
     }
 
-
-    // Auto-heal: If studentProfile is PENDING but the coach has already assigned schedules/packages
-    if (studentProfile && studentProfile.status !== 'APPROVED') {
+    // Auto-link student to Coach if studentProfile is missing
+    if (!studentProfile) {
       try {
-        const hasWorkoutsOrPackages = await this.prisma.workoutSchedule.findFirst({
-          where: { studentId: userId },
-          select: { id: true },
+        const activePt = await this.prisma.user.findFirst({
+          where: { role: 'PT' },
+          select: {
+            id: true,
+            fullName: true,
+            avatarUrl: true,
+            phone: true,
+            email: true,
+          },
         });
-        if (hasWorkoutsOrPackages) {
-          await this.prisma.studentProfile.update({
-            where: { id: studentProfile.id },
-            data: { status: 'APPROVED' },
+
+        if (activePt) {
+          const createdProfile = await this.prisma.studentProfile.upsert({
+            where: {
+              trainerId_studentId: {
+                trainerId: activePt.id,
+                studentId: userId,
+              },
+            },
+            create: {
+              trainerId: activePt.id,
+              studentId: userId,
+              status: 'APPROVED',
+            },
+            update: {
+              status: 'APPROVED',
+            },
           });
-          studentProfile.status = 'APPROVED';
+
+          studentProfile = {
+            id: createdProfile.id,
+            status: 'APPROVED',
+            trainerId: activePt.id,
+            studentId: userId,
+            assignedAt: createdProfile.assignedAt,
+            trainer: activePt,
+          };
           approvedProfile = studentProfile;
         }
       } catch {
@@ -164,7 +190,7 @@ export class AuthService {
         }
       : null;
 
-    const activePackage = await this.prisma.memberPackage.findFirst({
+    let activePackage = await this.prisma.memberPackage.findFirst({
       where: { userId, isActive: true },
       orderBy: { startDate: 'desc' },
       include: {
@@ -177,6 +203,22 @@ export class AuthService {
         },
       },
     });
+
+    if (!activePackage) {
+      activePackage = await this.prisma.memberPackage.findFirst({
+        where: { userId },
+        orderBy: { startDate: 'desc' },
+        include: {
+          gymPackage: {
+            select: {
+              id: true,
+              title: true,
+              price: true,
+            },
+          },
+        },
+      });
+    }
 
     return { assignedPt, activePackage };
   }
