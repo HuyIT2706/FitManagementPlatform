@@ -11,7 +11,7 @@ import {
   Moon,
 } from 'lucide-react';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import AppLoading from '../../components/ui/AppLoading';
 import AccessDenied from '../../components/ui/AccessDenied';
 import { useCurrentUser } from '../../hooks/swr';
@@ -25,11 +25,13 @@ const AdminLayout = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const { isDark, toggleTheme } = useTheme();
   const { data: currentUser, isLoading } = useCurrentUser();
 
   useEffect(() => {
+    setMounted(true);
     const token = localStorage.getItem('jwt_token');
     if (!token) {
       performLogout();
@@ -63,7 +65,7 @@ const AdminLayout = ({
     },
   ];
 
-  if (isLoading && !currentUser) {
+  if (!mounted || (isLoading && !currentUser)) {
     return <AppLoading fullScreen size="lg" message="Đang xác thực quyền Quản trị viên..." />;
   }
 

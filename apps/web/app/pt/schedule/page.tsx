@@ -217,6 +217,7 @@ const PTSchedulePage = () => {
   };
 
   const loading =
+    !mounted ||
     userLoading ||
     (userData?.role === "PT" &&
       userData?.isApprovedPt !== false &&

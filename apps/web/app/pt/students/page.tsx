@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { UserPlus } from 'lucide-react';
 import Header from '../../../components/ui/Header';
 import PTBottomNavBar from '../../../components/navigation/PTBottomNavBar';
@@ -23,8 +23,13 @@ const PtInviteStudentModal = dynamic(() => import('./components/PtInviteStudentM
 });
 
 const PTStudentsPage = () => {
+  const [mounted, setMounted] = useState(false);
   const { data: userData, isLoading: userLoading } = useCurrentUser();
   const { data: ptData, isLoading: ptLoading, mutate: mutatePt } = usePtDashboard();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Invite Student Modal State
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
@@ -89,7 +94,13 @@ const PTStudentsPage = () => {
     toast.success('Đã sao chép Link Mời vào bộ nhớ tạm!');
   };
 
-  const loading = userLoading || (userData?.role === 'PT' && userData?.isApprovedPt !== false && ptLoading && !ptData);
+  const loading =
+    !mounted ||
+    userLoading ||
+    (userData?.role === 'PT' &&
+      userData?.isApprovedPt !== false &&
+      ptLoading &&
+      !ptData);
 
   if (loading) {
     return <AppLoading fullScreen size="lg" message="Đang tải danh sách học viên..." />;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '../../../components/ui/Header';
 import PTBottomNavBar from '../../../components/navigation/PTBottomNavBar';
 import AppLoading from '../../../components/ui/AppLoading';
@@ -15,11 +15,16 @@ import PtQrCodeCard from './components/PtQrCodeCard';
 import PtProfileSettingsList from './components/PtProfileSettingsList';
 
 const PTProfilePage = () => {
+  const [mounted, setMounted] = useState(false);
   const { data: userData, isLoading: userLoading } = useCurrentUser();
   const { data: codeQrData, isLoading: qrLoading } = usePtCodeQr();
   const { data: dashboardData, isLoading: dashLoading } = usePtDashboard();
 
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleLogout = (): void => {
     performLogout();
@@ -31,7 +36,13 @@ const PTProfilePage = () => {
     toast.success(`Đã sao chép Mã PT (${code}) vào bộ nhớ tạm!`);
   };
 
-  const loading = userLoading || (userData?.role === 'PT' && userData?.isApprovedPt !== false && (qrLoading || dashLoading) && (!codeQrData || !dashboardData));
+  const loading =
+    !mounted ||
+    userLoading ||
+    (userData?.role === 'PT' &&
+      userData?.isApprovedPt !== false &&
+      (qrLoading || dashLoading) &&
+      (!codeQrData || !dashboardData));
 
   if (loading) {
     return <AppLoading fullScreen size="lg" message="Đang nạp hồ sơ cá nhân HLV..." />;

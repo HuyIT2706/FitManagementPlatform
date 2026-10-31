@@ -19,10 +19,12 @@ import PtScheduleList from './home/components/PtScheduleList';
 import PtStudentRosterQuick from './home/components/PtStudentRosterQuick';
 
 const PTPage = () => {
+  const [mounted, setMounted] = useState(false);
   const { data: userData, isLoading: userLoading } = useCurrentUser();
   const { data: ptData, isLoading: ptLoading, mutate: mutatePt } = usePtDashboard();
 
   useEffect(() => {
+    setMounted(true);
     const token = localStorage.getItem('jwt_token');
     if (!token) {
       window.location.href = '/login';
@@ -125,7 +127,13 @@ const PTPage = () => {
     performLogout();
   };
 
-  const loading = userLoading || (userData?.role === 'PT' && userData?.isApprovedPt !== false && ptLoading && !ptData);
+  const loading =
+    !mounted ||
+    userLoading ||
+    (userData?.role === 'PT' &&
+      userData?.isApprovedPt !== false &&
+      ptLoading &&
+      !ptData);
 
   if (loading) {
     return <AppLoading fullScreen size="lg" message="Đang nạp dữ liệu Huấn luyện viên..." />;
