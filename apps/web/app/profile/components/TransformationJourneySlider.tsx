@@ -316,14 +316,14 @@ const TransformationJourneySlider = ({
         ref={containerRef}
         onMouseDown={handleMouseDown}
         onTouchStart={handleMouseDown}
-        className="relative w-full h-64 sm:h-80 md:h-96 rounded-xl overflow-hidden border border-white/10 group cursor-ew-resize select-none touch-none bg-slate-900"
+        className="relative w-full h-[440px] sm:h-[520px] md:h-[580px] lg:h-[620px] rounded-2xl overflow-hidden border border-white/10 group cursor-ew-resize select-none touch-none bg-slate-900 shadow-xl"
       >
         {/* AFTER Image (Full background) */}
         <img
           alt="After"
           decoding="async"
           loading="eager"
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
           src={afterPhoto.photoUrl}
         />
         <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 px-2.5 py-0.5 sm:px-3 sm:py-1 bg-surface-dim/90 backdrop-blur-md border border-green-light rounded-lg text-green-light text-[11px] sm:text-xs font-bold z-20 pointer-events-none shadow-lg">
@@ -339,7 +339,7 @@ const TransformationJourneySlider = ({
             alt="Before"
             decoding="async"
             loading="eager"
-            className="absolute inset-0 h-full object-cover max-w-none pointer-events-none"
+            className="absolute inset-0 h-full object-cover object-center max-w-none pointer-events-none"
             style={{
               width: containerRef.current
                 ? `${containerRef.current.clientWidth}px`
@@ -507,11 +507,11 @@ const TransformationJourneySlider = ({
 
                   {newPhotoUrl && (
                     <div className="flex items-center gap-3 p-2.5 sm:p-3 rounded-xl bg-white/[0.05] border border-white/15">
-                      <div className="w-12 h-12 rounded-xl overflow-hidden border border-primary/40 shrink-0 bg-black/50">
+                      <div className="w-16 h-20 rounded-xl overflow-hidden border border-primary/40 shrink-0 bg-black/50">
                         <img
                           src={newPhotoUrl}
                           alt="Xem trước"
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover object-center"
                         />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -599,13 +599,13 @@ const TransformationJourneySlider = ({
                         key={photo.id}
                         className="relative rounded-xl sm:rounded-2xl overflow-hidden border border-white/10 bg-white/5 flex flex-col group"
                       >
-                        <div className="h-48 sm:h-44 w-full relative">
+                        <div className="h-64 sm:h-72 w-full relative">
                           <img
                             src={photo.photoUrl}
                             alt={photo.tag || "Ảnh tiến trình"}
                             loading="lazy"
                             decoding="async"
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover object-center"
                           />
                           <span className="absolute top-2 left-2 px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-md text-[10px] font-bold text-primary border border-primary/30">
                             {photo.tag === "BEFORE"
