@@ -628,7 +628,9 @@ const TransformationJourneySlider = ({
                         </div>
                         <div className="p-2.5 sm:p-3 text-xs flex justify-between items-center text-white/70">
                           <span className="text-[11px] sm:text-xs">
-                            {new Date(photo.takenAt).toLocaleDateString("vi-VN")}
+                            {mounted
+                              ? new Date(photo.takenAt).toLocaleDateString("vi-VN")
+                              : ""}
                           </span>
                           {photo.weightAtTime && (
                             <span className="font-bold text-white text-xs">

@@ -8,11 +8,9 @@ export class WorkoutService implements OnModuleInit {
   private readonly logger = new Logger(WorkoutService.name);
   constructor(private readonly prisma: PrismaService) {}
 
-  onModuleInit(): void {
+  async onModuleInit(): Promise<void> {
     // Ensure column compatibility between snake_case (Supabase import) and camelCase (Prisma)
-    setTimeout(() => {
-      void this.ensureColumnCompatibility();
-    }, 1500);
+    await this.ensureColumnCompatibility().catch(() => {});
   }
 
   private async ensureColumnCompatibility(): Promise<void> {
@@ -37,11 +35,81 @@ export class WorkoutService implements OnModuleInit {
             ALTER TABLE exercise_libraries ADD COLUMN "primaryMuscles" TEXT[];
             UPDATE exercise_libraries SET "primaryMuscles" = primary_muscles WHERE "primaryMuscles" IS NULL;
           END IF;
+
+          IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='exercise_libraries' AND column_name='secondary_muscles') 
+             AND NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='exercise_libraries' AND column_name='secondaryMuscles') THEN
+            ALTER TABLE exercise_libraries ADD COLUMN "secondaryMuscles" TEXT[];
+            UPDATE exercise_libraries SET "secondaryMuscles" = secondary_muscles WHERE "secondaryMuscles" IS NULL;
+          END IF;
         END $$;
       `);
     } catch {
       // Safe fallback if restricted
     }
+  }
+
+  private normalizeExerciseRow(
+    row: Record<string, unknown>,
+  ): Record<string, unknown> {
+    const parseArray = (val: unknown): string[] => {
+      if (Array.isArray(val)) {
+        return val.map((item) =>
+          typeof item === 'string' ? item : String(item),
+        );
+      }
+      if (typeof val === 'string') {
+        try {
+          const parsed: unknown = JSON.parse(val);
+          return Array.isArray(parsed)
+            ? parsed.map((item) =>
+                typeof item === 'string' ? item : String(item),
+              )
+            : [val];
+        } catch {
+          return val ? [val] : [];
+        }
+      }
+      return [];
+    };
+
+    const toStrOrNull = (val: unknown): string | null => {
+      if (val === null || val === undefined) return null;
+      if (typeof val === 'string') return val;
+      if (typeof val === 'number' || typeof val === 'boolean')
+        return String(val);
+      return null;
+    };
+
+    const toStr = (val: unknown): string => {
+      if (val === null || val === undefined) return '';
+      if (typeof val === 'string') return val;
+      if (typeof val === 'number' || typeof val === 'boolean')
+        return String(val);
+      return '';
+    };
+
+    return {
+      id: toStr(row.id),
+      name: toStr(row.name),
+      category: toStrOrNull(row.category),
+      force: toStrOrNull(row.force),
+      level: toStrOrNull(row.level),
+      mechanic: toStrOrNull(row.mechanic),
+      equipment: toStrOrNull(row.equipment),
+      primaryMuscles: parseArray(
+        row.primaryMuscles ?? row.primary_muscles ?? row.primarymuscles,
+      ),
+      secondaryMuscles: parseArray(
+        row.secondaryMuscles ?? row.secondary_muscles ?? row.secondarymuscles,
+      ),
+      instructions: parseArray(row.instructions ?? row.instruction),
+      setupImageUrl: toStrOrNull(
+        row.setupImageUrl ?? row.setup_image_url ?? row.setupimageurl,
+      ),
+      startImageUrl: toStrOrNull(
+        row.startImageUrl ?? row.start_image_url ?? row.startimageurl,
+      ),
+    };
   }
 
   async getExercises(
@@ -54,58 +122,59 @@ export class WorkoutService implements OnModuleInit {
     const pageNum = Math.max(1, Number(page) || 1);
     const limitNum = Math.max(1, Number(limit) || 10);
 
-    const where: Prisma.ExerciseLibraryWhereInput = {};
-    if (category && category !== 'ALL') {
-      where.category = {
-        contains: category,
-        mode: 'insensitive',
-      };
-    }
-
-    if (muscle && muscle !== 'ALL') {
-      const lower = muscle.toLowerCase().trim();
-      let matchedMuscles: string[] = [muscle];
-
-      if (lower.includes('lưng') || lower.includes('xô')) {
-        matchedMuscles = [
-          'cơ lưng giữa',
-          'cơ lưng dưới',
-          'cơ xô',
-          'cơ cầu vai',
-          'cơ lưng',
-        ];
-      } else if (lower.includes('đùi') || lower.includes('mông')) {
-        matchedMuscles = [
-          'cơ đùi trước',
-          'cơ đùi sau',
-          'cơ mông',
-          'cơ khép (đùi trong)',
-          'bắp chân',
-          'cơ đùi',
-        ];
-      } else if (lower.includes('tay')) {
-        matchedMuscles = ['cơ tay trước', 'cơ tay sau', 'cẳng tay', 'cơ tay'];
-      } else if (lower.includes('ngực')) {
-        matchedMuscles = ['cơ ngực'];
-      } else if (lower.includes('vai')) {
-        matchedMuscles = ['cơ vai', 'cơ cầu vai'];
-      } else if (lower.includes('bụng') || lower.includes('core')) {
-        matchedMuscles = ['cơ bụng'];
+    // 1. Try standard Prisma query first (when columns match schema)
+    try {
+      const where: Prisma.ExerciseLibraryWhereInput = {};
+      if (category && category !== 'ALL') {
+        where.category = {
+          contains: category,
+          mode: 'insensitive',
+        };
       }
 
-      where.primaryMuscles = {
-        hasSome: matchedMuscles,
-      };
-    }
+      if (muscle && muscle !== 'ALL') {
+        const lower = muscle.toLowerCase().trim();
+        let matchedMuscles: string[] = [muscle];
 
-    if (search && search.trim() !== '') {
-      where.name = {
-        contains: search.trim(),
-        mode: 'insensitive',
-      };
-    }
+        if (lower.includes('lưng') || lower.includes('xô')) {
+          matchedMuscles = [
+            'cơ lưng giữa',
+            'cơ lưng dưới',
+            'cơ xô',
+            'cơ cầu vai',
+            'cơ lưng',
+          ];
+        } else if (lower.includes('đùi') || lower.includes('mông')) {
+          matchedMuscles = [
+            'cơ đùi trước',
+            'cơ đùi sau',
+            'cơ mông',
+            'cơ khép (đùi trong)',
+            'bắp chân',
+            'cơ đùi',
+          ];
+        } else if (lower.includes('tay')) {
+          matchedMuscles = ['cơ tay trước', 'cơ tay sau', 'cẳng tay', 'cơ tay'];
+        } else if (lower.includes('ngực')) {
+          matchedMuscles = ['cơ ngực'];
+        } else if (lower.includes('vai')) {
+          matchedMuscles = ['cơ vai', 'cơ cầu vai'];
+        } else if (lower.includes('bụng') || lower.includes('core')) {
+          matchedMuscles = ['cơ bụng'];
+        }
 
-    try {
+        where.primaryMuscles = {
+          hasSome: matchedMuscles,
+        };
+      }
+
+      if (search && search.trim() !== '') {
+        where.name = {
+          contains: search.trim(),
+          mode: 'insensitive',
+        };
+      }
+
       const [total, exercises] = await Promise.all([
         this.prisma.exerciseLibrary.count({ where }),
         this.prisma.exerciseLibrary.findMany({
@@ -127,41 +196,80 @@ export class WorkoutService implements OnModuleInit {
       }
     } catch (err) {
       this.logger.warn(
-        'Prisma exercise library query failed, attempting raw SQL:',
+        'Prisma exercise library query failed, running resilient SQL query:',
         err,
       );
-      try {
-        const rawRows = await this.prisma.$queryRawUnsafe<
-          Array<Record<string, unknown>>
-        >(`
-          SELECT 
-            id, name, category, force, level, mechanic, equipment,
-            COALESCE("primaryMuscles", primary_muscles, ARRAY[]::text[]) as "primaryMuscles",
-            COALESCE("secondaryMuscles", secondary_muscles, ARRAY[]::text[]) as "secondaryMuscles",
-            instructions,
-            COALESCE("setupImageUrl", setup_image_url) as "setupImageUrl",
-            COALESCE("startImageUrl", start_image_url) as "startImageUrl"
-          FROM exercise_libraries
-          LIMIT ${limitNum} OFFSET ${(pageNum - 1) * limitNum}
-        `);
-        if (rawRows && rawRows.length > 0) {
-          const rawCount = await this.prisma.$queryRawUnsafe<
-            Array<{ count: bigint | number }>
-          >(`
-            SELECT COUNT(*)::int as count FROM exercise_libraries
-          `);
-          const rawTotal = Number(rawCount[0]?.count) || rawRows.length;
-          return {
-            data: rawRows as unknown as ExercisePaginatedResponse['data'],
-            total: rawTotal,
-            page: pageNum,
-            limit: limitNum,
-            totalPages: Math.ceil(rawTotal / limitNum) || 1,
-          };
-        }
-      } catch (rawErr) {
-        this.logger.warn('Raw SQL query failed:', rawErr);
+    }
+
+    // 2. Resilient raw SQL query directly against Supabase exercise_libraries table
+    try {
+      const whereConditions: string[] = [];
+
+      if (search && search.trim() !== '') {
+        const s = search.trim().replace(/'/g, "''");
+        whereConditions.push(`name ILIKE '%${s}%'`);
       }
+
+      if (category && category !== 'ALL') {
+        const c = category.trim().replace(/'/g, "''");
+        whereConditions.push(`category ILIKE '%${c}%'`);
+      }
+
+      if (muscle && muscle !== 'ALL') {
+        const lower = muscle.toLowerCase().trim();
+        let targets = [lower];
+        if (lower.includes('lưng') || lower.includes('xô')) {
+          targets = ['lưng', 'xô', 'cầu vai'];
+        } else if (lower.includes('đùi') || lower.includes('mông')) {
+          targets = ['đùi', 'mông', 'khép', 'bắp chân'];
+        } else if (lower.includes('tay')) {
+          targets = ['tay trước', 'tay sau', 'cẳng tay', 'tay'];
+        } else if (lower.includes('ngực')) {
+          targets = ['ngực'];
+        } else if (lower.includes('vai')) {
+          targets = ['vai'];
+        } else if (lower.includes('bụng') || lower.includes('core')) {
+          targets = ['bụng', 'core'];
+        }
+
+        const muscleFilters = targets.map(
+          (t) => `to_jsonb(exercise_libraries)::text ILIKE '%${t}%'`,
+        );
+        whereConditions.push(`(${muscleFilters.join(' OR ')})`);
+      }
+
+      const whereClause =
+        whereConditions.length > 0
+          ? `WHERE ${whereConditions.join(' AND ')}`
+          : '';
+
+      const countResult = await this.prisma.$queryRawUnsafe<
+        Array<{ count: number | bigint | string }>
+      >(`SELECT COUNT(*)::int as count FROM exercise_libraries ${whereClause}`);
+      const rawTotal = Number(countResult[0]?.count) || 0;
+
+      const rawRows = await this.prisma.$queryRawUnsafe<
+        Array<Record<string, unknown>>
+      >(`
+        SELECT * FROM exercise_libraries 
+        ${whereClause} 
+        ORDER BY name ASC 
+        LIMIT ${limitNum} OFFSET ${(pageNum - 1) * limitNum}
+      `);
+
+      if (rawRows && rawRows.length > 0) {
+        const normalizedList = rawRows.map((r) => this.normalizeExerciseRow(r));
+        return {
+          data: normalizedList as unknown as ExercisePaginatedResponse['data'],
+          total: rawTotal || normalizedList.length,
+          page: pageNum,
+          limit: limitNum,
+          totalPages:
+            Math.ceil((rawTotal || normalizedList.length) / limitNum) || 1,
+        };
+      }
+    } catch (rawErr) {
+      this.logger.error('Resilient raw SQL query failed:', rawErr);
     }
 
     return {

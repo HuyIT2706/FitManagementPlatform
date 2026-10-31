@@ -23,8 +23,6 @@ export const MEAL_OPTIONS: MealOption[] = [
   { id: 'LUNCH', shortLabel: 'Trưa', label: 'Bữa Trưa' },
   { id: 'DINNER', shortLabel: 'Tối', label: 'Bữa Tối' },
   { id: 'SNACK', shortLabel: 'Phụ', label: 'Bữa Phụ' },
-  { id: 'MORNING_SNACK', shortLabel: 'Phụ Sáng', label: 'Phụ Sáng' },
-  { id: 'AFTERNOON_SNACK', shortLabel: 'Phụ Chiều', label: 'Phụ Chiều' },
 ];
 
 // Generates past 7 days up to today (quá khứ không quá 1 tuần)

@@ -8,7 +8,7 @@ interface StepMealProps {
 }
 
 const StepMeal = ({ store }: StepMealProps) => {
-  const options = [2, 3, 4, 5];
+  const options = [2, 3, 4];
   return (
     <div className="flex flex-col flex-1 h-full">
       <div className="flex items-center gap-2 mb-1.5 sm:mb-2">

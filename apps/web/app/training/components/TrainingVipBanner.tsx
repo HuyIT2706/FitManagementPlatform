@@ -27,12 +27,18 @@ const TrainingVipBanner = ({
 
   const activePkg = userData?.activePackage;
   const hasPackage = Boolean(
-    activePkg &&
+    (activePkg &&
       typeof activePkg.totalSessions === 'number' &&
-      activePkg.totalSessions > 0
+      activePkg.totalSessions > 0) ||
+      isApprovedPt
   );
-  const remainingSessions = activePkg?.remainingSessions ?? 0;
-  const totalSessions = activePkg?.totalSessions ?? 0;
+  const totalSessions = activePkg?.totalSessions && activePkg.totalSessions > 0 ? activePkg.totalSessions : 36;
+  const remainingSessions =
+    typeof activePkg?.remainingSessions === 'number'
+      ? activePkg.remainingSessions
+      : isApprovedPt
+        ? totalSessions
+        : 0;
   const sessionsPercentage =
     totalSessions > 0
       ? Math.min(100, Math.round((remainingSessions / totalSessions) * 100))

@@ -846,14 +846,6 @@ export class NutritionService {
           { id: 'LUNCH', name: 'Bữa Trưa', icon: 'light_mode' },
           { id: 'DINNER', name: 'Bữa Tối', icon: 'dark_mode' },
         ];
-      case 5:
-        return [
-          { id: 'BREAKFAST', name: 'Bữa Sáng', icon: 'wb_twilight' },
-          { id: 'MORNING_SNACK', name: 'Phụ Sáng', icon: 'bakery_dining' },
-          { id: 'LUNCH', name: 'Bữa Trưa', icon: 'light_mode' },
-          { id: 'AFTERNOON_SNACK', name: 'Phụ Chiều', icon: 'icecream' },
-          { id: 'DINNER', name: 'Bữa Tối', icon: 'dark_mode' },
-        ];
       case 4:
       default:
         return [
@@ -1356,15 +1348,6 @@ export class NutritionService {
           break;
         case 3:
           activeMeals = ['breakfast', 'lunch', 'dinner'];
-          break;
-        case 5:
-          activeMeals = [
-            'breakfast',
-            'morningSnack',
-            'lunch',
-            'afternoonSnack',
-            'dinner',
-          ];
           break;
         case 4:
         default:
@@ -2544,9 +2527,7 @@ export class NutritionService {
         ? 'Phân bổ năng lượng tối ưu cho chế độ 2 bữa/ngày (Intermittent Fasting 16/8).'
         : activeMeals.length === 3
           ? 'Phân bổ cân bằng theo chế độ 3 bữa chính truyền thống (Sáng, Trưa, Tối).'
-          : activeMeals.length === 5
-            ? 'Phân bổ đều theo chế độ 5 bữa chuẩn Fitness (3 bữa chính + 2 bữa phụ nhẹ sáng & chiều) giúp tối ưu hấp thụ và duy trì năng lượng liên tục.'
-            : 'Phân bổ đều theo chế độ 4 bữa (3 bữa chính + 1 bữa phụ dinh dưỡng).';
+          : 'Phân bổ đều theo chế độ 4 bữa (3 bữa chính + 1 bữa phụ dinh dưỡng).';
 
     const findSessionText = (key: MealKey) =>
       meals.find((m) => m.mealKey === key)?.formattedText || '';
@@ -2562,13 +2543,12 @@ export class NutritionService {
         findSessionText('afternoonSnack') ||
         findSessionText('morningSnack'),
       note: isLosingWeight
-        ? 'Mục tiêu Giảm Cân / Giảm Mỡ: Ưu tiên thịt nạc bỏ da, chế biến luộc/hấp/áp chảo ít dầu. Uống đủ 2 - 2.5L nước/ngày. Ăn rau xanh trước tinh bột để ổn định đường huyết.'
-        : 'Uống đủ 2 - 2.5L nước/ngày. Ưu tiên chế biến luộc, hấp hoặc áp chảo ít dầu. Ăn rau xanh trước tinh bột để ổn định đường huyết.',
+        ? 'Mục tiêu Giảm Cân / Giảm Mỡ: Ưu tiên thịt nạc bỏ da, chế biến luộc/hấp/áp chảo ít dầu. Uống đủ 2 - 2.5L nước/ngày. Thực phẩm cân sống trừ cơm trắng.'
+        : 'Uống đủ 2 - 2.5L nước/ngày. Ưu tiên chế biến luộc, hấp hoặc áp chảo, xào ít dầu. Thực phẩm cân sống trừ cơm trắng.',
     };
 
     const coachAdvice = `Thực đơn Eat Clean chuẩn theo mục tiêu ${targetCalories} kcal (P: ${targetProtein}g, C: ${targetCarbs}g, F: ${targetFat}g) chia làm ${activeMeals.length} bữa. ${mealCountDesc}${skinAdvice} Đã tự động loại bỏ các món ngọt, đồ sống và thực phẩm dị ứng.`;
 
-    // 5. Lưu vào CSDL nếu có yêu cầu (saveToDatabase)
     if (dto.saveToDatabase) {
       const mealPlanJsonString = JSON.stringify(formattedPlan);
       await this.prisma.nutritionTarget.create({

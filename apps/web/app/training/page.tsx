@@ -59,12 +59,17 @@ const WorkoutPage = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Background auto-heal: if workout plan exists from coach but user data hasn't bound yet, sync session
+  // Background auto-heal: if PT coach or active package is missing, sync session immediately
   useEffect(() => {
-    if (assignedWorkoutPlan?.coachName && (!userData?.assignedPt || !userData?.activePackage)) {
-      void apiClient.post('/auth/sync-session').catch(() => {});
+    if (userData && (!userData.assignedPt || !userData.activePackage) && userData.role !== 'PT') {
+      void apiClient
+        .post('/auth/sync-session')
+        .then(() => {
+          void mutateAssignedMealPlan();
+        })
+        .catch(() => {});
     }
-  }, [assignedWorkoutPlan?.coachName, userData?.assignedPt, userData?.activePackage]);
+  }, [userData, mutateAssignedMealPlan]);
 
   const { data: exerciseData, isLoading: exerciseLoading, isValidating: exerciseValidating } = useExerciseLibrary(
     currentPage,

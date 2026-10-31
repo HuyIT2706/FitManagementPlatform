@@ -168,16 +168,14 @@ export default function SmartMealPlannerModal({
                 )}
               </div>
 
-              {/* Responsive Meals Grid: 1 col on mobile, 2/3/4/5 cols on larger screens */}
+              {/* Responsive Meals Grid: 1 col on mobile, 2/3/4 cols on larger screens */}
               <div
                 className={`grid grid-cols-1 ${
                   mealPlan.meals.length === 2
                     ? 'md:grid-cols-2'
                     : mealPlan.meals.length === 3
                       ? 'md:grid-cols-3'
-                      : mealPlan.meals.length === 5
-                        ? 'sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5'
-                        : 'sm:grid-cols-2 lg:grid-cols-4'
+                      : 'sm:grid-cols-2 lg:grid-cols-4'
                 } gap-3 sm:gap-4`}
               >
                 {mealPlan.meals.map((meal: GeneratedMealSession) => (

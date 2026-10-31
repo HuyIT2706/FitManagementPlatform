@@ -24,18 +24,14 @@ import { formatYYYYMMDD } from '../../utils/date';
 
 const mealFullTitleMap: Record<string, string> = {
   BREAKFAST: 'Bữa Sáng',
-  MORNING_SNACK: 'Phụ Sáng',
   LUNCH: 'Bữa Trưa',
-  AFTERNOON_SNACK: 'Phụ Chiều',
   DINNER: 'Bữa Tối',
   SNACK: 'Bữa Phụ',
 };
 
 const mealShortNameMap: Record<string, string> = {
   BREAKFAST: 'Sáng',
-  MORNING_SNACK: 'Phụ Sáng',
   LUNCH: 'Trưa',
-  AFTERNOON_SNACK: 'Phụ Chiều',
   DINNER: 'Tối',
   SNACK: 'Phụ',
 };
@@ -114,11 +110,7 @@ const AddMealContent = () => {
                 ? 'Tối'
                 : slot.id === 'SNACK'
                   ? 'Phụ'
-                  : slot.id === 'MORNING_SNACK'
-                    ? 'Phụ Sáng'
-                    : slot.id === 'AFTERNOON_SNACK'
-                      ? 'Phụ Chiều'
-                      : slot.name,
+                  : slot.name,
       }));
     }
 
@@ -133,14 +125,6 @@ const AddMealContent = () => {
         return [
           { id: 'BREAKFAST', shortLabel: 'Sáng', label: 'Bữa Sáng' },
           { id: 'LUNCH', shortLabel: 'Trưa', label: 'Bữa Trưa' },
-          { id: 'DINNER', shortLabel: 'Tối', label: 'Bữa Tối' },
-        ];
-      case 5:
-        return [
-          { id: 'BREAKFAST', shortLabel: 'Sáng', label: 'Bữa Sáng' },
-          { id: 'MORNING_SNACK', shortLabel: 'Phụ Sáng', label: 'Phụ Sáng' },
-          { id: 'LUNCH', shortLabel: 'Trưa', label: 'Bữa Trưa' },
-          { id: 'AFTERNOON_SNACK', shortLabel: 'Phụ Chiều', label: 'Phụ Chiều' },
           { id: 'DINNER', shortLabel: 'Tối', label: 'Bữa Tối' },
         ];
       case 4:

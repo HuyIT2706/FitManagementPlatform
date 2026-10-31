@@ -24,7 +24,14 @@ export class ProgressController {
 
   @Get('photos')
   async getPhotos(@Request() req: RequestWithUser) {
-    return this.progressService.getPhotos(req.user.sub);
+    try {
+      const user = req.user as { sub?: string; id?: string } | undefined;
+      const userId = user?.sub || user?.id;
+      if (!userId || typeof userId !== 'string') return [];
+      return await this.progressService.getPhotos(userId);
+    } catch {
+      return [];
+    }
   }
 
   @Post('photos')

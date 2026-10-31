@@ -13,6 +13,7 @@ export class ProgressService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getPhotos(userId: string) {
+    if (!userId || typeof userId !== 'string') return [];
     try {
       const [photos, bodyMetrics] = await Promise.all([
         this.prisma.progressPhoto.findMany({
@@ -61,11 +62,54 @@ export class ProgressService {
         };
       });
     } catch (err) {
-      this.logger.error(
-        `Failed to fetch progress photos for user ${userId}:`,
+      this.logger.warn(
+        `Prisma progress photos failed for user ${userId}, running raw SQL fallback:`,
         err,
       );
-      return [];
+      try {
+        const rawPhotos = await this.prisma.$queryRawUnsafe<
+          Array<Record<string, unknown>>
+        >(
+          `SELECT * FROM progress_photos 
+           WHERE "userId" = $1 OR user_id = $1 
+           ORDER BY COALESCE("takenAt", taken_at, CURRENT_TIMESTAMP) DESC`,
+          userId,
+        );
+
+        return rawPhotos.map((p) => {
+          const id = typeof p.id === 'string' ? p.id : '';
+          const pUserId =
+            typeof p.userId === 'string'
+              ? p.userId
+              : typeof p.user_id === 'string'
+                ? p.user_id
+                : userId;
+          const photoUrl =
+            typeof p.photoUrl === 'string'
+              ? p.photoUrl
+              : typeof p.photo_url === 'string'
+                ? p.photo_url
+                : '';
+          const tag = typeof p.tag === 'string' ? p.tag : 'AFTER';
+          const takenAt =
+            p.takenAt instanceof Date
+              ? p.takenAt
+              : p.taken_at instanceof Date
+                ? p.taken_at
+                : new Date();
+
+          return {
+            id,
+            userId: pUserId,
+            photoUrl,
+            tag,
+            takenAt,
+            weightAtTime: null,
+          };
+        });
+      } catch {
+        return [];
+      }
     }
   }
 

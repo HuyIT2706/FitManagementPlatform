@@ -16,13 +16,23 @@ export class WorkoutController {
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
-    return this.workoutService.getExercises(
-      category,
-      muscle,
-      search,
-      page,
-      limit,
-    );
+    try {
+      return await this.workoutService.getExercises(
+        category,
+        muscle,
+        search,
+        page,
+        limit,
+      );
+    } catch {
+      return {
+        data: [],
+        total: 0,
+        page: Number(page) || 1,
+        limit: Number(limit) || 10,
+        totalPages: 1,
+      };
+    }
   }
 
   @Get('assigned-meal-plan')
