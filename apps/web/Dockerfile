@@ -23,6 +23,16 @@ RUN npm install
 # Build the project and its dependencies
 COPY --from=builder /app/out/full/ .
 COPY turbo.json turbo.json
+
+# Next.js inlines NEXT_PUBLIC_* variables at build time
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID
+ARG NEXT_PUBLIC_API_ENCRYPTION_KEY
+
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_GOOGLE_CLIENT_ID=$NEXT_PUBLIC_GOOGLE_CLIENT_ID
+ENV NEXT_PUBLIC_API_ENCRYPTION_KEY=$NEXT_PUBLIC_API_ENCRYPTION_KEY
+
 RUN npx turbo run build --filter=web...
 
 FROM base AS runner

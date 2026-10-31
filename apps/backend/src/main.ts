@@ -39,17 +39,23 @@ async function bootstrap() {
     }),
   );
 
-  const defaultOrigins: (string | RegExp)[] = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3001',
+  const isProd = process.env.NODE_ENV === 'production';
+
+  // Strict CORS policy: Whitelist explicit domains only. Never use broad wildcard regex like /\.vercel\.app$/ in production!
+  const allowedOrigins: (string | RegExp)[] = [
     'https://nutricore-olive.vercel.app',
-    /^http:\/\/localhost:\d+$/,
-    /^http:\/\/127\.0\.0\.1:\d+$/,
-    /\.vercel\.app$/,
   ];
-  const allowedOrigins: (string | RegExp)[] = [...defaultOrigins];
+
+  if (!isProd) {
+    allowedOrigins.push(
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'http://localhost:3001',
+      'http://127.0.0.1:3001',
+      /^http:\/\/localhost:\d+$/,
+      /^http:\/\/127\.0\.0\.1:\d+$/,
+    );
+  }
 
   if (process.env.CLIENT_URL) {
     process.env.CLIENT_URL.split(',').forEach((url) => {

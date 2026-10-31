@@ -12,11 +12,15 @@ import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { AuthService, RegisterDto } from './auth.service';
 import type { Response, Request } from 'express';
 import { JwtGuard } from './jwt.guard';
+import { JwtService } from '@nestjs/jwt';
 import type { RequestWithUser } from '@repo/types';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private jwtService: JwtService,
+  ) {}
 
   private setRefreshTokenCookie(res: Response, refreshToken: string) {
     const isProd =
@@ -41,7 +45,6 @@ export class AuthController {
     });
   }
 
-  // Strict rate limit on registration: 5 attempts / minute
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @HttpCode(HttpStatus.CREATED)
   @Post('register')
@@ -91,7 +94,7 @@ export class AuthController {
     return { access_token, user, isPendingPtApproval };
   }
 
-  // Refresh is called automatically by axios interceptor — skip global throttle
+  // Refresh is called automatically by axios interceptor â€” skip global throttle
   @SkipThrottle()
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
@@ -111,17 +114,20 @@ export class AuthController {
       return;
     }
 
+    let userId: string;
     try {
-      const parts = refreshToken.split('.');
-      if (parts.length < 2 || !parts[1]) {
-        res.status(HttpStatus.FORBIDDEN).send({ message: 'Access Denied' });
-        return;
-      }
-      const jwtPayload = JSON.parse(
-        Buffer.from(parts[1], 'base64').toString(),
-      ) as { sub: string };
-      const userId = jwtPayload.sub;
+      const payload = await this.jwtService.verifyAsync<{ sub: string }>(
+        refreshToken,
+      );
+      userId = payload.sub;
+    } catch {
+      res
+        .status(HttpStatus.FORBIDDEN)
+        .send({ message: 'Access Denied: Invalid or expired refresh token' });
+      return;
+    }
 
+    try {
       const tokens = await this.authService.refreshTokens(userId, refreshToken);
       this.setRefreshTokenCookie(res, tokens.refreshToken);
       return {
@@ -188,7 +194,7 @@ export class AuthController {
     // 4. Always clear refresh_token cookie from browser
     this.clearRefreshTokenCookie(res);
 
-    return { message: 'Đăng xuất thành công' };
+    return { message: 'ÄÄƒng xuáº¥t thÃ nh cÃ´ng' };
   }
 
   @UseGuards(JwtGuard)

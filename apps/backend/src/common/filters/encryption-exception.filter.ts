@@ -27,15 +27,16 @@ export class EncryptionExceptionFilter implements ExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
+    const isProd = process.env.NODE_ENV === 'production';
     const exceptionResponse: unknown =
       exception instanceof HttpException
         ? exception.getResponse()
         : {
             statusCode: status,
             message:
-              exception instanceof Error
+              !isProd && exception instanceof Error
                 ? exception.message
-                : 'Internal server error',
+                : 'Lỗi hệ thống máy chủ nội bộ. Vui lòng liên hệ quản trị viên.',
           };
 
     const errorBody: unknown =

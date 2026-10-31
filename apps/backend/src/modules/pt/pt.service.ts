@@ -161,20 +161,36 @@ export class PtService {
             });
 
             if (activePkg) {
-              const newRemaining = Math.max(0, activePkg.remainingSessions - 1);
-              await this.prisma.memberPackage.update({
-                where: { id: activePkg.id },
-                data: { remainingSessions: newRemaining },
-              });
+              let currentRemaining = activePkg.remainingSessions;
+              await this.prisma.$transaction(async (tx) => {
+                const updatedPkg = await tx.memberPackage.update({
+                  where: { id: activePkg.id },
+                  data: {
+                    remainingSessions: {
+                      decrement: 1,
+                    },
+                  },
+                });
 
-              await this.prisma.attendanceHistory.create({
-                data: {
-                  memberPackageId: activePkg.id,
-                  studentId: compSched.studentId,
-                  checkInTime: new Date(),
-                  status: 'CHECKED_IN',
-                  note: `Điểm danh thành công: ${compSched.title} [ScheduleId:${compSched.id}]`,
-                },
+                if (updatedPkg.remainingSessions < 0) {
+                  await tx.memberPackage.update({
+                    where: { id: activePkg.id },
+                    data: { remainingSessions: 0 },
+                  });
+                  currentRemaining = 0;
+                } else {
+                  currentRemaining = updatedPkg.remainingSessions;
+                }
+
+                await tx.attendanceHistory.create({
+                  data: {
+                    memberPackageId: activePkg.id,
+                    studentId: compSched.studentId,
+                    checkInTime: new Date(),
+                    status: 'CHECKED_IN',
+                    note: `Điểm danh thành công: ${compSched.title} [ScheduleId:${compSched.id}]`,
+                  },
+                });
               });
 
               try {
@@ -182,7 +198,7 @@ export class PtService {
                 await this.notificationsService.sendNotification({
                   userId: compSched.studentId,
                   title: 'Điểm Danh & Trừ Buổi Tập',
-                  message: `HLV ${ptDisplayName} đã điểm danh (Trừ 1 buổi). Số buổi còn lại: ${newRemaining}/${activePkg.totalSessions} buổi.`,
+                  message: `HLV ${ptDisplayName} đã điểm danh (Trừ 1 buổi). Số buổi còn lại: ${currentRemaining}/${activePkg.totalSessions} buổi.`,
                   type: 'SESSION_DEDUCT',
                   linkUrl: '/training',
                 });
