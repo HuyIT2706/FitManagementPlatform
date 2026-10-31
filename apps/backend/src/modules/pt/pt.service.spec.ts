@@ -72,6 +72,7 @@ describe('PtService - Student Invitation & Binding Guards', () => {
           studentEmail: 'pt@test.com',
           packageName: 'Gói VIP',
           totalSessions: 12,
+          remainingSessions: 12,
         }),
       ).rejects.toThrow(BadRequestException);
     });
@@ -89,6 +90,7 @@ describe('PtService - Student Invitation & Binding Guards', () => {
           studentEmail: 'admin@test.com',
           packageName: 'Gói VIP',
           totalSessions: 12,
+          remainingSessions: 12,
         }),
       ).rejects.toThrow(BadRequestException);
     });
@@ -118,6 +120,7 @@ describe('PtService - Student Invitation & Binding Guards', () => {
           studentEmail: 'student@test.com',
           packageName: 'Gói VIP',
           totalSessions: 12,
+          remainingSessions: 12,
         }),
       ).rejects.toThrow(/hiện đã có Huấn luyện viên phụ trách/);
     });
@@ -145,6 +148,7 @@ describe('PtService - Student Invitation & Binding Guards', () => {
           studentEmail: 'student@test.com',
           packageName: 'Gói VIP',
           totalSessions: 12,
+          remainingSessions: 12,
         }),
       ).rejects.toThrow(/hiện đang có gói tập còn hiệu lực/);
     });
@@ -164,6 +168,7 @@ describe('PtService - Student Invitation & Binding Guards', () => {
         studentEmail: 'student@test.com',
         packageName: 'Gói VIP 1:1',
         totalSessions: 12,
+        remainingSessions: 12,
       });
 
       expect(res.success).toBe(true);
@@ -179,6 +184,7 @@ describe('PtService - Student Invitation & Binding Guards', () => {
         studentEmail: 'unregistered@test.com',
         packageName: 'Gói VIP 1:1',
         totalSessions: 12,
+        remainingSessions: 12,
       });
 
       expect(res.success).toBe(true);
