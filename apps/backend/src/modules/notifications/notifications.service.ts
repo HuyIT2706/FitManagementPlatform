@@ -57,90 +57,28 @@ export interface WebPushErrorLike {
 export class NotificationsService implements OnModuleInit {
   private readonly logger = new Logger(NotificationsService.name);
 
-  public readonly vapidPublicKey =
-    process.env.VAPID_PUBLIC_KEY ||
-    'BJznxhmzusTKjOPidEXnMdtFyES4cU8i00t9ZwGBJk1UZizbIByNIrVxZggR72LRzbm3JYfsYt907OzFfoRLR2I';
-  private readonly vapidPrivateKey =
-    process.env.VAPID_PRIVATE_KEY ||
-    'iTdcAwDueONNxBd6yF4wYswGSX5QfiG9tjUI--hmEL8';
-  private readonly vapidSubject =
-    process.env.VAPID_SUBJECT || 'mailto:support@nutricore.vn';
+  public readonly vapidPublicKey = process.env.VAPID_PUBLIC_KEY;
+  private readonly vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
+  private readonly vapidSubject = process.env.VAPID_SUBJECT;
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async onModuleInit() {
-    try {
-      webpush.setVapidDetails(
-        this.vapidSubject,
-        this.vapidPublicKey,
-        this.vapidPrivateKey,
-      );
-      this.logger.log('WebPush VAPID details configured successfully.');
-    } catch (err) {
-      this.logger.error('Failed to configure VAPID details:', err);
-    }
-
-    try {
-      await this.prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS notifications (
-          id TEXT PRIMARY KEY,
-          user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          title TEXT NOT NULL,
-          message TEXT NOT NULL,
-          type TEXT DEFAULT 'INFO',
-          is_read BOOLEAN DEFAULT FALSE,
-          link_url TEXT,
-          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  onModuleInit(): void {
+    if (this.vapidSubject && this.vapidPublicKey && this.vapidPrivateKey) {
+      try {
+        webpush.setVapidDetails(
+          this.vapidSubject,
+          this.vapidPublicKey,
+          this.vapidPrivateKey,
         );
-      `);
-
-      await this.prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS push_subscriptions (
-          id TEXT PRIMARY KEY,
-          user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          endpoint TEXT UNIQUE NOT NULL,
-          p256dh TEXT NOT NULL,
-          auth TEXT NOT NULL,
-          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-        );
-      `);
-
-      // Ensure foreign key constraints exist on already created tables
-      await this.prisma.$executeRawUnsafe(`
-        DO $$
-        BEGIN
-          IF NOT EXISTS (
-            SELECT 1 FROM pg_constraint WHERE conname = 'fk_notifications_user'
-          ) THEN
-            ALTER TABLE notifications 
-            ADD CONSTRAINT fk_notifications_user 
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
-          END IF;
-
-          IF NOT EXISTS (
-            SELECT 1 FROM pg_constraint WHERE conname = 'fk_push_subscriptions_user'
-          ) THEN
-            ALTER TABLE push_subscriptions 
-            ADD CONSTRAINT fk_push_subscriptions_user 
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
-          END IF;
-        END $$;
-      `);
-
-      await this.prisma.$executeRawUnsafe(`
-        CREATE INDEX IF NOT EXISTS idx_notifications_user_read ON notifications(user_id, is_read);
-      `);
-
-      await this.prisma.$executeRawUnsafe(`
-        CREATE INDEX IF NOT EXISTS idx_push_subs_user ON push_subscriptions(user_id);
-      `);
-
-      this.logger.log(
-        'Notifications and PushSubscriptions tables verified with foreign keys.',
+        this.logger.log('WebPush VAPID details configured successfully.');
+      } catch (err) {
+        this.logger.error('Failed to configure VAPID details:', err);
+      }
+    } else {
+      this.logger.warn(
+        'WebPush VAPID keys not configured in environment variables.',
       );
-    } catch (err) {
-      this.logger.error('Error creating notification tables:', err);
     }
   }
 

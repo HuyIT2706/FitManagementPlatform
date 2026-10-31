@@ -103,151 +103,14 @@ export class AuthService {
       orderBy: { assignedAt: 'desc' },
     });
 
-    let approvedProfile = studentProfiles.find(
+    const approvedProfile = studentProfiles.find(
       (sp) => sp.status === 'APPROVED',
     );
     const pendingProfile = studentProfiles.find(
       (sp) => sp.status === 'PENDING',
     );
-    let studentProfile =
+    const studentProfile =
       approvedProfile || pendingProfile || studentProfiles[0] || null;
-
-    // Auto-heal: If studentProfile is PENDING or missing approval, ensure status is APPROVED
-    if (studentProfile && studentProfile.status !== 'APPROVED') {
-      try {
-        await this.prisma.studentProfile.update({
-          where: { id: studentProfile.id },
-          data: { status: 'APPROVED' },
-        });
-        studentProfile.status = 'APPROVED';
-        approvedProfile = studentProfile;
-      } catch {
-        await this.prisma
-          .$executeRawUnsafe(
-            `UPDATE student_profiles SET status = 'APPROVED' WHERE id = $1`,
-            studentProfile.id,
-          )
-          .catch(() => {});
-        studentProfile.status = 'APPROVED';
-        approvedProfile = studentProfile;
-      }
-    }
-
-    // Auto-link student to Coach if studentProfile is missing
-    if (!studentProfile) {
-      try {
-        let activePt = await this.prisma.user.findFirst({
-          where: {
-            role: 'PT',
-            id: { not: userId },
-          },
-          select: {
-            id: true,
-            fullName: true,
-            avatarUrl: true,
-            phone: true,
-            email: true,
-          },
-        });
-
-        if (!activePt) {
-          activePt = await this.prisma.user.findFirst({
-            where: {
-              role: 'ADMIN',
-              id: { not: userId },
-            },
-            select: {
-              id: true,
-              fullName: true,
-              avatarUrl: true,
-              phone: true,
-              email: true,
-            },
-          });
-        }
-
-        if (!activePt) {
-          try {
-            activePt = await this.prisma.user.create({
-              data: {
-                email: 'coach.hoangnam@nutricore.vn',
-                fullName: 'Coach Hoàng Nam (NutriCore)',
-                passwordHash:
-                  '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW',
-                role: 'PT',
-                avatarUrl:
-                  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-                phone: '0901234567',
-                onboardingCompleted: true,
-              },
-              select: {
-                id: true,
-                fullName: true,
-                avatarUrl: true,
-                phone: true,
-                email: true,
-              },
-            });
-          } catch {
-            activePt = await this.prisma.user.findFirst({
-              where: { email: 'coach.hoangnam@nutricore.vn' },
-              select: {
-                id: true,
-                fullName: true,
-                avatarUrl: true,
-                phone: true,
-                email: true,
-              },
-            });
-          }
-        }
-
-        if (activePt && activePt.id !== userId) {
-          let createdProfileId = '';
-          try {
-            const createdProfile = await this.prisma.studentProfile.upsert({
-              where: {
-                trainerId_studentId: {
-                  trainerId: activePt.id,
-                  studentId: userId,
-                },
-              },
-              create: {
-                trainerId: activePt.id,
-                studentId: userId,
-                status: 'APPROVED',
-              },
-              update: {
-                status: 'APPROVED',
-              },
-            });
-            createdProfileId = createdProfile.id;
-          } catch {
-            await this.prisma
-              .$executeRawUnsafe(
-                `INSERT INTO student_profiles (id, "trainerId", "studentId", status, "assignedAt")
-                 VALUES (gen_random_uuid(), $1, $2, 'APPROVED', CURRENT_TIMESTAMP)
-                 ON CONFLICT DO NOTHING`,
-                activePt.id,
-                userId,
-              )
-              .catch(() => {});
-          }
-
-          studentProfile = {
-            id: createdProfileId || 'assigned-pt',
-            status: 'APPROVED',
-            trainerId: activePt.id,
-            studentId: userId,
-            assignedAt: new Date(),
-            trainer: activePt,
-          };
-          approvedProfile = studentProfile;
-        }
-      } catch {
-        // Safe fallback
-      }
-    }
 
     const ptBindStatus = studentProfile?.status || null;
     const assignedPt = studentProfile?.trainer
@@ -528,29 +391,11 @@ export class AuthService {
       throw new ForbiddenException('Access Denied');
     }
 
-    let isMatch = await bcrypt.compare(refreshToken, user.refreshTokenHash);
-
-    // Resilient fallback: If bcrypt hash differed due to concurrent multi-tab login,
-    // verify the cryptographic payload matches this exact user
+    const isMatch = await bcrypt.compare(refreshToken, user.refreshTokenHash);
     if (!isMatch) {
-      try {
-        const payload = await this.jwtService.verifyAsync<{
-          sub?: string;
-          email?: string;
-          role?: string;
-        }>(refreshToken, {
-          secret: process.env.JWT_SECRET,
-        });
-        if (payload?.sub === user.id) {
-          isMatch = true;
-        }
-      } catch {
-        // Fallback verify failed
-      }
-    }
-
-    if (!isMatch) {
-      throw new ForbiddenException('Access Denied');
+      throw new ForbiddenException(
+        'Access Denied: Invalid or revoked refresh token',
+      );
     }
 
     const tokens = await this.getTokens(user.id, user.email, user.role);

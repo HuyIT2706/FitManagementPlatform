@@ -1,52 +1,12 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import type { ExercisePaginatedResponse, MealPlanAssigned } from '@repo/types';
 
 @Injectable()
-export class WorkoutService implements OnModuleInit {
+export class WorkoutService {
   private readonly logger = new Logger(WorkoutService.name);
   constructor(private readonly prisma: PrismaService) {}
-
-  async onModuleInit(): Promise<void> {
-    // Ensure column compatibility between snake_case (Supabase import) and camelCase (Prisma)
-    await this.ensureColumnCompatibility().catch(() => {});
-  }
-
-  private async ensureColumnCompatibility(): Promise<void> {
-    try {
-      await this.prisma.$executeRawUnsafe(`
-        DO $$
-        BEGIN
-          IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='exercise_libraries' AND column_name='setup_image_url') 
-             AND NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='exercise_libraries' AND column_name='setupImageUrl') THEN
-            ALTER TABLE exercise_libraries ADD COLUMN "setupImageUrl" TEXT;
-            UPDATE exercise_libraries SET "setupImageUrl" = setup_image_url WHERE "setupImageUrl" IS NULL;
-          END IF;
-
-          IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='exercise_libraries' AND column_name='start_image_url') 
-             AND NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='exercise_libraries' AND column_name='startImageUrl') THEN
-            ALTER TABLE exercise_libraries ADD COLUMN "startImageUrl" TEXT;
-            UPDATE exercise_libraries SET "startImageUrl" = start_image_url WHERE "startImageUrl" IS NULL;
-          END IF;
-
-          IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='exercise_libraries' AND column_name='primary_muscles') 
-             AND NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='exercise_libraries' AND column_name='primaryMuscles') THEN
-            ALTER TABLE exercise_libraries ADD COLUMN "primaryMuscles" TEXT[];
-            UPDATE exercise_libraries SET "primaryMuscles" = primary_muscles WHERE "primaryMuscles" IS NULL;
-          END IF;
-
-          IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='exercise_libraries' AND column_name='secondary_muscles') 
-             AND NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='exercise_libraries' AND column_name='secondaryMuscles') THEN
-            ALTER TABLE exercise_libraries ADD COLUMN "secondaryMuscles" TEXT[];
-            UPDATE exercise_libraries SET "secondaryMuscles" = secondary_muscles WHERE "secondaryMuscles" IS NULL;
-          END IF;
-        END $$;
-      `);
-    } catch {
-      // Safe fallback if restricted
-    }
-  }
 
   private normalizeExerciseRow(
     row: Record<string, unknown>,
@@ -181,95 +141,27 @@ export class WorkoutService implements OnModuleInit {
           where,
           skip: (pageNum - 1) * limitNum,
           take: limitNum,
+          orderBy: { name: 'asc' },
         }),
       ]);
 
-      if (total > 0 && exercises.length > 0) {
-        const totalPages = Math.ceil(total / limitNum) || 1;
-        return {
-          data: exercises,
-          total,
-          page: pageNum,
-          limit: limitNum,
-          totalPages,
-        };
-      }
+      const totalPages = Math.ceil(total / limitNum) || 1;
+      return {
+        data: exercises,
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages,
+      };
     } catch (err) {
-      this.logger.warn(
-        'Prisma exercise library query failed, running resilient SQL query:',
-        err,
-      );
-    }
-
-    // 2. Resilient raw SQL query directly against Supabase exercise_libraries table
-    try {
-      const whereConditions: string[] = [];
-
-      if (search && search.trim() !== '') {
-        const s = search.trim().replace(/'/g, "''");
-        whereConditions.push(`name ILIKE '%${s}%'`);
-      }
-
-      if (category && category !== 'ALL') {
-        const c = category.trim().replace(/'/g, "''");
-        whereConditions.push(`category ILIKE '%${c}%'`);
-      }
-
-      if (muscle && muscle !== 'ALL') {
-        const lower = muscle.toLowerCase().trim();
-        let targets = [lower];
-        if (lower.includes('lưng') || lower.includes('xô')) {
-          targets = ['lưng', 'xô', 'cầu vai'];
-        } else if (lower.includes('đùi') || lower.includes('mông')) {
-          targets = ['đùi', 'mông', 'khép', 'bắp chân'];
-        } else if (lower.includes('tay')) {
-          targets = ['tay trước', 'tay sau', 'cẳng tay', 'tay'];
-        } else if (lower.includes('ngực')) {
-          targets = ['ngực'];
-        } else if (lower.includes('vai')) {
-          targets = ['vai'];
-        } else if (lower.includes('bụng') || lower.includes('core')) {
-          targets = ['bụng', 'core'];
-        }
-
-        const muscleFilters = targets.map(
-          (t) => `to_jsonb(exercise_libraries)::text ILIKE '%${t}%'`,
-        );
-        whereConditions.push(`(${muscleFilters.join(' OR ')})`);
-      }
-
-      const whereClause =
-        whereConditions.length > 0
-          ? `WHERE ${whereConditions.join(' AND ')}`
-          : '';
-
-      const countResult = await this.prisma.$queryRawUnsafe<
-        Array<{ count: number | bigint | string }>
-      >(`SELECT COUNT(*)::int as count FROM exercise_libraries ${whereClause}`);
-      const rawTotal = Number(countResult[0]?.count) || 0;
-
-      const rawRows = await this.prisma.$queryRawUnsafe<
-        Array<Record<string, unknown>>
-      >(`
-        SELECT * FROM exercise_libraries 
-        ${whereClause} 
-        ORDER BY name ASC 
-        LIMIT ${limitNum} OFFSET ${(pageNum - 1) * limitNum}
-      `);
-
-      if (rawRows && rawRows.length > 0) {
-        const normalizedList = rawRows.map((r) => this.normalizeExerciseRow(r));
-        return {
-          data: normalizedList as unknown as ExercisePaginatedResponse['data'],
-          total: rawTotal || normalizedList.length,
-          page: pageNum,
-          limit: limitNum,
-          totalPages:
-            Math.ceil((rawTotal || normalizedList.length) / limitNum) || 1,
-        };
-      }
-    } catch (rawErr) {
-      this.logger.error('Resilient raw SQL query failed:', rawErr);
+      this.logger.error('Exercise library query failed:', err);
+      return {
+        data: [],
+        total: 0,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: 1,
+      };
     }
 
     return {

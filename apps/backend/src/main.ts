@@ -87,6 +87,7 @@ async function bootstrap() {
   app.use(json({ limit: '2mb' }));
   app.use(urlencoded({ limit: '2mb', extended: true }));
   app.use(decryptionMiddleware);
+  app.enableShutdownHooks();
   const port = process.env.PORT ?? 3100;
   await app.listen(port);
   logger.log(

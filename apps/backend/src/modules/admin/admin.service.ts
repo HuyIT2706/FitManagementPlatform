@@ -3,14 +3,13 @@ import {
   NotFoundException,
   BadRequestException,
   Logger,
-  OnModuleInit,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { Role, type FoodLibrary } from '@prisma/client';
+import { Role, type Prisma } from '@prisma/client';
 import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
-export class AdminService implements OnModuleInit {
+export class AdminService {
   private readonly logger = new Logger(AdminService.name);
 
   constructor(
@@ -18,37 +17,7 @@ export class AdminService implements OnModuleInit {
     private readonly notificationsService: NotificationsService,
   ) {}
 
-  async onModuleInit() {
-    try {
-      await this.prisma.$executeRawUnsafe(`
-        DO $$
-        BEGIN
-          IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'PtApplicationStatus') THEN
-            CREATE TYPE "PtApplicationStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
-          END IF;
-          IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'StudentBindStatus') THEN
-            CREATE TYPE "StudentBindStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
-          END IF;
-        END $$;
-
-        CREATE TABLE IF NOT EXISTS pt_applications (
-          "id" TEXT PRIMARY KEY,
-          "userId" TEXT UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          "experienceYears" INTEGER NOT NULL DEFAULT 1,
-          "specialties" TEXT[] DEFAULT ARRAY[]::TEXT[],
-          "certificateUrl" TEXT,
-          "bio" TEXT,
-          "status" "PtApplicationStatus" NOT NULL DEFAULT 'PENDING',
-          "adminNote" TEXT,
-          "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-          "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-      `);
-      this.logger.log('Verified pt_applications table and required enums.');
-    } catch (err) {
-      this.logger.warn('Error verifying pt_applications table:', err);
-    }
-  }
+  // Tables and schemas are managed by Prisma migrations
 
   // ==========================================
   // 1. PT APPLICATIONS
@@ -190,7 +159,7 @@ export class AdminService implements OnModuleInit {
     try {
       await this.notificationsService.sendNotification({
         userId: app.userId,
-        title: '📋 Kết Quả Xét Duyệt Hồ Sơ HLV',
+        title: 'Kết Quả Xét Duyệt Hồ Sơ HLV',
         message: `Hồ sơ đăng ký HLV của bạn chưa được phê duyệt. Lý do: ${updatedApp.adminNote || 'Chưa đạt yêu cầu'}`,
         type: 'PT_APPLICATION',
         linkUrl: '/profile',
@@ -570,56 +539,23 @@ export class AdminService implements OnModuleInit {
     const category = params?.category;
     const search = params?.search?.trim();
 
-    let whereClause = 'WHERE 1=1';
-    const queryParams: (string | number)[] = [];
-    let paramIdx = 1;
-
+    const where: Prisma.FoodLibraryWhereInput = {};
     if (category && category !== 'ALL') {
-      whereClause += ` AND category = $${paramIdx++}`;
-      queryParams.push(category);
+      where.category = { equals: category, mode: 'insensitive' };
     }
-
     if (search) {
-      whereClause += ` AND unaccent(name) ILIKE unaccent($${paramIdx++})`;
-      queryParams.push(`%${search}%`);
+      where.name = { contains: search, mode: 'insensitive' };
     }
 
-    const countParams = [...queryParams];
-
-    const dataSql = `
-      SELECT 
-        id, 
-        name, 
-        "caloriesPer100g", 
-        "proteinPer100g", 
-        "carbsPer100g", 
-        "fatPer100g", 
-        "fiberPer100g", 
-        category, 
-        "imageUrl", 
-        "createdAt"
-      FROM food_libraries
-      ${whereClause}
-      ORDER BY name ASC
-      LIMIT $${paramIdx++} OFFSET $${paramIdx++}
-    `;
-    queryParams.push(limit, skip);
-
-    const countSql = `
-      SELECT count(*)::int as total
-      FROM food_libraries
-      ${whereClause}
-    `;
-
-    const [foods, countRes] = await Promise.all([
-      this.prisma.$queryRawUnsafe<FoodLibrary[]>(dataSql, ...queryParams),
-      this.prisma.$queryRawUnsafe<{ total: number }[]>(
-        countSql,
-        ...countParams,
-      ),
+    const [foods, total] = await Promise.all([
+      this.prisma.foodLibrary.findMany({
+        where,
+        orderBy: { name: 'asc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.foodLibrary.count({ where }),
     ]);
-
-    const total = Number(countRes[0]?.total || 0);
 
     return {
       data: foods,
