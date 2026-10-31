@@ -2,7 +2,6 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import type { ExercisePaginatedResponse, MealPlanAssigned } from '@repo/types';
-import { FALLBACK_EXERCISES } from './exercises-fallback.data';
 
 @Injectable()
 export class WorkoutService implements OnModuleInit {
@@ -10,18 +9,15 @@ export class WorkoutService implements OnModuleInit {
   constructor(private readonly prisma: PrismaService) {}
 
   onModuleInit(): void {
-    // Populate DB exercise_libraries in background if empty
+    // Ensure column compatibility between snake_case (Supabase import) and camelCase (Prisma)
     setTimeout(() => {
-      void this.seedInitialExercises();
+      void this.ensureColumnCompatibility();
     }, 1500);
   }
 
-  private async seedInitialExercises(): Promise<void> {
+  private async ensureColumnCompatibility(): Promise<void> {
     try {
-      // Ensure column compatibility between snake_case (Supabase import) and camelCase (Prisma)
-      await this.prisma
-        .$executeRawUnsafe(
-          `
+      await this.prisma.$executeRawUnsafe(`
         DO $$
         BEGIN
           IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='exercise_libraries' AND column_name='setup_image_url') 
@@ -42,114 +38,10 @@ export class WorkoutService implements OnModuleInit {
             UPDATE exercise_libraries SET "primaryMuscles" = primary_muscles WHERE "primaryMuscles" IS NULL;
           END IF;
         END $$;
-      `,
-        )
-        .catch(() => {});
-
-      const count = await this.prisma.exerciseLibrary.count().catch(() => 0);
-      if (count === 0) {
-        this.logger.log('Seeding initial exercise library into database...');
-        const BATCH_SIZE = 50;
-        for (let i = 0; i < FALLBACK_EXERCISES.length; i += BATCH_SIZE) {
-          const batch = FALLBACK_EXERCISES.slice(i, i + BATCH_SIZE);
-          await this.prisma.exerciseLibrary.createMany({
-            data: batch.map((item) => ({
-              id: item.id,
-              name: item.name,
-              category: item.category,
-              force: item.force,
-              level: item.level,
-              mechanic: item.mechanic,
-              equipment: item.equipment,
-              primaryMuscles: item.primaryMuscles,
-              secondaryMuscles: item.secondaryMuscles,
-              instructions: item.instructions,
-              setupImageUrl: item.setupImageUrl,
-              startImageUrl: item.startImageUrl,
-            })),
-            skipDuplicates: true,
-          });
-        }
-        this.logger.log(
-          `Successfully seeded ${FALLBACK_EXERCISES.length} exercises into database.`,
-        );
-      }
-    } catch (err) {
-      this.logger.warn('Background exercise library seeding skipped:', err);
+      `);
+    } catch {
+      // Safe fallback if restricted
     }
-  }
-
-  private getFallbackExercises(
-    category?: string,
-    muscle?: string,
-    search?: string,
-    pageNum = 1,
-    limitNum = 10,
-  ): ExercisePaginatedResponse {
-    let filtered = FALLBACK_EXERCISES;
-
-    if (category && category !== 'ALL') {
-      const catLower = category.toLowerCase().trim();
-      filtered = filtered.filter((e) =>
-        e.category?.toLowerCase().includes(catLower),
-      );
-    }
-
-    if (muscle && muscle !== 'ALL') {
-      const lower = muscle.toLowerCase().trim();
-      let matchedMuscles: string[] = [lower];
-
-      if (lower.includes('lưng') || lower.includes('xô')) {
-        matchedMuscles = [
-          'cơ lưng giữa',
-          'cơ lưng dưới',
-          'cơ xô',
-          'cơ cầu vai',
-          'cơ lưng',
-        ];
-      } else if (lower.includes('đùi') || lower.includes('mông')) {
-        matchedMuscles = [
-          'cơ đùi trước',
-          'cơ đùi sau',
-          'cơ mông',
-          'cơ khép (đùi trong)',
-          'bắp chân',
-          'cơ đùi',
-        ];
-      } else if (lower.includes('tay')) {
-        matchedMuscles = ['cơ tay trước', 'cơ tay sau', 'cẳng tay', 'cơ tay'];
-      } else if (lower.includes('ngực')) {
-        matchedMuscles = ['cơ ngực'];
-      } else if (lower.includes('vai')) {
-        matchedMuscles = ['cơ vai', 'cơ cầu vai'];
-      } else if (lower.includes('bụng') || lower.includes('core')) {
-        matchedMuscles = ['cơ bụng'];
-      }
-
-      filtered = filtered.filter((e) =>
-        e.primaryMuscles.some((m) =>
-          matchedMuscles.some((target) => m.toLowerCase().includes(target)),
-        ),
-      );
-    }
-
-    if (search && search.trim() !== '') {
-      const sLower = search.toLowerCase().trim();
-      filtered = filtered.filter((e) => e.name.toLowerCase().includes(sLower));
-    }
-
-    const total = filtered.length;
-    const totalPages = Math.ceil(total / limitNum) || 1;
-    const startIndex = (pageNum - 1) * limitNum;
-    const pagedExercises = filtered.slice(startIndex, startIndex + limitNum);
-
-    return {
-      data: pagedExercises,
-      total,
-      page: pageNum,
-      limit: limitNum,
-      totalPages,
-    };
   }
 
   async getExercises(
@@ -268,21 +160,17 @@ export class WorkoutService implements OnModuleInit {
           };
         }
       } catch (rawErr) {
-        this.logger.warn(
-          'Raw SQL query failed, falling back to memory library:',
-          rawErr,
-        );
+        this.logger.warn('Raw SQL query failed:', rawErr);
       }
     }
 
-    // ── Resilient Fallback to Built-in Vietnamese Exercises ─────────
-    return this.getFallbackExercises(
-      category,
-      muscle,
-      search,
-      pageNum,
-      limitNum,
-    );
+    return {
+      data: [],
+      total: 0,
+      page: pageNum,
+      limit: limitNum,
+      totalPages: 1,
+    };
   }
 
   async getAssignedMealPlan(userId: string): Promise<MealPlanAssigned | null> {
