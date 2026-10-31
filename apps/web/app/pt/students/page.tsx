@@ -16,6 +16,7 @@ import { useCurrentUser, usePtDashboard } from '../../../hooks/swr';
 import { performLogout } from '../../../utils/logout';
 import PtPendingApproval from '../../../components/ui/PtPendingApproval';
 import { getAvatarUrl } from '../../../utils/avatar';
+import { getApiErrorMessage } from '../../../utils/apiError';
 
 const PtInviteStudentModal = dynamic(() => import('./components/PtInviteStudentModal'), {
   ssr: false,
@@ -23,7 +24,7 @@ const PtInviteStudentModal = dynamic(() => import('./components/PtInviteStudentM
 
 const PTStudentsPage = () => {
   const { data: userData, isLoading: userLoading } = useCurrentUser();
-  const { data: ptData, isLoading: ptLoading } = usePtDashboard();
+  const { data: ptData, isLoading: ptLoading, mutate: mutatePt } = usePtDashboard();
 
   // Invite Student Modal State
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
@@ -72,11 +73,13 @@ const PTStudentsPage = () => {
             : `${currentOrigin}/invite?code=${code}&pt=${ptId}`;
         setGeneratedInviteUrl(url);
         toast.success('Đã khởi tạo Link mời liên kết học viên thành công!');
+        mutatePt();
       })
       .catch((err) => {
         console.error(err);
         setSendingInvite(false);
-        toast.error('Không thể tạo link mời học viên!');
+        const errorMsg = getApiErrorMessage(err, 'Không thể tạo link mời học viên!');
+        toast.error(errorMsg);
       });
   };
 

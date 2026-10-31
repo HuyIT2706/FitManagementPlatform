@@ -513,6 +513,21 @@ export class PtService {
       throw new NotFoundException('Không tìm thấy yêu cầu liên kết học viên');
     }
 
+    const otherApprovedProfile = await this.prisma.studentProfile.findFirst({
+      where: {
+        studentId: profile.studentId,
+        status: 'APPROVED',
+        trainerId: { not: ptUserId },
+      },
+      include: { trainer: { select: { fullName: true } } },
+    });
+
+    if (otherApprovedProfile) {
+      throw new BadRequestException(
+        `Học viên này đã được ghép lớp và có HLV phụ trách (Coach ${otherApprovedProfile.trainer?.fullName || 'HLV khác'})!`,
+      );
+    }
+
     await this.prisma.studentProfile.update({
       where: { id: requestId },
       data: { status: 'APPROVED' },
@@ -1643,6 +1658,13 @@ export class PtService {
     dto: SendInviteDto,
     origin?: string,
   ) {
+    const rawEmail = (dto.studentEmail || '').trim().toLowerCase();
+    if (!rawEmail) {
+      throw new BadRequestException(
+        'Vui lòng nhập địa chỉ email của học viên!',
+      );
+    }
+
     const inviteCode = `INV-${Math.floor(1000 + Math.random() * 9000)}`;
     const baseUrl = (
       dto.clientBaseUrl ||
@@ -1653,10 +1675,85 @@ export class PtService {
     const inviteUrl = `${baseUrl}/invite?code=${inviteCode}&pt=${ptUserId}`;
 
     const studentUser = await this.prisma.user.findFirst({
-      where: { email: dto.studentEmail },
+      where: { email: { equals: rawEmail, mode: 'insensitive' } },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        role: true,
+      },
     });
 
     if (studentUser) {
+      // 1. PT không thể tự mời chính mình làm học viên
+      if (studentUser.id === ptUserId) {
+        throw new BadRequestException(
+          'Bạn không thể tự mời chính mình làm học viên!',
+        );
+      }
+
+      // 2. Tài khoản được mời phải là người dùng bình thường (không phải PT hay ADMIN)
+      if (studentUser.role === 'PT' || studentUser.role === 'ADMIN') {
+        throw new BadRequestException(
+          `Tài khoản (${rawEmail}) hiện là ${studentUser.role === 'PT' ? 'Huấn luyện viên' : 'Quản trị viên'}, không thể thêm làm học viên!`,
+        );
+      }
+
+      // 3. Kiểm tra xem học viên đã có PT hoặc đang có yêu cầu chờ duyệt không
+      const existingStudentProfile = await this.prisma.studentProfile.findFirst(
+        {
+          where: {
+            studentId: studentUser.id,
+            status: { in: ['APPROVED', 'PENDING'] },
+          },
+          include: {
+            trainer: {
+              select: { id: true, fullName: true, email: true },
+            },
+          },
+        },
+      );
+
+      if (existingStudentProfile) {
+        const isCurrentPt = existingStudentProfile.trainerId === ptUserId;
+        const coachName =
+          existingStudentProfile.trainer?.fullName || 'HLV khác';
+
+        if (existingStudentProfile.status === 'APPROVED') {
+          throw new BadRequestException(
+            isCurrentPt
+              ? `Học viên (${rawEmail}) hiện đã nằm trong danh sách huấn luyện của bạn!`
+              : `Học viên (${rawEmail}) hiện đã có Huấn luyện viên phụ trách (Coach ${coachName}). Không thể tạo mã mời mới để tránh đè lên gói tập cũ!`,
+          );
+        } else {
+          throw new BadRequestException(
+            isCurrentPt
+              ? `Học viên (${rawEmail}) đang có yêu cầu ghép lớp chờ bạn phê duyệt!`
+              : `Học viên (${rawEmail}) đang có yêu cầu ghép lớp chờ duyệt với Coach ${coachName}.`,
+          );
+        }
+      }
+
+      // 4. Kiểm tra xem học viên có gói tập còn hiệu lực không
+      const activePackage = await this.prisma.memberPackage.findFirst({
+        where: {
+          userId: studentUser.id,
+          isActive: true,
+          remainingSessions: { gt: 0 },
+          endDate: { gte: new Date() },
+        },
+        include: {
+          gymPackage: true,
+        },
+      });
+
+      if (activePackage) {
+        const pkgName = activePackage.gymPackage?.title || 'Gói PT';
+        throw new BadRequestException(
+          `Học viên (${rawEmail}) hiện đang có gói tập còn hiệu lực (${pkgName} - còn ${activePackage.remainingSessions} buổi). Không thể tạo mã mời mới vì sẽ đè lên gói cũ!`,
+        );
+      }
+
       await this.prisma.studentProfile
         .upsert({
           where: {
@@ -1668,8 +1765,11 @@ export class PtService {
           create: {
             trainerId: ptUserId,
             studentId: studentUser.id,
+            status: 'APPROVED',
           },
-          update: {},
+          update: {
+            status: 'APPROVED',
+          },
         })
         .catch(() => null);
 
@@ -1699,18 +1799,40 @@ export class PtService {
           },
         })
         .catch(() => null);
+
+      try {
+        const ptUser = await this.prisma.user.findUnique({
+          where: { id: ptUserId },
+          select: { fullName: true },
+        });
+        const coachName = ptUser
+          ? `Coach ${ptUser.fullName}`
+          : 'Huấn luyện viên';
+        await this.notificationsService.sendNotification({
+          userId: studentUser.id,
+          title: 'Bạn Đã Được Thêm Vào Lớp Huấn Luyện 1:1!',
+          message: `${coachName} đã kích hoạt gói tập "${dto.packageName || 'Gói PT 1-1'}" (${dto.totalSessions || 12} buổi) cho bạn.`,
+          type: 'PT_ACCEPTED',
+          linkUrl: '/training',
+        });
+      } catch (notifyErr) {
+        this.logger.warn(
+          'Failed to send notification to invited student:',
+          notifyErr,
+        );
+      }
     }
 
     return {
       success: true,
       inviteCode,
       inviteUrl,
-      studentEmail: dto.studentEmail,
+      studentEmail: rawEmail,
       packageName: dto.packageName,
       totalSessions: dto.totalSessions,
       message: studentUser
-        ? `Đã liên kết học viên ${studentUser.fullName} (${dto.studentEmail}) vào danh sách HLV phụ trách!`
-        : `Đã tạo link mời học viên qua Gmail (${dto.studentEmail}) thành công!`,
+        ? `Đã liên kết học viên ${studentUser.fullName} (${rawEmail}) vào danh sách HLV phụ trách!`
+        : `Đã tạo link mời học viên qua Gmail (${rawEmail}) thành công!`,
     };
   }
 
@@ -1801,6 +1923,41 @@ export class PtService {
         message: `Bạn đã được liên kết với Coach ${ptUser.fullName}!`,
         coachName: ptUser.fullName,
       };
+    }
+
+    // Check if student is already approved with another PT
+    const otherApprovedProfile = await this.prisma.studentProfile.findFirst({
+      where: {
+        studentId: studentUserId,
+        status: 'APPROVED',
+        trainerId: { not: trainerId },
+      },
+      include: {
+        trainer: { select: { fullName: true } },
+      },
+    });
+
+    if (otherApprovedProfile) {
+      throw new BadRequestException(
+        `Bạn hiện đang có Huấn Luyện Viên phụ trách (Coach ${otherApprovedProfile.trainer?.fullName || 'HLV khác'}). Không thể liên kết thêm HLV mới để tránh xung đột gói tập!`,
+      );
+    }
+
+    // Check if student already has an active package with remaining sessions
+    const studentActivePackage = await this.prisma.memberPackage.findFirst({
+      where: {
+        userId: studentUserId,
+        isActive: true,
+        remainingSessions: { gt: 0 },
+        endDate: { gte: new Date() },
+      },
+      include: { gymPackage: true },
+    });
+
+    if (studentActivePackage) {
+      throw new BadRequestException(
+        `Bạn đang có gói tập còn hiệu lực (${studentActivePackage.gymPackage?.title || 'Gói PT'} - còn ${studentActivePackage.remainingSessions} buổi). Vui lòng hoàn thành gói tập cũ trước khi liên kết HLV mới!`,
+      );
     }
 
     // Remove any previous pending requests for this student with other PTs
