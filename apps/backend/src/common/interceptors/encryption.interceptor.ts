@@ -36,9 +36,13 @@ export class EncryptionInterceptor implements NestInterceptor {
           return data;
         }
 
-        const encrypted = await encryptPayload(data);
-        res.setHeader('X-Encrypted-Response', '1');
-        return { _enc: encrypted };
+        try {
+          const encrypted = await encryptPayload(data);
+          res.setHeader('X-Encrypted-Response', '1');
+          return { _enc: encrypted };
+        } catch {
+          return data;
+        }
       }),
     );
   }

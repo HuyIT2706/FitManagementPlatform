@@ -33,6 +33,7 @@ async function bootstrap() {
     helmet({
       // Allow cross-origin requests from the frontend (CORS handles this)
       crossOriginResourcePolicy: { policy: 'cross-origin' },
+      crossOriginOpenerPolicy: false,
       // HSTS: enforce HTTPS for 1 year, include subdomains
       hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
     }),
@@ -63,20 +64,6 @@ async function bootstrap() {
     origin: allowedOrigins,
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-    allowedHeaders: [
-      'Origin',
-      'X-Requested-With',
-      'Content-Type',
-      'Accept',
-      'Authorization',
-      'X-Encrypted-Payload',
-      'X-Encrypt-Payload',
-      'X-Response-Encrypted',
-      'X-Refresh-Token',
-      'Cache-Control',
-      'Pragma',
-      'If-Modified-Since',
-    ],
     exposedHeaders: ['X-Encrypted-Response'],
   });
   app.use(compression());
@@ -91,7 +78,7 @@ async function bootstrap() {
   const port = process.env.PORT ?? 3100;
   await app.listen(port);
   logger.log(
-    `🚀 NutriCore API running on port ${port} [${process.env.NODE_ENV ?? 'development'}]`,
+    `NutriCore API running on port ${port} [${process.env.NODE_ENV ?? 'development'}]`,
   );
 }
 void bootstrap();

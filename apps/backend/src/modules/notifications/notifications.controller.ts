@@ -47,7 +47,7 @@ export class NotificationsController {
   @Get('vapid-public-key')
   getVapidPublicKey() {
     return {
-      publicKey: this.notificationsService.vapidPublicKey,
+      publicKey: this.notificationsService.vapidPublicKey || '',
     };
   }
 
