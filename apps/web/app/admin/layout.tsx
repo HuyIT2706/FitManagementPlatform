@@ -67,7 +67,7 @@ const AdminLayout = ({
     return <AppLoading fullScreen size="lg" message="Đang xác thực quyền Quản trị viên..." />;
   }
 
-  if (currentUser && currentUser.role !== 'ADMIN') {
+  if (!currentUser || currentUser.role !== 'ADMIN') {
     return (
       <AccessDenied
         requiredRole="ADMIN"

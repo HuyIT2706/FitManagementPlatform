@@ -760,6 +760,7 @@ export class AdminService {
       try {
         ptUsers = await this.prisma.user.findMany({
           where: { role: 'PT' },
+          take: 10,
           select: {
             id: true,
             fullName: true,

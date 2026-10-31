@@ -20,7 +20,7 @@ const AdminAnalyticsOverview = () => {
   const fetchAnalytics = () => {
     setLoading(true);
     apiClient
-      .get<AdminAnalyticsData>('/admin/analytics')
+      .get<AdminAnalyticsData>('/admin/analytics', { timeout: 15000 })
       .then((res) => {
         setData(res.data);
         setLoading(false);

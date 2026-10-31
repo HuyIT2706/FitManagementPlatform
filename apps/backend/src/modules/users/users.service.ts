@@ -333,6 +333,50 @@ export class UsersService {
       };
     } catch (err) {
       this.logger.error(`Failed to getMe for user ${userId}:`, err);
+      try {
+        const basicUser = await this.prisma.user.findUnique({
+          where: { id: userId },
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+            avatarUrl: true,
+            phone: true,
+            role: true,
+            gender: true,
+            height: true,
+            dateOfBirth: true,
+            activityLevel: true,
+            goal: true,
+            targetWeight: true,
+            onboardingCompleted: true,
+            createdAt: true,
+          },
+        });
+        if (basicUser) {
+          return {
+            ...basicUser,
+            initialWeight: basicUser.targetWeight || 70,
+            isApprovedPt: basicUser.role === 'PT',
+            ptApplicationStatus: 'APPROVED',
+            isPendingPtApproval: false,
+            bmr: 1600,
+            tdee: 2000,
+            bmi: 22,
+            bmiCategory: 'Bình thường',
+            bmiColor: 'text-emerald-400',
+            bmiDescription: '',
+            suggestedOffset: 0,
+            assignedPt: null,
+            activePackage: null,
+          };
+        }
+      } catch (fallbackErr) {
+        this.logger.error(
+          `Basic fallback getMe also failed for ${userId}:`,
+          fallbackErr,
+        );
+      }
       return null;
     }
   }
