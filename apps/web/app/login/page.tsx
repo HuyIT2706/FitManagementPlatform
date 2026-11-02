@@ -17,7 +17,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/google";
 import LogoApp from "../../assets/imgs/logoApp.jpg";
 import apiClient from "../../api/axios";
@@ -88,121 +88,124 @@ const LoginContent = () => {
     }
   }, [router, redirectPath]);
 
-  const handleGoogleAuthWithToken = async (accessToken: string) => {
-    try {
-      setLoading(true);
-      localStorage.removeItem("jwt_token");
-      let userInfo:
-        | { email?: string; name?: string; picture?: string }
-        | undefined;
+  const handleGoogleAuthWithToken = useCallback(
+    async (accessToken: string) => {
       try {
-        const res = await fetch(
-          "https://www.googleapis.com/oauth2/v3/userinfo",
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
+        setLoading(true);
+        localStorage.removeItem("jwt_token");
+        let userInfo:
+          | { email?: string; name?: string; picture?: string }
+          | undefined;
+        try {
+          const res = await fetch(
+            "https://www.googleapis.com/oauth2/v3/userinfo",
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
             },
-          },
-        );
-        if (res.ok) {
-          userInfo = await res.json();
-        }
-      } catch (fetchErr) {
-        console.warn(
-          "Client-side Google userinfo fetch skipped/failed:",
-          fetchErr,
-        );
-      }
-      let data: {
-        access_token: string;
-        refresh_token?: string;
-        user: UserDataHome;
-        isPendingPtApproval?: boolean;
-      };
-
-      try {
-        const response = await apiClient.post("/auth/google", {
-          token: accessToken,
-          userInfo,
-        });
-        data = response.data;
-      } catch {
-        toast.error("Thiếu mã key Google");
-        const API_BASE_URL =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3100";
-        const nativeRes = await fetch(`${API_BASE_URL}/auth/google`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            token: accessToken,
-            userInfo,
-          }),
-        });
-        if (!nativeRes.ok) {
-          const errJson = await nativeRes.json().catch(() => null);
-          throw new Error(
-            errJson?.message ||
-              `Xác thực Google thất bại (Mã lỗi ${nativeRes.status})`,
+          );
+          if (res.ok) {
+            userInfo = await res.json();
+          }
+        } catch (fetchErr) {
+          console.warn(
+            "Client-side Google userinfo fetch skipped/failed:",
+            fetchErr,
           );
         }
-        data = await nativeRes.json();
-      }
+        let data: {
+          access_token: string;
+          refresh_token?: string;
+          user: UserDataHome;
+          isPendingPtApproval?: boolean;
+        };
 
-      if (data.access_token) {
-        localStorage.setItem("jwt_token", data.access_token);
-        if (data.refresh_token) {
-          localStorage.setItem("refresh_token", data.refresh_token);
+        try {
+          const response = await apiClient.post("/auth/google", {
+            token: accessToken,
+            userInfo,
+          });
+          data = response.data;
+        } catch {
+          toast.error("Thiếu mã key Google");
+          const API_BASE_URL =
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:3100";
+          const nativeRes = await fetch(`${API_BASE_URL}/auth/google`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+              token: accessToken,
+              userInfo,
+            }),
+          });
+          if (!nativeRes.ok) {
+            const errJson = await nativeRes.json().catch(() => null);
+            throw new Error(
+              errJson?.message ||
+                `Xác thực Google thất bại (Mã lỗi ${nativeRes.status})`,
+            );
+          }
+          data = await nativeRes.json();
         }
-        if (data.user) {
-          void globalMutate("/users/me", data.user, true);
-        }
-        autoSyncPushSubscription();
-      }
 
-      if ((data as { isPendingPtApproval?: boolean }).isPendingPtApproval) {
-        const notice =
-          "Tài khoản PT của bạn đã đăng ký thành công và đang chờ Admin kiểm duyệt trước khi truy cập giao diện PT!";
-        setPendingPtNotice(notice);
-        toast.info(
-          "Tài khoản Huấn luyện viên đang chờ Admin phê duyệt!",
-          "Thông báo",
+        if (data.access_token) {
+          localStorage.setItem("jwt_token", data.access_token);
+          if (data.refresh_token) {
+            localStorage.setItem("refresh_token", data.refresh_token);
+          }
+          if (data.user) {
+            void globalMutate("/users/me", data.user, true);
+          }
+          autoSyncPushSubscription();
+        }
+
+        if ((data as { isPendingPtApproval?: boolean }).isPendingPtApproval) {
+          const notice =
+            "Tài khoản PT của bạn đã đăng ký thành công và đang chờ Admin kiểm duyệt trước khi truy cập giao diện PT!";
+          setPendingPtNotice(notice);
+          toast.info(
+            "Tài khoản Huấn luyện viên đang chờ Admin phê duyệt!",
+            "Thông báo",
+          );
+          setLoading(false);
+          return;
+        }
+
+        const displayName =
+          data.user?.fullName ||
+          (data.user as unknown as { name?: string })?.name ||
+          userInfo?.name ||
+          "";
+
+        toast.success(
+          `Chào mừng ${displayName} quay trở lại!`,
+          "Đăng nhập Google thành công",
         );
+
+        handleRoleRedirect(data.user, router, redirectPath);
+      } catch (err: unknown) {
+        console.error("Google login error:", err);
+        const errObj = err as {
+          response?: { data?: { message?: string } };
+          message?: string;
+        };
+        const backendMessage = errObj.response?.data?.message;
+        const msg =
+          backendMessage ||
+          (errObj.message && errObj.message.includes("Network Error")
+            ? "Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng hoặc backend!"
+            : err instanceof Error
+              ? err.message
+              : "Đã có lỗi xảy ra khi xác thực Google");
+        toast.error(msg, "Đăng nhập Google thất bại");
+      } finally {
         setLoading(false);
-        return;
       }
-
-      const displayName =
-        data.user?.fullName ||
-        (data.user as unknown as { name?: string })?.name ||
-        userInfo?.name ||
-        "";
-
-      toast.success(
-        `Chào mừng ${displayName} quay trở lại!`,
-        "Đăng nhập Google thành công",
-      );
-
-      handleRoleRedirect(data.user, router, redirectPath);
-    } catch (err: unknown) {
-      console.error("Google login error:", err);
-      const errObj = err as {
-        response?: { data?: { message?: string } };
-        message?: string;
-      };
-      const backendMessage = errObj.response?.data?.message;
-      const msg =
-        backendMessage ||
-        (errObj.message && errObj.message.includes("Network Error")
-          ? "Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng hoặc backend!"
-          : err instanceof Error
-            ? err.message
-            : "Đã có lỗi xảy ra khi xác thực Google");
-      toast.error(msg, "Đăng nhập Google thất bại");
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [router, redirectPath],
+  );
 
   // 1. Listen for deep link in Capacitor Native App (when redirected from Chrome Custom Tabs)
   useEffect(() => {
@@ -257,7 +260,7 @@ const LoginContent = () => {
     return () => {
       if (cleanup) cleanup();
     };
-  }, []);
+  }, [handleGoogleAuthWithToken]);
 
   // 2. Check for Google OAuth redirect callback in URL hash/query
   useEffect(() => {
@@ -299,7 +302,7 @@ const LoginContent = () => {
       }
       void handleGoogleAuthWithToken(token);
     }
-  }, [searchParams]);
+  }, [searchParams, handleGoogleAuthWithToken]);
 
   const googleLogin = useGoogleLogin({
     onSuccess: (tokenResponse) => {
