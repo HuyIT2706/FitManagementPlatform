@@ -11,9 +11,9 @@ const config: CapacitorConfig = {
   },
   android: {
     allowMixedContent: true,
-    // Eliminates the "; wv" marker so Google/external OAuth does not reject embedded WebView
+    // Eliminates the "; wv" marker and adds app identifier
     overrideUserAgent:
-      'Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36',
+      'Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36 NutriCoreApp/1.0',
   },
 };
 

@@ -267,8 +267,9 @@ const LoginContent = () => {
     if (typeof window === "undefined") return;
 
     const isNative = Boolean(
-      (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } })
-        .Capacitor?.isNativePlatform?.(),
+      navigator.userAgent.includes("NutriCoreApp") ||
+        (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } })
+          .Capacitor?.isNativePlatform?.(),
     );
 
     const hash = window.location.hash;
@@ -287,7 +288,7 @@ const LoginContent = () => {
       searchParamsObj.get("access_token") ||
       searchParamsObj.get("token");
 
-    // Case A: Redirected to web browser from Google OAuth during a mobile app login flow
+    // Case A: Redirected to external web browser from Google OAuth during a mobile app login flow
     if (token && isMobileFlow && !isNative) {
       const appDeepLink = `vn.nutricore.app://login#access_token=${encodeURIComponent(token)}`;
       setMobileAuthRedirectUrl(appDeepLink);
@@ -295,8 +296,8 @@ const LoginContent = () => {
       return;
     }
 
-    // Case B: Direct web redirect or token in native app URL
-    if (token && !isMobileFlow) {
+    // Case B: In NutriCore native app or direct web redirect
+    if (token && (!isMobileFlow || isNative)) {
       if (hash.includes("access_token=")) {
         window.history.replaceState(null, "", window.location.pathname);
       }
@@ -330,40 +331,35 @@ const LoginContent = () => {
       return;
     }
 
-    // Detect if running inside mobile native app (Capacitor)
-    const isNative =
+    const isApp =
       typeof window !== "undefined" &&
-      Boolean(
-        (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } })
-          .Capacitor?.isNativePlatform?.(),
-      );
+      (navigator.userAgent.includes("NutriCoreApp") ||
+        Boolean(
+          (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } })
+            .Capacitor?.isNativePlatform?.(),
+        ));
 
-    if (isNative) {
-      try {
-        const { Browser } = await import("@capacitor/browser");
-        const origin =
-          window.location.origin.includes("localhost")
-            ? window.location.origin
-            : "https://nutricore-olive.vercel.app";
-        const redirectUri = `${origin}/login`;
-        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(
-          GOOGLE_CLIENT_ID,
-        )}&redirect_uri=${encodeURIComponent(
-          redirectUri,
-        )}&response_type=token&scope=${encodeURIComponent(
-          "openid email profile",
-        )}&state=mobile_app&prompt=select_account`;
+    const isMobile =
+      typeof window !== "undefined" &&
+      (isApp || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
 
-        await Browser.open({ url: authUrl });
-        return;
-      } catch (browserErr) {
-        console.warn(
-          "Capacitor Browser open failed, falling back to popup:",
-          browserErr,
-        );
-      }
+    // On mobile devices or inside NutriCore app, avoid popup mode (which hangs on Android WebView)
+    if (isApp || isMobile) {
+      const redirectUri = "https://nutricore-olive.vercel.app/login";
+      const stateParam = isApp ? "mobile_app" : "mobile_web";
+      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(
+        GOOGLE_CLIENT_ID,
+      )}&redirect_uri=${encodeURIComponent(
+        redirectUri,
+      )}&response_type=token&scope=${encodeURIComponent(
+        "openid email profile",
+      )}&state=${stateParam}&prompt=select_account`;
+
+      window.location.href = authUrl;
+      return;
     }
 
+    // On desktop web, standard popup mode works perfectly
     googleLogin();
   };
 
