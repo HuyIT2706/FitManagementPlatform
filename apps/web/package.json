@@ -9,9 +9,16 @@
     "start": "next start",
     "lint": "eslint --max-warnings 0",
     "test": "vitest run",
-    "check-types": "next typegen && tsc --noEmit"
+    "check-types": "next typegen && tsc --noEmit",
+    "cap:sync": "cap sync",
+    "cap:open:android": "cap open android"
   },
   "dependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/browser": "^8.0.5",
+    "@capacitor/cli": "^8.6.0",
+    "@capacitor/core": "^8.6.0",
     "@eslint/eslintrc": "0.1.0",
     "@react-oauth/google": "^0.13.5",
     "@repo/db": "*",

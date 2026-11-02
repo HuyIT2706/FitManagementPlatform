@@ -57,6 +57,7 @@ const LoginContent = () => {
 
   const [loading, setLoading] = useState(false);
   const [pendingPtNotice, setPendingPtNotice] = useState<string | null>(null);
+  const [mobileAuthRedirectUrl, setMobileAuthRedirectUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("jwt_token");
@@ -87,124 +88,225 @@ const LoginContent = () => {
     }
   }, [router, redirectPath]);
 
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
+  const handleGoogleAuthWithToken = async (accessToken: string) => {
+    try {
+      setLoading(true);
+      localStorage.removeItem("jwt_token");
+      let userInfo:
+        | { email?: string; name?: string; picture?: string }
+        | undefined;
       try {
-        if (!tokenResponse.access_token) {
-          throw new Error(
-            "Không nhận được mã xác thực từ Google. Vui lòng thử lại.",
-          );
-        }
-        setLoading(true);
-        localStorage.removeItem("jwt_token");
-        let userInfo:
-          { email?: string; name?: string; picture?: string } | undefined;
-        try {
-          const res = await fetch(
-            "https://www.googleapis.com/oauth2/v3/userinfo",
-            {
-              headers: {
-                Authorization: `Bearer ${tokenResponse.access_token}`,
-              },
+        const res = await fetch(
+          "https://www.googleapis.com/oauth2/v3/userinfo",
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
             },
-          );
-          if (res.ok) {
-            userInfo = await res.json();
-          }
-        } catch (fetchErr) {
-          console.warn(
-            "Client-side Google userinfo fetch skipped/failed:",
-            fetchErr,
-          );
-        }
-        let data: {
-          access_token: string;
-          refresh_token?: string;
-          user: UserDataHome;
-          isPendingPtApproval?: boolean;
-        };
-
-        try {
-          const response = await apiClient.post("/auth/google", {
-            token: tokenResponse.access_token,
-            userInfo,
-          });
-          data = response.data;
-        } catch {
-          toast.error("Thiếu mã key Google");
-          const API_BASE_URL =
-            process.env.NEXT_PUBLIC_API_URL || "http://localhost:3100";
-          const nativeRes = await fetch(`${API_BASE_URL}/auth/google`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({
-              token: tokenResponse.access_token,
-              userInfo,
-            }),
-          });
-          if (!nativeRes.ok) {
-            const errJson = await nativeRes.json().catch(() => null);
-            throw new Error(
-              errJson?.message ||
-                `Xác thực Google thất bại (Mã lỗi ${nativeRes.status})`,
-            );
-          }
-          data = await nativeRes.json();
-        }
-
-        if (data.access_token) {
-          localStorage.setItem("jwt_token", data.access_token);
-          if (data.refresh_token) {
-            localStorage.setItem("refresh_token", data.refresh_token);
-          }
-          if (data.user) {
-            void globalMutate("/users/me", data.user, true);
-          }
-          autoSyncPushSubscription();
-        }
-
-        if ((data as { isPendingPtApproval?: boolean }).isPendingPtApproval) {
-          const notice =
-            "Tài khoản PT của bạn đã đăng ký thành công và đang chờ Admin kiểm duyệt trước khi truy cập giao diện PT!";
-          setPendingPtNotice(notice);
-          toast.info(
-            "Tài khoản Huấn luyện viên đang chờ Admin phê duyệt!",
-            "Thông báo",
-          );
-          setLoading(false);
-          return;
-        }
-
-        const displayName =
-          data.user?.fullName ||
-          (data.user as unknown as { name?: string })?.name ||
-          userInfo?.name ||
-          "";
-
-        toast.success(
-          `Chào mừng ${displayName} quay trở lại!`,
-          "Đăng nhập Google thành công",
+          },
         );
+        if (res.ok) {
+          userInfo = await res.json();
+        }
+      } catch (fetchErr) {
+        console.warn(
+          "Client-side Google userinfo fetch skipped/failed:",
+          fetchErr,
+        );
+      }
+      let data: {
+        access_token: string;
+        refresh_token?: string;
+        user: UserDataHome;
+        isPendingPtApproval?: boolean;
+      };
 
-        handleRoleRedirect(data.user, router, redirectPath);
-      } catch (err: unknown) {
-        console.error("Google login error:", err);
-        const errObj = err as {
-          response?: { data?: { message?: string } };
-          message?: string;
-        };
-        const backendMessage = errObj.response?.data?.message;
-        const msg =
-          backendMessage ||
-          (errObj.message && errObj.message.includes("Network Error")
-            ? "Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng hoặc backend!"
-            : err instanceof Error
-              ? err.message
-              : "Đã có lỗi xảy ra khi xác thực Google");
-        toast.error(msg, "Đăng nhập Google thất bại");
-      } finally {
+      try {
+        const response = await apiClient.post("/auth/google", {
+          token: accessToken,
+          userInfo,
+        });
+        data = response.data;
+      } catch {
+        toast.error("Thiếu mã key Google");
+        const API_BASE_URL =
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3100";
+        const nativeRes = await fetch(`${API_BASE_URL}/auth/google`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            token: accessToken,
+            userInfo,
+          }),
+        });
+        if (!nativeRes.ok) {
+          const errJson = await nativeRes.json().catch(() => null);
+          throw new Error(
+            errJson?.message ||
+              `Xác thực Google thất bại (Mã lỗi ${nativeRes.status})`,
+          );
+        }
+        data = await nativeRes.json();
+      }
+
+      if (data.access_token) {
+        localStorage.setItem("jwt_token", data.access_token);
+        if (data.refresh_token) {
+          localStorage.setItem("refresh_token", data.refresh_token);
+        }
+        if (data.user) {
+          void globalMutate("/users/me", data.user, true);
+        }
+        autoSyncPushSubscription();
+      }
+
+      if ((data as { isPendingPtApproval?: boolean }).isPendingPtApproval) {
+        const notice =
+          "Tài khoản PT của bạn đã đăng ký thành công và đang chờ Admin kiểm duyệt trước khi truy cập giao diện PT!";
+        setPendingPtNotice(notice);
+        toast.info(
+          "Tài khoản Huấn luyện viên đang chờ Admin phê duyệt!",
+          "Thông báo",
+        );
         setLoading(false);
+        return;
+      }
+
+      const displayName =
+        data.user?.fullName ||
+        (data.user as unknown as { name?: string })?.name ||
+        userInfo?.name ||
+        "";
+
+      toast.success(
+        `Chào mừng ${displayName} quay trở lại!`,
+        "Đăng nhập Google thành công",
+      );
+
+      handleRoleRedirect(data.user, router, redirectPath);
+    } catch (err: unknown) {
+      console.error("Google login error:", err);
+      const errObj = err as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
+      const backendMessage = errObj.response?.data?.message;
+      const msg =
+        backendMessage ||
+        (errObj.message && errObj.message.includes("Network Error")
+          ? "Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng hoặc backend!"
+          : err instanceof Error
+            ? err.message
+            : "Đã có lỗi xảy ra khi xác thực Google");
+      toast.error(msg, "Đăng nhập Google thất bại");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 1. Listen for deep link in Capacitor Native App (when redirected from Chrome Custom Tabs)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    let cleanup: (() => void) | undefined;
+
+    const registerDeepLinkListener = async () => {
+      try {
+        const isNative = Boolean(
+          (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } })
+            .Capacitor?.isNativePlatform?.(),
+        );
+        if (!isNative) return;
+
+        const { App } = await import("@capacitor/app");
+        const listener = await App.addListener("appUrlOpen", async (data) => {
+          try {
+            const { Browser } = await import("@capacitor/browser");
+            await Browser.close().catch(() => {});
+          } catch {
+            // ignore
+          }
+
+          let token: string | null = null;
+          if (data.url.includes("#")) {
+            const hash = data.url.split("#")[1];
+            const p = new URLSearchParams(hash);
+            token = p.get("access_token");
+          }
+          if (!token && data.url.includes("?")) {
+            const query = data.url.split("?")[1];
+            const p = new URLSearchParams(query);
+            token = p.get("token") || p.get("access_token");
+          }
+
+          if (token) {
+            void handleGoogleAuthWithToken(token);
+          }
+        });
+
+        cleanup = () => {
+          void listener.remove();
+        };
+      } catch {
+        // Not native or Capacitor App plugin not available
+      }
+    };
+
+    void registerDeepLinkListener();
+
+    return () => {
+      if (cleanup) cleanup();
+    };
+  }, []);
+
+  // 2. Check for Google OAuth redirect callback in URL hash/query
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const isNative = Boolean(
+      (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } })
+        .Capacitor?.isNativePlatform?.(),
+    );
+
+    const hash = window.location.hash;
+    const search = window.location.search;
+    const searchParamsObj = new URLSearchParams(search);
+    const hashParams = new URLSearchParams(
+      hash.startsWith("#") ? hash.substring(1) : hash,
+    );
+
+    const isMobileFlow =
+      searchParamsObj.get("state") === "mobile_app" ||
+      hashParams.get("state") === "mobile_app";
+
+    const token =
+      hashParams.get("access_token") ||
+      searchParamsObj.get("access_token") ||
+      searchParamsObj.get("token");
+
+    // Case A: Redirected to web browser from Google OAuth during a mobile app login flow
+    if (token && isMobileFlow && !isNative) {
+      const appDeepLink = `vn.nutricore.app://login#access_token=${encodeURIComponent(token)}`;
+      setMobileAuthRedirectUrl(appDeepLink);
+      window.location.href = appDeepLink;
+      return;
+    }
+
+    // Case B: Direct web redirect or token in native app URL
+    if (token && !isMobileFlow) {
+      if (hash.includes("access_token=")) {
+        window.history.replaceState(null, "", window.location.pathname);
+      }
+      void handleGoogleAuthWithToken(token);
+    }
+  }, [searchParams]);
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: (tokenResponse) => {
+      if (tokenResponse.access_token) {
+        void handleGoogleAuthWithToken(tokenResponse.access_token);
+      } else {
+        toast.error("Không nhận được mã xác thực từ Google. Vui lòng thử lại.");
       }
     },
     onError: (errorResponse) => {
@@ -215,6 +317,52 @@ const LoginContent = () => {
       );
     },
   });
+
+  const handleGoogleClick = async () => {
+    if (!GOOGLE_CLIENT_ID) {
+      toast.warning(
+        "Chưa cấu hình Google Client ID trong hệ thống.",
+        "Thông báo",
+      );
+      return;
+    }
+
+    // Detect if running inside mobile native app (Capacitor)
+    const isNative =
+      typeof window !== "undefined" &&
+      Boolean(
+        (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } })
+          .Capacitor?.isNativePlatform?.(),
+      );
+
+    if (isNative) {
+      try {
+        const { Browser } = await import("@capacitor/browser");
+        const origin =
+          window.location.origin.includes("localhost")
+            ? window.location.origin
+            : "https://nutricore-olive.vercel.app";
+        const redirectUri = `${origin}/login`;
+        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(
+          GOOGLE_CLIENT_ID,
+        )}&redirect_uri=${encodeURIComponent(
+          redirectUri,
+        )}&response_type=token&scope=${encodeURIComponent(
+          "openid email profile",
+        )}&state=mobile_app&prompt=select_account`;
+
+        await Browser.open({ url: authUrl });
+        return;
+      } catch (browserErr) {
+        console.warn(
+          "Capacitor Browser open failed, falling back to popup:",
+          browserErr,
+        );
+      }
+    }
+
+    googleLogin();
+  };
 
   const processImageFile = (
     file: File,
@@ -450,6 +598,28 @@ const LoginContent = () => {
       setLoading(false);
     }
   };
+
+  if (mobileAuthRedirectUrl) {
+    return (
+      <div className="bg-background text-on-background min-h-screen flex flex-col justify-center items-center px-6">
+        <div className="max-w-sm w-full bg-surface-container-high border border-outline-variant rounded-3xl p-6 text-center space-y-4 shadow-xl">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-primary/20 text-primary flex items-center justify-center">
+            <Loader2 className="w-8 h-8 animate-spin" />
+          </div>
+          <h2 className="text-xl font-bold text-on-surface">Đang kết nối lại ứng dụng...</h2>
+          <p className="text-xs text-on-surface-variant">
+            Đăng nhập thành công! Hệ thống đang chuyển hướng về ứng dụng NutriCore trên điện thoại của bạn.
+          </p>
+          <a
+            href={mobileAuthRedirectUrl}
+            className="inline-block w-full py-3 px-4 bg-primary text-on-primary font-semibold rounded-xl text-sm shadow-md active:scale-95 transition-transform"
+          >
+            Mở ứng dụng NutriCore
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-background text-on-background min-h-screen flex flex-col justify-between overflow-x-hidden relative">
@@ -799,16 +969,7 @@ const LoginContent = () => {
           <button
             type="button"
             suppressHydrationWarning
-            onClick={() => {
-              if (!GOOGLE_CLIENT_ID) {
-                toast.warning(
-                  "Chưa cấu hình Google Client ID trong hệ thống.",
-                  "Thông báo",
-                );
-                return;
-              }
-              googleLogin();
-            }}
+            onClick={handleGoogleClick}
             disabled={loading}
             className="w-full h-11 rounded-full bg-surface-container/80 backdrop-blur-md border border-outline-variant flex items-center justify-center space-x-3 hover:bg-surface-variant transition-colors active:scale-95 disabled:opacity-50 cursor-pointer text-xs"
           >
