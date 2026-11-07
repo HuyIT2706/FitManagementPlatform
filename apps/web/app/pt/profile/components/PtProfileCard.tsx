@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Award } from 'lucide-react';
 import apiClient from '../../../../api/axios';
@@ -28,14 +28,33 @@ const PtProfileCard = ({
 
   const [fullName, setFullName] = useState(userData?.fullName || '');
   const [avatarUrl, setAvatarUrl] = useState(userData?.avatarUrl || '');
-  const [bio, setBio] = useState('HLV Cá Nhân Chuyên Nghiệp 1:1 • Giúp bạn lột xác vóc dáng an toàn & khoa học');
-  const [experienceYears, setExperienceYears] = useState(4);
-  const [specialties, setSpecialties] = useState<string[]>([
-    'Tăng cơ giảm mỡ',
-    'Phục hồi chấn thương',
-    'Tập luyện 1:1',
-  ]);
+  const [bio, setBio] = useState(
+    userData?.ptApplication?.bio ||
+      'HLV Cá Nhân Chuyên Nghiệp 1:1 • Giúp bạn lột xác vóc dáng an toàn & khoa học'
+  );
+  const [experienceYears, setExperienceYears] = useState(
+    userData?.ptApplication?.experienceYears || 4
+  );
+  const [specialties, setSpecialties] = useState<string[]>(
+    userData?.ptApplication?.specialties?.length
+      ? userData.ptApplication.specialties
+      : ['Tăng cơ giảm mỡ', 'Phục hồi chấn thương', 'Tập luyện 1:1']
+  );
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (userData) {
+      setFullName(userData.fullName || '');
+      setAvatarUrl(userData.avatarUrl || '');
+      if (userData.ptApplication?.bio) setBio(userData.ptApplication.bio);
+      if (userData.ptApplication?.experienceYears) {
+        setExperienceYears(userData.ptApplication.experienceYears);
+      }
+      if (userData.ptApplication?.specialties?.length) {
+        setSpecialties(userData.ptApplication.specialties);
+      }
+    }
+  }, [userData]);
 
   const availableSpecialties = [
     'Tăng cơ giảm mỡ',

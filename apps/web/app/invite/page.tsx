@@ -6,7 +6,6 @@ import Image from 'next/image';
 import {
   Dumbbell,
   CheckCircle2,
-  Sparkles,
   ArrowRight,
   AlertCircle,
   Loader2,
@@ -208,7 +207,6 @@ function InviteContent() {
             <div>
               <h2 className="text-lg font-bold text-white flex items-center justify-center gap-2">
                 Liên Kết Thành Công!
-                <Sparkles className="w-5 h-5 text-yellow-400" />
               </h2>
               <p className="text-sm text-on-surface-variant mt-2 leading-relaxed">
                 {message ||

@@ -61,7 +61,6 @@ const StepBMI = ({ store }: StepBMIProps) => {
         <Gauge className="text-[#10b981]" size={28} />
         <h2 className="text-3xl font-bold">Kết quả BMI</h2>
       </div>
-      <p className="text-emerald-100/70 text-base text-center mb-10">Tính toán trực tiếp từ Backend dựa vào thông tin của bạn.</p>
 
       <div className="relative w-64 h-36 overflow-hidden flex justify-center mb-10">
         {/* Background track */}

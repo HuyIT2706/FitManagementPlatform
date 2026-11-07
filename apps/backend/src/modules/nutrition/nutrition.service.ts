@@ -1967,6 +1967,11 @@ export class NutritionService {
 
     const dbDinnerOil: PoolFoodItem = oliveOilFood || dbHealthyOil;
 
+    const foodMap = new Map<string, PoolFoodItem>();
+    allFoods.forEach((f) => foodMap.set(f.id, f));
+    if (dbHealthyOil) foodMap.set(dbHealthyOil.id, dbHealthyOil);
+    if (dbDinnerOil) foodMap.set(dbDinnerOil.id, dbDinnerOil);
+
     // 10. Hạt & Bữa Phụ: Hạnh nhân, Hạt điều, Hạt lạc (loại trừ sạch khi dị ứng hạt / đậu phộng)
     const sNutPool = allFoods
       .filter((f) => {
@@ -2098,11 +2103,11 @@ export class NutritionService {
     };
 
     const protWeights: Record<MealKey, number> = {
-      breakfast: 0.75,
-      morningSnack: 0.25,
-      lunch: 1.4,
-      afternoonSnack: 0.25,
-      dinner: 1.25,
+      breakfast: 0.7,
+      morningSnack: 0.2,
+      lunch: 1.5,
+      afternoonSnack: 0.2,
+      dinner: 1.4,
       snack: 0.2,
     };
 
@@ -2141,31 +2146,39 @@ export class NutritionService {
       0,
     );
 
+    // Mục tiêu hiệu dụng chuẩn:
+    // - Protein: Đủ 100% mục tiêu
+    // - Carbs: Đạt 90% mục tiêu (tránh bị thừa do tích tụ từ rau quả)
+    // - Fat: Đạt 85% mục tiêu
+    const effectiveTargetProtein = targetProtein * 1.0;
+    const effectiveTargetCarbs = targetCarbs * 0.9;
+    const effectiveTargetFat = targetFat * 0.85;
+
     const mealCalTarget = (m: MealKey) =>
       (targetCalories * (calWeights[m] || 1)) / totalCalW;
     const mealProtTarget = (m: MealKey) =>
-      (targetProtein * (protWeights[m] || 1)) / totalProtW;
+      (effectiveTargetProtein * (protWeights[m] || 1)) / totalProtW;
     const mealCarbTarget = (m: MealKey) =>
-      (targetCarbs * (carbWeights[m] || 1)) / totalCarbW;
-    // Cố định định mức chất béo ở mức an toàn 70% - 80% (khoảng 75%) của targetFat để tuyệt đối không bị vượt ngưỡng Fat
-    const effectiveTargetFat = targetFat * 0.75;
+      (effectiveTargetCarbs * (carbWeights[m] || 1)) / totalCarbW;
     const mealFatTarget = (m: MealKey) =>
       (effectiveTargetFat * (fatWeights[m] || 1)) / totalFatW;
 
-    // Tính toán lượng dầu ăn tốt (dầu oliu/lạc) linh hoạt, tối đa 10g (1 muỗng canh) để giữ Fat luôn đạt 70% - 80% mục tiêu
+    // Tính toán lượng dầu ăn tốt (dầu oliu/lạc) linh hoạt, tối đa 15g để giữ Fat luôn đạt chuẩn 85% mục tiêu
     const calcHealthyOilGrams = (
       targetMealFat: number,
       baseFatEstimate: number,
     ): number => {
       const needed = targetMealFat - baseFatEstimate;
       if (needed <= 4) return 5;
-      return 10;
+      if (needed <= 9) return 10;
+      return 15;
     };
 
     // ========================================================
     // THUẬT TOÁN ĐA MỤC TIÊU CÂN BẰNG (MULTI-OBJECTIVE BALANCED SOLVER)
     // Cân bằng đồng thời Calo + Đạm (Protein) + Tinh bột (Carbs)
-    // Tự động kiểm soát lượng Carb và Protein không bị vượt quá định mức (tránh protein/carb overshoot khi tăng cân)
+    // - Protein bám sát 100%
+    // - Carbs duy trì mức 90% (tuyệt đối không bị thừa)
     // ========================================================
     const solveDiscreteMeal = (
       targetCal: number,
@@ -2185,13 +2198,13 @@ export class NutritionService {
 
       const minP = protFood.minGrams || 100;
       const maxP = isFewMeals
-        ? Math.max(protFood.maxGrams || 250, 300)
-        : protFood.maxGrams || 250;
+        ? Math.max(protFood.maxGrams || 250, 320)
+        : Math.max(protFood.maxGrams || 250, 300);
       const minC = carbFood.minGrams || 50;
       const maxC =
         isFewMeals || isGainingWeight
-          ? Math.max(carbFood.maxGrams || 300, 450)
-          : carbFood.maxGrams || 300;
+          ? Math.max(carbFood.maxGrams || 300, 400)
+          : Math.min(carbFood.maxGrams || 300, 250);
 
       // Bước nhảy 25g giúp cân bằng macro chính xác, tránh protein bị nhảy vọt
       for (let pG = minP; pG <= maxP; pG += 25) {
@@ -2209,24 +2222,22 @@ export class NutritionService {
           const totalCarb = extraCarb + pCarb + cCarb;
 
           const calErr = Math.abs(totalCal - targetCal);
-          const protErr = Math.abs(totalProt - targetProt) * 6;
-          const carbErr = Math.abs(totalCarb - targetCarb) * 2;
+          const protErr = Math.abs(totalProt - targetProt) * 8;
+          const carbErr = Math.abs(totalCarb - targetCarb) * 4;
 
-          // Phạt nếu Protein vượt quá định mức bữa > 1.5g (ngăn chặn protein overshoot khi tăng cân, đồng thời bám sát target)
-          const protOverPenalty =
-            totalProt > targetProt + 1.5
-              ? (totalProt - (targetProt + 1.5)) * 12
-              : 0;
+          // Phạt nếu Protein bị thiếu > 2g so với định mức bữa (ưu tiên đủ 100% đạm)
+          const protUnderPenalty =
+            totalProt < targetProt - 2 ? (targetProt - totalProt) * 12 : 0;
 
-          // Phạt nếu Carb vượt quá định mức bữa > 5g
+          // Phạt nếu Carb vượt quá định mức bữa > 2g (tránh dồn gây thừa carb)
           const carbOverPenalty =
-            totalCarb > targetCarb + 5 ? (totalCarb - targetCarb) * 6 : 0;
+            totalCarb > targetCarb + 2 ? (totalCarb - targetCarb) * 12 : 0;
 
           const combinedScore =
             calErr * 1.0 +
             protErr +
             carbErr +
-            protOverPenalty +
+            protUnderPenalty +
             carbOverPenalty;
 
           if (combinedScore < minError) {
@@ -2503,6 +2514,110 @@ export class NutritionService {
     }
     if (activeMeals.includes('snack') && snackItems.length > 0) {
       meals.push(buildSession('snack', 'Bữa Phụ', snackItems));
+    }
+
+    // ========================================================
+    // BỘ ĐIỀU PHỐI CÂN BẰNG DINH DƯỠNG TOÀN DIỆN (POST-SOLVER BALANCER)
+    // Đáp ứng chính xác yêu cầu mục tiêu:
+    // - Protein: Đủ 100% mục tiêu (targetProtein ± 1.5%)
+    // - Carbs: Đạt 90% mục tiêu (targetCarbs * 0.90) - Tuyệt đối không thừa
+    // - Fat: Đạt 85% mục tiêu (targetFat * 0.85)
+    // ========================================================
+    const allMealItems = meals.flatMap((m) => m.items);
+
+    // 1. Kiểm soát Carbs (mục tiêu 90%, trần tối đa 91% targetCarbs, tránh bị thừa do rau củ quả)
+    let curCarbs =
+      Math.round(allMealItems.reduce((acc, it) => acc + it.carbs, 0) * 10) / 10;
+    const maxCarbThreshold = targetCarbs * 0.91;
+    if (curCarbs > maxCarbThreshold) {
+      for (const item of allMealItems) {
+        if (curCarbs <= maxCarbThreshold) break;
+        const food = foodMap.get(item.foodId);
+        if (!food || food.carbsPer100g < 20) continue; // Chỉ giảm các món tinh bột chính (cơm, bún, bánh mì)
+
+        while (
+          item.weightInGrams > (food.minGrams || 75) &&
+          curCarbs > maxCarbThreshold
+        ) {
+          const newWeight = item.weightInGrams - 25;
+          const updated = createPlanItem(food, newWeight);
+          const diffC = item.carbs - updated.carbs;
+          item.weightInGrams = updated.weightInGrams;
+          item.calories = updated.calories;
+          item.protein = updated.protein;
+          item.carbs = updated.carbs;
+          item.fat = updated.fat;
+          curCarbs -= diffC;
+        }
+      }
+    }
+
+    // 2. Bù đắp Protein đạt chuẩn 100% (tối thiểu 98.5% targetProtein)
+    let curProt =
+      Math.round(allMealItems.reduce((acc, it) => acc + it.protein, 0) * 10) /
+      10;
+    const minProtThreshold = targetProtein * 0.985;
+    if (curProt < minProtThreshold) {
+      for (const item of allMealItems) {
+        if (curProt >= minProtThreshold) break;
+        const food = foodMap.get(item.foodId);
+        if (!food || food.proteinPer100g < 18) continue; // Chỉ tăng các món đạm chính (ức gà, bò, thăn heo, tôm)
+
+        while (item.weightInGrams < 325 && curProt < minProtThreshold) {
+          const newWeight = item.weightInGrams + 25;
+          const updated = createPlanItem(food, newWeight);
+          const diffP = updated.protein - item.protein;
+          item.weightInGrams = updated.weightInGrams;
+          item.calories = updated.calories;
+          item.protein = updated.protein;
+          item.carbs = updated.carbs;
+          item.fat = updated.fat;
+          curProt += diffP;
+        }
+      }
+    }
+
+    // 3. Tinh chỉnh Fat đạt chuẩn 85% (targetFat * 0.85)
+    let curFat =
+      Math.round(allMealItems.reduce((acc, it) => acc + it.fat, 0) * 10) / 10;
+    const targetFatGoal = targetFat * 0.85;
+    if (curFat < targetFatGoal - 2) {
+      for (const item of allMealItems) {
+        if (curFat >= targetFatGoal - 1) break;
+        const food = foodMap.get(item.foodId);
+        if (!food || food.fatPer100g < 50) continue; // Dầu ăn / chất béo
+
+        while (item.weightInGrams < 20 && curFat < targetFatGoal - 1) {
+          const newWeight = item.weightInGrams + 2;
+          const updated = createPlanItem(food, newWeight);
+          const diffF = updated.fat - item.fat;
+          item.weightInGrams = updated.weightInGrams;
+          item.calories = updated.calories;
+          item.protein = updated.protein;
+          item.carbs = updated.carbs;
+          item.fat = updated.fat;
+          curFat += diffF;
+        }
+      }
+    }
+
+    // Cập nhật lại số liệu và formattedText cho từng bữa ăn sau khi tinh chỉnh
+    for (const session of meals) {
+      session.totalCalories = session.items.reduce(
+        (acc, it) => acc + it.calories,
+        0,
+      );
+      session.totalProtein =
+        Math.round(
+          session.items.reduce((acc, it) => acc + it.protein, 0) * 10,
+        ) / 10;
+      session.totalCarbs =
+        Math.round(session.items.reduce((acc, it) => acc + it.carbs, 0) * 10) /
+        10;
+      session.totalFat =
+        Math.round(session.items.reduce((acc, it) => acc + it.fat, 0) * 10) /
+        10;
+      session.formattedText = formatItemsToText(session.items);
     }
 
     const calculatedCalories = meals.reduce(
