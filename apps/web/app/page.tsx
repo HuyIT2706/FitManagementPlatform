@@ -13,6 +13,19 @@ const RootPage = () => {
   const { data: userData, error } = useCurrentUser();
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash;
+      const search = window.location.search;
+      if (
+        hash.includes('access_token=') ||
+        search.includes('access_token=') ||
+        search.includes('token=')
+      ) {
+        router.replace(`/login${search}${hash}`);
+        return;
+      }
+    }
+
     const token = typeof window !== 'undefined' ? localStorage.getItem('jwt_token') : null;
     if (!token) {
       router.replace('/login');
