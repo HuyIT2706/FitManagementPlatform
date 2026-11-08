@@ -84,7 +84,12 @@ const AssignedMealPlanCard = ({
           Thực đơn chỉ định
         </h3>
 
-        {onOpenAiPlanner && (
+        {assignedMealPlan?.coachName !== 'Hệ Thống NutriCore' || ptName ? (
+          <span className="px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center gap-1.5 shadow-[0_0_12px_rgba(16,185,129,0.15)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            Chỉ định bởi {assignedMealPlan?.coachName || (ptName ? `Coach ${ptName}` : 'HLV')}
+          </span>
+        ) : onOpenAiPlanner ? (
           <button
             type="button"
             onClick={onOpenAiPlanner}
@@ -92,7 +97,7 @@ const AssignedMealPlanCard = ({
           >
           Gợi ý thực đơn 
           </button>
-        )}
+        ) : null}
       </div>
 
       <div className="bento-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 space-y-4 sm:space-y-6 border border-bento-border/50">

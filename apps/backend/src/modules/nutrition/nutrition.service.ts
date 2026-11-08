@@ -1190,9 +1190,6 @@ export class NutritionService {
     });
   }
 
-  // ==========================================
-  // AI MEAL PLANNER - GỢI Ý THỰC ĐƠN THÔNG MINH
-  // ==========================================
   async generateMealPlan(
     currentUserId: string,
     dto: GenerateMealPlanDto,
@@ -1220,8 +1217,6 @@ export class NutritionService {
     }
 
     const latestTarget = user.nutritionTargets?.[0] || null;
-
-    // Co giãn mục tiêu theo DTO override hoặc lấy trực tiếp từ bảng nutrition_targets
     const targetCalories = Math.max(
       1000,
       Number(
@@ -1730,15 +1725,18 @@ export class NutritionService {
       )
       .map((f) => ({ ...f, fixedGrams: 100 }));
 
-    // 1. Đạm Bữa Sáng (Từ CSDL): Protein nhẹ (Trứng gà luộc, ốp la, sữa chua Hy Lạp)
+    // 1. Đạm Bữa Sáng (Từ CSDL): Protein nhẹ (Ưu tiên Trứng gà luộc, ốp la, sữa chua Hy Lạp; tránh chiên ngập dầu)
     const bProtPool = allFoods
       .filter((f) => {
         const n = removeTones(f.name);
         if (f.proteinPer100g < 10) return false;
+        // Bỏ các món trứng chiên rán nhiều dầu khi giảm cân hoặc duy trì để kiểm soát Fat <= 85%
+        if (!isGainingWeight && (n.includes('chien') || n.includes('ran')))
+          return false;
         if (
           n.includes('trung ga ta luoc') ||
-          n.includes('trung ga chien/ran') ||
           n.includes('trung ga op la') ||
+          n.includes('trung ga chien/ran') ||
           n.includes('sua chua hy lap')
         ) {
           return !n.includes('kem') && !n.includes('pho mai') && isSafe(f);
@@ -1748,7 +1746,7 @@ export class NutritionService {
       .map((f) => ({
         ...f,
         minGrams: 50,
-        maxGrams: 150,
+        maxGrams: f.name.toLowerCase().includes('trung') ? 100 : 150,
       }));
 
     // 2. Tinh Bột Bữa Sáng (Từ CSDL): Bánh mì đen, yến mạch, khoai lang hấp, bắp ngọt
@@ -2163,27 +2161,30 @@ export class NutritionService {
     const mealFatTarget = (m: MealKey) =>
       (effectiveTargetFat * (fatWeights[m] || 1)) / totalFatW;
 
-    // Tính toán lượng dầu ăn tốt (dầu oliu/lạc) linh hoạt, tối đa 15g để giữ Fat luôn đạt chuẩn 85% mục tiêu
+    // Tính toán lượng dầu ăn tốt (dầu oliu/lạc) linh hoạt, tối đa 10g, trả về 0 nếu định mức fat của bữa đã đủ
     const calcHealthyOilGrams = (
       targetMealFat: number,
       baseFatEstimate: number,
     ): number => {
       const needed = targetMealFat - baseFatEstimate;
-      if (needed <= 4) return 5;
-      if (needed <= 9) return 10;
-      return 15;
+      if (needed <= 1) return 0;
+      if (needed <= 4) return 3;
+      if (needed <= 8) return 5;
+      return Math.min(10, Math.round(needed));
     };
 
     // ========================================================
     // THUẬT TOÁN ĐA MỤC TIÊU CÂN BẰNG (MULTI-OBJECTIVE BALANCED SOLVER)
-    // Cân bằng đồng thời Calo + Đạm (Protein) + Tinh bột (Carbs)
+    // Cân bằng đồng thời Calo + Đạm (Protein) + Tinh bột (Carbs) + Chất béo (Fat)
     // - Protein bám sát 100%
     // - Carbs duy trì mức 90% (tuyệt đối không bị thừa)
+    // - Fat duy trì mức 85% (tuyệt đối không bị thừa)
     // ========================================================
     const solveDiscreteMeal = (
       targetCal: number,
       targetProt: number,
       targetCarb: number,
+      targetFat: number,
       protFood: PoolFoodItem,
       carbFood: PoolFoodItem,
       extraItems: GeneratedMealPlanItem[] = [],
@@ -2195,18 +2196,17 @@ export class NutritionService {
       const extraCal = extraItems.reduce((acc, it) => acc + it.calories, 0);
       const extraProt = extraItems.reduce((acc, it) => acc + it.protein, 0);
       const extraCarb = extraItems.reduce((acc, it) => acc + it.carbs, 0);
+      const extraFat = extraItems.reduce((acc, it) => acc + it.fat, 0);
 
-      const minP = protFood.minGrams || 100;
-      const maxP = isFewMeals
-        ? Math.max(protFood.maxGrams || 250, 320)
-        : Math.max(protFood.maxGrams || 250, 300);
+      const minP = protFood.minGrams || 50;
+      const maxP = protFood.maxGrams || 250;
       const minC = carbFood.minGrams || 50;
       const maxC =
         isFewMeals || isGainingWeight
-          ? Math.max(carbFood.maxGrams || 300, 400)
+          ? Math.max(carbFood.maxGrams || 300, 350)
           : Math.min(carbFood.maxGrams || 300, 250);
 
-      // Bước nhảy 25g giúp cân bằng macro chính xác, tránh protein bị nhảy vọt
+      // Bước nhảy 25g giúp cân bằng macro chính xác, tránh protein & fat bị nhảy vọt
       for (let pG = minP; pG <= maxP; pG += 25) {
         for (let cG = minC; cG <= maxC; cG += 25) {
           const pCal = (protFood.caloriesPer100g * pG) / 100;
@@ -2221,9 +2221,14 @@ export class NutritionService {
           const cCarb = (carbFood.carbsPer100g * cG) / 100;
           const totalCarb = extraCarb + pCarb + cCarb;
 
+          const pFat = (protFood.fatPer100g * pG) / 100;
+          const cFat = (carbFood.fatPer100g * cG) / 100;
+          const totalFat = extraFat + pFat + cFat;
+
           const calErr = Math.abs(totalCal - targetCal);
           const protErr = Math.abs(totalProt - targetProt) * 8;
-          const carbErr = Math.abs(totalCarb - targetCarb) * 4;
+          const carbErr = Math.abs(totalCarb - targetCarb) * 5;
+          const fatErr = Math.abs(totalFat - targetFat) * 6;
 
           // Phạt nếu Protein bị thiếu > 2g so với định mức bữa (ưu tiên đủ 100% đạm)
           const protUnderPenalty =
@@ -2231,14 +2236,20 @@ export class NutritionService {
 
           // Phạt nếu Carb vượt quá định mức bữa > 2g (tránh dồn gây thừa carb)
           const carbOverPenalty =
-            totalCarb > targetCarb + 2 ? (totalCarb - targetCarb) * 12 : 0;
+            totalCarb > targetCarb + 2 ? (totalCarb - targetCarb) * 14 : 0;
+
+          // Phạt nếu Fat vượt quá định mức bữa > 2g (tránh dồn gây thừa chất béo)
+          const fatOverPenalty =
+            totalFat > targetFat + 1.5 ? (totalFat - targetFat) * 16 : 0;
 
           const combinedScore =
             calErr * 1.0 +
             protErr +
             carbErr +
+            fatErr +
             protUnderPenalty +
-            carbOverPenalty;
+            carbOverPenalty +
+            fatOverPenalty;
 
           if (combinedScore < minError) {
             minError = combinedScore;
@@ -2284,6 +2295,7 @@ export class NutritionService {
         mealCalTarget('breakfast'),
         mealProtTarget('breakfast'),
         mealCarbTarget('breakfast'),
+        mealFatTarget('breakfast'),
         bProtFood,
         bCarbFood,
         [bFruitItem],
@@ -2302,15 +2314,19 @@ export class NutritionService {
 
       const lVegItem = createPlanItem(lVegFood, 150);
       const lOilGrams = calcHealthyOilGrams(mealFatTarget('lunch'), 5);
-      const lOilItem = createPlanItem(dbHealthyOil, lOilGrams);
+      const extraItems = [lVegItem];
+      if (lOilGrams > 0) {
+        extraItems.push(createPlanItem(dbHealthyOil, lOilGrams));
+      }
 
       lunchItems = solveDiscreteMeal(
         mealCalTarget('lunch'),
         mealProtTarget('lunch'),
         mealCarbTarget('lunch'),
+        mealFatTarget('lunch'),
         lProtFood,
         lCarbFood,
-        [lVegItem, lOilItem],
+        extraItems,
       );
     }
 
@@ -2336,15 +2352,19 @@ export class NutritionService {
 
       const dVegItem = createPlanItem(dVegFood, 150);
       const dOilGrams = calcHealthyOilGrams(mealFatTarget('dinner'), 8);
-      const dOilItem = createPlanItem(dbDinnerOil, dOilGrams);
+      const dExtraItems = [dVegItem];
+      if (dOilGrams > 0) {
+        dExtraItems.push(createPlanItem(dbDinnerOil, dOilGrams));
+      }
 
       dinnerItems = solveDiscreteMeal(
         mealCalTarget('dinner'),
         mealProtTarget('dinner'),
         mealCarbTarget('dinner'),
+        mealFatTarget('dinner'),
         dProtFood,
         dCarbFood,
-        [dVegItem, dOilItem],
+        dExtraItems,
       );
     }
 
@@ -2577,17 +2597,96 @@ export class NutritionService {
       }
     }
 
-    // 3. Tinh chỉnh Fat đạt chuẩn 85% (targetFat * 0.85)
+    // 3. Tinh chỉnh Fat đạt chuẩn 85% (targetFat * 0.85) - Tuyệt đối không để vượt trần
     let curFat =
       Math.round(allMealItems.reduce((acc, it) => acc + it.fat, 0) * 10) / 10;
     const targetFatGoal = targetFat * 0.85;
+    const maxFatThreshold = targetFat * 0.86; // Trần tối đa 86% mục tiêu (ví dụ 78g -> trần 67g)
+
+    // Nếu Fat bị thừa (vượt trần 86% mục tiêu do dầu ăn hoặc hạt hoặc trứng):
+    if (curFat > maxFatThreshold) {
+      // Bước 3.1: Loại bỏ dầu ăn đã thêm vào bữa trưa/tối
+      for (const session of meals) {
+        if (curFat <= maxFatThreshold) break;
+        const oilIdx = session.items.findIndex(
+          (it) =>
+            it.foodId === dbHealthyOil.id ||
+            it.foodId === dbDinnerOil.id ||
+            (foodMap.get(it.foodId)?.fatPer100g || 0) >= 50,
+        );
+        if (oilIdx !== -1) {
+          const oilItem = session.items[oilIdx];
+          const diffF = oilItem.fat;
+          curFat -= diffF;
+          session.items.splice(oilIdx, 1);
+        }
+      }
+
+      // Bước 3.2: Nếu vẫn thừa Fat, giảm hoặc bỏ bớt hạt / đậu phộng trong bữa phụ
+      if (curFat > maxFatThreshold) {
+        for (const session of meals) {
+          if (curFat <= maxFatThreshold) break;
+          for (let i = session.items.length - 1; i >= 0; i--) {
+            if (curFat <= maxFatThreshold) break;
+            const item = session.items[i];
+            const food = foodMap.get(item.foodId);
+            if (!food) continue;
+
+            if (food.fatPer100g > 30) {
+              if (curFat - item.fat >= targetFatGoal - 6) {
+                curFat -= item.fat;
+                session.items.splice(i, 1);
+              } else if (item.weightInGrams > 10) {
+                const newWeight = Math.max(10, item.weightInGrams - 15);
+                const updated = createPlanItem(food, newWeight);
+                curFat -= item.fat - updated.fat;
+                item.weightInGrams = updated.weightInGrams;
+                item.calories = updated.calories;
+                item.protein = updated.protein;
+                item.carbs = updated.carbs;
+                item.fat = updated.fat;
+              }
+            }
+          }
+        }
+      }
+
+      // Bước 3.3: Nếu vẫn thừa Fat, giảm bớt trứng ở bữa sáng (nếu trên 100g)
+      if (curFat > maxFatThreshold) {
+        for (const session of meals) {
+          if (curFat <= maxFatThreshold) break;
+          for (const item of session.items) {
+            if (curFat <= maxFatThreshold) break;
+            const food = foodMap.get(item.foodId);
+            if (!food) continue;
+            if (
+              food.fatPer100g >= 10 &&
+              food.fatPer100g < 30 &&
+              item.weightInGrams > 100
+            ) {
+              const newWeight = Math.max(100, item.weightInGrams - 50);
+              const updated = createPlanItem(food, newWeight);
+              curFat -= item.fat - updated.fat;
+              item.weightInGrams = updated.weightInGrams;
+              item.calories = updated.calories;
+              item.protein = updated.protein;
+              item.carbs = updated.carbs;
+              item.fat = updated.fat;
+            }
+          }
+        }
+      }
+    }
+
+    // Nếu Fat bị thiếu so với mục tiêu 85%:
     if (curFat < targetFatGoal - 2) {
-      for (const item of allMealItems) {
+      const remainingMealItems = meals.flatMap((m) => m.items);
+      for (const item of remainingMealItems) {
         if (curFat >= targetFatGoal - 1) break;
         const food = foodMap.get(item.foodId);
         if (!food || food.fatPer100g < 50) continue; // Dầu ăn / chất béo
 
-        while (item.weightInGrams < 20 && curFat < targetFatGoal - 1) {
+        while (item.weightInGrams < 15 && curFat < targetFatGoal - 1) {
           const newWeight = item.weightInGrams + 2;
           const updated = createPlanItem(food, newWeight);
           const diffF = updated.fat - item.fat;
@@ -2665,6 +2764,32 @@ export class NutritionService {
     const coachAdvice = `Thực đơn Eat Clean chuẩn theo mục tiêu ${targetCalories} kcal (P: ${targetProtein}g, C: ${targetCarbs}g, F: ${targetFat}g) chia làm ${activeMeals.length} bữa. ${mealCountDesc}${skinAdvice} Đã tự động loại bỏ các món ngọt, đồ sống và thực phẩm dị ứng.`;
 
     if (dto.saveToDatabase) {
+      // Kiểm tra nếu người dùng là học viên đã được PT gán thực đơn chỉ định thì không cho tự tạo/ghi đè
+      const studentProfile = await this.prisma.studentProfile.findFirst({
+        where: { studentId: targetUserId },
+        include: { trainer: true },
+      });
+
+      const userTarget = await this.prisma.nutritionTarget.findFirst({
+        where: {
+          studentId: targetUserId,
+          prescribedMealPlan: { not: null },
+        },
+        orderBy: { effectiveDate: 'desc' },
+      });
+
+      if (
+        currentUserId === targetUserId &&
+        studentProfile?.trainer &&
+        userTarget?.prescribedMealPlan &&
+        user.role !== 'PT' &&
+        user.role !== 'ADMIN'
+      ) {
+        throw new BadRequestException(
+          'Bạn đã có thực đơn chỉ định từ Huấn luyện viên, không thể tự tạo thực đơn mới.',
+        );
+      }
+
       const mealPlanJsonString = JSON.stringify(formattedPlan);
       await this.prisma.nutritionTarget.create({
         data: {

@@ -78,8 +78,11 @@ export default function SmartMealPlannerModal({
       toast.success('Đã áp dụng thực đơn vào kế hoạch cá nhân');
       if (onApplied) onApplied();
       onClose();
-    } catch {
-      toast.error('Không thể lưu thực đơn. Vui lòng thử lại');
+    } catch (err: unknown) {
+      const errorMsg =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message || 'Không thể lưu thực đơn. Vui lòng thử lại';
+      toast.error(errorMsg);
     } finally {
       setSaving(false);
     }
