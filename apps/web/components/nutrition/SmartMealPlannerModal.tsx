@@ -8,7 +8,6 @@ import {
   Moon,
   Apple,
   RefreshCw,
-  ShieldCheck,
   Flame,
 } from 'lucide-react';
 import apiClient from '../../api/axios';
@@ -159,19 +158,8 @@ export default function SmartMealPlannerModal({
                     </span>
                   </div>
                 </div>
-
-                {/* Safety Allergy Filter Badge */}
-                {mealPlan.allergiesFiltered && mealPlan.allergiesFiltered.length > 0 && (
-                  <div className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-xl">
-                    <ShieldCheck size={15} className="shrink-0" />
-                    <span>
-                      Đã tự động loại bỏ các thành phần dị ứng & chế độ kiêng cữ: {mealPlan.allergiesFiltered.slice(0, 8).join(', ')}...
-                    </span>
-                  </div>
-                )}
               </div>
 
-              {/* Responsive Meals Grid: 1 col on mobile, 2/3/4 cols on larger screens */}
               <div
                 className={`grid grid-cols-1 ${
                   mealPlan.meals.length === 2

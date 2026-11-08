@@ -2146,11 +2146,11 @@ export class NutritionService {
 
     // Mục tiêu hiệu dụng chuẩn:
     // - Protein: Đủ 100% mục tiêu
-    // - Carbs: Đạt 90% mục tiêu (tránh bị thừa do tích tụ từ rau quả)
-    // - Fat: Đạt 85% mục tiêu
+    // - Carbs: Đạt 95% mục tiêu (tăng từ 90% lên 95%)
+    // - Fat: Đạt 90% mục tiêu (tăng từ 85% lên 90%)
     const effectiveTargetProtein = targetProtein * 1.0;
-    const effectiveTargetCarbs = targetCarbs * 0.9;
-    const effectiveTargetFat = targetFat * 0.85;
+    const effectiveTargetCarbs = targetCarbs * 0.95;
+    const effectiveTargetFat = targetFat * 0.9;
 
     const mealCalTarget = (m: MealKey) =>
       (targetCalories * (calWeights[m] || 1)) / totalCalW;
@@ -2540,15 +2540,15 @@ export class NutritionService {
     // BỘ ĐIỀU PHỐI CÂN BẰNG DINH DƯỠNG TOÀN DIỆN (POST-SOLVER BALANCER)
     // Đáp ứng chính xác yêu cầu mục tiêu:
     // - Protein: Đủ 100% mục tiêu (targetProtein ± 1.5%)
-    // - Carbs: Đạt 90% mục tiêu (targetCarbs * 0.90) - Tuyệt đối không thừa
-    // - Fat: Đạt 85% mục tiêu (targetFat * 0.85)
+    // - Carbs: Đạt 95% mục tiêu (targetCarbs * 0.95)
+    // - Fat: Đạt 90% mục tiêu (targetFat * 0.90)
     // ========================================================
     const allMealItems = meals.flatMap((m) => m.items);
 
-    // 1. Kiểm soát Carbs (mục tiêu 90%, trần tối đa 91% targetCarbs, tránh bị thừa do rau củ quả)
+    // 1. Kiểm soát Carbs (mục tiêu 95%, trần tối đa 96% targetCarbs, sàn tối thiểu 93%)
     let curCarbs =
       Math.round(allMealItems.reduce((acc, it) => acc + it.carbs, 0) * 10) / 10;
-    const maxCarbThreshold = targetCarbs * 0.91;
+    const maxCarbThreshold = targetCarbs * 0.96;
     if (curCarbs > maxCarbThreshold) {
       for (const item of allMealItems) {
         if (curCarbs <= maxCarbThreshold) break;
@@ -2568,6 +2568,24 @@ export class NutritionService {
           item.carbs = updated.carbs;
           item.fat = updated.fat;
           curCarbs -= diffC;
+        }
+      }
+    } else if (curCarbs < targetCarbs * 0.93) {
+      for (const item of allMealItems) {
+        if (curCarbs >= targetCarbs * 0.94) break;
+        const food = foodMap.get(item.foodId);
+        if (!food || food.carbsPer100g < 20) continue;
+
+        while (item.weightInGrams < 300 && curCarbs < targetCarbs * 0.94) {
+          const newWeight = item.weightInGrams + 25;
+          const updated = createPlanItem(food, newWeight);
+          const diffC = updated.carbs - item.carbs;
+          item.weightInGrams = updated.weightInGrams;
+          item.calories = updated.calories;
+          item.protein = updated.protein;
+          item.carbs = updated.carbs;
+          item.fat = updated.fat;
+          curCarbs += diffC;
         }
       }
     }
@@ -2597,13 +2615,13 @@ export class NutritionService {
       }
     }
 
-    // 3. Tinh chỉnh Fat đạt chuẩn 85% (targetFat * 0.85) - Tuyệt đối không để vượt trần
+    // 3. Tinh chỉnh Fat đạt chuẩn 90% (targetFat * 0.90) - Tuyệt đối không để vượt trần
     let curFat =
       Math.round(allMealItems.reduce((acc, it) => acc + it.fat, 0) * 10) / 10;
-    const targetFatGoal = targetFat * 0.85;
-    const maxFatThreshold = targetFat * 0.86; // Trần tối đa 86% mục tiêu (ví dụ 78g -> trần 67g)
+    const targetFatGoal = targetFat * 0.9;
+    const maxFatThreshold = targetFat * 0.91; // Trần tối đa 91% mục tiêu
 
-    // Nếu Fat bị thừa (vượt trần 86% mục tiêu do dầu ăn hoặc hạt hoặc trứng):
+    // Nếu Fat bị thừa (vượt trần 91% mục tiêu do dầu ăn hoặc hạt hoặc trứng):
     if (curFat > maxFatThreshold) {
       // Bước 3.1: Loại bỏ dầu ăn đã thêm vào bữa trưa/tối
       for (const session of meals) {
@@ -2678,7 +2696,7 @@ export class NutritionService {
       }
     }
 
-    // Nếu Fat bị thiếu so với mục tiêu 85%:
+    // Nếu Fat bị thiếu so với mục tiêu 90%:
     if (curFat < targetFatGoal - 2) {
       const remainingMealItems = meals.flatMap((m) => m.items);
       for (const item of remainingMealItems) {
@@ -2686,7 +2704,7 @@ export class NutritionService {
         const food = foodMap.get(item.foodId);
         if (!food || food.fatPer100g < 50) continue; // Dầu ăn / chất béo
 
-        while (item.weightInGrams < 15 && curFat < targetFatGoal - 1) {
+        while (item.weightInGrams < 20 && curFat < targetFatGoal - 1) {
           const newWeight = item.weightInGrams + 2;
           const updated = createPlanItem(food, newWeight);
           const diffF = updated.fat - item.fat;
