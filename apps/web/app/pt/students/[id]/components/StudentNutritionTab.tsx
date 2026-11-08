@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Plus, StickyNote, CheckCircle2, ShieldCheck } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { Plus, StickyNote, CheckCircle2, ShieldCheck, Flame } from "lucide-react";
 import PtFoodSelectionModal from "./PtFoodSelectionModal";
 import type { FoodItem, GeneratedMealPlanResponse } from "@repo/types";
 import type { StudentNutritionTabProps } from "../../../../../interface";
@@ -80,6 +80,84 @@ const StudentNutritionTab = ({
     onDinnerTextChange,
     onSnackTextChange,
   ]);
+
+  const parseMealMacros = (text: string | undefined) => {
+    if (!text || !text.trim()) {
+      return { calories: 0, protein: 0, carbs: 0, fat: 0 };
+    }
+    const lines = text.split("\n");
+    let cal = 0;
+    let p = 0;
+    let c = 0;
+    let f = 0;
+
+    for (const line of lines) {
+      const calMatch = line.match(/(\d+(?:\.\d+)?)\s*kcal/i);
+      const pMatch =
+        line.match(/(\d+(?:\.\d+)?)\s*g\s*P\b/i) ||
+        line.match(/(\d+(?:\.\d+)?)\s*P\b/i);
+      const cMatch =
+        line.match(/(\d+(?:\.\d+)?)\s*g\s*C\b/i) ||
+        line.match(/(\d+(?:\.\d+)?)\s*C\b/i);
+      const fMatch =
+        line.match(/(\d+(?:\.\d+)?)\s*g\s*F\b/i) ||
+        line.match(/(\d+(?:\.\d+)?)\s*F\b/i);
+
+      if (calMatch && calMatch[1]) cal += parseFloat(calMatch[1]);
+      if (pMatch && pMatch[1]) p += parseFloat(pMatch[1]);
+      if (cMatch && cMatch[1]) c += parseFloat(cMatch[1]);
+      if (fMatch && fMatch[1]) f += parseFloat(fMatch[1]);
+    }
+
+    return {
+      calories: Math.round(cal),
+      protein: Math.round(p * 10) / 10,
+      carbs: Math.round(c * 10) / 10,
+      fat: Math.round(f * 10) / 10,
+    };
+  };
+
+  const breakfastMacros = useMemo(
+    () => parseMealMacros(breakfastText),
+    [breakfastText],
+  );
+  const lunchMacros = useMemo(() => parseMealMacros(lunchText), [lunchText]);
+  const dinnerMacros = useMemo(() => parseMealMacros(dinnerText), [dinnerText]);
+  const snackMacros = useMemo(() => parseMealMacros(snackText), [snackText]);
+
+  const totalMealMacros = useMemo(() => {
+    return {
+      calories:
+        breakfastMacros.calories +
+        lunchMacros.calories +
+        dinnerMacros.calories +
+        snackMacros.calories,
+      protein:
+        Math.round(
+          (breakfastMacros.protein +
+            lunchMacros.protein +
+            dinnerMacros.protein +
+            snackMacros.protein) *
+            10,
+        ) / 10,
+      carbs:
+        Math.round(
+          (breakfastMacros.carbs +
+            lunchMacros.carbs +
+            dinnerMacros.carbs +
+            snackMacros.carbs) *
+            10,
+        ) / 10,
+      fat:
+        Math.round(
+          (breakfastMacros.fat +
+            lunchMacros.fat +
+            dinnerMacros.fat +
+            snackMacros.fat) *
+            10,
+        ) / 10,
+    };
+  }, [breakfastMacros, lunchMacros, dinnerMacros, snackMacros]);
 
   const mealTitleMap = {
     breakfast: "Bữa Sáng",
@@ -338,19 +416,43 @@ const StudentNutritionTab = ({
 
         {/* Meal Slots Prescribed Plan */}
         <div className="space-y-3 sm:space-y-4 pt-2">
-          <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-2">
+          <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-2 flex-wrap gap-2">
             <h4 className="text-sm font-bold text-on-surface flex items-center gap-2">
               Phân Chia Thực Đơn Chi Tiết Các Bữa Ăn
             </h4>
+            {totalMealMacros.calories > 0 && (
+              <div className="flex items-center gap-2 text-xs font-bold flex-wrap">
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                  <Flame size={13} className="text-emerald-500" />
+                  Tổng 4 bữa: {totalMealMacros.calories} {targetCalories > 0 ? `/ ${targetCalories}` : ""} kcal
+                </span>
+                <span className="text-[11px] font-semibold text-on-surface-variant">
+                  (P: <strong className="text-amber-500">{totalMealMacros.protein}g</strong> | C: <strong className="text-blue-500">{totalMealMacros.carbs}g</strong> | F: <strong className="text-rose-500">{totalMealMacros.fat}g</strong>)
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 text-xs">
             {/* Breakfast */}
             <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-surface-bright/30 border border-slate-200 dark:border-white/10 space-y-2.5 hover:border-amber-400/40 transition-all">
-              <div className="flex items-center justify-between">
-                <label className="font-extrabold text-amber-700 dark:text-amber-400 flex items-center gap-2 text-xs">
-                  Bữa Sáng
-                </label>
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <label className="font-extrabold text-amber-700 dark:text-amber-400 flex items-center gap-1.5 text-xs">
+                    Bữa Sáng
+                  </label>
+                  {breakfastMacros.calories > 0 && (
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="px-2 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-300 font-extrabold text-[11px] flex items-center gap-1">
+                        <Flame size={12} className="text-amber-500" />
+                        {breakfastMacros.calories} kcal
+                      </span>
+                      <span className="text-[11px] font-semibold text-on-surface-variant/80">
+                        P: <strong className="text-amber-600 dark:text-amber-400">{breakfastMacros.protein}g</strong> • C: <strong className="text-blue-500">{breakfastMacros.carbs}g</strong> • F: <strong className="text-rose-500">{breakfastMacros.fat}g</strong>
+                      </span>
+                    </div>
+                  )}
+                </div>
                 <button
                   type="button"
                   onClick={() => handleOpenFoodModal("breakfast")}
@@ -371,10 +473,23 @@ const StudentNutritionTab = ({
 
             {/* Lunch */}
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-surface-bright/30 border border-slate-200 dark:border-white/10 space-y-2.5 hover:border-orange-400/40 transition-all">
-              <div className="flex items-center justify-between">
-                <label className="font-extrabold text-orange-700 dark:text-orange-400 flex items-center gap-2 text-xs">
-                  Bữa Trưa
-                </label>
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <label className="font-extrabold text-orange-700 dark:text-orange-400 flex items-center gap-1.5 text-xs">
+                    Bữa Trưa
+                  </label>
+                  {lunchMacros.calories > 0 && (
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="px-2 py-0.5 rounded-md bg-orange-500/15 border border-orange-500/30 text-orange-700 dark:text-orange-300 font-extrabold text-[11px] flex items-center gap-1">
+                        <Flame size={12} className="text-orange-500" />
+                        {lunchMacros.calories} kcal
+                      </span>
+                      <span className="text-[11px] font-semibold text-on-surface-variant/80">
+                        P: <strong className="text-amber-600 dark:text-amber-400">{lunchMacros.protein}g</strong> • C: <strong className="text-blue-500">{lunchMacros.carbs}g</strong> • F: <strong className="text-rose-500">{lunchMacros.fat}g</strong>
+                      </span>
+                    </div>
+                  )}
+                </div>
                 <button
                   type="button"
                   onClick={() => handleOpenFoodModal("lunch")}
@@ -395,10 +510,23 @@ const StudentNutritionTab = ({
 
             {/* Dinner */}
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-surface-bright/30 border border-slate-200 dark:border-white/10 space-y-2.5 hover:border-indigo-400/40 transition-all">
-              <div className="flex items-center justify-between">
-                <label className="font-extrabold text-indigo-700 dark:text-indigo-400 flex items-center gap-2 text-xs">
-                  Bữa Tối
-                </label>
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <label className="font-extrabold text-indigo-700 dark:text-indigo-400 flex items-center gap-1.5 text-xs">
+                    Bữa Tối
+                  </label>
+                  {dinnerMacros.calories > 0 && (
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="px-2 py-0.5 rounded-md bg-indigo-500/15 border border-indigo-500/30 text-indigo-700 dark:text-indigo-300 font-extrabold text-[11px] flex items-center gap-1">
+                        <Flame size={12} className="text-indigo-500" />
+                        {dinnerMacros.calories} kcal
+                      </span>
+                      <span className="text-[11px] font-semibold text-on-surface-variant/80">
+                        P: <strong className="text-amber-600 dark:text-amber-400">{dinnerMacros.protein}g</strong> • C: <strong className="text-blue-500">{dinnerMacros.carbs}g</strong> • F: <strong className="text-rose-500">{dinnerMacros.fat}g</strong>
+                      </span>
+                    </div>
+                  )}
+                </div>
                 <button
                   type="button"
                   onClick={() => handleOpenFoodModal("dinner")}
@@ -419,10 +547,23 @@ const StudentNutritionTab = ({
 
             {/* Snack */}
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-surface-bright/30 border border-slate-200 dark:border-white/10 space-y-2.5 hover:border-emerald-400/40 transition-all">
-              <div className="flex items-center justify-between">
-                <label className="font-extrabold text-emerald-700 dark:text-emerald-400 flex items-center gap-2 text-xs">
-                  Bữa Phụ
-                </label>
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <label className="font-extrabold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5 text-xs">
+                    Bữa Phụ
+                  </label>
+                  {snackMacros.calories > 0 && (
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 font-extrabold text-[11px] flex items-center gap-1">
+                        <Flame size={12} className="text-emerald-500" />
+                        {snackMacros.calories} kcal
+                      </span>
+                      <span className="text-[11px] font-semibold text-on-surface-variant/80">
+                        P: <strong className="text-amber-600 dark:text-amber-400">{snackMacros.protein}g</strong> • C: <strong className="text-blue-500">{snackMacros.carbs}g</strong> • F: <strong className="text-rose-500">{snackMacros.fat}g</strong>
+                      </span>
+                    </div>
+                  )}
+                </div>
                 <button
                   type="button"
                   onClick={() => handleOpenFoodModal("snack")}

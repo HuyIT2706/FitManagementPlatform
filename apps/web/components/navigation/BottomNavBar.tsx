@@ -16,23 +16,23 @@ const BottomNavBar = ({ activeTab }: BottomNavBarProps) => {
           
           <Link href="/home" prefetch={true} className={`flex items-center gap-2 rounded-full transition-colors ${activeTab === 'diary' ? 'bg-green-light/15 text-green-light font-bold px-4 py-2' : 'w-10 h-10 shrink-0 justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50'}`}>
             <BookOpen className="w-5 h-5 shrink-0" />
-            {activeTab === 'diary' && <span className="font-headline-md text-lg">Nhật ký</span>}
+            {activeTab === 'diary' && <span className="font-headline-md text-sm">Nhật ký</span>}
           </Link>
 
           <div className="flex items-center">
             <Link href="/training" prefetch={true} className={`flex items-center gap-2 rounded-full transition-colors ${activeTab === 'workout' ? 'bg-green-light/15 text-green-light font-bold px-4 py-2' : 'w-10 h-10 justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50'}`}>
               <Dumbbell className="w-5 h-5 shrink-0" />
-              {activeTab === 'workout' && <span className="font-headline-md text-lg">Tập luyện</span>}
+              {activeTab === 'workout' && <span className="font-headline-md text-sm">Tập luyện</span>}
             </Link>
             
             <Link href="/history" prefetch={true} className={`flex items-center gap-2 rounded-full transition-colors ${activeTab === 'history' ? 'bg-green-light/15 text-green-light font-bold px-4 py-2' : 'w-10 h-10 justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50'}`}>
               <History className="w-5 h-5 shrink-0" />
-              {activeTab === 'history' && <span className="font-headline-md text-lg">Lịch sử</span>}
+              {activeTab === 'history' && <span className="font-headline-md text-sm">Lịch sử</span>}
             </Link>
             
             <Link href="/profile" prefetch={true} className={`flex items-center gap-2 rounded-full transition-colors ${activeTab === 'profile' ? 'bg-green-light/15 text-green-light font-bold px-4 py-2' : 'w-10 h-10 justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50'}`}>
               <User className="w-5 h-5 shrink-0" />
-              {activeTab === 'profile' && <span className="font-headline-md text-lg">Tôi</span>}
+              {activeTab === 'profile' && <span className="font-headline-md text-sm">Tôi</span>}
             </Link>
           </div>
         </nav>
