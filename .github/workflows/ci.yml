@@ -9,9 +9,13 @@ on:
 env:
   REGISTRY: ghcr.io
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build-and-test:
-    name: Build & Lint
+    name: Lint, Type-Check & Unit Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -26,18 +30,65 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Generate Prisma Client
+        run: npm run db:generate
+
       - name: Lint code
         run: npx turbo run lint
+
       - name: Type check
         run: npx turbo run check-types
+
       - name: Run unit & integration tests
         run: npx turbo run test
+
       - name: Build applications
         run: npx turbo run build
 
-  build-docker:
-    name: Build Docker Images (CD)
+  e2e-tests:
+    name: Playwright E2E Tests
     needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npm run db:generate
+
+      - name: Install Playwright Chromium Browser
+        working-directory: apps/web
+        run: npx playwright install --with-deps chromium
+
+      - name: Build Web App for E2E
+        run: npx turbo run build --filter=web
+
+      - name: Run Playwright E2E Suite
+        working-directory: apps/web
+        env:
+          CI: true
+        run: npx playwright test --project=chromium
+
+      - name: Upload Playwright Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report/
+          retention-days: 14
+
+  build-docker:
+    name: Build & Push Docker Images (CD)
+    needs: [build-and-test, e2e-tests]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
@@ -47,10 +98,17 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Set lower case repository name
         run: echo "REPO_LC=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
 
-      - name: Build Web Image
+      - name: Build & Push Web Image
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -58,13 +116,46 @@ jobs:
           build-args: |
             NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
             NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ vars.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
-          push: false # Change to true to push
-          tags: ${{ env.REGISTRY }}/${{ env.REPO_LC }}-web:latest
+            NEXT_PUBLIC_API_ENCRYPTION_KEY=${{ vars.NEXT_PUBLIC_API_ENCRYPTION_KEY }}
+          push: ${{ vars.ENABLE_DOCKER_PUSH == 'true' }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.REPO_LC }}-web:latest
+            ${{ env.REGISTRY }}/${{ env.REPO_LC }}-web:${{ github.sha }}
 
-      - name: Build Backend Image
+      - name: Build & Push Backend Image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: apps/backend/Dockerfile
-          push: false # Change to true to push
-          tags: ${{ env.REGISTRY }}/${{ env.REPO_LC }}-backend:latest
+          push: ${{ vars.ENABLE_DOCKER_PUSH == 'true' }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.REPO_LC }}-backend:latest
+            ${{ env.REGISTRY }}/${{ env.REPO_LC }}-backend:${{ github.sha }}
+
+  deploy-production:
+    name: Deploy to Production Server (VPS)
+    needs: build-docker
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.ENABLE_VPS_DEPLOY == 'true'
+    steps:
+      - name: SSH into VPS & Execute Zero-Downtime Deployment
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || '22' }}
+          script: |
+            set -e
+            cd ${{ vars.VPS_APP_DIR || '/opt/nutricore' }}
+            echo ">>> Creating pre-deploy database snapshot..."
+            ./scripts/backup-db.sh || true
+            echo ">>> Pulling latest codebase..."
+            git pull origin main
+            echo ">>> Rebuilding and restarting production services (Web, API, Nginx, Certbot, Backup)..."
+            docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
+            echo ">>> Running Prisma migrations..."
+            docker compose -f docker-compose.prod.yml exec -T backend npx prisma migrate deploy --schema=packages/db/prisma/schema.prisma || true
+            echo ">>> Cleaning up dangling images..."
+            docker image prune -f
+            echo ">>> Deployment finished successfully!"

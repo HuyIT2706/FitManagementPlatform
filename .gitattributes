@@ -1,0 +1,4 @@
+# Ensure Unix shell scripts keep LF line endings across all OS checkouts
+*.sh text eol=lf
+*.ps1 text eol=crlf
+

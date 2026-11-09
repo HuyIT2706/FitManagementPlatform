@@ -4,6 +4,9 @@
   "globalEnv": [
     "NODE_ENV",
     "VERCEL",
+    "CI",
+    "PLAYWRIGHT_TEST_BASE_URL",
+    "SKIP_WEBSERVER",
     "API_ENCRYPTION_KEY",
     "NEXT_PUBLIC_API_ENCRYPTION_KEY",
     "NEXT_PUBLIC_API_URL",
@@ -21,6 +24,9 @@
     },
     "test": {
       "outputs": ["coverage/**"]
+    },
+    "test:e2e": {
+      "cache": false
     },
     "check-types": {
       "dependsOn": ["^check-types"]

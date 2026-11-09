@@ -1,0 +1,79 @@
+name: Automated Database Backup
+
+on:
+  schedule:
+    # Runs automatically every day at 02:00 AM UTC (09:00 AM UTC+7)
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      retention_days:
+        description: 'Artifact retention days (1-90)'
+        required: false
+        default: '30'
+
+jobs:
+  backup-postgres:
+    name: Dump & Archive PostgreSQL Database
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate Backup Configuration
+        id: check_config
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::warning::DATABASE_URL secret is not configured in GitHub Repository Secrets. Skipping backup."
+            echo "configured=false" >> $GITHUB_OUTPUT
+          else
+            echo "configured=true" >> $GITHUB_OUTPUT
+          fi
+          if [ -z "$AWS_S3_BUCKET" ]; then
+            echo "s3_configured=false" >> $GITHUB_OUTPUT
+          else
+            echo "s3_configured=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install PostgreSQL Client Tools
+        if: steps.check_config.outputs.configured == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client gzip
+
+      - name: Execute pg_dump & Verify Integrity
+        if: steps.check_config.outputs.configured == 'true'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          mkdir -p backups
+          TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+          BACKUP_FILE="backups/nutricore_db_${TIMESTAMP}.sql.gz"
+          pg_dump "$DATABASE_URL" --no-owner --no-acl --clean --if-exists | gzip -9 > "$BACKUP_FILE"
+          gzip -t "$BACKUP_FILE"
+          sha256sum "$BACKUP_FILE" > "${BACKUP_FILE}.sha256"
+          ls -lh backups/
+          echo "BACKUP_PATH=$BACKUP_FILE" >> $GITHUB_ENV
+
+      - name: Upload Backup to GitHub Artifacts (30d retention)
+        if: steps.check_config.outputs.configured == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nutricore-db-backup-${{ github.run_number }}
+          path: backups/
+          retention-days: 30
+
+      - name: Off-site Sync to S3 / Cloudflare R2 (Optional)
+        if: steps.check_config.outputs.configured == 'true' && steps.check_config.outputs.s3_configured == 'true'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION || 'auto' }}
+          S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
+        run: |
+          ENDPOINT_ARG=""
+          if [ -n "$S3_ENDPOINT" ]; then
+            ENDPOINT_ARG="--endpoint-url $S3_ENDPOINT"
+          fi
+          aws s3 cp "$BACKUP_PATH" "s3://${S3_BUCKET}/db-backups/" $ENDPOINT_ARG
+          aws s3 cp "${BACKUP_PATH}.sha256" "s3://${S3_BUCKET}/db-backups/" $ENDPOINT_ARG

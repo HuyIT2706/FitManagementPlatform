@@ -7,6 +7,7 @@ import type { FoodItem, GeneratedMealPlanResponse } from "@repo/types";
 import type { StudentNutritionTabProps } from "../../../../../interface";
 import apiClient from "../../../../../api/axios";
 import toast from "../../../../../utils/toast";
+import { parseMealMacros, sumMealMacros } from "../../../../../utils/mealMacros";
 
 const StudentNutritionTab = ({
   studentId,
@@ -81,42 +82,6 @@ const StudentNutritionTab = ({
     onSnackTextChange,
   ]);
 
-  const parseMealMacros = (text: string | undefined) => {
-    if (!text || !text.trim()) {
-      return { calories: 0, protein: 0, carbs: 0, fat: 0 };
-    }
-    const lines = text.split("\n");
-    let cal = 0;
-    let p = 0;
-    let c = 0;
-    let f = 0;
-
-    for (const line of lines) {
-      const calMatch = line.match(/(\d+(?:\.\d+)?)\s*kcal/i);
-      const pMatch =
-        line.match(/(\d+(?:\.\d+)?)\s*g\s*P\b/i) ||
-        line.match(/(\d+(?:\.\d+)?)\s*P\b/i);
-      const cMatch =
-        line.match(/(\d+(?:\.\d+)?)\s*g\s*C\b/i) ||
-        line.match(/(\d+(?:\.\d+)?)\s*C\b/i);
-      const fMatch =
-        line.match(/(\d+(?:\.\d+)?)\s*g\s*F\b/i) ||
-        line.match(/(\d+(?:\.\d+)?)\s*F\b/i);
-
-      if (calMatch && calMatch[1]) cal += parseFloat(calMatch[1]);
-      if (pMatch && pMatch[1]) p += parseFloat(pMatch[1]);
-      if (cMatch && cMatch[1]) c += parseFloat(cMatch[1]);
-      if (fMatch && fMatch[1]) f += parseFloat(fMatch[1]);
-    }
-
-    return {
-      calories: Math.round(cal),
-      protein: Math.round(p * 10) / 10,
-      carbs: Math.round(c * 10) / 10,
-      fat: Math.round(f * 10) / 10,
-    };
-  };
-
   const breakfastMacros = useMemo(
     () => parseMealMacros(breakfastText),
     [breakfastText],
@@ -125,39 +90,10 @@ const StudentNutritionTab = ({
   const dinnerMacros = useMemo(() => parseMealMacros(dinnerText), [dinnerText]);
   const snackMacros = useMemo(() => parseMealMacros(snackText), [snackText]);
 
-  const totalMealMacros = useMemo(() => {
-    return {
-      calories:
-        breakfastMacros.calories +
-        lunchMacros.calories +
-        dinnerMacros.calories +
-        snackMacros.calories,
-      protein:
-        Math.round(
-          (breakfastMacros.protein +
-            lunchMacros.protein +
-            dinnerMacros.protein +
-            snackMacros.protein) *
-            10,
-        ) / 10,
-      carbs:
-        Math.round(
-          (breakfastMacros.carbs +
-            lunchMacros.carbs +
-            dinnerMacros.carbs +
-            snackMacros.carbs) *
-            10,
-        ) / 10,
-      fat:
-        Math.round(
-          (breakfastMacros.fat +
-            lunchMacros.fat +
-            dinnerMacros.fat +
-            snackMacros.fat) *
-            10,
-        ) / 10,
-    };
-  }, [breakfastMacros, lunchMacros, dinnerMacros, snackMacros]);
+  const totalMealMacros = useMemo(
+    () => sumMealMacros([breakfastMacros, lunchMacros, dinnerMacros, snackMacros]),
+    [breakfastMacros, lunchMacros, dinnerMacros, snackMacros],
+  );
 
   const mealTitleMap = {
     breakfast: "Bữa Sáng",
