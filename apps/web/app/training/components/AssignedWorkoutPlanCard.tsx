@@ -1,7 +1,11 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { Dumbbell, UserCheck, Flame } from 'lucide-react';
 import type { AssignedWorkoutPlanCardProps, ExerciseItem } from '../../../interface';
+
+const DEFAULT_EXERCISE_IMG =
+  'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80';
 
 const AssignedWorkoutPlanCard = ({
   assignedWorkoutPlan,
@@ -17,7 +21,7 @@ const AssignedWorkoutPlanCard = ({
     <div className="space-y-3 sm:space-y-4">
       <div className="flex items-center justify-between px-1">
         <h3 className="font-headline-md font-bold text-lg sm:text-xl text-on-surface">
-          Lịch tập 1:1 do Coach giao
+          Lịch tập
         </h3>
         <span className="text-xs font-bold text-primary bg-primary/10 px-2.5 sm:px-3 py-1 rounded-full border border-primary/30 flex items-center gap-1.5">
           <Flame size={14} />
@@ -31,7 +35,6 @@ const AssignedWorkoutPlanCard = ({
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border border-primary/40 shrink-0 bg-primary/20 flex items-center justify-center text-primary font-extrabold relative">
               {coachAvatar ? (
-                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={coachAvatar}
                   alt={coachName}
@@ -63,7 +66,13 @@ const AssignedWorkoutPlanCard = ({
         {/* Exercises List */}
         <div className="space-y-2.5 sm:space-y-3">
           {exercises.map((ex) => {
-            const imageSrc = ex.setupImageUrl || ex.startImageUrl || (ex as { imageUrl?: string }).imageUrl;
+            const imageSrc =
+              (ex.setupImageUrl && ex.setupImageUrl.trim() !== '' ? ex.setupImageUrl : undefined) ||
+              (ex.startImageUrl && ex.startImageUrl.trim() !== '' ? ex.startImageUrl : undefined) ||
+              ((ex as { imageUrl?: string }).imageUrl && (ex as { imageUrl?: string }).imageUrl?.trim() !== ''
+                ? (ex as { imageUrl?: string }).imageUrl
+                : undefined) ||
+              DEFAULT_EXERCISE_IMG;
 
             return (
               <div
@@ -73,26 +82,19 @@ const AssignedWorkoutPlanCard = ({
               >
                 <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl overflow-hidden border border-white/15 shrink-0 bg-surface-bright/80 flex items-center justify-center group-hover:border-primary/40 transition-colors relative">
-                    {imageSrc ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={imageSrc}
-                        alt={ex.name}
-                        loading="lazy"
-                        decoding="async"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          const fallback = e.currentTarget.parentElement?.querySelector('.ex-fallback-icon');
-                          if (fallback) (fallback as HTMLElement).style.display = 'flex';
-                        }}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : null}
-                    <div
-                      className={`ex-fallback-icon w-full h-full items-center justify-center ${
-                        imageSrc ? 'hidden' : 'flex'
-                      }`}
-                    >
+                    <img
+                      src={imageSrc}
+                      alt={ex.name}
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        if (e.currentTarget.src !== DEFAULT_EXERCISE_IMG) {
+                          e.currentTarget.src = DEFAULT_EXERCISE_IMG;
+                        }
+                      }}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 relative z-10"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-surface-bright">
                       <Dumbbell size={18} className="text-primary sm:w-5 sm:h-5" />
                     </div>
                   </div>

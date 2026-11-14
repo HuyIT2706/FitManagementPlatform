@@ -475,6 +475,17 @@ export class WorkoutService {
           startImageUrl?: string;
         } | null;
 
+        const defaultExImg =
+          'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80';
+        const setupImg =
+          (ex?.setupImageUrl && ex.setupImageUrl.trim() !== ''
+            ? ex.setupImageUrl
+            : undefined) ||
+          (ex?.startImageUrl && ex.startImageUrl.trim() !== ''
+            ? ex.startImageUrl
+            : undefined) ||
+          defaultExImg;
+
         return {
           id: se.id,
           name: ex?.name || 'Bài tập 1:1',
@@ -489,8 +500,8 @@ export class WorkoutService {
           reps: se.reps,
           weightInKg: se.weight || 0,
           instructions: ex?.instructions || [],
-          setupImageUrl: ex?.setupImageUrl || undefined,
-          startImageUrl: ex?.startImageUrl || undefined,
+          setupImageUrl: setupImg,
+          startImageUrl: ex?.startImageUrl || setupImg,
           dayOfWeek: 'Thứ 2 - 4 - 6',
         };
       });
@@ -498,28 +509,40 @@ export class WorkoutService {
       try {
         const parsed: unknown = JSON.parse(targetSchedule.note);
         if (Array.isArray(parsed)) {
-          exercises = parsed.map((item: Record<string, unknown>) => ({
-            id: typeof item.id === 'string' ? item.id : `ex-${Date.now()}`,
-            name: typeof item.name === 'string' ? item.name : 'Bài tập 1:1',
-            category:
-              typeof item.category === 'string' ? item.category : 'FULL_BODY',
-            sets: Number(item.sets) || 3,
-            reps: Number(item.reps) || 12,
-            weightInKg: Number(item.weightInKg) || 0,
-            instructions: [],
-            setupImageUrl:
-              typeof item.setupImageUrl === 'string'
-                ? item.setupImageUrl
-                : typeof item.imageUrl === 'string'
-                  ? item.imageUrl
-                  : undefined,
-            startImageUrl:
-              typeof item.startImageUrl === 'string'
-                ? item.startImageUrl
-                : undefined,
-            dayOfWeek:
-              typeof item.dayOfWeek === 'string' ? item.dayOfWeek : undefined,
-          }));
+          exercises = parsed.map((item: Record<string, unknown>) => {
+            const rawSetup =
+              typeof item.setupImageUrl === 'string' &&
+              item.setupImageUrl.trim() !== ''
+                ? item.setupImageUrl.trim()
+                : typeof item.imageUrl === 'string' &&
+                    item.imageUrl.trim() !== ''
+                  ? item.imageUrl.trim()
+                  : undefined;
+            const rawStart =
+              typeof item.startImageUrl === 'string' &&
+              item.startImageUrl.trim() !== ''
+                ? item.startImageUrl.trim()
+                : undefined;
+            const fallbackImg =
+              rawSetup ||
+              rawStart ||
+              'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80';
+
+            return {
+              id: typeof item.id === 'string' ? item.id : `ex-${Date.now()}`,
+              name: typeof item.name === 'string' ? item.name : 'Bài tập 1:1',
+              category:
+                typeof item.category === 'string' ? item.category : 'FULL_BODY',
+              sets: Number(item.sets) || 3,
+              reps: Number(item.reps) || 12,
+              weightInKg: Number(item.weightInKg) || 0,
+              instructions: [],
+              setupImageUrl: fallbackImg,
+              startImageUrl: rawStart || fallbackImg,
+              dayOfWeek:
+                typeof item.dayOfWeek === 'string' ? item.dayOfWeek : undefined,
+            };
+          });
         }
       } catch {
         // note is regular string

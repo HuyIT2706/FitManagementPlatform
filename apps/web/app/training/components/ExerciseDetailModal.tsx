@@ -4,6 +4,9 @@
 import { X, ExternalLink } from 'lucide-react';
 import type { ExerciseDetailModalProps } from '../../../interface';
 
+const DEFAULT_EXERCISE_IMG =
+  'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80';
+
 const ExerciseDetailModal = ({
   activeExercise: propActive,
   exercise,
@@ -69,11 +72,20 @@ const ExerciseDetailModal = ({
             <div className="h-44 sm:h-52 rounded-2xl overflow-hidden border border-slate-200 dark:border-white/15 bg-slate-900 relative shadow-inner">
               <img
                 src={
-                  activeExercise.setupImageUrl ||
-                  activeExercise.startImageUrl ||
-                  'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80'
+                  (activeExercise.setupImageUrl && activeExercise.setupImageUrl.trim() !== ''
+                    ? activeExercise.setupImageUrl
+                    : undefined) ||
+                  (activeExercise.startImageUrl && activeExercise.startImageUrl.trim() !== ''
+                    ? activeExercise.startImageUrl
+                    : undefined) ||
+                  DEFAULT_EXERCISE_IMG
                 }
                 alt="Setup Pose"
+                onError={(e) => {
+                  if (e.currentTarget.src !== DEFAULT_EXERCISE_IMG) {
+                    e.currentTarget.src = DEFAULT_EXERCISE_IMG;
+                  }
+                }}
                 className="w-full h-full object-cover"
               />
             </div>
@@ -90,11 +102,20 @@ const ExerciseDetailModal = ({
             <div className="h-44 sm:h-52 rounded-2xl overflow-hidden border border-primary/40 bg-slate-900 relative shadow-[0_0_20px_rgba(102,200,28,0.15)]">
               <img
                 src={
-                  activeExercise.startImageUrl ||
-                  activeExercise.setupImageUrl ||
-                  'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80'
+                  (activeExercise.startImageUrl && activeExercise.startImageUrl.trim() !== ''
+                    ? activeExercise.startImageUrl
+                    : undefined) ||
+                  (activeExercise.setupImageUrl && activeExercise.setupImageUrl.trim() !== ''
+                    ? activeExercise.setupImageUrl
+                    : undefined) ||
+                  DEFAULT_EXERCISE_IMG
                 }
                 alt="Start Pose"
+                onError={(e) => {
+                  if (e.currentTarget.src !== DEFAULT_EXERCISE_IMG) {
+                    e.currentTarget.src = DEFAULT_EXERCISE_IMG;
+                  }
+                }}
                 className="w-full h-full object-cover"
               />
             </div>

@@ -328,14 +328,10 @@ export const SmartFoodInputView = ({
         triggerAnalyze(text);
       }
     } else {
-      if (micPermissionDenied) {
-        await requestMicPermission();
-        return;
-      }
       hasTriggeredAnalyzeRef.current = false;
       latestTranscriptRef.current = '';
       setSpeechTranscript('');
-      startListening();
+      await requestMicPermission();
     }
   };
 
@@ -726,17 +722,17 @@ export const SmartFoodInputView = ({
                 </h3>
 
                 <p className="text-xs text-slate-600 dark:text-white/70 leading-relaxed text-center mb-4">
-                  NutriCore cần quyền Microphone để nghe tên món ăn và nhận diện dinh dưỡng tự động tương tự như quyền máy ảnh.
+                  NutriCore cần quyền Microphone trên trình duyệt web để nghe tên món ăn và nhận diện dinh dưỡng tự động tương tự như quyền máy ảnh.
                 </p>
 
                 <div className="w-full p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-left mb-5 space-y-1.5 text-xs text-amber-800 dark:text-amber-300">
                   <p className="font-bold flex items-center gap-1.5">
-                    <span>💡 Hướng dẫn cấp quyền nhanh:</span>
+                    <span>💡 Hướng dẫn cấp quyền trên Web / Trình duyệt:</span>
                   </p>
                   <ul className="list-disc list-inside space-y-1 text-[11px] opacity-90">
-                    <li>Nhấn vào biểu tượng <strong>Ổ khóa 🔒 / Cài đặt trang web</strong> trên thanh địa chỉ trình duyệt.</li>
-                    <li>Tìm mục <strong>Microphone (Micro)</strong> và chọn <strong>Cho phép</strong>.</li>
-                    <li>Sau đó bấm nút <strong>Cấp Quyền Lại</strong> bên dưới.</li>
+                    <li>Nhấn vào biểu tượng <strong>Ổ khóa 🔒 / Cài đặt trang web</strong> bên trái thanh địa chỉ URL.</li>
+                    <li>Tại mục <strong>Microphone (Micro)</strong>, chọn <strong>Cho phép (Allow)</strong>.</li>
+                    <li>Sau đó bấm nút <strong>Cấp Quyền Ngay</strong> bên dưới hoặc nhấn F5 để tải lại.</li>
                   </ul>
                 </div>
 
