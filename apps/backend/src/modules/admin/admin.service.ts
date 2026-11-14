@@ -363,7 +363,7 @@ export class AdminService {
       message: `Đã xóa tài khoản ${user.fullName} (${user.email}) khỏi hệ thống!`,
     };
   }
-  // 3. EXERCISE LIBRARY MANAGEMENT 
+  // 3. EXERCISE LIBRARY MANAGEMENT
   async getExercises(params?: {
     page?: number;
     limit?: number;

@@ -125,7 +125,7 @@ export class AdminController {
   async deleteExercise(@Param('id') id: string) {
     return this.adminService.deleteExercise(id);
   }
-  // 5. FOOD LIBRARY 
+  // 5. FOOD LIBRARY
   @Get('foods')
   async getFoods(
     @Query('page') page?: number,

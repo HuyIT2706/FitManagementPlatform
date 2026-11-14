@@ -1688,8 +1688,12 @@ export class PtService {
       process.env.FRONTEND_URL ||
       'https://nutricore-olive.vercel.app'
     ).replace(/\/+$/, '');
-    const sessionsParam = dto.totalSessions ? `&sessions=${dto.totalSessions}` : '';
-    const pkgParam = dto.packageName ? `&pkg=${encodeURIComponent(dto.packageName)}` : '';
+    const sessionsParam = dto.totalSessions
+      ? `&sessions=${dto.totalSessions}`
+      : '';
+    const pkgParam = dto.packageName
+      ? `&pkg=${encodeURIComponent(dto.packageName)}`
+      : '';
     const inviteUrl = `${baseUrl}/invite?code=${inviteCode}&pt=${ptUserId}${sessionsParam}${pkgParam}`;
 
     const studentUser = await this.prisma.user.findFirst({
@@ -1815,7 +1819,8 @@ export class PtService {
           data: {
             totalSessions: dto.totalSessions || activeMemberPkg.totalSessions,
             remainingSessions:
-              dto.remainingSessions ?? (dto.totalSessions || activeMemberPkg.remainingSessions),
+              dto.remainingSessions ??
+              (dto.totalSessions || activeMemberPkg.remainingSessions),
           },
         });
       } else {
