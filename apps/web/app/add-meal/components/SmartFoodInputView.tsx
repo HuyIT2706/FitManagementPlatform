@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   ArrowLeft,
   Mic,
+  MicOff,
   Search,
   Sparkles,
   Loader2,
@@ -71,6 +72,8 @@ export const SmartFoodInputView = ({
   const [textInput, setTextInput] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [speechTranscript, setSpeechTranscript] = useState('');
+  const [micPermissionDenied, setMicPermissionDenied] = useState(false);
+  const [isRequestingPermission, setIsRequestingPermission] = useState(false);
 
   // Camera & Image state
   const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null);
@@ -90,6 +93,33 @@ export const SmartFoodInputView = ({
       setActiveTab(initialTab);
     }
   }, [initialTab]);
+
+  // Check microphone permission when Voice tab is active
+  useEffect(() => {
+    if (
+      activeTab === 'voice' &&
+      typeof navigator !== 'undefined' &&
+      navigator.permissions?.query
+    ) {
+      navigator.permissions
+        .query({ name: 'microphone' as PermissionName })
+        .then((permissionStatus) => {
+          if (permissionStatus.state === 'denied') {
+            setMicPermissionDenied(true);
+          } else if (permissionStatus.state === 'granted') {
+            setMicPermissionDenied(false);
+          }
+          permissionStatus.onchange = () => {
+            if (permissionStatus.state === 'granted') {
+              setMicPermissionDenied(false);
+            } else if (permissionStatus.state === 'denied') {
+              setMicPermissionDenied(true);
+            }
+          };
+        })
+        .catch(() => {});
+    }
+  }, [activeTab]);
 
   const stopListening = useCallback(() => {
     isListeningRef.current = false;
@@ -214,8 +244,9 @@ export const SmartFoodInputView = ({
         if (event.error !== 'aborted' && event.error !== 'no-speech') {
           console.warn('Speech recognition error:', event.error);
         }
-        if (event.error === 'not-allowed') {
-          toast.error('Vui lòng cấp quyền truy cập Microphone cho trình duyệt.');
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+          setMicPermissionDenied(true);
+          toast.error('Vui lòng cấp quyền truy cập Microphone cho trình duyệt để nói món ăn.');
           isListeningRef.current = false;
           setIsListening(false);
         }
@@ -268,7 +299,28 @@ export const SmartFoodInputView = ({
     };
   }, [stopListening]);
 
-  const handleMicToggle = () => {
+  const requestMicPermission = useCallback(async () => {
+    setIsRequestingPermission(true);
+    try {
+      if (typeof navigator !== 'undefined' && navigator.mediaDevices?.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach((track) => track.stop());
+        setMicPermissionDenied(false);
+        toast.success('Đã cấp quyền Microphone thành công! Bắt đầu nói...');
+        startListening();
+      } else {
+        startListening();
+      }
+    } catch (err: unknown) {
+      console.warn('Microphone permission request rejected:', err);
+      setMicPermissionDenied(true);
+      toast.error('Quyền truy cập Microphone bị từ chối. Vui lòng bật quyền trong cài đặt trình duyệt.');
+    } finally {
+      setIsRequestingPermission(false);
+    }
+  }, [startListening]);
+
+  const handleMicToggle = async () => {
     if (isListeningRef.current || isListening) {
       const text = latestTranscriptRef.current.trim() || speechTranscript.trim();
       stopListening();
@@ -276,6 +328,10 @@ export const SmartFoodInputView = ({
         triggerAnalyze(text);
       }
     } else {
+      if (micPermissionDenied) {
+        await requestMicPermission();
+        return;
+      }
       hasTriggeredAnalyzeRef.current = false;
       latestTranscriptRef.current = '';
       setSpeechTranscript('');
@@ -658,51 +714,110 @@ export const SmartFoodInputView = ({
               </div>
             )}
 
-            {/* Large Glowing Microphone Button Area */}
-            <div className="my-auto py-6 flex flex-col items-center justify-center relative">
-              {/* Outer Pulsing Aura Circles */}
-              <div
-                className={`absolute w-64 h-64 rounded-full pointer-events-none transition-all duration-700 ${
-                  isListening
-                    ? 'bg-emerald-500/15 dark:bg-primary/15 animate-ping opacity-75'
-                    : 'bg-emerald-500/5 dark:bg-primary/5 opacity-40'
-                }`}
-              />
-              <div
-                className={`absolute w-48 h-48 rounded-full pointer-events-none transition-all duration-500 ${
-                  isListening
-                    ? 'bg-emerald-500/20 dark:bg-primary/20 animate-pulse'
-                    : 'bg-emerald-500/10 dark:bg-primary/10'
-                }`}
-              />
+            {/* Large Glowing Microphone Button Area or Permission Prompt */}
+            {micPermissionDenied ? (
+              <div className="my-auto py-4 flex flex-col items-center max-w-sm mx-auto w-full animate-in fade-in duration-300">
+                <div className="w-16 h-16 rounded-3xl bg-amber-500/15 border border-amber-500/30 text-amber-500 flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(245,158,11,0.2)] animate-pulse">
+                  <MicOff size={32} />
+                </div>
 
-              {/* Main Circular Mic Button */}
-              <button
-                type="button"
-                onClick={handleMicToggle}
-                className={`relative w-28 h-28 rounded-full flex flex-col items-center justify-center transition-all duration-300 cursor-pointer shadow-xl ${
-                  isListening
-                    ? 'bg-emerald-100 dark:bg-emerald-950/80 border-4 border-emerald-500 dark:border-primary scale-105'
-                    : 'bg-slate-100 dark:bg-white/10 hover:bg-emerald-50 dark:hover:bg-white/15 border-2 border-slate-200 dark:border-white/10'
-                }`}
-                title={isListening ? 'Nhấn để dừng nghe' : 'Nhấn để nói'}
-              >
-                {isListening ? (
-                  <div className="flex items-center gap-1">
-                    <span className="w-1.5 h-6 bg-emerald-600 dark:bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
-                    <span className="w-1.5 h-10 bg-emerald-600 dark:bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
-                    <span className="w-1.5 h-7 bg-emerald-600 dark:bg-primary rounded-full animate-bounce" />
-                    <span className="w-1.5 h-4 bg-emerald-600 dark:bg-primary rounded-full animate-bounce [animation-delay:-0.2s]" />
-                  </div>
-                ) : (
-                  <Mic size={34} className="text-slate-600 dark:text-white/80" />
-                )}
-              </button>
+                <h3 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-white mb-2">
+                  Chưa Cấp Quyền Truy Cập Micro
+                </h3>
 
-              <span className="mt-4 text-xs font-bold text-slate-500 dark:text-white/60">
-                {isListening ? 'Đang lắng nghe...' : 'Nhấn vào micro để nói'}
-              </span>
-            </div>
+                <p className="text-xs text-slate-600 dark:text-white/70 leading-relaxed text-center mb-4">
+                  NutriCore cần quyền Microphone để nghe tên món ăn và nhận diện dinh dưỡng tự động tương tự như quyền máy ảnh.
+                </p>
+
+                <div className="w-full p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-left mb-5 space-y-1.5 text-xs text-amber-800 dark:text-amber-300">
+                  <p className="font-bold flex items-center gap-1.5">
+                    <span>💡 Hướng dẫn cấp quyền nhanh:</span>
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 text-[11px] opacity-90">
+                    <li>Nhấn vào biểu tượng <strong>Ổ khóa 🔒 / Cài đặt trang web</strong> trên thanh địa chỉ trình duyệt.</li>
+                    <li>Tìm mục <strong>Microphone (Micro)</strong> và chọn <strong>Cho phép</strong>.</li>
+                    <li>Sau đó bấm nút <strong>Cấp Quyền Lại</strong> bên dưới.</li>
+                  </ul>
+                </div>
+
+                <div className="w-full flex flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={requestMicPermission}
+                    disabled={isRequestingPermission}
+                    className="w-full py-3 px-4 rounded-xl bg-primary text-black font-extrabold text-xs sm:text-sm hover:opacity-90 active:scale-95 transition-all shadow-[0_0_15px_rgba(102,200,28,0.4)] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  >
+                    {isRequestingPermission ? (
+                      <>
+                        <Loader2 size={16} className="animate-spin" />
+                        <span>Đang yêu cầu quyền...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Mic size={16} />
+                        <span>Cấp Quyền Ngay</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMicPermissionDenied(false);
+                      setActiveTab('text');
+                    }}
+                    className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-slate-700 dark:text-white font-semibold text-xs transition-all cursor-pointer"
+                  >
+                    Chuyển sang Nhập bằng văn bản
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="my-auto py-6 flex flex-col items-center justify-center relative">
+                {/* Outer Pulsing Aura Circles */}
+                <div
+                  className={`absolute w-64 h-64 rounded-full pointer-events-none transition-all duration-700 ${
+                    isListening
+                      ? 'bg-emerald-500/15 dark:bg-primary/15 animate-ping opacity-75'
+                      : 'bg-emerald-500/5 dark:bg-primary/5 opacity-40'
+                  }`}
+                />
+                <div
+                  className={`absolute w-48 h-48 rounded-full pointer-events-none transition-all duration-500 ${
+                    isListening
+                      ? 'bg-emerald-500/20 dark:bg-primary/20 animate-pulse'
+                      : 'bg-emerald-500/10 dark:bg-primary/10'
+                  }`}
+                />
+
+                {/* Main Circular Mic Button */}
+                <button
+                  type="button"
+                  onClick={handleMicToggle}
+                  className={`relative w-28 h-28 rounded-full flex flex-col items-center justify-center transition-all duration-300 cursor-pointer shadow-xl ${
+                    isListening
+                      ? 'bg-emerald-100 dark:bg-emerald-950/80 border-4 border-emerald-500 dark:border-primary scale-105'
+                      : 'bg-slate-100 dark:bg-white/10 hover:bg-emerald-50 dark:hover:bg-white/15 border-2 border-slate-200 dark:border-white/10'
+                  }`}
+                  title={isListening ? 'Nhấn để dừng nghe' : 'Nhấn để nói'}
+                >
+                  {isListening ? (
+                    <div className="flex items-center gap-1">
+                      <span className="w-1.5 h-6 bg-emerald-600 dark:bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
+                      <span className="w-1.5 h-10 bg-emerald-600 dark:bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
+                      <span className="w-1.5 h-7 bg-emerald-600 dark:bg-primary rounded-full animate-bounce" />
+                      <span className="w-1.5 h-4 bg-emerald-600 dark:bg-primary rounded-full animate-bounce [animation-delay:-0.2s]" />
+                    </div>
+                  ) : (
+                    <Mic size={34} className="text-slate-600 dark:text-white/80" />
+                  )}
+                </button>
+
+                <span className="mt-4 text-xs font-bold text-slate-500 dark:text-white/60">
+                  {isListening ? 'Đang lắng nghe...' : 'Nhấn vào micro để nói'}
+                </span>
+              </div>
+            )}
           </>
         )}
 
