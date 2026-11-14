@@ -1,7 +1,7 @@
 <div align="center">
 
-# 🥗 NutriCore — FitManagementPlatform
-### Nền Tảng Quản Lý Dinh Dưỡng Thông Minh, Huấn Luyện PT 1:1 & Thể Hình Toàn Diện
+# NutriCore — FitManagementPlatform
+### Nền Tảng Quản Lý Dinh Dưỡng Thông Minh, Huấn Luyện PT & Thể Hình Toàn Diện
 
 [![Turborepo](https://img.shields.io/badge/Turborepo-Monorepo-ef4444?style=for-the-badge&logo=turborepo)](https://turbo.build/)
 [![Next.js](https://img.shields.io/badge/Next.js_16-App_Router-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
@@ -13,15 +13,15 @@
 [![Docker](https://img.shields.io/badge/Docker-Production_Ready-2496ED?style=for-the-badge&logo=docker)](https://www.docker.com/)
 
 <p align="center">
-  <b>NutriCore</b> là giải pháp công nghệ thể hình toàn diện, tích hợp <b>AI Computer Vision</b> nhận diện thực phẩm qua camera, bộ bóc tách <b>NLP ngôn ngữ tự nhiên tiếng Việt</b>, thuật toán tối ưu khẩu phần <b>Smart Meal Planner</b>, hệ sinh thái quản lý <b>Huấn luyện viên cá nhân (PT 1:1)</b>, cơ chế bảo mật mã hóa đầu cuối <b>(E2E Encryption)</b> và đóng gói đa nền tảng <b>(Web PWA & Android APK)</b>.
+  <b>NutriCore</b> là giải pháp công nghệ thể hình toàn diện, tích hợp <b>AI Computer Vision</b> nhận diện thực phẩm qua camera, bộ bóc tách <b>NLP ngôn ngữ tự nhiên tiếng Việt</b>, thuật toán tối ưu khẩu phần hệ sinh thái quản lý <b>Huấn luyện viên cá nhân </b>
 </p>
 
-[✨ Tính năng nổi bật](#-tính-năng-nổi-bật) • [🏛️ Kiến trúc hệ thống](#️-kiến-trúc-hệ-thống) • [📦 Cấu trúc Monorepo](#-cấu-trúc-monorepo) • [🚀 Cài đặt & Khởi chạy](#-cài-đặt--khởi-chạy-nhanh) • [🛡️ Bảo mật & An toàn dữ liệu](#️-bảo-mật--an-toàn-dữ-liệu) • [🧪 Kiểm thử tự động](#-kiểm-thử-tự-động--chất-lượng-mã-nguồn) • [🌐 Triển khai Production](#-triển-khai-production)
+[Tính năng nổi bật](#-tính-năng-nổi-bật) • [Kiến trúc hệ thống](#️-kiến-trúc-hệ-thống) • [Cấu trúc Monorepo](#-cấu-trúc-monorepo) • [Cài đặt & Khởi chạy](#-cài-đặt--khởi-chạy-nhanh) • [Bảo mật & An toàn dữ liệu](#️-bảo-mật--an-toàn-dữ-liệu) • [Kiểm thử tự động](#-kiểm-thử-tự-động--chất-lượng-mã-nguồn) • [Triển khai Production](#-triển-khai-production)
 
 ---
 </div>
 
-## 🌟 Giới thiệu Tổng quan
+## Giới thiệu Tổng quan
 
 **NutriCore (FitManagementPlatform)** giải quyết triệt để hai bài toán lớn nhất trong ngành Fitness & Dinh dưỡng cá nhân hóa:
 1. **Đối với người tập (Học viên):** Xóa bỏ rào cản tính toán calo phức tạp. Người dùng chỉ cần chụp ảnh bữa ăn hoặc nói một câu tự nhiên (ví dụ: *"2 quả trứng gà và 1 bát cơm"*), hệ thống tự động bóc tách khối lượng và tính chỉ số dinh dưỡng (Calories, Protein, Carbs, Fat).
@@ -29,9 +29,9 @@
 
 ---
 
-## ✨ Tính năng Nổi bật
+## Tính năng Nổi bật
 
-### 1. 📸 Nhận diện Bữa ăn Thông minh (Vision AI & NLP)
+### 1. Nhận diện Bữa ăn Thông minh (Vision AI & NLP)
 * **Google Gemini Multimodal Vision AI:** Nhận diện đĩa thức ăn từ camera hoặc ảnh tải lên, tự động nhận diện các món ăn và ước lượng số gram theo khẩu phần thực tế.
 * **Xử lý Ngôn ngữ Tự nhiên tiếng Việt (Vietnamese NLP Engine):** Nhận diện giọng nói (Web Speech API) và bóc tách câu từ tự nhiên:
   * Tự động hiểu các đơn vị dân dã của người Việt: *"nửa bát/nửa chén"* (75g), *"2 quả/hột"* (100g), *"1 đĩa"* (200g), *"1 tô"* (350g), *"1 cốc/ly"* (200g).
@@ -39,40 +39,40 @@
 * **Tra cứu Tiếng Việt Không Dấu (Unaccent Search):** Tìm kiếm tức thì trong cơ sở dữ liệu `FoodLibrary` bất kể người dùng gõ có dấu hay không dấu.
 * **Cơ chế Human-in-the-loop:** Người dùng luôn có thể xem trước và tinh chỉnh số gram trước khi lưu vào `MealLog`, đảm bảo độ chính xác dinh dưỡng 100%.
 
-### 2. 🧠 Thuật toán Lập Thực đơn Thông minh (Smart Meal Planner)
+### 2. Thuật toán Lập Thực đơn Thông minh 
 * **Tối ưu hóa đa mục tiêu (Discrete Solver & Heuristic):** Tự động phân bổ món ăn vào các bữa (Sáng, Trưa, Tối, Phụ) khớp với mục tiêu TDEE, Calo và cân bằng tỷ lệ Macro:
   $$\text{Tỷ lệ đạt chuẩn: } \ge 100\% \text{ Protein}, \ge 95\% \text{ Carbs}, \ge 90\% \text{ Fat}$$
 * **Bộ lọc Dị ứng & Bệnh lý chuyên sâu:** Tự động loại trừ thực phẩm gây dị ứng (hải sản, đậu phộng, gluten, lactose, trứng, đậu nành...).
 
-### 3. 🏋️‍♂️ Hệ sinh thái Huấn luyện viên Cá nhân (PT 1:1 Ecosystem)
+### 3. Hệ sinh thái Huấn luyện viên Cá nhân 
 * **Mời học viên qua QR Code & Deep Link:** PT tùy chọn linh hoạt số buổi tập của gói (12, 16, 24, 36 buổi hoặc số buổi bất kỳ). Học viên chỉ cần quét mã QR hoặc click link là tự động liên kết với PT.
 * **Lịch tập tương tác (PT Schedule):** Giao diện lịch dạng lưới tháng/tuần/ngày, cho phép PT xếp lịch tập, gắn bài tập kèm hình ảnh kỹ thuật minh họa và thực đơn dinh dưỡng.
 * **Điểm danh an toàn (Atomic Check-in):** Trừ buổi tập qua Database Transaction nguyên tử, chống gian lận hoặc bấm đúp trừ trùng lặp buổi tập.
 * **Biểu đồ InBody chuyên nghiệp:** Trực quan hóa diễn biến Cân nặng (Weight), Tỷ lệ mỡ (Body Fat) và Khối lượng cơ (Muscle Mass) theo trục thời gian thực.
 * **Transformation Journey Slider:** Thanh trượt so sánh ảnh chụp vóc dáng trước và sau lộ trình tập luyện.
 
-### 4. 📱 Ứng dụng Đa nền tảng (Web PWA & Android Native)
+### 4. Ứng dụng Đa nền tảng (Web PWA & Android Native)
 * **Web PWA:** Hỗ trợ Service Worker, cài đặt trực tiếp lên màn hình chính (A2HS), hỗ trợ Web Push Notification thông báo giờ tập và nhắc nhở uống nước.
 * **Capacitor Android:** Đóng gói nguyên bản (Native APK) với cấu hình quyền Camera, Microphone và Storage tối ưu cho thiết bị Android.
 
 ---
 
-## 🏛️ Kiến trúc Hệ thống
+## Kiến trúc Hệ thống
 
 ```mermaid
 flowchart TB
-    subgraph Clients["📱 CLIENT LAYER"]
+    subgraph Clients["CLIENT LAYER"]
         PWA["Web PWA (Next.js 16)"]
         Mobile["Android App (Capacitor)"]
     end
 
-    subgraph Security["🛡️ GATEWAY & SECURITY LAYER"]
+    subgraph Security["GATEWAY & SECURITY LAYER"]
         Nginx["Nginx Reverse Proxy (TLS 1.2/1.3 + HSTS)"]
         Crypto["End-to-End Crypto (AES-256-GCM)"]
         Throttler["Rate Limiter (Anti-DoS & AI Quota)"]
     end
 
-    subgraph BackendApp["⚙️ BACKEND SERVICES (NestJS 11)"]
+    subgraph BackendApp["BACKEND SERVICES (NestJS 11)"]
         AuthMod["Auth Module (JWT & Silent Refresh)"]
         NutritionMod["Nutrition Module (AI Vision & NLP)"]
         PTMod["PT & Coaching Module (Atomic Tx)"]
@@ -80,13 +80,13 @@ flowchart TB
         AdminMod["Admin & Analytics Service"]
     end
 
-    subgraph External["☁️ EXTERNAL SERVICES"]
+    subgraph External["EXTERNAL SERVICES"]
         GeminiAI["Google Gemini Vision AI"]
         WebPush["Web Push VAPID Service"]
         OAuth["Google OAuth 2.0"]
     end
 
-    subgraph Database["🗄️ PERSISTENCE LAYER"]
+    subgraph Database[" PERSISTENCE LAYER"]
         Postgres[(PostgreSQL with unaccent & pg_trgm)]
         Prisma["Prisma ORM 5"]
     end
@@ -106,7 +106,7 @@ flowchart TB
 
 ---
 
-## 📦 Cấu trúc Monorepo
+## Cấu trúc Monorepo
 
 NutriCore được quản lý theo mô hình Monorepo tối ưu hóa với **Turborepo** và **npm workspaces**:
 
@@ -139,7 +139,7 @@ FitManagementPlatform/
 
 ---
 
-## 🛠️ Công nghệ Sử dụng
+## Công nghệ Sử dụng
 
 | Tầng | Công nghệ / Thư viện | Mô tả |
 | :--- | :--- | :--- |
@@ -162,7 +162,7 @@ FitManagementPlatform/
 
 ---
 
-## 🚀 Cài đặt & Khởi chạy Nhanh
+## Cài đặt & Khởi chạy Nhanh
 
 ### Yêu cầu Tiên quyết
 * **Node.js**: Phiên bản `>= 18.0.0` (khuyến nghị Node 20 LTS)
@@ -184,10 +184,10 @@ npm install
 ```env
 PORT=3100
 NODE_ENV=development
-CLIENT_URL=http://localhost:3000
+CLIENT_URL= Đường dẫn localhost của bạn
 
 # Kết nối PostgreSQL
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/fit_management_db?schema=public"
+DATABASE_URL="Database của bạn"
 
 # Bảo mật JWT (tối thiểu 32 ký tự)
 JWT_SECRET=your-secure-jwt-secret-key-at-least-32-chars
@@ -215,37 +215,19 @@ NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 
 ### Bước 3: Đồng bộ Cơ sở dữ liệu Prisma
 ```bash
-# Đẩy schema vào cơ sở dữ liệu PostgreSQL
 npm run db:push
-
-# Tạo Prisma Client type-safe
 npm run db:generate
 ```
 
 ### Bước 4: Khởi chạy môi trường Phát triển
 ```bash
-# Khởi chạy đồng thời cả Frontend (port 3000) và Backend (port 3100)
 npm run dev
 ```
 Truy cập trình duyệt tại địa chỉ: **`http://localhost:3000`**
 
 ---
 
-## 🛡️ Bảo mật & An toàn Dữ liệu
-
-NutriCore được thiết kế theo các tiêu chuẩn bảo mật khắt khe:
-1. **Mã hóa Payload Đầu cuối (End-to-End Encryption):**
-   * Mọi dữ liệu nhạy cảm gửi qua các phương thức `POST`, `PUT`, `PATCH`, `DELETE` đều được mã hóa bằng thuật toán đối xứng **AES-256-GCM** với IV ngẫu nhiên ngay trên trình duyệt trước khi truyền qua Internet và chỉ được giải mã khi vào tới Middleware của Backend.
-2. **Cơ chế Silent Token Rotation:**
-   * Access Token có thời hạn ngắn (15 phút). Axios Interceptor tự động phát hiện token sắp hết hạn trước 2 phút (`isTokenExpiringSoon`) và gửi Refresh Token lấy cặp khóa mới, giúp trải nghiệm người dùng không bao giờ bị gián đoạn.
-3. **Che giấu Dữ liệu Nhạy cảm trong Logs (Audit Masking):**
-   * HTTP Logger Middleware tự động che các thông tin nhận dạng cá nhân: Email (`jo***e@domain.com`), Số điện thoại (`098***321`), Token xác thực (`Bearer eyJ***`).
-4. **Phân quyền Động (Live DB Role Guard):**
-   * Kiểm tra trực tiếp quyền hạn từ cơ sở dữ liệu trên mỗi request có gắn guard, ngăn chặn việc người dùng dùng token cũ khi đã bị thu hồi quyền PT hoặc khóa tài khoản.
-
----
-
-## 🧪 Kiểm thử Tự động & Chất lượng Mã nguồn
+## Kiểm thử Tự động & Chất lượng Mã nguồn
 
 Dự án duy trì bộ kiểm thử toàn diện nhằm đảm bảo tính ổn định tuyệt đối:
 
@@ -268,28 +250,20 @@ npm run test:e2e
 
 ---
 
-## 🌐 Triển khai Production
-
-Chi tiết các bước triển khai máy chủ độc lập (VPS) với Docker Compose, Nginx SSL và cấu hình Certbot tự động tham khảo tại:  
-👉 **[Hướng dẫn Triển khai Production Chi tiết (deploy/DEPLOYMENT.md)](./deploy/DEPLOYMENT.md)**
-
 ### Tóm tắt lệnh Triển khai nhanh:
 ```bash
-# 1. Khởi chạy cụm dịch vụ qua Docker Compose
 docker compose -f deploy/docker-compose.prod.yml up -d --build
 
-# 2. Khởi tạo chứng chỉ bảo mật SSL Let's Encrypt
 bash scripts/init-letsencrypt.sh
 
-# 3. Kích hoạt sao lưu cơ sở dữ liệu PostgreSQL tự động
 bash scripts/backup-db.sh
 ```
 
 ---
 
-## 👥 Đội ngũ Phát triển & Đóng góp
+## Đội ngũ Phát triển & Đóng góp
 
-* **Sản phẩm:** NutriCore / FitManagementPlatform Team
+* **Sản phẩm:** NutriCore Team
 * **Tiêu chuẩn mã nguồn:** Clean Code, Conventional Commits, TypeScript Strict Mode & Tech Lead Architecture Standards.
 
 ---
