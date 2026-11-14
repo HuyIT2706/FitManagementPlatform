@@ -94,7 +94,7 @@ export class AuthController {
     return { access_token, user, isPendingPtApproval };
   }
 
-  // Refresh is called automatically by axios interceptor â€” skip global throttle
+  // Skip throttle for token refresh calls from HTTP interceptor
   @SkipThrottle()
   @HttpCode(HttpStatus.OK)
   @Post('refresh')

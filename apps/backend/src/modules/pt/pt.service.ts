@@ -133,7 +133,7 @@ export class PtService {
         Date.UTC(y, m, d, 23, 59, 59, 999) - 7 * 60 * 60 * 1000,
       );
 
-      // Self-healing: Reconcile any completed workout schedule from today that missed attendance deduction
+      // Reconcile completed schedules that missed attendance check-in
       try {
         const completedSchedulesToday =
           await this.prisma.workoutSchedule.findMany({
@@ -218,7 +218,7 @@ export class PtService {
         );
       }
 
-      // Re-query fresh packages to calculate session counts from member packages accurately
+      // Fetch active member packages to compute remaining sessions
       const freshApprovedProfiles = await this.prisma.studentProfile.findMany({
         where: { trainerId: ptUserId, status: 'APPROVED' },
         select: {
@@ -1338,7 +1338,7 @@ export class PtService {
     let workoutScheduleTitle = 'Ca tập 1:1';
     let scheduleId: string | null = null;
 
-    // 1. Kiểm tra xem sessionId có phải là WorkoutSchedule ID không
+    // Verify if sessionId is a WorkoutSchedule ID
     const schedule = await this.prisma.workoutSchedule.findUnique({
       where: { id: sessionId },
       select: {
@@ -1354,7 +1354,7 @@ export class PtService {
       workoutScheduleTitle = schedule.title;
       scheduleId = schedule.id;
 
-      // IDEMPOTENT GUARD: Nếu ca dạy đã hoàn thành VÀ đã có attendance history cho chính schedule này -> không trừ thêm!
+      // Idempotency: skip deduction if already completed and logged
       if (schedule.isCompleted) {
         const existingAttendance =
           await this.prisma.attendanceHistory.findFirst({
@@ -1390,7 +1390,7 @@ export class PtService {
         }
       }
     } else {
-      // 2. Fallback nếu sessionId là dạng 'session-custom-...' hoặc Profile/User ID
+      // Fallback: resolve studentId from custom session or profile ID
       const cleanId = sessionId.replace(/^session-(custom-)?/, '').trim();
       const profile = await this.prisma.studentProfile.findFirst({
         where: {
@@ -1463,7 +1463,7 @@ export class PtService {
       }
     }
 
-    // 3. Tìm hoặc tạo gói tập active của học viên
+    // Resolve or initialize student's active package
     let activePkg = await this.prisma.memberPackage.findFirst({
       where: {
         userId: studentId,
@@ -1497,7 +1497,7 @@ export class PtService {
       });
     }
 
-    // 4. Trừ 1 buổi và cập nhật nguyên tử (Atomic transaction)
+    // Atomic transaction: decrement session and create attendance record
     const { updatedPkg } = await this.prisma.$transaction(async (tx) => {
       if (scheduleId) {
         await tx.workoutSchedule.update({
@@ -1535,7 +1535,7 @@ export class PtService {
         },
       });
 
-      // Keep only activePkg active for this student, mark obsolete duplicates inactive
+      // Deactivate duplicate packages for this student
       await tx.memberPackage.updateMany({
         where: {
           userId: studentId,
@@ -1703,21 +1703,21 @@ export class PtService {
     });
 
     if (studentUser) {
-      // 1. PT không thể tự mời chính mình làm học viên
+      // Disallow self-invite
       if (studentUser.id === ptUserId) {
         throw new BadRequestException(
           'Bạn không thể tự mời chính mình làm học viên!',
         );
       }
 
-      // 2. Tài khoản được mời phải là người dùng bình thường (không phải PT hay ADMIN)
+      // Restrict invites to standard user accounts
       if (studentUser.role === 'PT' || studentUser.role === 'ADMIN') {
         throw new BadRequestException(
           `Tài khoản (${rawEmail}) hiện là ${studentUser.role === 'PT' ? 'Huấn luyện viên' : 'Quản trị viên'}, không thể thêm làm học viên!`,
         );
       }
 
-      // 3. Kiểm tra xem học viên đã có PT hoặc đang có yêu cầu chờ duyệt không
+      // Check existing trainer assignments or pending approvals
       const existingStudentProfile = await this.prisma.studentProfile.findFirst(
         {
           where: {
@@ -1752,7 +1752,7 @@ export class PtService {
         }
       }
 
-      // 4. Kiểm tra xem học viên có gói tập còn hiệu lực không
+      // Ensure student has no existing active sessions
       const activePackage = await this.prisma.memberPackage.findFirst({
         where: {
           userId: studentUser.id,

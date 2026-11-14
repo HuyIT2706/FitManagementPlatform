@@ -11,7 +11,7 @@ import {
 } from '../../../../utils/date';
 import type { PtScheduleMonthGridProps } from '../../../../interface';
 
-// Aesthetic pastel badge theme colors for different session cards with high contrast in both light and dark
+// Theme palette for session badge indicators
 const PILL_COLOR_THEMES = [
   {
     bg: 'bg-purple-500/15 hover:bg-purple-500/25 text-purple-700 dark:text-purple-300 border-purple-500/30',
@@ -108,7 +108,7 @@ const PtScheduleMonthGrid = ({
       });
     }
 
-    // 3. Leading days of next month to fill full grid (typically 35 or 42 cells)
+    // 3. Overflow days from next month to pad complete weeks (35 or 42 cells)
     const remaining = (7 - (cells.length % 7)) % 7;
     const totalNeeded = cells.length + remaining < 35 ? 35 : cells.length + remaining;
     const neededNext = totalNeeded - cells.length;

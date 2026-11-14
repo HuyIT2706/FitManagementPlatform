@@ -16,13 +16,12 @@ export function parseMealMacros(text: string | undefined): MealMacros {
   let f = 0;
 
   for (const line of lines) {
-    // If the line has nutrition parentheses (e.g. "(260 kcal, 56g P, 0g C, 4g F)"),
-    // match the parenthesis block containing kcal (avoiding bullet prefix like "(+)")
+    // Extract nutrition clause if present, e.g. "(260 kcal, 56g P, 0g C, 4g F)"
     const parenMatch = line.match(/\(([^)]*kcal[^)]*)\)/i);
     const targetString = parenMatch?.[1] ?? line;
 
     const calMatch = targetString.match(/(\d+(?:\.\d+)?)\s*kcal/i);
-    // Use negative lookahead to avoid matching Vietnamese words starting with P/C/F (e.g. Cơm, Phở)
+    // Negative lookahead avoids matching Vietnamese words like Cơm or Phở
     const pMatch =
       targetString.match(/(\d+(?:\.\d+)?)\s*g?\s*P(?![a-zA-Zà-ỹÀ-Ỹ])/i);
     const cMatch =

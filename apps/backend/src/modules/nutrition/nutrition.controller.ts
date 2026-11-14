@@ -66,7 +66,7 @@ export class NutritionController {
     return this.nutritionService.smartParseFoodInput(dto.text);
   }
 
-  // Very strict rate limit on AI image parsing to prevent financial DoS & Gemini API exhaustion: max 5 requests / minute
+  // Rate limit: max 5 image analyses per minute
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('smart-image-parse')
   async smartImageParse(@Body() dto: SmartParseFoodImageDto) {

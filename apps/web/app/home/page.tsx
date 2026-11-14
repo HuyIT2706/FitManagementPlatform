@@ -126,9 +126,7 @@ const HomeContent = () => {
     performLogout();
   };
 
-  // ---------------------------------------------------------------------------
-  // Memoised derived values — MUST be called unconditionally before early returns!
-  // ---------------------------------------------------------------------------
+  // Memoized nutrition stats
   const nutritionStats = useMemo(() => {
     const targetCalo = dailyData?.targets?.calories || userData?.nutritionTargets?.[0]?.targetCalo || 0;
     const targetProtein = dailyData?.targets?.protein || userData?.nutritionTargets?.[0]?.targetProtein || 0;

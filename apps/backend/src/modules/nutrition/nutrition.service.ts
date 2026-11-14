@@ -757,7 +757,7 @@ export class NutritionService {
 
   async getStreakData(userId: string) {
     try {
-      // Bound to the last 90 days to utilize @@index([userId, logDate]) and prevent unbound table scan
+      // Limit query to 90 days to leverage index @@index([userId, logDate])
       const ninetyDaysAgo = new Date();
       ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
       ninetyDaysAgo.setHours(0, 0, 0, 0);
@@ -1251,7 +1251,7 @@ export class NutritionService {
       ),
     );
 
-    // Danh sách dị ứng & bệnh lý: Hợp nhất cả healthConditions và dietaryPreferences (vì Onboarding lưu lựa chọn dị ứng vào dietaryPreferences)
+    // Consolidate health conditions and dietary preferences
     const rawAllergies = [
       ...(Array.isArray(dto.healthConditions) && dto.healthConditions.length > 0
         ? dto.healthConditions
@@ -1283,7 +1283,7 @@ export class NutritionService {
     const rawGoal = dto.goal || user.goal || '';
     const normGoal = removeTones(rawGoal).toUpperCase();
 
-    // Điều kiện tăng cân: Goal rõ ràng là GAIN_WEIGHT / Tăng cân / Bulk, hoặc thặng dư calo lớn
+    // Bulking goal check
     const isGainingWeight =
       normGoal.includes('GAIN') ||
       normGoal.includes('TANG') ||
@@ -1291,7 +1291,7 @@ export class NutritionService {
       (typeof user.caloriesOffset === 'number' && user.caloriesOffset > 150) ||
       (Boolean(user.tdee) && targetCalories > (user.tdee || 2000) + 200);
 
-    // Mặc định hoặc khi có mục tiêu giảm cân / thâm hụt calo: Không bao giờ cho ăn thịt có da
+    // Cutting goal check: exclude poultry skin
     const isLosingWeight =
       !isGainingWeight ||
       normGoal.includes('LOSE') ||
@@ -1323,7 +1323,7 @@ export class NutritionService {
       | 'dinner'
       | 'snack';
 
-    // Lấy đúng số bữa mà học viên đã chọn trong hồ sơ Onboarding (user.mealFrequency)
+    // Resolve daily meal count from user preferences
     const effectiveFrequency =
       dto.mealFrequency ||
       user.mealFrequency ||
@@ -1353,9 +1353,9 @@ export class NutritionService {
 
     const isFewMeals = activeMeals.length <= 2;
 
-    // 2. Thuật toán lọc an toàn (Safety / Allergy Filter)
+    // Allergy exclusion rules
     const ALLERGY_SYNONYMS: Record<string, string[]> = {
-      // Dị ứng Đậu phộng / Các loại hạt (Hỗ trợ cả mã Onboarding PEANUT, tiếng Việt và tất cả các loại hạt)
+      // Peanut & tree nut mappings
       peanut: [
         'lac',
         'dau phong',
@@ -1538,7 +1538,7 @@ export class NutritionService {
         'gio lua',
       ],
 
-      // Bệnh lý Tiểu đường (DIABETES): Kiêng đồ ngọt, đường tinh luyện, nước ngọt, siro
+      // Diabetes: exclude refined sugars and syrups
       diabetes: [
         'duong',
         'ngot',
@@ -1568,7 +1568,7 @@ export class NutritionService {
         'kem',
       ],
 
-      // Bệnh lý Huyết áp cao (BLOOD_PRESSURE): Kiêng đồ muối mặn, thực phẩm chế biến sẵn nhiều sodium
+      // Hypertension: exclude high-sodium and cured foods
       blood_pressure: [
         'ca muoi',
         'dua muoi',
@@ -1677,16 +1677,7 @@ export class NutritionService {
 
     const bannedArr = Array.from(bannedKeywords);
 
-    // ========================================================
-    // THUẬT TOÁN PHÂN RỔ DINH DƯỠNG TRỰC TIẾP TỪ CSDL (DATABASE-DRIVEN)
-    // - Truy vấn trực tiếp từ bảng foodLibrary (> 6.400 món trong DB)
-    // - Lọc theo các tiêu chuẩn thể hình (Gym & Eat Clean):
-    //   + Bữa sáng: Protein nhẹ (Trứng, Sữa chua), Bánh mì đen/yến mạch/ngô
-    //   + Bữa trưa: Cơm trắng/lứt, bún tươi (KHÔNG KHOAI) + Thịt nạc/hải sản thật (BỎ ĐẬU PHỤ)
-    //   + Bữa tối: Cơm lứt/trắng/khoai lang (tối đa 200g) + Thịt nạc luân phiên khác bữa trưa
-    //   + Bữa phụ: Trái cây tươi + Sữa chua + Hạt dinh dưỡng nguyên chất
-    // ========================================================
-
+    // Food pool partitioning for clean fitness meals
     const isSafe = (item: { name: string }) => {
       const n = removeTones(item.name);
       return !bannedArr.some((b) => n.includes(b));
@@ -1706,7 +1697,7 @@ export class NutritionService {
       fixedGrams?: number;
     }
 
-    // Dự phòng các rổ thực phẩm an toàn nếu người dùng có nhiều dị ứng / bệnh lý nghiêm ngặt
+    // Fallback pools if allergies or health conditions constrain specific categories
     const safeProteinFallback: PoolFoodItem[] = allFoods
       .filter((f) => f.proteinPer100g >= 12 && isSafe(f))
       .map((f) => ({ ...f, minGrams: 100, maxGrams: 250 }));
@@ -1725,12 +1716,12 @@ export class NutritionService {
       )
       .map((f) => ({ ...f, fixedGrams: 100 }));
 
-    // 1. Đạm Bữa Sáng (Từ CSDL): Protein nhẹ (Ưu tiên Trứng gà luộc, ốp la, sữa chua Hy Lạp; tránh chiên ngập dầu)
+    // 1. Breakfast Protein: eggs, Greek yogurt, light meats
     const bProtPool = allFoods
       .filter((f) => {
         const n = removeTones(f.name);
         if (f.proteinPer100g < 10) return false;
-        // Bỏ các món trứng chiên rán nhiều dầu khi giảm cân hoặc duy trì để kiểm soát Fat <= 85%
+        // Exclude fried eggs on cut/maintenance to limit fat
         if (!isGainingWeight && (n.includes('chien') || n.includes('ran')))
           return false;
         if (
@@ -1749,7 +1740,7 @@ export class NutritionService {
         maxGrams: f.name.toLowerCase().includes('trung') ? 100 : 150,
       }));
 
-    // 2. Tinh Bột Bữa Sáng (Từ CSDL): Bánh mì đen, yến mạch, khoai lang hấp, bắp ngọt
+    // 2. Breakfast Carbs: oats, sweet potato, rye bread, sweet corn
     const bCarbPool = allFoods
       .filter((f) => {
         const n = removeTones(f.name);
@@ -1778,7 +1769,7 @@ export class NutritionService {
         maxGrams: 150,
       }));
 
-    // 3. Tinh Bột Bữa Trưa (Từ CSDL): Cơm trắng, cơm gạo lứt, bún tươi (TUYỆT ĐỐI KHÔNG DÙNG KHOAI)
+    // 3. Lunch Carbs: white rice, brown rice, fresh noodles
     const lCarbPool = allFoods
       .filter((f) => {
         const n = removeTones(f.name);
@@ -1805,7 +1796,7 @@ export class NutritionService {
         maxGrams: 300,
       }));
 
-    // 4. Tinh Bột Bữa Tối (Từ CSDL): Cơm gạo lứt, cơm trắng, khoai lang hấp (tối đa 200g)
+    // 4. Dinner Carbs: brown rice, white rice, steamed sweet potato
     const dCarbPool = allFoods
       .filter((f) => {
         const n = removeTones(f.name);
@@ -1827,7 +1818,7 @@ export class NutritionService {
         maxGrams: f.name.toLowerCase().includes('khoai') ? 200 : 300,
       }));
 
-    // 5. Đạm Bữa Chính (Trưa & Tối) từ CSDL: Thịt nạc, hải sản thật (ức gà, bắp bò, thăn heo, tôm, cá hồi)
+    // 5. Main Protein (Lunch & Dinner): chicken breast, beef, lean pork, shrimp, salmon
     const mProtPool = allFoods
       .filter((f) => {
         const n = removeTones(f.name);
@@ -1935,7 +1926,7 @@ export class NutritionService {
       })
       .map((f) => ({ ...f, fixedGrams: 100 }));
 
-    // 9. Dầu Ăn & Chất Béo Lành Mạnh (Từ CSDL): Tuyệt đối an toàn theo bộ lọc dị ứng
+    // 9. Healthy oils: olive / vegetable oil
     const oliveOilFood = allFoods.find((f) => {
       const n = removeTones(f.name);
       return (
@@ -1970,7 +1961,7 @@ export class NutritionService {
     if (dbHealthyOil) foodMap.set(dbHealthyOil.id, dbHealthyOil);
     if (dbDinnerOil) foodMap.set(dbDinnerOil.id, dbDinnerOil);
 
-    // 10. Hạt & Bữa Phụ: Hạnh nhân, Hạt điều, Hạt lạc (loại trừ sạch khi dị ứng hạt / đậu phộng)
+    // 10. Snack nuts: almonds, cashews, peanuts
     const sNutPool = allFoods
       .filter((f) => {
         const n = removeTones(f.name);
@@ -2144,10 +2135,7 @@ export class NutritionService {
       0,
     );
 
-    // Mục tiêu hiệu dụng chuẩn:
-    // - Protein: Đủ 100% mục tiêu
-    // - Carbs: Đạt 95% mục tiêu (tăng từ 90% lên 95%)
-    // - Fat: Đạt 90% mục tiêu (tăng từ 85% lên 90%)
+    // Effective macro targets: 100% Protein, 95% Carbs, 90% Fat
     const effectiveTargetProtein = targetProtein * 1.0;
     const effectiveTargetCarbs = targetCarbs * 0.95;
     const effectiveTargetFat = targetFat * 0.9;
@@ -2161,7 +2149,7 @@ export class NutritionService {
     const mealFatTarget = (m: MealKey) =>
       (effectiveTargetFat * (fatWeights[m] || 1)) / totalFatW;
 
-    // Tính toán lượng dầu ăn tốt (dầu oliu/lạc) linh hoạt, tối đa 10g, trả về 0 nếu định mức fat của bữa đã đủ
+    // Calculate added healthy oil (olive/peanut) up to 10g
     const calcHealthyOilGrams = (
       targetMealFat: number,
       baseFatEstimate: number,
@@ -2173,13 +2161,7 @@ export class NutritionService {
       return Math.min(10, Math.round(needed));
     };
 
-    // ========================================================
-    // THUẬT TOÁN ĐA MỤC TIÊU CÂN BẰNG (MULTI-OBJECTIVE BALANCED SOLVER)
-    // Cân bằng đồng thời Calo + Đạm (Protein) + Tinh bột (Carbs) + Chất béo (Fat)
-    // - Protein bám sát 100%
-    // - Carbs duy trì mức 90% (tuyệt đối không bị thừa)
-    // - Fat duy trì mức 85% (tuyệt đối không bị thừa)
-    // ========================================================
+    // Discrete multi-objective solver: optimize portions to match meal macros
     const solveDiscreteMeal = (
       targetCal: number,
       targetProt: number,
@@ -2330,7 +2312,7 @@ export class NutritionService {
       );
     }
 
-    // 4.3 BỮA TỐI (Thịt luân phiên khác trưa, Cơm gạo lứt/Khoai lang <= 200g từ CSDL)
+    // 4.3 Dinner: rotate protein source and complex carbs
     let dinnerItems: GeneratedMealPlanItem[] = [];
     if (activeMeals.includes('dinner')) {
       const isLunchChicken = lunchItems.some((it) =>
@@ -2476,7 +2458,7 @@ export class NutritionService {
       }
     }
 
-    // Định dạng chuỗi hiển thị chuẩn: "(+) 150g Ức gà (165 kcal, 31g P, 0g C, 3.6g F)"
+    // Format: "(+) 150g Ức gà (165 kcal, 31g P, 0g C, 3.6g F)"
     const formatItemsToText = (items: GeneratedMealPlanItem[]): string => {
       return items
         .map(
@@ -2536,16 +2518,10 @@ export class NutritionService {
       meals.push(buildSession('snack', 'Bữa Phụ', snackItems));
     }
 
-    // ========================================================
-    // BỘ ĐIỀU PHỐI CÂN BẰNG DINH DƯỠNG TOÀN DIỆN (POST-SOLVER BALANCER)
-    // Đáp ứng chính xác yêu cầu mục tiêu:
-    // - Protein: Đủ 100% mục tiêu (targetProtein ± 1.5%)
-    // - Carbs: Đạt 95% mục tiêu (targetCarbs * 0.95)
-    // - Fat: Đạt 90% mục tiêu (targetFat * 0.90)
-    // ========================================================
+    // --- Post-solver macro balancer ---
     const allMealItems = meals.flatMap((m) => m.items);
 
-    // 1. Kiểm soát Carbs (mục tiêu 95%, trần tối đa 96% targetCarbs, sàn tối thiểu 93%)
+    // 1. Balance Carbs (target 95%, tolerance 93% - 96%)
     let curCarbs =
       Math.round(allMealItems.reduce((acc, it) => acc + it.carbs, 0) * 10) / 10;
     const maxCarbThreshold = targetCarbs * 0.96;
@@ -2590,7 +2566,7 @@ export class NutritionService {
       }
     }
 
-    // 2. Bù đắp Protein đạt chuẩn 100% (tối thiểu 98.5% targetProtein)
+    // 2. Top up Protein (target >= 98.5%)
     let curProt =
       Math.round(allMealItems.reduce((acc, it) => acc + it.protein, 0) * 10) /
       10;
@@ -2599,7 +2575,7 @@ export class NutritionService {
       for (const item of allMealItems) {
         if (curProt >= minProtThreshold) break;
         const food = foodMap.get(item.foodId);
-        if (!food || food.proteinPer100g < 18) continue; // Chỉ tăng các món đạm chính (ức gà, bò, thăn heo, tôm)
+        if (!food || food.proteinPer100g < 18) continue;
 
         while (item.weightInGrams < 325 && curProt < minProtThreshold) {
           const newWeight = item.weightInGrams + 25;
@@ -2615,15 +2591,15 @@ export class NutritionService {
       }
     }
 
-    // 3. Tinh chỉnh Fat đạt chuẩn 90% (targetFat * 0.90) - Tuyệt đối không để vượt trần
+    // 3. Balance Fat (target 90%, max tolerance 91%)
     let curFat =
       Math.round(allMealItems.reduce((acc, it) => acc + it.fat, 0) * 10) / 10;
     const targetFatGoal = targetFat * 0.9;
-    const maxFatThreshold = targetFat * 0.91; // Trần tối đa 91% mục tiêu
+    const maxFatThreshold = targetFat * 0.91;
 
-    // Nếu Fat bị thừa (vượt trần 91% mục tiêu do dầu ăn hoặc hạt hoặc trứng):
+    // Prune excess fat if exceeding threshold
     if (curFat > maxFatThreshold) {
-      // Bước 3.1: Loại bỏ dầu ăn đã thêm vào bữa trưa/tối
+      // Step 3.1: Remove added cooking oils
       for (const session of meals) {
         if (curFat <= maxFatThreshold) break;
         const oilIdx = session.items.findIndex(
@@ -2640,7 +2616,7 @@ export class NutritionService {
         }
       }
 
-      // Bước 3.2: Nếu vẫn thừa Fat, giảm hoặc bỏ bớt hạt / đậu phộng trong bữa phụ
+      // Step 3.2: Reduce snack nuts
       if (curFat > maxFatThreshold) {
         for (const session of meals) {
           if (curFat <= maxFatThreshold) break;
@@ -2669,7 +2645,7 @@ export class NutritionService {
         }
       }
 
-      // Bước 3.3: Nếu vẫn thừa Fat, giảm bớt trứng ở bữa sáng (nếu trên 100g)
+      // Step 3.3: Reduce breakfast egg portions if over 100g
       if (curFat > maxFatThreshold) {
         for (const session of meals) {
           if (curFat <= maxFatThreshold) break;
@@ -2718,7 +2694,7 @@ export class NutritionService {
       }
     }
 
-    // Cập nhật lại số liệu và formattedText cho từng bữa ăn sau khi tinh chỉnh
+    // Recalculate totals and format display text per meal
     for (const session of meals) {
       session.totalCalories = session.items.reduce(
         (acc, it) => acc + it.calories,
@@ -2782,7 +2758,7 @@ export class NutritionService {
     const coachAdvice = `Thực đơn Eat Clean chuẩn theo mục tiêu ${targetCalories} kcal (P: ${targetProtein}g, C: ${targetCarbs}g, F: ${targetFat}g) chia làm ${activeMeals.length} bữa. ${mealCountDesc}${skinAdvice} Đã tự động loại bỏ các món ngọt, đồ sống và thực phẩm dị ứng.`;
 
     if (dto.saveToDatabase) {
-      // Kiểm tra nếu người dùng là học viên đã được PT gán thực đơn chỉ định thì không cho tự tạo/ghi đè
+      // Prevent overwriting coach-prescribed meal plans
       const studentProfile = await this.prisma.studentProfile.findFirst({
         where: { studentId: targetUserId },
         include: { trainer: true },

@@ -20,7 +20,7 @@ export function sanitizeSpeechTranscript(input: string): string {
     }
   }
 
-  // Remove consecutive identical multi-word phrases (from tokens.length / 2 down to 2)
+  // Deduplicate consecutive repeated phrases
   let changed = true;
   const tokens: string[] = [...dedupedWords];
   while (changed) {

@@ -88,7 +88,7 @@ const PTSchedulePage = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Calculate schedule query range for Month view (with margin to cover adjacent calendar days)
+  // Query date range padded to cover visible adjacent days in month view
   const { startQueryStr, endQueryStr } = useMemo(() => {
     const year = viewMonthDate.getFullYear();
     const month = viewMonthDate.getMonth();

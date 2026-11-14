@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
-
 import { Utensils, Coffee, Sun, Moon, Apple } from 'lucide-react';
 import type { AssignedMealPlanCardProps } from '../../../interface';
 
@@ -72,7 +71,6 @@ const AssignedMealPlanCard = ({
   };
 
   const meals = assignedMealPlan.meals;
-
   const totalKcal = assignedMealPlan?.totalKcal || 1100;
   const targetKcal = assignedMealPlan?.targetKcal || 1734;
   const percentage = Math.min(100, Math.round((totalKcal / targetKcal) * 100));
@@ -81,7 +79,7 @@ const AssignedMealPlanCard = ({
     <div className="space-y-3 sm:space-y-4">
       <div className="flex items-center justify-between px-1">
         <h3 className="font-headline-md font-bold text-lg sm:text-xl text-on-surface">
-          Thực đơn chỉ định
+          Thực đơn
         </h3>
 
         {assignedMealPlan?.coachName !== 'Hệ Thống NutriCore' || ptName ? (

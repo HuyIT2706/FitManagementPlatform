@@ -38,7 +38,7 @@ export const CreateFoodModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [addToMealAlso, setAddToMealAlso] = useState(false);
 
-  // Auto-calculate calories if carbs/protein/fat change and calories hasn't been manually set
+  // Auto-derive calories on macro change (4*C + 4*P + 9*F)
   const handleNutrientChange = (
     type: 'carbs' | 'protein' | 'fat',
     val: string
@@ -62,7 +62,6 @@ export const CreateFoodModal = ({
     const p = parseFloat(nextProtein) || 0;
     const f = parseFloat(nextFat) || 0;
 
-    // Standard formula: 1g carb = 4 kcal, 1g protein = 4 kcal, 1g fat = 9 kcal
     const computed = Math.round(c * 4 + p * 4 + f * 9);
     if (computed > 0) {
       setCalories(computed.toString());

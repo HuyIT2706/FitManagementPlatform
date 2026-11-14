@@ -50,7 +50,7 @@ const WorkoutPage = () => {
     }
   }, [router]);
 
-  // Debounce search query by 300ms to avoid overwhelming the backend API
+  // Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
@@ -59,7 +59,7 @@ const WorkoutPage = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Background auto-heal: if PT coach or active package is missing, sync session immediately
+  // Sync session if assigned PT or package data is missing
   useEffect(() => {
     if (userData && (!userData.assignedPt || !userData.activePackage) && userData.role !== 'PT') {
       void apiClient

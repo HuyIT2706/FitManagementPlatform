@@ -78,7 +78,7 @@ export default function WeightTrackingPage() {
     return `Bạn đã tăng ${weightDiff.toFixed(1)} kg`;
   }, [sortedMetrics.length, weightDiff]);
 
-  // Filtered data points for the selected range - ONLY real user-logged metrics
+  // Chart data points by selected time range
   const chartPoints = useMemo<WeightChartPoint[]>(() => {
     if (sortedMetrics.length === 0) {
       return [];
@@ -123,7 +123,7 @@ export default function WeightTrackingPage() {
     });
   }, [sortedMetrics, timeRange]);
 
-  // Chart Y-axis calculation matching the user's screenshot (e.g. 90, 75, 60, 45, 30, 15, 0)
+  // Y-axis tick intervals aligned to step of 15 (min 90)
   const { yTicks, maxVal } = useMemo(() => {
     const highest = Math.max(
       initialWeight,

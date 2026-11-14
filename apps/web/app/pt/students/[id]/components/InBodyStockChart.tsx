@@ -151,7 +151,7 @@ const InBodyStockChart = ({
     return `Học viên đã tăng ${diff.toFixed(1)} ${metricConfig.unit}`;
   }, [dataSeries.length, currentVal, initialVal, metricConfig]);
 
-  // 3. Calculate Y-axis ticks and maximum value matching user's weight chart style
+  // Compute Y-axis scale and tick intervals
   const { yTicks, maxVal } = useMemo(() => {
     const highestVal = Math.max(
       ...dataSeries.map((d) => d.value),

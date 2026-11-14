@@ -207,7 +207,7 @@ const LoginContent = () => {
     [router, redirectPath],
   );
 
-  // 1. Listen for deep link in Capacitor Native App (when redirected from Chrome Custom Tabs)
+  // Listen for OAuth deep link in Capacitor native app
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -288,7 +288,7 @@ const LoginContent = () => {
       searchParamsObj.get("access_token") ||
       searchParamsObj.get("token");
 
-    // Case A: Redirected to external web browser from Google OAuth during a mobile app login flow
+    // Mobile browser: redirect to app deep link
     if (token && isMobileFlow && !isNative) {
       const appDeepLink = `vn.nutricore.app://login#access_token=${encodeURIComponent(token)}`;
       setMobileAuthRedirectUrl(appDeepLink);
@@ -296,7 +296,7 @@ const LoginContent = () => {
       return;
     }
 
-    // Case B: In NutriCore native app or direct web redirect
+    // Direct web redirect or native app handling
     if (token && (!isMobileFlow || isNative)) {
       if (hash.includes("access_token=")) {
         window.history.replaceState(null, "", window.location.pathname);
@@ -343,7 +343,7 @@ const LoginContent = () => {
       typeof window !== "undefined" &&
       (isApp || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
 
-    // On mobile devices or inside NutriCore app, avoid popup mode (which hangs on Android WebView)
+    // Use redirect on mobile to avoid WebView popup issues
     if (isApp || isMobile) {
       const redirectUri = "https://nutricore-olive.vercel.app/login";
       const stateParam = isApp ? "mobile_app" : "mobile_web";

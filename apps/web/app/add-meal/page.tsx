@@ -197,10 +197,10 @@ const AddMealContent = () => {
     clearItems();
     setIsSaving(true);
 
-    // 2. Instant Navigation: Immediately route to Home with saving flag so user doesn't wait
+    // Navigate immediately to Home
     router.push(`/home?date=${dateToSave}&saving=true`);
 
-    // 3. Save meal in background and trigger SWR updates on Home
+    // Persist meal log and trigger sync
     try {
       await apiClient.post('/nutrition/meals', {
         mealName: mealTypeToSave,

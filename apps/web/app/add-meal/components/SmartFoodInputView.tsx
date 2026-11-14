@@ -195,13 +195,12 @@ export const SmartFoodInputView = ({
             const pieceLower = piece.toLowerCase();
             const finalLower = finalTranscript.toLowerCase();
 
-            // Ignore identical duplicates emitted by Android speech service
+            // Deduplicate tokens from speech engine
             if (finalLower === pieceLower || finalLower.endsWith(pieceLower)) {
               continue;
             }
 
-            // Android cumulative superset: if new final piece starts with previous final text,
-            // it means Android re-emitted the full sentence so far. Replace instead of appending!
+            // Replace if speech service re-emits cumulative transcript
             if (finalLower && pieceLower.startsWith(finalLower)) {
               finalTranscript = piece;
             } else {
@@ -503,7 +502,7 @@ export const SmartFoodInputView = ({
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col items-center justify-start max-w-md mx-auto w-full px-5 sm:px-6 pt-6 sm:pt-8 pb-6 text-center">
-        {/* ==================== TAB 1: CAMERA ==================== */}
+        {/* Tab: Camera */}
         {activeTab === 'camera' && (
           <div className="w-full flex flex-col items-center">
             {selectedImagePreview ? (
@@ -654,7 +653,7 @@ export const SmartFoodInputView = ({
           </div>
         )}
 
-        {/* ==================== TAB 2: VOICE ==================== */}
+        {/* Tab: Voice */}
         {activeTab === 'voice' && (
           <>
             {/* Voice Mode Instructions */}
@@ -817,7 +816,7 @@ export const SmartFoodInputView = ({
           </>
         )}
 
-        {/* ==================== TAB 3: TEXT ==================== */}
+        {/* Tab: Text */}
         {activeTab === 'text' && (
           <div className="w-full text-left">
             <h2 className="text-xl font-black text-slate-900 dark:text-white mb-2 text-center">

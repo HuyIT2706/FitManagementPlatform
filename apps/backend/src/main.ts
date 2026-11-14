@@ -41,7 +41,7 @@ async function bootstrap() {
 
   const isProd = process.env.NODE_ENV === 'production';
 
-  // Strict CORS policy: Whitelist explicit domains only. Never use broad wildcard regex like /\.vercel\.app$/ in production!
+  // CORS origin whitelist
   const allowedOrigins: (string | RegExp)[] = [
     'https://nutricore-olive.vercel.app',
   ];
@@ -75,8 +75,7 @@ async function bootstrap() {
   app.use(compression());
   app.use(cookieParser());
   app.use(httpLoggerMiddleware);
-  // Keep payload limit small to prevent DoS — only image-upload routes need higher limits
-  // and those should use multipart/form-data with dedicated middleware, not JSON base64
+  // Limit payload size to mitigate memory DoS
   app.use(json({ limit: '2mb' }));
   app.use(urlencoded({ limit: '2mb', extended: true }));
   app.use(decryptionMiddleware);

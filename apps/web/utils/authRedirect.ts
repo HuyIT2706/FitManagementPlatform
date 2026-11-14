@@ -44,7 +44,7 @@ export const handleRoleRedirect = (
     return;
   }
 
-  // Clean customRedirect: Reject recursive redirects back to login/auth/root
+  // Disallow redirects back to auth/root routes
   let cleanRedirect = customRedirect?.trim();
   if (
     cleanRedirect === '/login' ||
@@ -57,7 +57,7 @@ export const handleRoleRedirect = (
 
   let targetPath = cleanRedirect || getRoleRedirectPath(user);
 
-  // Role Boundary Enforcement: Prevent users from leaking into inappropriate role portals
+  // Enforce role portal boundaries
   if (user.role === 'PT') {
     if (!cleanRedirect || !cleanRedirect.startsWith('/pt')) {
       targetPath = '/pt';
@@ -67,7 +67,6 @@ export const handleRoleRedirect = (
       targetPath = '/admin';
     }
   } else if (user.role === 'USER') {
-    // Member users can never access /pt or /admin portals
     if (!cleanRedirect || cleanRedirect.startsWith('/pt') || cleanRedirect.startsWith('/admin')) {
       targetPath = user.onboardingCompleted === false ? '/onboarding' : '/home';
     }

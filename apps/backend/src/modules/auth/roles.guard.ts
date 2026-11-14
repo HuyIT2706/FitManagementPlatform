@@ -42,9 +42,7 @@ export class RolesGuard implements CanActivate {
       );
     }
 
-    // Real-time Role Verification from Supabase Database:
-    // When role is updated directly in Supabase (PostgreSQL), this ensures
-    // the new role is respected IMMEDIATELY without waiting for JWT token expiration!
+    // Query DB role to apply updates immediately without waiting for JWT expiry
     let liveRole = user.role;
     try {
       const dbUser = await this.prisma.user.findUnique({

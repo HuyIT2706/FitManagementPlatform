@@ -11,41 +11,28 @@ import type {
 } from '../interface';
 import type { PTCodeQrData, PTSessionItem } from '@repo/types';
 
-// ---------------------------------------------------------------------------
-// Fetcher
-// ---------------------------------------------------------------------------
-
+// Base SWR fetcher
 export const swrFetcher = async <T>(url: string): Promise<T> => {
   const res = await apiClient.get<T>(url);
   return res.data;
 };
 
-// ---------------------------------------------------------------------------
-// Global SWR defaults — persistent caching to avoid redundant calls on tab switch
-// ---------------------------------------------------------------------------
-
+// Global SWR defaults: deduplicate requests within 30s across tab navigation
 const DEFAULT_SWR_OPTIONS: SWRConfiguration = {
   revalidateOnFocus: false,
   revalidateIfStale: false,
   revalidateOnReconnect: false,
-  dedupingInterval: 30000, // 30s deduping window prevents spamming on rapid navigation
+  dedupingInterval: 30000,
   errorRetryCount: 3,
 };
 
-// ---------------------------------------------------------------------------
-// useHasToken — single source of truth for auth gate
-// ---------------------------------------------------------------------------
-
+// Auth token check helper
 function useHasToken(): boolean {
   if (typeof window === 'undefined') return false;
   return Boolean(localStorage.getItem('jwt_token'));
 }
 
-// ---------------------------------------------------------------------------
-// Prefetch helper — call this in root page.tsx INSTEAD of raw apiClient.get
-// so the result is stored in SWR cache and reused by useCurrentUser()
-// ---------------------------------------------------------------------------
-
+// Prefetch `/users/me` into SWR cache to prevent render waterfalls
 export const prefetchCurrentUser = (): void => {
   if (typeof window === 'undefined') return;
   if (!localStorage.getItem('jwt_token')) return;
@@ -227,9 +214,7 @@ export const useNotifications = (options?: SWRConfiguration) => {
   );
 };
 
-// ---------------------------------------------------------------------------
-// syncUserSession — Call this to immediately sync role/session from DB/Supabase
-// ---------------------------------------------------------------------------
+// Sync user session & refreshed JWT into local storage & SWR cache
 export const syncUserSession = async (): Promise<UserDataHome | null> => {
   if (typeof window === 'undefined') return null;
   try {

@@ -17,11 +17,7 @@ export class AdminService {
     private readonly notificationsService: NotificationsService,
   ) {}
 
-  // Tables and schemas are managed by Prisma migrations
-
-  // ==========================================
   // 1. PT APPLICATIONS
-  // ==========================================
   async getPtApplications(status?: string) {
     try {
       const whereCondition =
@@ -124,9 +120,7 @@ export class AdminService {
     } catch (err) {
       console.error('Failed to send approval notification:', err);
     }
-
     const applicantName = app.user?.fullName || 'ứng viên';
-
     return {
       success: true,
       applicationId: id,
@@ -230,10 +224,7 @@ export class AdminService {
       };
     }
   }
-
-  // ==========================================
   // 2. USER MANAGEMENT & ROLE ASSIGNMENT
-  // ==========================================
   async getUsers(params?: {
     page?: number;
     limit?: number;
@@ -244,9 +235,7 @@ export class AdminService {
       const page = Math.max(1, Number(params?.page) || 1);
       const limit = Math.min(50, Math.max(1, Number(params?.limit) || 10));
       const skip = (page - 1) * limit;
-
       const where: Record<string, unknown> = {};
-
       if (params?.role && params.role !== 'ALL') {
         where.role = params.role;
       }
@@ -259,7 +248,6 @@ export class AdminService {
           { phone: { contains: search, mode: 'insensitive' } },
         ];
       }
-
       const [users, total] = await Promise.all([
         this.prisma.user.findMany({
           where,
@@ -375,10 +363,7 @@ export class AdminService {
       message: `Đã xóa tài khoản ${user.fullName} (${user.email}) khỏi hệ thống!`,
     };
   }
-
-  // ==========================================
-  // 3. EXERCISE LIBRARY MANAGEMENT (CRUD)
-  // ==========================================
+  // 3. EXERCISE LIBRARY MANAGEMENT 
   async getExercises(params?: {
     page?: number;
     limit?: number;
@@ -388,7 +373,6 @@ export class AdminService {
     const page = Math.max(1, Number(params?.page) || 1);
     const limit = Math.min(50, Math.max(1, Number(params?.limit) || 10));
     const skip = (page - 1) * limit;
-
     const where: Record<string, unknown> = {};
 
     if (params?.category && params.category !== 'ALL') {
@@ -523,10 +507,7 @@ export class AdminService {
       message: `Đã xóa bài tập "${existing.name}" khỏi thư viện!`,
     };
   }
-
-  // ==========================================
   // 4. FOOD LIBRARY MANAGEMENT (CRUD)
-  // ==========================================
   async getFoods(params?: {
     page?: number;
     limit?: number;
@@ -666,10 +647,7 @@ export class AdminService {
       message: `Đã xóa món "${existing.name}" khỏi thư viện thực phẩm!`,
     };
   }
-
-  // ==========================================
   // 5. ANALYTICS & SYSTEM ACTIVITY REPORT
-  // ==========================================
   async getAnalyticsOverview() {
     try {
       let totalUsers = 0;
@@ -775,8 +753,6 @@ export class AdminService {
       } catch (err) {
         this.logger.error('Error fetching PT users:', err);
       }
-
-      // Calculate goal distribution among users safely
       let goalDistribution: { goal: string; count: number }[] = [];
       try {
         const usersWithGoals = await this.prisma.user.groupBy({
@@ -794,8 +770,6 @@ export class AdminService {
       } catch (err) {
         this.logger.warn('Failed to group users by goal:', err);
       }
-
-      // Calculate PT Performance safely
       let ptPerformance: Array<{
         ptId: string;
         fullName: string;

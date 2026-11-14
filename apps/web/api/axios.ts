@@ -214,7 +214,7 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      // If user has no jwt_token in localStorage, they are unauthenticated/logged out — do not auto-refresh!
+      // Skip token refresh if client is unauthenticated
       if (typeof window !== 'undefined' && !localStorage.getItem('jwt_token')) {
         return Promise.reject(error);
       }

@@ -316,7 +316,7 @@ export class AuthService {
         console.warn('Backend fetch to Google userinfo failed:', fetchErr);
       }
 
-      // STRICT SECURITY: Never trust unverified clientUserInfo for email/identity
+      // Require verified email from identity provider
       if (!payload || !payload.email) {
         throw new UnauthorizedException(
           'Xác thực Google thất bại: Token không hợp lệ hoặc đã hết hạn',

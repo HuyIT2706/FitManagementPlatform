@@ -22,9 +22,7 @@ import { Role } from '@prisma/client';
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  // ==========================================
   // 1. STATS & ANALYTICS
-  // ==========================================
   @Get('stats')
   async getAdminStats() {
     return this.adminService.getAdminStats();
@@ -34,10 +32,7 @@ export class AdminController {
   async getAnalyticsOverview() {
     return this.adminService.getAnalyticsOverview();
   }
-
-  // ==========================================
   // 2. PT APPLICATIONS
-  // ==========================================
   @Get('pt-applications')
   async getPtApplications(@Query('status') status?: string) {
     return this.adminService.getPtApplications(status);
@@ -59,9 +54,7 @@ export class AdminController {
     return this.adminService.rejectPtApplication(id, note);
   }
 
-  // ==========================================
   // 3. USER MANAGEMENT & ROLE
-  // ==========================================
   @Get('users')
   async getUsers(
     @Query('page') page?: number,
@@ -81,10 +74,7 @@ export class AdminController {
   async deleteUser(@Param('id') id: string) {
     return this.adminService.deleteUser(id);
   }
-
-  // ==========================================
   // 4. EXERCISE LIBRARY (CRUD)
-  // ==========================================
   @Get('exercises')
   async getExercises(
     @Query('page') page?: number,
@@ -135,10 +125,7 @@ export class AdminController {
   async deleteExercise(@Param('id') id: string) {
     return this.adminService.deleteExercise(id);
   }
-
-  // ==========================================
-  // 5. FOOD LIBRARY (CRUD)
-  // ==========================================
+  // 5. FOOD LIBRARY 
   @Get('foods')
   async getFoods(
     @Query('page') page?: number,

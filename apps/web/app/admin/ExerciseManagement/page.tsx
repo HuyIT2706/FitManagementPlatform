@@ -18,9 +18,7 @@ import LibraryPagination from './components/LibraryPagination';
 const AdminContentLibraryManagement = () => {
   const [activeTab, setActiveTab] = useState<'EXERCISES' | 'FOODS'>('EXERCISES');
 
-  // =====================
-  // EXERCISES STATE
-  // =====================
+  // --- Exercise state ---
   const [exercises, setExercises] = useState<AdminExerciseItem[]>([]);
   const [exTotal, setExTotal] = useState(0);
   const [exPage, setExPage] = useState(1);
@@ -43,9 +41,7 @@ const AdminContentLibraryManagement = () => {
   // Exercise Delete Modal
   const [exToDelete, setExToDelete] = useState<AdminExerciseItem | null>(null);
 
-  // =====================
-  // FOODS STATE
-  // =====================
+  // --- Food state ---
   const [foods, setFoods] = useState<AdminFoodItem[]>([]);
   const [foodTotal, setFoodTotal] = useState(0);
   const [foodPage, setFoodPage] = useState(1);
@@ -74,9 +70,7 @@ const AdminContentLibraryManagement = () => {
   const [debouncedExSearch, setDebouncedExSearch] = useState('');
   const [debouncedFoodSearch, setDebouncedFoodSearch] = useState('');
 
-  // =====================
-  // DEBOUNCE SEARCH INPUTS
-  // =====================
+  // Debounce search inputs
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedExSearch(exSearch);
@@ -91,9 +85,7 @@ const AdminContentLibraryManagement = () => {
     return () => clearTimeout(handler);
   }, [foodSearch]);
 
-  // =====================
-  // FETCH EXERCISES
-  // =====================
+  // Fetch exercises
   const fetchExercises = (pageNumber = exPage, searchVal = debouncedExSearch) => {
     setExLoading(true);
     const params = new URLSearchParams();
@@ -120,9 +112,7 @@ const AdminContentLibraryManagement = () => {
       });
   };
 
-  // =====================
-  // FETCH FOODS
-  // =====================
+  // Fetch foods
   const fetchFoods = (pageNumber = foodPage, searchVal = debouncedFoodSearch) => {
     setFoodLoading(true);
     const params = new URLSearchParams();
@@ -159,9 +149,7 @@ const AdminContentLibraryManagement = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [foodCategory, debouncedFoodSearch]);
 
-  // =====================
-  // EXERCISE HANDLERS
-  // =====================
+  // --- Exercise handlers ---
   const handleOpenAddExModal = () => {
     setEditingEx(null);
     setExFormName('');
@@ -243,9 +231,7 @@ const AdminContentLibraryManagement = () => {
       .finally(() => setSubmitting(false));
   };
 
-  // =====================
-  // FOOD HANDLERS
-  // =====================
+  // --- Food handlers ---
   const handleOpenAddFoodModal = () => {
     setEditingFood(null);
     setFoodFormName('');

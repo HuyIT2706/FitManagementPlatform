@@ -79,9 +79,7 @@ const TransformationJourneySlider = ({
         weightAtTime: afterWeight,
       };
 
-  // Adjust target weight when exceeded:
-  // When current weight exceeds target (e.g. start 40kg, target 45kg, now 52kg),
-  // target updates to current weight so progress reflects the achievement
+  // Cap target weight to current weight if goal is already surpassed
   const currentWeight = afterWeight || weightKg || 0;
   let effectiveTargetWeight = targetWeightKg;
 
@@ -142,8 +140,7 @@ const TransformationJourneySlider = ({
       }
       setIsCompressing(true);
       try {
-        // Fast client-side image compression downscales to max 1200px, 75% quality JPEG
-        // Reduces 4-5MB phone photos to ~80-150KB for near-instant upload & retrieval
+        // Downscale image to max 1200px JPEG to optimize upload payload
         const compressedBase64 = await compressImageFile(file, 1200, 1200, 0.75);
         setNewPhotoUrl(compressedBase64);
         toastStore.addToast("Đã tối ưu hóa dung lượng ảnh", "success");
