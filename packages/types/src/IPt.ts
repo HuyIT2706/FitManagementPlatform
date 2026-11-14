@@ -199,6 +199,8 @@ export interface SendInviteDto {
 
 export interface BindPtDto {
   ptCodeOrInviteCode: string;
+  totalSessions?: number;
+  packageName?: string;
 }
 
 export interface UpdateStudentSessionsDto {

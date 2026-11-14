@@ -72,10 +72,12 @@ const PTStudentsPage = () => {
           typeof window !== 'undefined'
             ? window.location.origin
             : 'https://nutricore-olive.vercel.app';
+        const sessionsParam = totalSessions ? `&sessions=${totalSessions}` : '';
+        const pkgParam = packageName ? `&pkg=${encodeURIComponent(packageName)}` : '';
         const url =
           res.data.inviteUrl && !res.data.inviteUrl.includes('fitmanagement.app') && !res.data.inviteUrl.includes('nutricore.app')
-            ? res.data.inviteUrl
-            : `${currentOrigin}/invite?code=${code}&pt=${ptId}`;
+            ? (res.data.inviteUrl.includes('sessions=') ? res.data.inviteUrl : `${res.data.inviteUrl}${sessionsParam}${pkgParam}`)
+            : `${currentOrigin}/invite?code=${code}&pt=${ptId}${sessionsParam}${pkgParam}`;
         setGeneratedInviteUrl(url);
         toast.success('Đã khởi tạo Link mời liên kết học viên thành công!');
         mutatePt();

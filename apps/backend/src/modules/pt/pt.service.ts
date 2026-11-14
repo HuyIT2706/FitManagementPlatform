@@ -1688,7 +1688,9 @@ export class PtService {
       process.env.FRONTEND_URL ||
       'https://nutricore-olive.vercel.app'
     ).replace(/\/+$/, '');
-    const inviteUrl = `${baseUrl}/invite?code=${inviteCode}&pt=${ptUserId}`;
+    const sessionsParam = dto.totalSessions ? `&sessions=${dto.totalSessions}` : '';
+    const pkgParam = dto.packageName ? `&pkg=${encodeURIComponent(dto.packageName)}` : '';
+    const inviteUrl = `${baseUrl}/invite?code=${inviteCode}&pt=${ptUserId}${sessionsParam}${pkgParam}`;
 
     const studentUser = await this.prisma.user.findFirst({
       where: { email: { equals: rawEmail, mode: 'insensitive' } },
@@ -1803,18 +1805,33 @@ export class PtService {
         });
       }
 
-      await this.prisma.memberPackage
-        .create({
+      const activeMemberPkg = await this.prisma.memberPackage.findFirst({
+        where: { userId: studentUser.id, isActive: true },
+      });
+
+      if (activeMemberPkg) {
+        await this.prisma.memberPackage.update({
+          where: { id: activeMemberPkg.id },
           data: {
-            userId: studentUser.id,
-            packageId: gymPkg.id,
-            totalSessions: dto.totalSessions || 12,
+            totalSessions: dto.totalSessions || activeMemberPkg.totalSessions,
             remainingSessions:
-              dto.remainingSessions ?? (dto.totalSessions || 12),
-            endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+              dto.remainingSessions ?? (dto.totalSessions || activeMemberPkg.remainingSessions),
           },
-        })
-        .catch(() => null);
+        });
+      } else {
+        await this.prisma.memberPackage
+          .create({
+            data: {
+              userId: studentUser.id,
+              packageId: gymPkg.id,
+              totalSessions: dto.totalSessions || 12,
+              remainingSessions:
+                dto.remainingSessions ?? (dto.totalSessions || 12),
+              endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+            },
+          })
+          .catch(() => null);
+      }
 
       try {
         const ptUser = await this.prisma.user.findUnique({
@@ -2003,6 +2020,46 @@ export class PtService {
         assignedAt: new Date(),
       },
     });
+
+    // If custom sessions were specified in the invite link/QR, persist package immediately
+    if (dto.totalSessions && dto.totalSessions > 0) {
+      let gymPkg = await this.prisma.gymPackage.findFirst();
+      if (!gymPkg) {
+        gymPkg = await this.prisma.gymPackage.create({
+          data: {
+            title: dto.packageName || 'Gói PT 1-1',
+            description: 'Gói tập huấn luyện viên 1:1 cá nhân hóa',
+            price: 3600000,
+            durationDays: 90,
+            totalSessions: dto.totalSessions,
+          },
+        });
+      }
+
+      const existingMemberPkg = await this.prisma.memberPackage.findFirst({
+        where: { userId: studentUserId, isActive: true },
+      });
+
+      if (existingMemberPkg) {
+        await this.prisma.memberPackage.update({
+          where: { id: existingMemberPkg.id },
+          data: {
+            totalSessions: dto.totalSessions,
+            remainingSessions: dto.totalSessions,
+          },
+        });
+      } else {
+        await this.prisma.memberPackage.create({
+          data: {
+            userId: studentUserId,
+            packageId: gymPkg.id,
+            totalSessions: dto.totalSessions,
+            remainingSessions: dto.totalSessions,
+            endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+          },
+        });
+      }
+    }
 
     try {
       const student = await this.prisma.user.findUnique({

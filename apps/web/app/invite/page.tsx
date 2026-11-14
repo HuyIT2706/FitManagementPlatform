@@ -26,6 +26,8 @@ function InviteContent() {
   const code = searchParams.get('code') || '';
   const ptId = searchParams.get('pt') || '';
   const ptCode = searchParams.get('ptCode') || '';
+  const sessions = searchParams.get('sessions') ? Number(searchParams.get('sessions')) : undefined;
+  const pkg = searchParams.get('pkg') || '';
 
   const [status, setStatus] = useState<
     'IDLE' | 'UNAUTHENTICATED' | 'BINDING' | 'SUCCESS' | 'ALREADY_BOUND' | 'ERROR'
@@ -61,7 +63,11 @@ function InviteContent() {
     apiClient
       .post<{ message?: string }>(
         '/pt/students/bind',
-        { ptCodeOrInviteCode: bindTarget },
+        {
+          ptCodeOrInviteCode: bindTarget,
+          totalSessions: sessions && sessions > 0 ? sessions : undefined,
+          packageName: pkg || undefined,
+        },
         { signal: controller.signal }
       )
       .then((res) => {
@@ -96,7 +102,7 @@ function InviteContent() {
     return () => {
       controller.abort();
     };
-  }, [code, ptId, ptCode]);
+  }, [code, ptId, ptCode, sessions, pkg]);
 
   const handleLoginRedirect = (mode = 'login') => {
     // Use Next.js hooks instead of window.location to stay framework-consistent
@@ -159,7 +165,7 @@ function InviteContent() {
             {code && (
               <div className="inline-block bg-surface-container border border-outline/60 px-4 py-2 rounded-xl">
                 <span className="text-xs text-on-surface-variant block uppercase tracking-wider font-semibold">
-                  Mã kích hoạt
+                  Mã kích hoạt {sessions ? `• ${sessions} buổi tập` : ''}
                 </span>
                 <span className="text-base font-mono font-bold text-primary">
                   {code}

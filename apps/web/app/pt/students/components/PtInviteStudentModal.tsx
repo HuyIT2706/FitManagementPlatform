@@ -144,8 +144,23 @@ const PtInviteStudentModal = ({
                 className="w-full sm:w-auto px-4 py-2.5 bg-primary text-dark-slate font-bold text-xs rounded-xl hover:bg-primary/90 transition-all shrink-0 flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 {copied ? <Check size={16} /> : <Copy size={16} />}
-                {copied ? 'Đã chép' : 'Sao chép'}
+                {copied ? 'Đã chép' : 'Sao chép Link'}
               </button>
+            </div>
+
+            {/* QR Code Mời Học Viên trực tiếp */}
+            <div className="bg-white p-3.5 rounded-2xl border border-slate-200 dark:border-white/15 w-fit mx-auto text-center shadow-lg">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
+                  generatedInviteUrl
+                )}`}
+                alt="Mã QR Mời Học Viên"
+                className="w-32 h-32 sm:w-40 sm:h-40 mx-auto rounded-lg"
+              />
+              <span className="text-[11px] text-slate-800 font-extrabold block mt-2 font-mono">
+                Quét nhận {totalSessions} buổi tập • {packageName}
+              </span>
             </div>
 
             <button

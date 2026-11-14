@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { Dumbbell, UserCheck, Flame } from 'lucide-react';
 import type { AssignedWorkoutPlanCardProps, ExerciseItem } from '../../../interface';
 
@@ -32,17 +31,21 @@ const AssignedWorkoutPlanCard = ({
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border border-primary/40 shrink-0 bg-primary/20 flex items-center justify-center text-primary font-extrabold relative">
               {coachAvatar ? (
-                <Image
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
                   src={coachAvatar}
                   alt={coachName}
-                  width={44}
-                  height={44}
                   className="w-full h-full object-cover"
-                  unoptimized={coachAvatar.startsWith('data:')}
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    const fallback = e.currentTarget.parentElement?.querySelector('.coach-fallback');
+                    if (fallback) (fallback as HTMLElement).style.display = 'flex';
+                  }}
                 />
-              ) : (
+              ) : null}
+              <div className={`coach-fallback w-full h-full items-center justify-center ${coachAvatar ? 'hidden' : 'flex'}`}>
                 <UserCheck size={18} className="sm:w-5 sm:h-5" />
-              )}
+              </div>
             </div>
             <div>
               <h4 className="font-bold text-on-surface text-sm sm:text-base">{scheduleTitle}</h4>
@@ -71,17 +74,27 @@ const AssignedWorkoutPlanCard = ({
                 <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl overflow-hidden border border-white/15 shrink-0 bg-surface-bright/80 flex items-center justify-center group-hover:border-primary/40 transition-colors relative">
                     {imageSrc ? (
-                      <Image
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
                         src={imageSrc}
                         alt={ex.name}
-                        width={48}
-                        height={48}
+                        loading="lazy"
+                        decoding="async"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          const fallback = e.currentTarget.parentElement?.querySelector('.ex-fallback-icon');
+                          if (fallback) (fallback as HTMLElement).style.display = 'flex';
+                        }}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        unoptimized={imageSrc.startsWith('data:')}
                       />
-                    ) : (
+                    ) : null}
+                    <div
+                      className={`ex-fallback-icon w-full h-full items-center justify-center ${
+                        imageSrc ? 'hidden' : 'flex'
+                      }`}
+                    >
                       <Dumbbell size={18} className="text-primary sm:w-5 sm:h-5" />
-                    )}
+                    </div>
                   </div>
                   <div className="min-w-0">
                     <h5 className="font-bold text-xs sm:text-sm text-on-surface truncate group-hover:text-primary transition-colors">
