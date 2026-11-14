@@ -8,25 +8,25 @@ import {
   Sparkles,
   Camera,
   Mic,
-  Flame,
   ShieldCheck,
-  QrCode,
   Dumbbell,
   TrendingUp,
   Smartphone,
   CheckCircle2,
   ArrowRight,
-  Layers,
   Apple,
   Zap,
   ChevronRight,
   ChevronDown,
   Scale,
   RefreshCw,
+  Star,
+  Plus,
+  Minus,
 } from 'lucide-react';
 
 // ==========================================
-// DEMO DISHES FOR AI VISION SCANNER
+// DEMO DISHES FOR CAL AI VISION SCANNER
 // ==========================================
 interface FoodComponent {
   name: string;
@@ -50,9 +50,9 @@ const DEMO_DISHES: DemoDish[] = [
   {
     id: 'com-tam',
     name: 'Cơm Tấm Sườn Bì Chả',
-    tag: 'Bulking / Năng lượng cao',
+    tag: 'Bulking / Giàu Đạm',
     image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=800&auto=format&fit=crop',
-    description: 'Món ăn đặc sản phổ biến, giàu protein từ sườn heo nướng và chả trứng.',
+    description: 'Món ăn đặc sản phổ biến, giàu protein từ sườn nướng cốt lết và chả trứng hấp.',
     components: [
       { name: 'Cơm tấm trắng', defaultGrams: 200, calPer100: 130, proPer100: 2.7, carbPer100: 28.2, fatPer100: 0.3 },
       { name: 'Sườn cốt lết nướng', defaultGrams: 140, calPer100: 242, proPer100: 27.3, carbPer100: 2.5, fatPer100: 14.1 },
@@ -63,9 +63,9 @@ const DEMO_DISHES: DemoDish[] = [
   {
     id: 'pho-bo',
     name: 'Phở Bò Tái Nạm Hà Nội',
-    tag: 'Phục hồi cơ bắp',
+    tag: 'Phục Hồi Thể Lực',
     image: 'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?q=80&w=800&auto=format&fit=crop',
-    description: 'Bò tái mềm giàu kẽm, nước dùng thanh từ xương hầm và bánh phở truyền thống.',
+    description: 'Thịt bò tươi mềm giàu sắt và kẽm, nước dùng thanh hầm từ xương bò tự nhiên.',
     components: [
       { name: 'Bánh phở tươi', defaultGrams: 220, calPer100: 140, proPer100: 3.2, carbPer100: 30.0, fatPer100: 0.5 },
       { name: 'Thịt bò tái nạm', defaultGrams: 120, calPer100: 215, proPer100: 26.0, carbPer100: 0.0, fatPer100: 12.5 },
@@ -75,10 +75,10 @@ const DEMO_DISHES: DemoDish[] = [
   },
   {
     id: 'salad-uc-ga',
-    name: 'Salad Ức Gà Áp Chảo & Bơ',
-    tag: 'Cutting / Siêu nạc',
+    name: 'Salad Ức Gà & Bơ Sáp',
+    tag: 'Cutting / Siêu Nạc',
     image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=800&auto=format&fit=crop',
-    description: 'Khẩu phần siết mỡ tối ưu: ức gà hấp dẫn, chất béo tốt từ bơ sáp và chất xơ.',
+    description: 'Khẩu phần siết mỡ tối ưu: ức gà nạc áp chảo, chất béo đơn không bão hòa từ bơ.',
     components: [
       { name: 'Ức gà phi lê áp chảo', defaultGrams: 180, calPer100: 165, proPer100: 31.0, carbPer100: 0.0, fatPer100: 3.6 },
       { name: 'Bơ sáp tươi lát', defaultGrams: 60, calPer100: 160, proPer100: 2.0, carbPer100: 8.5, fatPer100: 14.7 },
@@ -89,9 +89,9 @@ const DEMO_DISHES: DemoDish[] = [
   {
     id: 'bun-cha',
     name: 'Bún Chả Nướng Than Hoa',
-    tag: 'Cheat Meal / Cân bằng',
+    tag: 'Đậm Đà Hương Vị',
     image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?q=80&w=800&auto=format&fit=crop',
-    description: 'Chả viên nướng và thịt ba chỉ thơm nức, ăn kèm bún tươi và nước chấm đu đủ.',
+    description: 'Chả viên nướng và thịt ba chỉ thơm lừng, ăn kèm bún tươi và nước mắm dưa góp.',
     components: [
       { name: 'Bún tươi', defaultGrams: 200, calPer100: 110, proPer100: 2.0, carbPer100: 25.0, fatPer100: 0.2 },
       { name: 'Chả nướng viên', defaultGrams: 100, calPer100: 275, proPer100: 18.0, carbPer100: 4.5, fatPer100: 21.0 },
@@ -120,9 +120,9 @@ const VOICE_SAMPLES = [
   {
     spoken: 'Trưa ăn nửa chén cơm trắng với 150g ức gà áp chảo và 1 đĩa rau luộc',
     tokens: [
-      { raw: 'nửa chén cơm trắng', parsed: '75g Cơm trắng (nửa chén)', cal: 98, p: '2g', c: '22g', f: '0.2g' },
+      { raw: 'nửa chén cơm trắng', parsed: '75g Cơm trắng', cal: 98, p: '2g', c: '22g', f: '0.2g' },
       { raw: '150g ức gà áp chảo', parsed: '150g Ức gà áp chảo', cal: 248, p: '46.5g', c: '0g', f: '5.4g' },
-      { raw: '1 đĩa rau luộc', parsed: '200g Bông cải & Rau luộc', cal: 50, p: '3g', c: '9g', f: '0.4g' },
+      { raw: '1 đĩa rau luộc', parsed: '200g Bông cải luộc', cal: 50, p: '3g', c: '9g', f: '0.4g' },
     ],
     totalCal: 396,
     totalP: 51.5,
@@ -147,24 +147,24 @@ const VOICE_SAMPLES = [
 // ==========================================
 const FAQ_ITEMS = [
   {
-    q: 'AI nhận diện món ăn Việt Nam có chính xác không?',
-    a: 'Cực kỳ chính xác! NutriCore kết hợp mô hình thị giác Google Gemini Vision AI được tinh chỉnh prompt chuyên sâu cho ẩm thực Việt Nam cùng cơ sở dữ liệu hàng ngàn món ăn bản địa. AI có khả năng nhận biết từ đĩa cơm tấm, phở, bún chả đến các món xào, luộc và ước tính gram theo kích thước đĩa.',
+    q: 'AI nhận diện món ăn Việt Nam hoạt động như thế nào?',
+    a: 'NutriCore sử dụng mô hình thị giác Google Gemini Vision AI kết hợp cơ sở dữ liệu ẩm thực Việt Nam phong phú. Khi bạn chụp hoặc tải ảnh đĩa thức ăn, AI sẽ nhận diện từng món ăn riêng lẻ, ước lượng trọng lượng gram dựa trên kích thước đĩa và tự động tra cứu chỉ số Calo, Protein, Carbs, Fat.',
   },
   {
-    q: 'Nếu đĩa thức ăn thực tế của tôi to hoặc nhỏ hơn ước tính của AI thì sao?',
-    a: 'NutriCore áp dụng nguyên lý Human-in-the-loop: Sau khi AI phân tích hình ảnh hoặc giọng nói, màn hình luôn hiển thị bảng xem trước (Preview) cho phép bạn vuốt thanh trượt hoặc gõ trực tiếp số gram thực tế trước khi bấm "Lưu vào nhật ký", đảm bảo độ chuẩn xác 100%.',
+    q: 'Nếu đĩa cơm thực tế của tôi to hoặc nhỏ hơn ước tính của AI thì sao?',
+    a: 'Chúng tôi xây dựng theo quy trình "Human-in-the-loop": Sau khi AI phân tích xong, ứng dụng luôn hiển thị giao diện xem trước cho phép bạn chạm nhẹ vào nút (+) hoặc (-) để điều chỉnh số gram thực tế theo cảm nhận của bạn trước khi bấm lưu, đảm bảo dữ liệu ghi nhận luôn chuẩn xác 100%.',
   },
   {
-    q: 'Huấn luyện viên (PT) kết nối với học viên như thế nào?',
-    a: 'PT chỉ cần tạo mã QR hoặc gửi một đường link mời (có thể cấu hình sẵn số buổi tập: 12, 16, 24, 36 buổi hoặc tùy chỉnh). Khi học viên quét mã hoặc click link, hai tài khoản sẽ tự động đồng bộ 1:1, cho phép PT xếp lịch tập, giao bài tập có ảnh kỹ thuật và duyệt thực đơn.',
+    q: 'Huấn luyện viên cá nhân (PT) kết nối với học viên ra sao?',
+    a: 'Huấn luyện viên chỉ cần tạo mã QR hoặc gửi liên kết mời học viên (có thể đặt số buổi tập: 12, 16, 24, 36 buổi hoặc số buổi bất kỳ). Học viên quét mã 1 lần duy nhất để liên kết tài khoản. Sau đó, PT có thể theo dõi nhật ký ăn uống, xếp lịch tập và điểm danh trừ buổi tập an toàn qua mã QR.',
   },
   {
-    q: 'Tôi có thể cài đặt ứng dụng lên điện thoại không?',
-    a: 'Hoàn toàn được! Bạn có thể cài đặt trực tiếp từ trình duyệt Safari (iOS) / Chrome (Android) qua tính năng PWA (Thêm vào Màn hình chính), hoặc tải file cài đặt Android APK (xây dựng bằng Capacitor Native) để nhận Push Notification nhắc nhở tập luyện và uống nước.',
+    q: 'Tôi có thể cài đặt NutriCore lên điện thoại như một ứng dụng bình thường không?',
+    a: 'Có! NutriCore hỗ trợ công nghệ Progressive Web App (PWA) giúp bạn cài đặt trực tiếp từ Safari (iOS) hoặc Chrome (Android) chỉ với 1 chạm "Thêm vào màn hình chính", có hỗ trợ thông báo đẩy (Web Push). Ngoài ra, ứng dụng còn có file đóng gói Android APK nguyên bản tối ưu phần cứng camera và micro.',
   },
   {
-    q: 'Chỉ số sức khỏe và hình ảnh vóc dáng của tôi có an toàn không?',
-    a: 'NutriCore trang bị công nghệ mã hóa đầu cuối (End-to-End Encryption) bằng thuật toán AES-256-GCM chuẩn quân đội. Mọi dữ liệu chỉ số cơ thể, hình ảnh InBody trước/sau đều được mã hóa trên thiết bị của bạn trước khi truyền tải, đồng thời tự động che dữ liệu nhạy cảm trong hệ thống logs.',
+    q: 'Thông tin sức khỏe và hình ảnh vóc dáng của tôi có được bảo mật không?',
+    a: 'Tuyệt đối an toàn. Mọi dữ liệu chỉ số cơ thể, hình ảnh hành trình InBody đều được mã hóa đầu cuối (End-to-End Encryption) bằng thuật toán chuẩn quân đội AES-256-GCM trước khi gửi lên máy chủ, đồng thời hệ thống tự động ẩn danh hóa (masking) email và số điện thoại trong toàn bộ nhật ký truy cập.',
   },
 ];
 
@@ -178,7 +178,7 @@ export default function LandingPage() {
   const [activeRoleTab, setActiveRoleTab] = useState<'student' | 'pt' | 'admin'>('student');
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
-  // Dynamic grams adjuster for interactive demo
+  // Dynamic grams adjuster for interactive sandbox
   const [gramAdjustments, setGramAdjustments] = useState<Record<number, number>>({});
 
   useEffect(() => {
@@ -188,18 +188,18 @@ export default function LandingPage() {
     }
   }, []);
 
-  // Trigger radar scan animation when switching dishes
+  // Trigger smooth scanning animation when dish changes
   const handleSelectDish = (idx: number) => {
     setSelectedDishIdx(idx);
     setGramAdjustments({});
     setIsScanning(true);
-    const timer = setTimeout(() => setIsScanning(false), 900);
+    const timer = setTimeout(() => setIsScanning(false), 800);
     return () => clearTimeout(timer);
   };
 
   const currentDish = DEMO_DISHES[selectedDishIdx];
 
-  // Calculate dynamic totals for the selected dish
+  // Calculate dynamic totals
   const computedDishTotals = (currentDish?.components || []).reduce(
     (acc, comp, i) => {
       const factor = (gramAdjustments[i] ?? comp.defaultGrams) / 100;
@@ -224,74 +224,70 @@ export default function LandingPage() {
   const currentVoice = VOICE_SAMPLES[activeVoiceIdx];
 
   return (
-    <div className="min-h-screen bg-[#06080C] text-zinc-100 selection:bg-emerald-500 selection:text-black font-sans overflow-x-hidden antialiased">
-      {/* Background Subtle Tech Grid */}
-      <div className="fixed inset-0 pointer-events-none opacity-20 bg-[radial-gradient(#10b98118_1px,transparent_1px)] [background-size:28px_28px] z-0" />
-
+    <div className="min-h-screen bg-white text-zinc-900 selection:bg-zinc-900 selection:text-white font-sans overflow-x-hidden antialiased">
       {/* ========================================================================= */}
-      {/* 1. TOP ATHLETIC NAVBAR */}
+      {/* 1. TOP MINIMALIST NAVBAR (CAL AI INSPIRED) */}
       {/* ========================================================================= */}
-      <header className="fixed top-0 inset-x-0 z-50 backdrop-blur-xl bg-[#06080C]/85 border-b border-white/10 transition-all">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <header className="fixed top-0 inset-x-0 z-50 backdrop-blur-md bg-white/80 border-b border-zinc-200/80 transition-all">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Brand Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-400 flex items-center justify-center font-black text-black text-xl tracking-tighter shadow-[0_0_20px_rgba(16,185,129,0.5)] group-hover:scale-105 transition-transform">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold text-sm shadow-sm group-hover:scale-105 transition-transform">
               N
             </div>
-            <div className="flex flex-col">
-              <span className="font-black text-xl tracking-wider uppercase text-white leading-none">
-                Nutri<span className="text-emerald-400">core</span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="font-extrabold text-lg tracking-tight text-black">
+                Nutri<span className="text-zinc-500 font-semibold">Core</span>
               </span>
-              <span className="text-[9px] font-bold uppercase tracking-widest text-emerald-400/80 mt-1">
-                AI Fitness Ecosystem
+              <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-600 border border-zinc-200">
+                Cal AI Style
               </span>
             </div>
           </Link>
 
           {/* Nav Navigation */}
-          <nav className="hidden lg:flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-zinc-400">
-            <a href="#ai-scanner" className="hover:text-emerald-400 transition flex items-center gap-1.5">
-              <Sparkles size={14} className="text-emerald-400" />
-              Demo AI Scanner
+          <nav className="hidden md:flex items-center gap-7 text-xs font-semibold uppercase tracking-wider text-zinc-600">
+            <a href="#ai-scanner" className="hover:text-black transition">
+              Quét Ảnh AI
             </a>
-            <a href="#pillars" className="hover:text-emerald-400 transition">
-              Tính năng cốt lõi
+            <a href="#features" className="hover:text-black transition">
+              Tính Năng
             </a>
-            <a href="#roles" className="hover:text-emerald-400 transition">
-              Học viên & PT
+            <a href="#roles" className="hover:text-black transition">
+              Học Viên & PT
             </a>
-            <a href="#comparison" className="hover:text-emerald-400 transition">
-              So sánh
+            <a href="#comparison" className="hover:text-black transition">
+              So Sánh
             </a>
-            <a href="#faq" className="hover:text-emerald-400 transition">
-              Hỏi đáp
+            <a href="#faq" className="hover:text-black transition">
+              Hỏi Đáp
             </a>
           </nav>
 
           {/* Action CTAs */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             {isLoggedIn ? (
               <button
                 onClick={() => router.push('/home')}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-black font-black text-xs uppercase tracking-wider transition-all transform hover:-translate-y-0.5 shadow-[0_0_25px_rgba(16,185,129,0.4)] flex items-center gap-2"
+                className="px-5 py-2.5 rounded-full bg-black hover:bg-zinc-800 text-white font-semibold text-xs uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5"
               >
                 <span>Vào Dashboard</span>
-                <ArrowRight size={14} />
+                <ArrowRight size={13} />
               </button>
             ) : (
               <>
                 <Link
                   href="/login"
-                  className="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-zinc-300 hover:text-white hover:bg-white/5 transition"
+                  className="px-4 py-2 text-xs font-semibold text-zinc-600 hover:text-black transition"
                 >
                   Đăng nhập
                 </Link>
                 <Link
                   href="/onboarding"
-                  className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs uppercase tracking-wider transition-all transform hover:-translate-y-0.5 shadow-[0_0_20px_rgba(16,185,129,0.4)] flex items-center gap-1.5"
+                  className="px-5 py-2.5 rounded-full bg-black hover:bg-zinc-800 text-white font-semibold text-xs uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5"
                 >
-                  <Zap size={14} />
-                  <span>Trải nghiệm ngay</span>
+                  <Zap size={13} />
+                  <span>Dùng thử</span>
                 </Link>
               </>
             )}
@@ -300,170 +296,139 @@ export default function LandingPage() {
       </header>
 
       {/* ========================================================================= */}
-      {/* 2. HERO SECTION */}
+      {/* 2. HERO SECTION: ULTRA-CLEAN, WHITE, CONTENT-FIRST */}
       {/* ========================================================================= */}
-      <section className="relative min-h-[95vh] flex items-center pt-24 pb-16 overflow-hidden border-b border-white/10">
-        {/* Glow ambient background orbs */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-emerald-500/15 rounded-full blur-[140px] pointer-events-none" />
-        <div className="absolute top-1/3 right-10 w-[400px] h-[400px] bg-teal-500/10 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-10 left-10 w-[350px] h-[350px] bg-orange-500/10 rounded-full blur-[100px] pointer-events-none" />
+      <section className="relative pt-32 pb-20 sm:pt-40 sm:pb-28 overflow-hidden bg-gradient-to-b from-zinc-50/70 via-white to-white">
+        {/* Subtle decorative background circles */}
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-emerald-100/30 rounded-full blur-[100px] pointer-events-none" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="grid lg:grid-cols-12 gap-12 items-center">
-            {/* Left Column: Vision & Pitch */}
-            <div className="lg:col-span-7 space-y-7">
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-xs font-black uppercase tracking-widest text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                <span>Next-Gen Fitness & Nutrition Intelligence</span>
-              </div>
+        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-7">
+          {/* Cal AI Pill Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-zinc-100 border border-zinc-200/80 text-xs font-semibold text-zinc-800 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>AI Đếm Calo & Huấn Luyện PT Đơn Giản Nhất</span>
+          </div>
 
-              {/* Bold Title */}
-              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tight leading-[1.02] text-white">
-                Đổ mồ hôi <br />
-                trong phòng tập. <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-500">
-                  Làm chủ từng gam Macro.
-                </span>
-              </h1>
+          {/* Minimalist Stark Headline */}
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-black leading-[1.08]">
+            Chụp ảnh bữa ăn. <br />
+            <span className="text-zinc-400">Biết ngay từng gam Macro.</span>
+          </h1>
 
-              {/* Description */}
-              <p className="text-zinc-300 text-base sm:text-lg max-w-2xl leading-relaxed font-normal">
-                Không còn cảnh cân đo thủ công hay tra bảng tính mỏi mắt. <strong>NutriCore</strong> ứng dụng{' '}
-                <span className="text-emerald-400 font-semibold">Gemini Vision AI</span> nhận diện đĩa cơm Việt Nam, bóc tách giọng nói tự nhiên, cân bằng thực đơn chuẩn TDEE và đồng bộ 1:1 cùng Huấn luyện viên cá nhân (PT).
-              </p>
+          {/* Subtitle */}
+          <p className="text-zinc-600 text-base sm:text-xl max-w-2xl mx-auto leading-relaxed font-normal">
+            Không cần cân tiểu ly. Chỉ cần một bức ảnh hoặc một câu nói tự nhiên, NutriCore tự động nhận diện món ăn Việt Nam, tính chuẩn Calo & Protein và kết nối trực tiếp với Huấn luyện viên (PT) của bạn.
+          </p>
 
-              {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
-                <Link
-                  href="/onboarding"
-                  className="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-black font-black text-sm sm:text-base uppercase tracking-wider transition-all transform hover:-translate-y-1 shadow-[0_0_35px_rgba(16,185,129,0.5)] text-center flex items-center justify-center gap-2"
-                >
-                  <Flame size={18} />
-                  <span>Đo chỉ số TDEE & Dùng Thử Miễn Phí</span>
-                </Link>
-                <a
-                  href="#ai-scanner"
-                  className="px-7 py-4 rounded-2xl bg-zinc-900/80 hover:bg-zinc-800 border border-white/15 text-white font-bold text-sm sm:text-base uppercase tracking-wider transition-all text-center backdrop-blur-md flex items-center justify-center gap-2 hover:border-emerald-500/50"
-                >
-                  <Sparkles size={16} className="text-emerald-400" />
-                  <span>Xem Demo AI Scanner</span>
-                </a>
-              </div>
+          {/* Action CTAs */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <Link
+              href="/onboarding"
+              className="w-full sm:w-auto px-8 py-4 rounded-full bg-black hover:bg-zinc-800 text-white font-bold text-sm tracking-wide transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+            >
+              <span>Tính chỉ số TDEE miễn phí</span>
+              <ArrowRight size={16} />
+            </Link>
+            <a
+              href="#ai-scanner"
+              className="w-full sm:w-auto px-7 py-4 rounded-full bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-900 font-semibold text-sm transition-all shadow-xs flex items-center justify-center gap-2"
+            >
+              <Sparkles size={16} className="text-zinc-500" />
+              <span>Xem Demo AI Scanner</span>
+            </a>
+          </div>
 
-              {/* Trust Metric Badges */}
-              <div className="pt-6 grid grid-cols-2 sm:grid-cols-4 gap-4 border-t border-white/10 max-w-2xl">
-                <div>
-                  <p className="text-2xl sm:text-3xl font-black text-white">10,000+</p>
-                  <p className="text-[11px] uppercase tracking-wider text-zinc-400 font-semibold mt-0.5">
-                    Món ăn Việt Nam
-                  </p>
-                </div>
-                <div>
-                  <p className="text-2xl sm:text-3xl font-black text-emerald-400">99.2%</p>
-                  <p className="text-[11px] uppercase tracking-wider text-zinc-400 font-semibold mt-0.5">
-                    Chuẩn xác Macro
-                  </p>
-                </div>
-                <div>
-                  <p className="text-2xl sm:text-3xl font-black text-teal-400">1-Touch</p>
-                  <p className="text-[11px] uppercase tracking-wider text-zinc-400 font-semibold mt-0.5">
-                    Mời PT qua QR
-                  </p>
-                </div>
-                <div>
-                  <p className="text-2xl sm:text-3xl font-black text-orange-400">AES-256</p>
-                  <p className="text-[11px] uppercase tracking-wider text-zinc-400 font-semibold mt-0.5">
-                    Mã hóa đầu cuối
-                  </p>
-                </div>
-              </div>
+          {/* Social Proof Star Rating */}
+          <div className="pt-8 flex flex-col sm:flex-row items-center justify-center gap-3 text-xs text-zinc-500">
+            <div className="flex items-center gap-1 text-amber-500">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} size={15} fill="currentColor" />
+              ))}
             </div>
+            <span className="font-medium text-zinc-700">
+              4.9/5 xếp hạng • Hơn 10,000+ món ăn & thức uống Việt Nam đã tối ưu
+            </span>
+          </div>
+        </div>
 
-            {/* Right Column: Live Interactive Mockup Card */}
-            <div className="lg:col-span-5 relative">
-              <div className="relative mx-auto max-w-md rounded-3xl overflow-hidden border border-white/20 shadow-2xl bg-zinc-950/80 backdrop-blur-xl p-2">
-                {/* Hero Card Image */}
-                <div className="relative h-[340px] rounded-2xl overflow-hidden">
-                  <img
-                    src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1200&auto=format&fit=crop"
-                    alt="Athlete Training Discipline"
-                    className="w-full h-full object-cover object-center filter contrast-125 brightness-90"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#06080C] via-transparent to-black/60" />
+        {/* Centerpiece Visual: Clean Phone Mockup & Macro HUD */}
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-12">
+          <div className="rounded-3xl border border-zinc-200/80 bg-white p-3 sm:p-5 shadow-xl shadow-zinc-200/50">
+            <div className="grid md:grid-cols-12 gap-6 items-center">
+              {/* Left: Food Scanner Preview */}
+              <div className="md:col-span-7 relative rounded-2xl overflow-hidden aspect-4/3 sm:aspect-16/10 bg-zinc-100 border border-zinc-200">
+                <img
+                  src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1200&auto=format&fit=crop"
+                  alt="Food Scan Preview"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
 
-                  {/* Top Live Badges */}
-                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-                    <div className="backdrop-blur-md bg-black/75 border border-white/15 px-3 py-1.5 rounded-xl flex items-center gap-2 shadow-lg">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                      <span className="text-xs font-bold text-white">Coach Đào Trần đã duyệt</span>
-                    </div>
-                    <div className="backdrop-blur-md bg-orange-500/20 border border-orange-500/40 px-3 py-1 rounded-xl text-xs font-black text-orange-300 flex items-center gap-1.5">
-                      <Flame size={14} className="text-orange-400" />
-                      <span>21 Ngày Streak</span>
-                    </div>
+                {/* Floating Chips on Image */}
+                <div className="absolute top-4 left-4 backdrop-blur-md bg-white/90 px-3.5 py-1.5 rounded-full shadow-sm border border-zinc-200 text-xs font-semibold text-zinc-900 flex items-center gap-2">
+                  <Camera size={14} className="text-emerald-600" />
+                  <span>Gemini Vision AI: Cơm Tấm Sườn Bì</span>
+                </div>
+
+                <div className="absolute bottom-4 left-4 right-4 flex flex-wrap gap-2 text-xs">
+                  <span className="backdrop-blur-md bg-black/75 text-white font-medium px-3 py-1 rounded-full">
+                    Sườn nướng: 140g (339 kcal)
+                  </span>
+                  <span className="backdrop-blur-md bg-black/75 text-white font-medium px-3 py-1 rounded-full">
+                    Cơm tấm: 200g (260 kcal)
+                  </span>
+                  <span className="backdrop-blur-md bg-black/75 text-white font-medium px-3 py-1 rounded-full">
+                    Chả trứng: 60g (111 kcal)
+                  </span>
+                </div>
+              </div>
+
+              {/* Right: Clean White Macro Metrics HUD */}
+              <div className="md:col-span-5 p-4 sm:p-6 space-y-6">
+                <div>
+                  <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1">
+                    <span>Mục Tiêu Hôm Nay</span>
+                    <span className="text-emerald-600 font-extrabold">Đạt 88%</span>
                   </div>
-
-                  {/* Floating AI Vision Tag */}
-                  <div className="absolute bottom-3 left-3 right-3 backdrop-blur-md bg-emerald-950/80 border border-emerald-500/40 p-2.5 rounded-xl flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <Camera size={16} className="text-emerald-400" />
-                      <span className="text-white font-bold">Gemini Vision AI: Quét xong trong 0.8s</span>
-                    </div>
-                    <span className="px-2 py-0.5 rounded bg-emerald-500 text-black font-black text-[10px]">
-                      100% MATCH
-                    </span>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-extrabold tracking-tight text-black">2,110</span>
+                    <span className="text-sm font-semibold text-zinc-500">/ 2,400 kcal</span>
+                  </div>
+                  <div className="w-full h-2.5 bg-zinc-100 rounded-full overflow-hidden mt-3">
+                    <div className="bg-black h-full w-[88%] rounded-full" />
                   </div>
                 </div>
 
-                {/* Bottom Stats HUD */}
-                <div className="p-4 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-[10px] uppercase tracking-widest text-zinc-400 font-bold">
-                        Tiến độ Calo hôm nay • Lean Recomp
-                      </p>
-                      <p className="text-2xl font-black text-white mt-0.5">
-                        2,150 <span className="text-xs font-bold text-emerald-400">/ 2,400 KCAL</span>
-                      </p>
+                {/* Macro Chips */}
+                <div className="space-y-3 pt-2">
+                  <div className="flex items-center justify-between p-3 rounded-2xl bg-zinc-50 border border-zinc-100">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-2.5 h-2.5 rounded-full bg-rose-500" />
+                      <span className="text-xs font-bold text-zinc-700">Chất đạm (Protein)</span>
                     </div>
-                    <div className="text-right">
-                      <span className="px-3 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-black">
-                        ĐẠT 90%
-                      </span>
-                    </div>
+                    <span className="text-sm font-extrabold text-black">165g <span className="text-xs font-normal text-zinc-400">/ 180g</span></span>
                   </div>
 
-                  {/* Macro Progress Bars */}
-                  <div className="grid grid-cols-3 gap-2 text-xs pt-1">
-                    <div className="bg-zinc-900/90 border border-white/5 p-2 rounded-xl">
-                      <div className="flex justify-between font-bold text-[11px] mb-1">
-                        <span className="text-rose-400">ĐẠM (P)</span>
-                        <span className="text-white">165g</span>
-                      </div>
-                      <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                        <div className="bg-rose-500 h-full w-[94%]" />
-                      </div>
+                  <div className="flex items-center justify-between p-3 rounded-2xl bg-zinc-50 border border-zinc-100">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                      <span className="text-xs font-bold text-zinc-700">Tinh bột (Carbs)</span>
                     </div>
-                    <div className="bg-zinc-900/90 border border-white/5 p-2 rounded-xl">
-                      <div className="flex justify-between font-bold text-[11px] mb-1">
-                        <span className="text-amber-400">TINH BỘT (C)</span>
-                        <span className="text-white">210g</span>
-                      </div>
-                      <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                        <div className="bg-amber-400 h-full w-[88%]" />
-                      </div>
-                    </div>
-                    <div className="bg-zinc-900/90 border border-white/5 p-2 rounded-xl">
-                      <div className="flex justify-between font-bold text-[11px] mb-1">
-                        <span className="text-sky-400">BÉO (F)</span>
-                        <span className="text-white">55g</span>
-                      </div>
-                      <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                        <div className="bg-sky-400 h-full w-[80%]" />
-                      </div>
-                    </div>
+                    <span className="text-sm font-extrabold text-black">210g <span className="text-xs font-normal text-zinc-400">/ 240g</span></span>
                   </div>
+
+                  <div className="flex items-center justify-between p-3 rounded-2xl bg-zinc-50 border border-zinc-100">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-2.5 h-2.5 rounded-full bg-sky-500" />
+                      <span className="text-xs font-bold text-zinc-700">Chất béo (Fat)</span>
+                    </div>
+                    <span className="text-sm font-extrabold text-black">55g <span className="text-xs font-normal text-zinc-400">/ 65g</span></span>
+                  </div>
+                </div>
+
+                <div className="pt-2 flex items-center gap-3 text-xs text-zinc-500">
+                  <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+                  <span>Coach Đào Trần đã xem & duyệt thực đơn 10 phút trước</span>
                 </div>
               </div>
             </div>
@@ -472,307 +437,259 @@ export default function LandingPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 3. INTERACTIVE AI FOOD SCANNER SHOWCASE (DEMO SỐNG ĐỘNG) */}
+      {/* 3. LIVE INTERACTIVE AI SCANNER (CAL AI CLEAN WHITE EXPERIENCE) */}
       {/* ========================================================================= */}
-      <section id="ai-scanner" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 scroll-mt-20">
-        <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-black uppercase tracking-widest">
-            <Sparkles size={14} />
-            <span>Trải nghiệm AI Thực tế tại chỗ</span>
+      <section id="ai-scanner" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 scroll-mt-20">
+        <div className="text-center max-w-2xl mx-auto mb-10 space-y-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-700 text-xs font-semibold">
+            <Sparkles size={14} className="text-emerald-600" />
+            <span>Trải nghiệm tính năng AI trực tiếp</span>
           </div>
-          <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-white">
-            Nhận diện món ăn & Bóc tách Macro <br />
-            <span className="text-emerald-400">Chỉ trong một cái chớp mắt</span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-black">
+            Xem AI nhận diện món ăn trong 1 giây
           </h2>
-          <p className="text-zinc-400 text-sm sm:text-base">
-            Hãy bấm chọn các món ăn mẫu dưới đây để xem cách AI thị giác và thuật toán NLP phân tích từng thành phần đĩa ăn theo thời gian thực.
+          <p className="text-zinc-600 text-sm sm:text-base">
+            Chọn một món ăn mẫu hoặc câu nói dưới đây để trải nghiệm cách NutriCore bóc tách Calo và thành phần dinh dưỡng.
           </p>
 
-          {/* Mode Switcher: Vision AI vs Voice NLP */}
-          <div className="inline-flex p-1.5 rounded-2xl bg-zinc-900 border border-white/10 mt-4">
+          {/* Mode Switcher Tabs */}
+          <div className="inline-flex p-1 rounded-full bg-zinc-100 border border-zinc-200 mt-3">
             <button
               onClick={() => setDemoMode('vision')}
-              className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black uppercase tracking-wider transition-all flex items-center gap-2 ${
+              className={`px-5 py-2 rounded-full text-xs font-semibold transition-all flex items-center gap-2 ${
                 demoMode === 'vision'
-                  ? 'bg-emerald-500 text-black shadow-lg'
-                  : 'text-zinc-400 hover:text-white'
+                  ? 'bg-white text-black shadow-xs font-bold'
+                  : 'text-zinc-600 hover:text-black'
               }`}
             >
-              <Camera size={16} />
-              <span>1. Quét Ảnh (Gemini Vision AI)</span>
+              <Camera size={14} />
+              <span>Quét ảnh AI (Gemini Vision)</span>
             </button>
             <button
               onClick={() => setDemoMode('voice')}
-              className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black uppercase tracking-wider transition-all flex items-center gap-2 ${
+              className={`px-5 py-2 rounded-full text-xs font-semibold transition-all flex items-center gap-2 ${
                 demoMode === 'voice'
-                  ? 'bg-emerald-500 text-black shadow-lg'
-                  : 'text-zinc-400 hover:text-white'
+                  ? 'bg-white text-black shadow-xs font-bold'
+                  : 'text-zinc-600 hover:text-black'
               }`}
             >
-              <Mic size={16} />
-              <span>2. Giọng nói (Vietnamese NLP)</span>
+              <Mic size={14} />
+              <span>Nói tự nhiên (Voice NLP)</span>
             </button>
           </div>
         </div>
 
         {demoMode === 'vision' ? (
-          /* Vision AI Sandbox */
-          <div className="grid lg:grid-cols-12 gap-8 items-start bg-zinc-900/60 border border-white/10 rounded-3xl p-6 sm:p-10 backdrop-blur-xl">
-            {/* Dish Selection Thumbnails */}
-            <div className="lg:col-span-5 space-y-4">
-              <p className="text-xs uppercase tracking-widest text-zinc-400 font-bold">
+          /* Vision AI Clean Sandbox */
+          <div className="rounded-3xl border border-zinc-200/80 bg-white p-5 sm:p-8 shadow-sm space-y-8">
+            {/* Dish Selection Pill Thumbnails */}
+            <div>
+              <p className="text-xs uppercase tracking-wider text-zinc-400 font-bold mb-3">
                 Chọn đĩa ăn để AI quét thử:
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {DEMO_DISHES.map((dish, idx) => (
                   <button
                     key={dish.id}
                     onClick={() => handleSelectDish(idx)}
-                    className={`text-left p-3.5 rounded-2xl border transition-all flex items-center gap-3.5 ${
+                    className={`text-left p-3 rounded-2xl border transition-all flex flex-col gap-2 ${
                       selectedDishIdx === idx
-                        ? 'bg-emerald-500/15 border-emerald-500 text-white shadow-lg'
-                        : 'bg-zinc-950/70 border-white/10 text-zinc-400 hover:text-white hover:border-white/25'
+                        ? 'border-black bg-zinc-50 shadow-xs'
+                        : 'border-zinc-200 bg-white hover:border-zinc-300'
                     }`}
                   >
                     <img
                       src={dish.image}
                       alt={dish.name}
-                      className="w-16 h-16 rounded-xl object-cover shrink-0 filter contrast-110"
+                      className="w-full h-24 rounded-xl object-cover"
                     />
-                    <div className="flex-1 min-w-0">
-                      <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 block truncate">
+                    <div>
+                      <span className="text-[10px] font-bold text-emerald-700 block truncate">
                         {dish.tag}
                       </span>
-                      <p className="text-sm font-bold text-white truncate">{dish.name}</p>
-                      <p className="text-xs text-zinc-400 truncate mt-0.5">{dish.description}</p>
+                      <p className="text-xs font-bold text-black truncate mt-0.5">{dish.name}</p>
                     </div>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* AI Scanning Visual & Detected Components */}
-            <div className="lg:col-span-7 bg-[#07090E] border border-white/10 rounded-3xl p-6 space-y-6">
-              {/* Image Preview with Scanning Radar Overlay */}
-              <div className="relative h-60 sm:h-72 rounded-2xl overflow-hidden border border-white/10">
-                <img
-                  src={currentDish?.image}
-                  alt={currentDish?.name}
-                  className="w-full h-full object-cover filter contrast-125"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
-
-                {/* Radar Scan Line Effect */}
-                {isScanning && (
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-500/40 to-transparent animate-[pulse_1s_infinite] border-b-2 border-emerald-400" />
-                )}
-
-                {/* Detected Tag Overlay */}
-                <div className="absolute top-3 left-3 bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/15 flex items-center gap-2 text-xs">
-                  <Camera size={14} className="text-emerald-400" />
-                  <span className="text-white font-bold">{currentDish?.name}</span>
-                </div>
-
-                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                  <div className="bg-black/85 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/15 text-xs text-zinc-300">
-                    {isScanning ? (
-                      <span className="text-emerald-400 font-bold flex items-center gap-1.5">
-                        <RefreshCw size={12} className="animate-spin" /> Đang phân tích Vision...
-                      </span>
-                    ) : (
-                      <span>Nhận diện: <strong>{currentDish?.components.length} thành phần</strong></span>
-                    )}
-                  </div>
-                  <span className="bg-emerald-500 text-black text-xs font-black px-2.5 py-1 rounded-lg">
-                    Gemini 2.5 Flash
-                  </span>
-                </div>
-              </div>
-
-              {/* Total Macro Header */}
-              <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/10">
-                <div>
-                  <p className="text-xs uppercase tracking-widest text-zinc-400 font-bold">Tổng chỉ số dinh dưỡng</p>
-                  <p className="text-3xl font-black text-white mt-0.5">
-                    {computedDishTotals.cal} <span className="text-sm font-bold text-emerald-400">KCAL</span>
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2 text-xs">
-                  <span className="px-3 py-1.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 font-black">
-                    Protein: {computedDishTotals.pro}g
-                  </span>
-                  <span className="px-3 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-black">
-                    Carbs: {computedDishTotals.carb}g
-                  </span>
-                  <span className="px-3 py-1.5 rounded-xl bg-sky-500/15 border border-sky-500/30 text-sky-300 font-black">
-                    Fat: {computedDishTotals.fat}g
-                  </span>
-                </div>
-              </div>
-
-              {/* Interactive Component Granular Breakdown (Human in the loop) */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-xs text-zinc-400">
-                  <span className="font-bold uppercase tracking-wider">Các món thành phần (Tự do tinh chỉnh số gram)</span>
-                  <span className="text-[11px] text-emerald-400 font-semibold">Tự động tính lại Calo</span>
-                </div>
-
-                {currentDish?.components.map((comp, idx) => {
-                  const currentGrams = gramAdjustments[idx] ?? comp.defaultGrams;
-                  const factor = currentGrams / 100;
-                  const itemCal = Math.round(comp.calPer100 * factor);
-                  const itemPro = (comp.proPer100 * factor).toFixed(1);
-
-                  return (
-                    <div
-                      key={idx}
-                      className="p-3.5 rounded-2xl bg-zinc-900/90 border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
-                        <div>
-                          <p className="font-bold text-white">{comp.name}</p>
-                          <p className="text-[11px] text-zinc-400">
-                            {itemCal} kcal • {itemPro}g Protein
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Weight Stepper Controller */}
-                      <div className="flex items-center gap-2 self-end sm:self-center">
-                        <button
-                          onClick={() => handleAdjustGram(idx, -10)}
-                          className="w-7 h-7 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white font-black text-sm flex items-center justify-center transition"
-                        >
-                          -
-                        </button>
-                        <span className="px-3 py-1 rounded-lg bg-black border border-white/10 font-black text-emerald-300 min-w-[70px] text-center">
-                          {currentGrams}g
-                        </span>
-                        <button
-                          onClick={() => handleAdjustGram(idx, 10)}
-                          className="w-7 h-7 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white font-black text-sm flex items-center justify-center transition"
-                        >
-                          +
-                        </button>
+            {/* Split View: Photo + Interactive Component Weights */}
+            <div className="grid md:grid-cols-12 gap-8 items-start pt-2 border-t border-zinc-100">
+              {/* Left Photo View */}
+              <div className="md:col-span-6 space-y-4">
+                <div className="relative rounded-2xl overflow-hidden border border-zinc-200 aspect-4/3 bg-zinc-100">
+                  <img
+                    src={currentDish?.image}
+                    alt={currentDish?.name}
+                    className="w-full h-full object-cover"
+                  />
+                  {isScanning && (
+                    <div className="absolute inset-0 bg-white/70 backdrop-blur-xs flex items-center justify-center">
+                      <div className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-full text-xs font-semibold shadow-md">
+                        <RefreshCw size={14} className="animate-spin" />
+                        <span>Gemini Vision đang bóc tách...</span>
                       </div>
                     </div>
-                  );
-                })}
+                  )}
+
+                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs">
+                    <span className="bg-white/90 backdrop-blur-md px-3 py-1 rounded-full font-bold text-zinc-900 border border-zinc-200">
+                      {currentDish?.name}
+                    </span>
+                    <span className="bg-black text-white px-2.5 py-1 rounded-full font-semibold text-[11px]">
+                      Gemini 2.5 Flash
+                    </span>
+                  </div>
+                </div>
+
+                <p className="text-xs text-zinc-500 leading-relaxed italic">
+                  💡 {currentDish?.description}
+                </p>
               </div>
 
-              {/* Action Button */}
-              <Link
-                href="/onboarding"
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-black font-black text-xs sm:text-sm uppercase tracking-wider text-center transition-all flex items-center justify-center gap-2 shadow-lg"
-              >
-                <span>Lưu thực đơn & Khởi tạo lộ trình cá nhân →</span>
-              </Link>
+              {/* Right Side: Nutrients & Granular Gram Adjuster */}
+              <div className="md:col-span-6 space-y-6">
+                {/* Total Calories Bar */}
+                <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-100">
+                  <div className="flex items-baseline justify-between">
+                    <div>
+                      <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Tổng Dinh Dưỡng</p>
+                      <p className="text-3xl font-extrabold text-black mt-0.5">
+                        {computedDishTotals.cal} <span className="text-sm font-semibold text-zinc-500">kcal</span>
+                      </p>
+                    </div>
+                    <div className="flex gap-2 text-xs font-bold">
+                      <span className="px-2.5 py-1 rounded-full bg-rose-100 text-rose-800">
+                        P: {computedDishTotals.pro}g
+                      </span>
+                      <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800">
+                        C: {computedDishTotals.carb}g
+                      </span>
+                      <span className="px-2.5 py-1 rounded-full bg-sky-100 text-sky-800">
+                        F: {computedDishTotals.fat}g
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Components Adjuster */}
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between text-xs text-zinc-500 font-semibold">
+                    <span>Thành phần nhận diện</span>
+                    <span>Chạm (+) (-) để chỉnh số gram</span>
+                  </div>
+
+                  {currentDish?.components.map((comp, idx) => {
+                    const currentGrams = gramAdjustments[idx] ?? comp.defaultGrams;
+                    const factor = currentGrams / 100;
+                    const itemCal = Math.round(comp.calPer100 * factor);
+
+                    return (
+                      <div
+                        key={idx}
+                        className="p-3 rounded-2xl bg-white border border-zinc-200 flex items-center justify-between gap-3 text-xs shadow-xs"
+                      >
+                        <div>
+                          <p className="font-bold text-black">{comp.name}</p>
+                          <p className="text-[11px] text-zinc-400 mt-0.5">{itemCal} kcal</p>
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => handleAdjustGram(idx, -10)}
+                            className="w-7 h-7 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-800 font-bold flex items-center justify-center transition"
+                            aria-label="Giảm 10g"
+                          >
+                            <Minus size={12} />
+                          </button>
+                          <span className="w-14 text-center font-extrabold text-black text-xs">
+                            {currentGrams}g
+                          </span>
+                          <button
+                            onClick={() => handleAdjustGram(idx, 10)}
+                            className="w-7 h-7 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-800 font-bold flex items-center justify-center transition"
+                            aria-label="Tăng 10g"
+                          >
+                            <Plus size={12} />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <Link
+                  href="/onboarding"
+                  className="w-full py-3.5 rounded-full bg-black hover:bg-zinc-800 text-white font-bold text-xs uppercase tracking-wider text-center transition flex items-center justify-center gap-2 shadow-sm"
+                >
+                  <span>Lưu thực đơn & Đo TDEE của bạn →</span>
+                </Link>
+              </div>
             </div>
           </div>
         ) : (
-          /* Voice NLP Sandbox */
-          <div className="bg-zinc-900/60 border border-white/10 rounded-3xl p-6 sm:p-10 backdrop-blur-xl space-y-8">
-            <div className="max-w-2xl mx-auto text-center space-y-2">
-              <span className="text-xs uppercase tracking-widest text-emerald-400 font-black">
-                Vietnamese Speech & Text NLP Parser
-              </span>
-              <h3 className="text-2xl font-black uppercase text-white">
-                Bóc tách ngôn từ dân dã thành số gram chuẩn
+          /* Voice NLP Clean Sandbox */
+          <div className="rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 shadow-sm space-y-6">
+            <div className="text-center max-w-xl mx-auto space-y-2">
+              <h3 className="text-xl font-bold text-black">
+                Thuật toán bóc tách khẩu phần ăn dân dã Việt Nam
               </h3>
-              <p className="text-zinc-400 text-sm">
-                Người Việt thường nói: <em>&ldquo;2 quả trứng&rdquo;, &ldquo;nửa chén cơm&rdquo;, &ldquo;1 tô phở&rdquo;</em>. Hệ thống tự động nhận dạng quy đổi sang trọng lượng tương đương.
+              <p className="text-zinc-600 text-xs sm:text-sm">
+                Người Việt thường nói: <em>&ldquo;2 quả trứng&rdquo;, &ldquo;nửa chén cơm&rdquo;, &ldquo;1 tô phở&rdquo;</em>. NutriCore tự động nhận dạng quy đổi sang trọng lượng tương đương.
               </p>
             </div>
 
-            {/* Voice Sample Tabs */}
-            <div className="grid sm:grid-cols-3 gap-4">
+            {/* Voice Samples */}
+            <div className="grid sm:grid-cols-3 gap-3">
               {VOICE_SAMPLES.map((sample, idx) => (
                 <button
                   key={idx}
                   onClick={() => setActiveVoiceIdx(idx)}
                   className={`p-4 rounded-2xl border text-left transition-all ${
                     activeVoiceIdx === idx
-                      ? 'bg-emerald-500/15 border-emerald-500 shadow-lg text-white'
-                      : 'bg-zinc-950/70 border-white/10 text-zinc-400 hover:text-white'
+                      ? 'border-black bg-zinc-50 shadow-xs'
+                      : 'border-zinc-200 bg-white hover:border-zinc-300'
                   }`}
                 >
-                  <div className="flex items-center gap-2 text-emerald-400 text-xs font-black uppercase tracking-wider mb-2">
-                    <Mic size={14} />
-                    <span>Mẫu giọng nói {idx + 1}</span>
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-500 mb-2">
+                    <Mic size={14} className="text-emerald-600" />
+                    <span>Mẫu nói {idx + 1}</span>
                   </div>
-                  <p className="text-xs font-bold leading-relaxed line-clamp-2">
+                  <p className="text-xs font-medium text-black line-clamp-2 leading-relaxed">
                     &ldquo;{sample.spoken}&rdquo;
                   </p>
-                  <div className="mt-3 flex items-center justify-between text-[11px] text-zinc-400 border-t border-white/5 pt-2">
-                    <span>{sample.tokens.length} món ăn</span>
-                    <span className="text-emerald-300 font-bold">{sample.totalCal} kcal</span>
-                  </div>
+                  <p className="text-[11px] font-bold text-emerald-700 mt-3 pt-2 border-t border-zinc-100">
+                    Tổng: {sample.totalCal} kcal
+                  </p>
                 </button>
               ))}
             </div>
 
-            {/* Current Voice Result Breakdown */}
-            <div className="bg-[#07090E] border border-white/10 rounded-3xl p-6 space-y-6">
-              <div className="p-4 rounded-2xl bg-zinc-900/90 border border-emerald-500/30 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
-                  <Mic size={20} />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">
-                    Câu nói người dùng:
-                  </p>
-                  <p className="text-sm sm:text-base font-black text-white mt-0.5">
-                    &ldquo;{currentVoice?.spoken}&rdquo;
-                  </p>
-                </div>
+            {/* Current Voice Result */}
+            <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-200/70 space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-zinc-200">
+                <span className="text-xs font-bold text-zinc-500 uppercase">Kết quả phân tích NLP</span>
+                <span className="text-sm font-extrabold text-black">
+                  {currentVoice?.totalCal} kcal • {currentVoice?.totalP}g Protein
+                </span>
               </div>
 
-              {/* Total Macros */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-2xl bg-zinc-900 border border-white/5 text-center">
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider text-zinc-400 font-bold">Tổng Calo</p>
-                  <p className="text-xl font-black text-white mt-1">{currentVoice?.totalCal} kcal</p>
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider text-rose-400 font-bold">Protein</p>
-                  <p className="text-xl font-black text-rose-300 mt-1">{currentVoice?.totalP}g</p>
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider text-amber-400 font-bold">Carbs</p>
-                  <p className="text-xl font-black text-amber-300 mt-1">{currentVoice?.totalC}g</p>
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider text-sky-400 font-bold">Fat</p>
-                  <p className="text-xl font-black text-sky-300 mt-1">{currentVoice?.totalF}g</p>
-                </div>
-              </div>
-
-              {/* Parsed Items */}
-              <div className="space-y-3">
-                <p className="text-xs uppercase tracking-widest text-zinc-400 font-bold">
-                  Kết quả thuật toán NLP bóc tách:
-                </p>
+              <div className="space-y-2">
                 {currentVoice?.tokens.map((token, i) => (
                   <div
                     key={i}
-                    className="p-4 rounded-2xl bg-zinc-900/70 border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm"
+                    className="p-3 rounded-xl bg-white border border-zinc-200 flex items-center justify-between text-xs"
                   >
                     <div>
-                      <span className="text-[11px] font-semibold text-zinc-400 block">
-                        Cụm từ gốc: &ldquo;{token.raw}&rdquo;
-                      </span>
-                      <span className="font-bold text-white text-sm sm:text-base mt-0.5 block">
-                        ➔ Quy đổi: {token.parsed}
-                      </span>
+                      <span className="text-zinc-400 font-medium block">Từ nói: &ldquo;{token.raw}&rdquo;</span>
+                      <span className="font-bold text-black mt-0.5 block">➔ Quy đổi: {token.parsed}</span>
                     </div>
-                    <div className="flex items-center gap-3 text-zinc-300 font-semibold self-end sm:self-center">
-                      <span className="text-rose-400 font-bold">P: {token.p}</span>
-                      <span className="text-amber-400 font-bold">C: {token.c}</span>
-                      <span className="text-sky-400 font-bold">F: {token.f}</span>
-                      <span className="px-2.5 py-1 rounded bg-zinc-800 text-emerald-400 font-black">
-                        {token.cal} kcal
-                      </span>
+                    <div className="flex items-center gap-3 font-semibold text-zinc-600">
+                      <span>P: {token.p}</span>
+                      <span>C: {token.c}</span>
+                      <span>F: {token.f}</span>
+                      <span className="font-extrabold text-black">{token.cal} kcal</span>
                     </div>
                   </div>
                 ))}
@@ -783,175 +700,190 @@ export default function LandingPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 4. THE 4 CORE ARSENAL PILLARS */}
+      {/* 4. THE 4 BENTO GRID PILLARS (CAL AI STYLE BENTO BOX) */}
       {/* ========================================================================= */}
-      <section id="pillars" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-white/10">
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-black uppercase tracking-widest">
-            <Layers size={14} />
-            <span>Hệ Thống Vũ Khí Toàn Diện</span>
+      <section id="features" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-zinc-100">
+        <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-700 text-xs font-semibold">
+            <Zap size={14} className="text-emerald-600" />
+            <span>Hệ Thống Tính Năng Toàn Diện</span>
           </div>
-          <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-white">
-            4 Trụ Cột Đột Phá Cho <br />
-            <span className="text-emerald-400">Gymer & Huấn Luyện Viên Cá Nhân</span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-black">
+            Mọi thứ bạn cần để đạt vóc dáng mơ ước
           </h2>
-          <p className="text-zinc-400 text-sm sm:text-base">
-            Tất cả những gì bạn cần để kiểm soát thể hình, từ dinh dưỡng, giáo án tập luyện đến quản trị chuyên sâu.
+          <p className="text-zinc-600 text-sm sm:text-base">
+            Kết hợp sức mạnh trí tuệ nhân tạo cùng sự đồng hành sát sao của Huấn luyện viên thể hình cá nhân.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Pillar 1: Smart Meal Planner */}
-          <div className="p-6 rounded-3xl bg-zinc-900/70 border border-white/10 hover:border-emerald-500/50 transition-all group flex flex-col justify-between">
+        {/* Bento Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Card 1: Smart Meal Planner */}
+          <div className="rounded-3xl border border-zinc-200/80 bg-white p-7 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-6">
             <div className="space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Apple size={24} />
+              <div className="w-12 h-12 rounded-2xl bg-zinc-100 text-black flex items-center justify-center font-bold">
+                <Apple size={22} />
               </div>
-              <h3 className="text-xl font-black uppercase text-white tracking-wide">
+              <h3 className="text-xl font-extrabold text-black">
                 Smart AI Meal Planner
               </h3>
-              <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed">
-                Thuật toán Knapsack Heuristic tự động phân bổ món ăn vào các bữa Sáng, Trưa, Tối, Phụ đạt chuẩn 100% Protein, cân đối vi chất theo TDEE và né thực phẩm dị ứng.
+              <p className="text-zinc-600 text-xs sm:text-sm leading-relaxed">
+                Thuật toán Knapsack Heuristic tự động phân bổ bữa Sáng, Trưa, Tối, Phụ đạt chuẩn 100% Protein, cân đối vi chất theo TDEE và tự động lọc danh sách thực phẩm dị ứng.
               </p>
             </div>
-            <div className="pt-6 border-t border-white/5 mt-6">
-              <span className="text-xs font-bold text-emerald-400 flex items-center gap-1">
-                Chuẩn hóa Macro TDEE <ChevronRight size={14} />
-              </span>
+            <div className="pt-4 border-t border-zinc-100 flex items-center text-xs font-bold text-black">
+              <span>Đạt chuẩn Macro & TDEE</span>
+              <ChevronRight size={14} className="ml-1" />
             </div>
           </div>
 
-          {/* Pillar 2: 1:1 PT Ecosystem */}
-          <div className="p-6 rounded-3xl bg-zinc-900/70 border border-white/10 hover:border-teal-500/50 transition-all group flex flex-col justify-between">
+          {/* Card 2: 1:1 PT Ecosystem */}
+          <div className="rounded-3xl border border-zinc-200/80 bg-white p-7 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-6">
             <div className="space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-teal-500/20 text-teal-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Dumbbell size={24} />
+              <div className="w-12 h-12 rounded-2xl bg-zinc-100 text-black flex items-center justify-center font-bold">
+                <Dumbbell size={22} />
               </div>
-              <h3 className="text-xl font-black uppercase text-white tracking-wide">
-                PT 1:1 Ecosystem
+              <h3 className="text-xl font-extrabold text-black">
+                Huấn Luyện Viên PT 1:1
               </h3>
-              <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed">
-                Mời học viên qua QR Code linh hoạt số buổi (12, 16, 24, 36...), xếp lịch tập thông minh, giao bài tập kèm ảnh động minh họa và điểm danh trừ buổi bằng Atomic Transaction.
+              <p className="text-zinc-600 text-xs sm:text-sm leading-relaxed">
+                Mời học viên qua mã QR với số buổi tùy chọn (12, 16, 24, 36 buổi...), xếp lịch tập thông minh, giao bài tập có ảnh động minh họa và điểm danh trừ buổi bằng Atomic Transaction.
               </p>
             </div>
-            <div className="pt-6 border-t border-white/5 mt-6">
-              <span className="text-xs font-bold text-teal-400 flex items-center gap-1">
-                Check-in QR an toàn <ChevronRight size={14} />
-              </span>
+            <div className="pt-4 border-t border-zinc-100 flex items-center text-xs font-bold text-black">
+              <span>Điểm danh QR nguyên tử</span>
+              <ChevronRight size={14} className="ml-1" />
             </div>
           </div>
 
-          {/* Pillar 3: InBody & Transformation */}
-          <div className="p-6 rounded-3xl bg-zinc-900/70 border border-white/10 hover:border-orange-500/50 transition-all group flex flex-col justify-between">
+          {/* Card 3: InBody & Transformation */}
+          <div className="rounded-3xl border border-zinc-200/80 bg-white p-7 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-6">
             <div className="space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-orange-500/20 text-orange-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <TrendingUp size={24} />
+              <div className="w-12 h-12 rounded-2xl bg-zinc-100 text-black flex items-center justify-center font-bold">
+                <TrendingUp size={22} />
               </div>
-              <h3 className="text-xl font-black uppercase text-white tracking-wide">
+              <h3 className="text-xl font-extrabold text-black">
                 InBody & Transformation
               </h3>
-              <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed">
+              <p className="text-zinc-600 text-xs sm:text-sm leading-relaxed">
                 Biểu đồ InBody dạng Stock Chart chuyên nghiệp phân tích Cân nặng, % Mỡ và Khối lượng cơ xương (SMM). Thanh trượt tương tác so sánh ảnh vóc dáng Before/After.
               </p>
             </div>
-            <div className="pt-6 border-t border-white/5 mt-6">
-              <span className="text-xs font-bold text-orange-400 flex items-center gap-1">
-                Theo dõi Cơ - Mỡ thời gian thực <ChevronRight size={14} />
-              </span>
+            <div className="pt-4 border-t border-zinc-100 flex items-center text-xs font-bold text-black">
+              <span>Theo dõi Cơ - Mỡ thời gian thực</span>
+              <ChevronRight size={14} className="ml-1" />
             </div>
           </div>
 
-          {/* Pillar 4: Enterprise Security */}
-          <div className="p-6 rounded-3xl bg-zinc-900/70 border border-white/10 hover:border-sky-500/50 transition-all group flex flex-col justify-between">
+          {/* Card 4: Enterprise End-to-End Security */}
+          <div className="rounded-3xl border border-zinc-200/80 bg-white p-7 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-6">
             <div className="space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-sky-500/20 text-sky-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <ShieldCheck size={24} />
+              <div className="w-12 h-12 rounded-2xl bg-zinc-100 text-black flex items-center justify-center font-bold">
+                <ShieldCheck size={22} />
               </div>
-              <h3 className="text-xl font-black uppercase text-white tracking-wide">
-                Bảo Mật Đầu Cuối (E2E)
+              <h3 className="text-xl font-extrabold text-black">
+                Mã Hóa Đầu Cuối (E2E)
               </h3>
-              <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed">
-                Mã hóa Payload 2 chiều bằng thuật toán AES-256-GCM, cơ chế tự động xoay vòng Token (Silent Refresh) và che giấu thông tin nhận diện cá nhân trong hệ thống Audit Logs.
+              <p className="text-zinc-600 text-xs sm:text-sm leading-relaxed">
+                Mã hóa toàn bộ thông tin nhạy cảm bằng thuật toán AES-256-GCM, cơ chế tự động xoay vòng Token (Silent Refresh) và che giấu thông tin nhận diện cá nhân trong hệ thống Audit Logs.
               </p>
             </div>
-            <div className="pt-6 border-t border-white/5 mt-6">
-              <span className="text-xs font-bold text-sky-400 flex items-center gap-1">
-                Chuẩn mã hóa quân sự <ChevronRight size={14} />
-              </span>
+            <div className="pt-4 border-t border-zinc-100 flex items-center text-xs font-bold text-black">
+              <span>Chuẩn bảo mật AES-256-GCM</span>
+              <ChevronRight size={14} className="ml-1" />
+            </div>
+          </div>
+
+          {/* Card 5: PWA & Mobile Native Container */}
+          <div className="rounded-3xl border border-zinc-200/80 bg-white p-7 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-6 md:col-span-2">
+            <div className="space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-zinc-100 text-black flex items-center justify-center font-bold">
+                <Smartphone size={22} />
+              </div>
+              <h3 className="text-xl font-extrabold text-black">
+                Ứng Dụng Đa Nền Tảng (PWA & Android Native)
+              </h3>
+              <p className="text-zinc-600 text-xs sm:text-sm leading-relaxed">
+                Dùng mượt mà trên trình duyệt di động hoặc cài đặt trực tiếp lên màn hình chính với công nghệ PWA (Add to Home Screen). Nhận thông báo Web Push nhắc nhở giờ tập và uống nước tự động mỗi ngày.
+              </p>
+            </div>
+            <div className="pt-4 border-t border-zinc-100 flex items-center text-xs font-bold text-black">
+              <span>Cài đặt 1 chạm không cần App Store</span>
+              <ChevronRight size={14} className="ml-1" />
             </div>
           </div>
         </div>
       </section>
 
       {/* ========================================================================= */}
-      {/* 5. INTERACTIVE ROLE EXPERIENCE SWITCHER */}
+      {/* 5. ROLE EXPERIENCE SWITCHER (CAL AI MINIMALIST CARD) */}
       {/* ========================================================================= */}
-      <section id="roles" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="rounded-3xl bg-zinc-900/80 border border-white/10 p-6 sm:p-10 shadow-2xl backdrop-blur-xl">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-8 border-b border-white/10">
+      <section id="roles" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="rounded-3xl border border-zinc-200/80 bg-zinc-50/70 p-6 sm:p-10 shadow-xs">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-zinc-200">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-black uppercase text-white">
-                Trải nghiệm thiết kế riêng cho từng vị trí
+              <h2 className="text-2xl font-extrabold text-black">
+                Thiết kế riêng cho từng vai trò
               </h2>
-              <p className="text-zinc-400 text-sm mt-1">
-                Phân quyền chuyên sâu đảm bảo tính tiện dụng cho cả Người tập, PT và Nhà quản trị.
+              <p className="text-zinc-600 text-xs sm:text-sm mt-1">
+                Tối ưu hóa thao tác cho cả Người tập, Huấn luyện viên và Ban quản trị.
               </p>
             </div>
 
-            {/* Role Tab Buttons */}
-            <div className="flex p-1.5 rounded-2xl bg-[#07090E] border border-white/10">
+            {/* Role Pills */}
+            <div className="inline-flex p-1 rounded-full bg-white border border-zinc-200 shadow-xs">
               <button
                 onClick={() => setActiveRoleTab('student')}
-                className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 ${
+                className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${
                   activeRoleTab === 'student'
-                    ? 'bg-emerald-500 text-black shadow-lg'
-                    : 'text-zinc-400 hover:text-white'
+                    ? 'bg-black text-white'
+                    : 'text-zinc-600 hover:text-black'
                 }`}
               >
-                <span>💪 Học viên</span>
+                Học viên
               </button>
               <button
                 onClick={() => setActiveRoleTab('pt')}
-                className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 ${
+                className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${
                   activeRoleTab === 'pt'
-                    ? 'bg-emerald-500 text-black shadow-lg'
-                    : 'text-zinc-400 hover:text-white'
+                    ? 'bg-black text-white'
+                    : 'text-zinc-600 hover:text-black'
                 }`}
               >
-                <span>📋 PT Coach</span>
+                Huấn luyện viên PT
               </button>
               <button
                 onClick={() => setActiveRoleTab('admin')}
-                className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 ${
+                className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${
                   activeRoleTab === 'admin'
-                    ? 'bg-emerald-500 text-black shadow-lg'
-                    : 'text-zinc-400 hover:text-white'
+                    ? 'bg-black text-white'
+                    : 'text-zinc-600 hover:text-black'
                 }`}
               >
-                <span>⚙️ Quản trị (Admin)</span>
+                Quản trị viên
               </button>
             </div>
           </div>
 
-          {/* Role Tab Content */}
-          <div className="grid sm:grid-cols-3 gap-6 pt-8">
+          {/* Role Step Breakdown */}
+          <div className="grid sm:grid-cols-3 gap-4 pt-6">
             {activeRoleTab === 'student' && (
               <>
-                <div className="p-5 rounded-2xl bg-[#07090E] border border-white/5 space-y-2">
-                  <p className="text-emerald-400 font-black text-sm uppercase">01. Onboarding Khảo Sát</p>
-                  <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed">
+                <div className="p-5 rounded-2xl bg-white border border-zinc-200/80 shadow-xs space-y-2">
+                  <p className="text-black font-extrabold text-xs uppercase tracking-wider">01. Onboarding</p>
+                  <p className="text-zinc-600 text-xs leading-relaxed">
                     Tính toán BMR, TDEE, lượng thâm hụt calo và khai báo danh sách thực phẩm dị ứng chỉ sau 1 phút.
                   </p>
                 </div>
-                <div className="p-5 rounded-2xl bg-[#07090E] border border-white/5 space-y-2">
-                  <p className="text-emerald-400 font-black text-sm uppercase">02. Log Ăn Nhanh Bằng AI</p>
-                  <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed">
+                <div className="p-5 rounded-2xl bg-white border border-zinc-200/80 shadow-xs space-y-2">
+                  <p className="text-black font-extrabold text-xs uppercase tracking-wider">02. Log Ăn Bằng AI</p>
+                  <p className="text-zinc-600 text-xs leading-relaxed">
                     Chụp ảnh bữa ăn hoặc nói qua mic, xem ngay bảng dinh dưỡng và giữ chuỗi Streak kỷ luật mỗi ngày.
                   </p>
                 </div>
-                <div className="p-5 rounded-2xl bg-[#07090E] border border-white/5 space-y-2">
-                  <p className="text-emerald-400 font-black text-sm uppercase">03. Tập Theo Giáo Án PT</p>
-                  <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed">
+                <div className="p-5 rounded-2xl bg-white border border-zinc-200/80 shadow-xs space-y-2">
+                  <p className="text-black font-extrabold text-xs uppercase tracking-wider">03. Tập Cùng PT</p>
+                  <p className="text-zinc-600 text-xs leading-relaxed">
                     Xem ảnh hướng dẫn bài tập, quét mã QR điểm danh buổi tập và xem biểu đồ InBody thay đổi thể hình.
                   </p>
                 </div>
@@ -960,21 +892,21 @@ export default function LandingPage() {
 
             {activeRoleTab === 'pt' && (
               <>
-                <div className="p-5 rounded-2xl bg-[#07090E] border border-white/5 space-y-2">
-                  <p className="text-teal-400 font-black text-sm uppercase">01. Phát Mã Mời Học Viên</p>
-                  <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed">
+                <div className="p-5 rounded-2xl bg-white border border-zinc-200/80 shadow-xs space-y-2">
+                  <p className="text-black font-extrabold text-xs uppercase tracking-wider">01. Mời Học Viên</p>
+                  <p className="text-zinc-600 text-xs leading-relaxed">
                     Tùy chọn số buổi gói tập (12, 16, 24, 36...) và tạo mã QR để học viên quét liên kết ngay tại phòng tập.
                   </p>
                 </div>
-                <div className="p-5 rounded-2xl bg-[#07090E] border border-white/5 space-y-2">
-                  <p className="text-teal-400 font-black text-sm uppercase">02. Lịch Dạy & Check-in</p>
-                  <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed">
+                <div className="p-5 rounded-2xl bg-white border border-zinc-200/80 shadow-xs space-y-2">
+                  <p className="text-black font-extrabold text-xs uppercase tracking-wider">02. Lịch Dạy & Check-in</p>
+                  <p className="text-zinc-600 text-xs leading-relaxed">
                     Quản lý toàn bộ ca dạy trên lưới lịch tháng, điểm danh trừ buổi tập an toàn chống gian lận.
                   </p>
                 </div>
-                <div className="p-5 rounded-2xl bg-[#07090E] border border-white/5 space-y-2">
-                  <p className="text-teal-400 font-black text-sm uppercase">03. Giao Bài & Giám Sát Ăn</p>
-                  <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed">
+                <div className="p-5 rounded-2xl bg-white border border-zinc-200/80 shadow-xs space-y-2">
+                  <p className="text-black font-extrabold text-xs uppercase tracking-wider">03. Duyệt Bữa Ăn</p>
+                  <p className="text-zinc-600 text-xs leading-relaxed">
                     Chỉ định thực đơn, duyệt nhật ký ăn uống và theo dõi biến đổi cơ mỡ của từng học viên trên 1 bảng điều khiển.
                   </p>
                 </div>
@@ -983,21 +915,21 @@ export default function LandingPage() {
 
             {activeRoleTab === 'admin' && (
               <>
-                <div className="p-5 rounded-2xl bg-[#07090E] border border-white/5 space-y-2">
-                  <p className="text-amber-400 font-black text-sm uppercase">01. Phê Duyệt Huấn Luyện Viên</p>
-                  <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed">
+                <div className="p-5 rounded-2xl bg-white border border-zinc-200/80 shadow-xs space-y-2">
+                  <p className="text-black font-extrabold text-xs uppercase tracking-wider">01. Phê Duyệt PT</p>
+                  <p className="text-zinc-600 text-xs leading-relaxed">
                     Xem hồ sơ bằng cấp, chứng chỉ thể hình và phê duyệt quyền hoạt động huấn luyện viên trên hệ thống.
                   </p>
                 </div>
-                <div className="p-5 rounded-2xl bg-[#07090E] border border-white/5 space-y-2">
-                  <p className="text-amber-400 font-black text-sm uppercase">02. Thư Viện Toàn Cầu</p>
-                  <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed">
+                <div className="p-5 rounded-2xl bg-white border border-zinc-200/80 shadow-xs space-y-2">
+                  <p className="text-black font-extrabold text-xs uppercase tracking-wider">02. Thư Viện Thực Phẩm</p>
+                  <p className="text-zinc-600 text-xs leading-relaxed">
                     Quản trị danh mục thực phẩm Việt Nam và kho bài tập chuẩn kỹ thuật với hình ảnh minh họa chất lượng cao.
                   </p>
                 </div>
-                <div className="p-5 rounded-2xl bg-[#07090E] border border-white/5 space-y-2">
-                  <p className="text-amber-400 font-black text-sm uppercase">03. Thống Kê & Báo Cáo</p>
-                  <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed">
+                <div className="p-5 rounded-2xl bg-white border border-zinc-200/80 shadow-xs space-y-2">
+                  <p className="text-black font-extrabold text-xs uppercase tracking-wider">03. Thống Kê Nền Tảng</p>
+                  <p className="text-zinc-600 text-xs leading-relaxed">
                     Theo dõi số lượng học viên, hiệu suất hoạt động của các PT và chỉ số tăng trưởng toàn hệ sinh thái.
                   </p>
                 </div>
@@ -1010,79 +942,79 @@ export default function LandingPage() {
       {/* ========================================================================= */}
       {/* 6. COMPARISON MATRIX: TRADITIONAL VS NUTRICORE */}
       {/* ========================================================================= */}
-      <section id="comparison" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-white/10">
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-black uppercase tracking-widest">
-            <Scale size={14} />
-            <span>Sự Khác Biệt Rõ Rệt</span>
+      <section id="comparison" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-zinc-100">
+        <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-700 text-xs font-semibold">
+            <Scale size={14} className="text-emerald-600" />
+            <span>So Sánh Giải Pháp</span>
           </div>
-          <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-white">
-            NutriCore vs Phương Pháp Truyền Thống
+          <h2 className="text-3xl font-extrabold tracking-tight text-black">
+            NutriCore vs Cách Làm Thủ Công
           </h2>
-          <p className="text-zinc-400 text-sm sm:text-base">
-            Tại sao phương pháp thủ công khiến bạn dễ bỏ cuộc và cách NutriCore giải phóng bạn khỏi áp lực ăn kiêng.
+          <p className="text-zinc-600 text-xs sm:text-sm">
+            Tại sao phương pháp thủ công khiến bạn dễ bỏ cuộc và cách NutriCore giúp bạn duy trì kỷ luật dài hạn.
           </p>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[650px]">
+        <div className="rounded-3xl border border-zinc-200 overflow-hidden shadow-xs bg-white">
+          <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-white/15">
-                <th className="py-4 px-6 text-xs uppercase tracking-wider text-zinc-400 font-bold w-1/3">
-                  Tiêu chí so sánh
+              <tr className="border-b border-zinc-200 bg-zinc-50/80">
+                <th className="py-4 px-6 text-xs uppercase tracking-wider text-zinc-500 font-bold w-1/3">
+                  Tiêu chí
                 </th>
-                <th className="py-4 px-6 text-xs uppercase tracking-wider text-zinc-400 font-bold w-1/3 bg-zinc-900/40">
+                <th className="py-4 px-6 text-xs uppercase tracking-wider text-zinc-500 font-bold w-1/3">
                   Phương pháp truyền thống
                 </th>
-                <th className="py-4 px-6 text-xs uppercase tracking-wider text-emerald-400 font-black w-1/3 bg-emerald-950/30 border-l border-emerald-500/30">
-                  ⚡ NutriCore AI Platform
+                <th className="py-4 px-6 text-xs uppercase tracking-wider text-black font-extrabold w-1/3 bg-zinc-100/50">
+                  NutriCore AI Platform
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5 text-xs sm:text-sm">
+            <tbody className="divide-y divide-zinc-100 text-xs sm:text-sm">
               <tr>
-                <td className="py-5 px-6 font-bold text-white">1. Ghi nhận bữa ăn</td>
-                <td className="py-5 px-6 text-zinc-400 bg-zinc-900/40">
-                  Cân tiểu ly từng lạng, mở Excel hoặc app tiếng Anh gõ tìm mỏi mắt.
+                <td className="py-4 px-6 font-bold text-black">1. Ghi nhận bữa ăn</td>
+                <td className="py-4 px-6 text-zinc-500">
+                  Cân tiểu ly từng lạng, tra cứu Excel mỏi mắt.
                 </td>
-                <td className="py-5 px-6 text-emerald-300 font-semibold bg-emerald-950/30 border-l border-emerald-500/30">
-                  Chụp 1 tấm ảnh hoặc nói 1 câu tự nhiên. AI bóc tách món Việt trong 1s.
+                <td className="py-4 px-6 font-bold text-emerald-800 bg-emerald-50/30">
+                  Chụp 1 tấm ảnh hoặc nói 1 câu tự nhiên (1s).
                 </td>
               </tr>
               <tr>
-                <td className="py-5 px-6 font-bold text-white">2. Cân bằng dinh dưỡng Macro</td>
-                <td className="py-5 px-6 text-zinc-400 bg-zinc-900/40">
-                  Tính nhẩm cảm tính, thường xuyên thiếu Protein và thừa Fat ẩn.
+                <td className="py-4 px-6 font-bold text-black">2. Cân bằng dinh dưỡng Macro</td>
+                <td className="py-4 px-6 text-zinc-500">
+                  Tính nhẩm cảm tính, thường xuyên thiếu Protein.
                 </td>
-                <td className="py-5 px-6 text-emerald-300 font-semibold bg-emerald-950/30 border-l border-emerald-500/30">
-                  Thuật toán Knapsack Heuristic tối ưu chuẩn $\ge 100\%$ Protein theo TDEE.
-                </td>
-              </tr>
-              <tr>
-                <td className="py-5 px-6 font-bold text-white">3. Tương tác với Huấn luyện viên</td>
-                <td className="py-5 px-6 text-zinc-400 bg-zinc-900/40">
-                  Nhắn tin Zalo/Messenger rời rạc, trôi tin nhắn, khó kiểm tra lịch tập.
-                </td>
-                <td className="py-5 px-6 text-emerald-300 font-semibold bg-emerald-950/30 border-l border-emerald-500/30">
-                  Đồng bộ 1 chạm qua mã QR, lịch tập và bài tập đồng bộ thời gian thực.
+                <td className="py-4 px-6 font-bold text-emerald-800 bg-emerald-50/30">
+                  Thuật toán Knapsack Heuristic chuẩn hóa Macro.
                 </td>
               </tr>
               <tr>
-                <td className="py-5 px-6 font-bold text-white">4. Đánh giá sự tiến bộ</td>
-                <td className="py-5 px-6 text-zinc-400 bg-zinc-900/40">
-                  Chỉ nhìn cân nặng, không phân biệt được đang giảm mỡ hay mất cơ.
+                <td className="py-4 px-6 font-bold text-black">3. Tương tác với Huấn luyện viên</td>
+                <td className="py-4 px-6 text-zinc-500">
+                  Nhắn tin Zalo rời rạc, trôi tin, khó theo dõi.
                 </td>
-                <td className="py-5 px-6 text-emerald-300 font-semibold bg-emerald-950/30 border-l border-emerald-500/30">
-                  Biểu đồ InBody Stock Chart & Thanh trượt so sánh ảnh Before/After.
+                <td className="py-4 px-6 font-bold text-emerald-800 bg-emerald-50/30">
+                  Đồng bộ 1 chạm qua mã QR, lịch tập trực tiếp.
                 </td>
               </tr>
               <tr>
-                <td className="py-5 px-6 font-bold text-white">5. Bảo mật dữ liệu cá nhân</td>
-                <td className="py-5 px-6 text-zinc-400 bg-zinc-900/40">
-                  Ảnh hình thể và thông tin sức khỏe dễ bị lộ qua các nhóm chat công khai.
+                <td className="py-4 px-6 font-bold text-black">4. Đánh giá sự tiến bộ</td>
+                <td className="py-4 px-6 text-zinc-500">
+                  Chỉ nhìn số ký thông thường, không rõ cơ hay mỡ.
                 </td>
-                <td className="py-5 px-6 text-emerald-300 font-semibold bg-emerald-950/30 border-l border-emerald-500/30">
-                  Mã hóa đầu cuối AES-256-GCM, tự động ẩn thông tin nhạy cảm.
+                <td className="py-4 px-6 font-bold text-emerald-800 bg-emerald-50/30">
+                  Biểu đồ InBody Stock Chart & Thanh trượt Before/After.
+                </td>
+              </tr>
+              <tr>
+                <td className="py-4 px-6 font-bold text-black">5. Bảo mật dữ liệu cá nhân</td>
+                <td className="py-4 px-6 text-zinc-500">
+                  Dữ liệu vóc dáng dễ bị chia sẻ công khai.
+                </td>
+                <td className="py-4 px-6 font-bold text-emerald-800 bg-emerald-50/30">
+                  Mã hóa đầu cuối AES-256-GCM chuẩn quân đội.
                 </td>
               </tr>
             </tbody>
@@ -1091,133 +1023,36 @@ export default function LandingPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 7. PWA & MOBILE NATIVE SHOWCASE */}
+      {/* 7. FAQ ACCORDION SECTION */}
       {/* ========================================================================= */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-r from-zinc-950 via-zinc-900 to-zinc-950 p-8 sm:p-14">
-          <div className="grid lg:grid-cols-12 gap-10 items-center">
-            <div className="lg:col-span-7 space-y-5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-black uppercase">
-                <Smartphone size={14} />
-                <span>PWA & Android Native App</span>
-              </div>
-              <h2 className="text-3xl sm:text-5xl font-black uppercase text-white leading-tight">
-                Mang NutriCore vào túi quần. <br />
-                <span className="text-emerald-400">Tập luyện mọi lúc, mọi nơi.</span>
-              </h2>
-              <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
-                Ứng dụng được tối ưu mượt mà cho mọi thiết bị di động. Cài đặt trực tiếp lên màn hình chính điện thoại chỉ với 1 chạm (Progressive Web App) hoặc sử dụng file cài đặt Android Native với quyền truy cập Camera và Microphone phần cứng.
-              </p>
-
-              <div className="space-y-3 pt-2">
-                <div className="flex items-center gap-3 text-xs sm:text-sm text-zinc-300">
-                  <CheckCircle2 size={18} className="text-emerald-400 shrink-0" />
-                  <span>Cài đặt trực tiếp không qua kho ứng dụng rườm rà (Add to Home Screen).</span>
-                </div>
-                <div className="flex items-center gap-3 text-xs sm:text-sm text-zinc-300">
-                  <CheckCircle2 size={18} className="text-emerald-400 shrink-0" />
-                  <span>Web Push Notification nhắc nhở giờ tập và uống nước tự động.</span>
-                </div>
-                <div className="flex items-center gap-3 text-xs sm:text-sm text-zinc-300">
-                  <CheckCircle2 size={18} className="text-emerald-400 shrink-0" />
-                  <span>Chế độ ngoại tuyến (Offline Ready) nạp dữ liệu tức thì.</span>
-                </div>
-              </div>
-
-              <div className="pt-4 flex flex-wrap gap-4">
-                <Link
-                  href="/onboarding"
-                  className="px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs uppercase tracking-wider transition shadow-lg flex items-center gap-2"
-                >
-                  <Smartphone size={16} />
-                  <span>Mở trên điện thoại ngay</span>
-                </Link>
-              </div>
-            </div>
-
-            {/* Mobile Mockup Presentation */}
-            <div className="lg:col-span-5 flex justify-center">
-              <div className="relative w-64 sm:w-72 h-[480px] sm:h-[520px] rounded-[40px] border-4 border-zinc-700 bg-black p-3 shadow-2xl overflow-hidden">
-                {/* Phone Speaker Notch */}
-                <div className="absolute top-4 left-1/2 -translate-x-1/2 w-28 h-4 bg-zinc-900 rounded-full z-20" />
-
-                {/* Mock Phone Screen Content */}
-                <div className="w-full h-full rounded-[30px] overflow-hidden bg-[#06080C] pt-8 p-3 flex flex-col justify-between text-xs border border-white/5">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between pb-2 border-b border-white/10">
-                      <span className="font-black text-emerald-400">NutriCore App</span>
-                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                    </div>
-
-                    <div className="p-3 rounded-xl bg-zinc-900 border border-white/10 space-y-1.5">
-                      <p className="text-[10px] text-zinc-400 uppercase font-bold">Mục tiêu hôm nay</p>
-                      <p className="text-lg font-black text-white">2,150 / 2,400 kcal</p>
-                      <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                        <div className="bg-emerald-400 h-full w-[90%]" />
-                      </div>
-                    </div>
-
-                    <div className="p-3 rounded-xl bg-emerald-950/50 border border-emerald-500/30 flex items-center gap-2.5">
-                      <Camera size={18} className="text-emerald-400 shrink-0" />
-                      <div>
-                        <p className="font-bold text-white text-[11px]">Chụp ảnh nhận diện món</p>
-                        <p className="text-[10px] text-zinc-400">AI tự tính Calo & Gram</p>
-                      </div>
-                    </div>
-
-                    <div className="p-3 rounded-xl bg-zinc-900/80 border border-white/5 flex items-center gap-2.5">
-                      <QrCode size={18} className="text-teal-400 shrink-0" />
-                      <div>
-                        <p className="font-bold text-white text-[11px]">Mã QR Điểm Danh Buổi Tập</p>
-                        <p className="text-[10px] text-zinc-400">Coach Đào Trần (12/12 buổi)</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-2.5 rounded-xl bg-emerald-500 text-black font-black text-center text-[11px] uppercase tracking-wider">
-                    Đã Đồng Bộ Dữ Liệu
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 8. FAQ ACCORDION SECTION */}
-      {/* ========================================================================= */}
-      <section id="faq" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-white/10">
-        <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
-          <span className="text-xs uppercase tracking-widest text-emerald-400 font-black">
-            Giải Đáp Thắc Mắc
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-white">
+      <section id="faq" className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-zinc-100">
+        <div className="text-center max-w-xl mx-auto mb-12 space-y-2">
+          <h2 className="text-3xl font-extrabold tracking-tight text-black">
             Câu Hỏi Thường Gặp
           </h2>
-          <p className="text-zinc-400 text-sm">
-            Tất cả những điều bạn cần biết trước khi bắt đầu hành trình thể hình cùng NutriCore.
+          <p className="text-zinc-600 text-xs sm:text-sm">
+            Mọi điều bạn cần biết trước khi bắt đầu cùng NutriCore.
           </p>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {FAQ_ITEMS.map((item, idx) => (
             <div
               key={idx}
-              className="rounded-2xl bg-zinc-900/60 border border-white/10 overflow-hidden transition-all"
+              className="rounded-2xl border border-zinc-200 bg-white overflow-hidden transition-all shadow-xs"
             >
               <button
                 onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                className="w-full text-left p-5 sm:p-6 flex items-center justify-between gap-4 font-bold text-white text-sm sm:text-base hover:text-emerald-400 transition"
+                className="w-full text-left p-5 flex items-center justify-between gap-4 font-bold text-black text-sm hover:text-zinc-600 transition"
               >
                 <span>{item.q}</span>
                 <ChevronDown
-                  size={18}
-                  className={`shrink-0 transition-transform ${openFaq === idx ? 'rotate-180 text-emerald-400' : 'text-zinc-400'}`}
+                  size={16}
+                  className={`shrink-0 transition-transform ${openFaq === idx ? 'rotate-180 text-black' : 'text-zinc-400'}`}
                 />
               </button>
               {openFaq === idx && (
-                <div className="px-5 sm:px-6 pb-6 text-xs sm:text-sm text-zinc-300 leading-relaxed border-t border-white/5 pt-4">
+                <div className="px-5 pb-5 text-xs sm:text-sm text-zinc-600 leading-relaxed border-t border-zinc-100 pt-3">
                   {item.a}
                 </div>
               )}
@@ -1227,73 +1062,69 @@ export default function LandingPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 9. BOTTOM FINAL CALL TO ACTION */}
+      {/* 8. FINAL HIGH-CONTRAST CALL TO ACTION (CAL AI CARD BANNER) */}
       {/* ========================================================================= */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
-        <div className="relative rounded-3xl overflow-hidden border border-emerald-500/40 p-8 sm:p-14 text-center shadow-[0_0_50px_rgba(16,185,129,0.2)]">
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-950 via-zinc-900 to-black z-0" />
-          <div className="relative z-10 space-y-6">
-            <span className="px-3.5 py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-black uppercase tracking-widest border border-emerald-500/40">
-              Khởi Đầu Ngay Hôm Nay
-            </span>
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight text-white leading-tight">
-              Kỷ luật tạo nên hình thể. <br />
-              <span className="text-emerald-400">Dữ liệu tạo nên kết quả.</span>
-            </h2>
-            <p className="text-zinc-300 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
-              Trải nghiệm toàn bộ sức mạnh của NutriCore hoàn toàn miễn phí. Thiết lập chỉ số cơ thể của bạn và bắt đầu hành trình thay đổi vóc dáng ngay hôm nay.
-            </p>
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+        <div className="rounded-3xl bg-black text-white p-8 sm:p-14 text-center space-y-6 shadow-xl">
+          <span className="inline-block px-3 py-1 rounded-full bg-zinc-800 text-zinc-300 text-xs font-semibold uppercase tracking-wider">
+            Bắt đầu miễn phí hôm nay
+          </span>
+          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
+            Kỷ luật tạo nên hình thể. <br />
+            <span className="text-zinc-400">Dữ liệu tạo nên kết quả.</span>
+          </h2>
+          <p className="text-zinc-400 max-w-lg mx-auto text-xs sm:text-sm leading-relaxed">
+            Mở toàn bộ tính năng hoàn toàn miễn phí. Khám phá chỉ số TDEE cá nhân và theo dõi calo dễ dàng hơn bao giờ hết.
+          </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-3">
-              <Link
-                href="/onboarding"
-                className="w-full sm:w-auto px-9 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-black font-black text-sm sm:text-base uppercase tracking-wider transition-all transform hover:-translate-y-1 shadow-[0_0_30px_rgba(16,185,129,0.5)] flex items-center justify-center gap-2"
-              >
-                <Flame size={18} />
-                <span>Thiết lập TDEE của tôi ngay</span>
-              </Link>
-              <Link
-                href="/login"
-                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-zinc-900/90 hover:bg-zinc-800 border border-white/15 text-white font-bold text-sm sm:text-base uppercase tracking-wider transition text-center"
-              >
-                Tôi đã có tài khoản
-              </Link>
-            </div>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <Link
+              href="/onboarding"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-white text-black font-extrabold text-sm tracking-wide hover:bg-zinc-100 transition shadow-sm"
+            >
+              Thiết lập TDEE của tôi ngay
+            </Link>
+            <Link
+              href="/login"
+              className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-zinc-900 text-zinc-300 hover:text-white border border-zinc-800 font-semibold text-sm transition"
+            >
+              Đăng nhập tài khoản
+            </Link>
           </div>
         </div>
       </section>
 
       {/* ========================================================================= */}
-      {/* 10. PROFESSIONAL FOOTER */}
+      {/* 9. MINIMALIST CLEAN FOOTER */}
       {/* ========================================================================= */}
-      <footer className="border-t border-white/10 py-12 text-xs text-zinc-400 bg-black/60">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center font-black text-black text-sm">
+      <footer className="border-t border-zinc-200 py-10 text-xs text-zinc-500 bg-zinc-50/60">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5">
+              <div className="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs">
                 N
               </div>
-              <span className="font-black text-base uppercase text-white tracking-wider">
-                Nutri<span className="text-emerald-400">core</span>
+              <span className="font-extrabold text-sm text-black tracking-tight">
+                NutriCore
               </span>
-              <span className="text-[10px] text-zinc-500 border-l border-zinc-700 pl-3">
+              <span className="text-[11px] text-zinc-400 border-l border-zinc-300 pl-2.5">
                 FitManagementPlatform
               </span>
             </div>
 
-            <div className="flex flex-wrap gap-6 font-bold uppercase tracking-wider text-[11px]">
-              <a href="#ai-scanner" className="hover:text-emerald-400 transition">AI Scanner</a>
-              <a href="#pillars" className="hover:text-emerald-400 transition">Hệ thống</a>
-              <a href="#roles" className="hover:text-emerald-400 transition">Vai trò</a>
-              <a href="#faq" className="hover:text-emerald-400 transition">Hỏi đáp</a>
-              <Link href="/login" className="hover:text-emerald-400 transition">Đăng nhập</Link>
+            <div className="flex flex-wrap gap-5 font-semibold text-zinc-600 text-xs">
+              <a href="#ai-scanner" className="hover:text-black transition">Quét AI</a>
+              <a href="#features" className="hover:text-black transition">Tính năng</a>
+              <a href="#roles" className="hover:text-black transition">Học viên & PT</a>
+              <a href="#faq" className="hover:text-black transition">Hỏi đáp</a>
+              <Link href="/login" className="hover:text-black transition">Đăng nhập</Link>
             </div>
           </div>
 
-          <div className="border-t border-white/5 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-zinc-500 text-[11px]">
-            <p>© 2026 NUTRICORE — FIT MANAGEMENT PLATFORM. ALL RIGHTS RESERVED.</p>
-            <p className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" />
+          <div className="border-t border-zinc-200/80 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-zinc-400 text-[11px]">
+            <p>© 2026 NUTRICORE. ALL RIGHTS RESERVED. POWERED BY GOOGLE GEMINI VISION AI.</p>
+            <p className="flex items-center gap-1.5 text-zinc-600 font-medium">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
               <span>Hệ thống hoạt động ổn định 99.9%</span>
             </p>
           </div>
