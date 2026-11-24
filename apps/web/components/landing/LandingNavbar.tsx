@@ -19,11 +19,11 @@ export default function LandingNavbar() {
   }, []);
 
   return (
-    <header className="fixed top-0 inset-x-0 z-50 backdrop-blur-md bg-white/85 border-b border-zinc-200/80 transition-all">
+    <header className="fixed top-0 inset-x-0 z-50 backdrop-blur-xl bg-black/75 border-b border-white/10 text-white transition-all">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand Logo using Official App Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 rounded-full overflow-hidden border border-zinc-200 bg-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+          <div className="w-8 h-8 rounded-full overflow-hidden border border-white/20 bg-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
             <img
               src="/logoApp.jpg"
               alt="NutriCore Logo"
@@ -31,27 +31,27 @@ export default function LandingNavbar() {
             />
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="font-extrabold text-lg tracking-tight text-black">
-              Nutri<span className="text-emerald-600">Core</span>
+            <span className="font-extrabold text-lg tracking-tight text-white">
+              Nutri<span className="text-emerald-400">Core</span>
             </span>
           </div>
         </Link>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-7 text-xs font-semibold uppercase tracking-wider text-zinc-600">
-          <a href="#ai-scanner" className="hover:text-black transition">
+        <nav className="hidden md:flex items-center gap-7 text-xs font-semibold uppercase tracking-wider text-zinc-300">
+          <a href="#ai-scanner" className="hover:text-white transition">
             Chụp món ăn
           </a>
-          <a href="#comparison" className="hover:text-black transition">
+          <a href="#comparison" className="hover:text-white transition">
             So Sánh
           </a>
-          <a href="#reviews" className="hover:text-black transition">
+          <a href="#reviews" className="hover:text-white transition">
             Đánh Giá
           </a>
-          <a href="#roles" className="hover:text-black transition">
+          <a href="#roles" className="hover:text-white transition">
             Học Viên & PT
           </a>
-          <a href="#faq" className="hover:text-black transition">
+          <a href="#faq" className="hover:text-white transition">
             Hỏi Đáp
           </a>
         </nav>
@@ -61,7 +61,7 @@ export default function LandingNavbar() {
           {isLoggedIn ? (
             <button
               onClick={() => router.push('/home')}
-              className="px-5 py-2.5 rounded-full bg-black hover:bg-zinc-800 text-white font-semibold text-xs uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-2.5 rounded-full bg-white hover:bg-zinc-100 text-black font-semibold text-xs uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
             >
               <span>Vào Dashboard</span>
               <ArrowRight size={13} />
@@ -70,13 +70,13 @@ export default function LandingNavbar() {
             <>
               <Link
                 href="/login"
-                className="px-4 py-2 text-xs font-semibold text-zinc-600 hover:text-black transition"
+                className="px-4 py-2 text-xs font-semibold text-zinc-300 hover:text-white transition"
               >
                 Đăng nhập
               </Link>
               <Link
                 href="/onboarding"
-                className="px-5 py-2.5 rounded-full bg-black hover:bg-zinc-800 text-white font-semibold text-xs uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5"
+                className="px-5 py-2.5 rounded-full bg-white hover:bg-zinc-100 text-black font-semibold text-xs uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5"
               >
                 <span>Dùng thử</span>
               </Link>
@@ -88,7 +88,7 @@ export default function LandingNavbar() {
         <div className="flex md:hidden items-center gap-2">
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 rounded-xl text-zinc-700 hover:text-black hover:bg-zinc-100 transition cursor-pointer"
+            className="p-2 rounded-xl text-zinc-300 hover:text-white hover:bg-white/10 transition cursor-pointer"
             aria-label="Toggle mobile menu"
           >
             {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -98,58 +98,58 @@ export default function LandingNavbar() {
 
       {/* Mobile Slide-down Navigation Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-b border-zinc-200 bg-white/95 backdrop-blur-xl px-4 py-5 space-y-4 shadow-lg animate-in slide-in-from-top-2 duration-200">
-          <nav className="flex flex-col space-y-3 text-sm font-semibold text-zinc-700">
+        <div className="md:hidden border-b border-zinc-800 bg-black/95 backdrop-blur-xl px-4 py-5 space-y-4 shadow-2xl animate-in slide-in-from-top-2 duration-200">
+          <nav className="flex flex-col space-y-3 text-sm font-semibold text-zinc-300">
             <a
               href="#ai-scanner"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="py-1.5 hover:text-black transition flex items-center justify-between"
+              className="py-1.5 hover:text-white transition flex items-center justify-between"
             >
               <span>Quét Ảnh AI</span>
-              <ChevronRight size={16} className="text-zinc-400" />
+              <ChevronRight size={16} className="text-zinc-500" />
             </a>
             <a
               href="#comparison"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="py-1.5 hover:text-black transition flex items-center justify-between"
+              className="py-1.5 hover:text-white transition flex items-center justify-between"
             >
               <span>So Sánh Giải Pháp</span>
-              <ChevronRight size={16} className="text-zinc-400" />
+              <ChevronRight size={16} className="text-zinc-500" />
             </a>
             <a
               href="#reviews"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="py-1.5 hover:text-black transition flex items-center justify-between"
+              className="py-1.5 hover:text-white transition flex items-center justify-between"
             >
               <span>Đánh Giá Từ Người Dùng</span>
-              <ChevronRight size={16} className="text-zinc-400" />
+              <ChevronRight size={16} className="text-zinc-500" />
             </a>
             <a
               href="#roles"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="py-1.5 hover:text-black transition flex items-center justify-between"
+              className="py-1.5 hover:text-white transition flex items-center justify-between"
             >
               <span>Học Viên & PT</span>
-              <ChevronRight size={16} className="text-zinc-400" />
+              <ChevronRight size={16} className="text-zinc-500" />
             </a>
             <a
               href="#faq"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="py-1.5 hover:text-black transition flex items-center justify-between"
+              className="py-1.5 hover:text-white transition flex items-center justify-between"
             >
               <span>Hỏi Đáp</span>
-              <ChevronRight size={16} className="text-zinc-400" />
+              <ChevronRight size={16} className="text-zinc-500" />
             </a>
           </nav>
 
-          <div className="pt-3 border-t border-zinc-100 flex flex-col gap-2.5">
+          <div className="pt-3 border-t border-zinc-800 flex flex-col gap-2.5">
             {isLoggedIn ? (
               <button
                 onClick={() => {
                   setIsMobileMenuOpen(false);
                   router.push('/home');
                 }}
-                className="w-full py-3 rounded-full bg-black text-white font-semibold text-xs uppercase tracking-wider text-center shadow-sm cursor-pointer"
+                className="w-full py-3 rounded-full bg-white text-black font-semibold text-xs uppercase tracking-wider text-center shadow-sm cursor-pointer"
               >
                 Vào Dashboard →
               </button>
@@ -158,14 +158,14 @@ export default function LandingNavbar() {
                 <Link
                   href="/login"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-full py-2.5 rounded-full bg-zinc-100 text-center text-xs font-semibold text-zinc-800"
+                  className="w-full py-2.5 rounded-full bg-zinc-900 text-center text-xs font-semibold text-zinc-200 hover:text-white"
                 >
                   Đăng nhập
                 </Link>
                 <Link
                   href="/onboarding"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-full py-3 rounded-full bg-black text-white text-center text-xs font-semibold uppercase tracking-wider shadow-sm"
+                  className="w-full py-3 rounded-full bg-white text-black text-center text-xs font-semibold uppercase tracking-wider shadow-sm"
                 >
                   Trải nghiệm miễn phí
                 </Link>
