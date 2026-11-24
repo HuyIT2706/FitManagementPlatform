@@ -19,9 +19,6 @@ import {
   Minus,
   Menu,
   X,
-  Clock,
-  Target,
-  Users,
 } from 'lucide-react';
 
 // ==========================================
@@ -393,17 +390,14 @@ export default function LandingPage() {
             <a href="#ai-scanner" className="hover:text-black transition">
               Quét Ảnh AI
             </a>
-            <a href="#advantages" className="hover:text-black transition">
-              Ưu Điểm Vượt Trội
-            </a>
-            <a href="#roles" className="hover:text-black transition">
-              Học Viên & PT
+            <a href="#comparison" className="hover:text-black transition">
+              So Sánh
             </a>
             <a href="#reviews" className="hover:text-black transition">
               Đánh Giá
             </a>
-            <a href="#comparison" className="hover:text-black transition">
-              So Sánh
+            <a href="#roles" className="hover:text-black transition">
+              Học Viên & PT
             </a>
             <a href="#faq" className="hover:text-black transition">
               Hỏi Đáp
@@ -464,19 +458,11 @@ export default function LandingPage() {
                 <ChevronRight size={16} className="text-zinc-400" />
               </a>
               <a
-                href="#advantages"
+                href="#comparison"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="py-1.5 hover:text-black transition flex items-center justify-between"
               >
-                <span>Ưu Điểm Vượt Trội</span>
-                <ChevronRight size={16} className="text-zinc-400" />
-              </a>
-              <a
-                href="#roles"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="py-1.5 hover:text-black transition flex items-center justify-between"
-              >
-                <span>Học Viên & PT</span>
+                <span>So Sánh Giải Pháp</span>
                 <ChevronRight size={16} className="text-zinc-400" />
               </a>
               <a
@@ -488,11 +474,11 @@ export default function LandingPage() {
                 <ChevronRight size={16} className="text-zinc-400" />
               </a>
               <a
-                href="#comparison"
+                href="#roles"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="py-1.5 hover:text-black transition flex items-center justify-between"
               >
-                <span>So Sánh Giải Pháp</span>
+                <span>Học Viên & PT</span>
                 <ChevronRight size={16} className="text-zinc-400" />
               </a>
               <a
@@ -976,88 +962,81 @@ export default function LandingPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 4. ƯU ĐIỂM VƯỢT TRỘI CỦA WEB SO VỚI THỦ CÔNG */}
+      {/* 4. COMPARISON MATRIX: TRADITIONAL VS NUTRICORE */}
       {/* ========================================================================= */}
-      <section id="advantages" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-zinc-100 scroll-mt-20">
-        <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-black">
-            Ưu Điểm Đột Phá So Với Cách Làm Thủ Công
+      <section id="comparison" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-zinc-100 scroll-mt-20">
+        <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
+          <h2 className="text-3xl font-extrabold tracking-tight text-black">
+            Bảng So Sánh NutriCore vs Cách Làm Thủ Công
           </h2>
-          <p className="text-zinc-600 text-sm sm:text-base">
-            Giải phóng bạn khỏi sự mệt mỏi của việc cân tiểu ly, ghi chép sổ tay và tính toán nhẩm cảm tính.
+          <p className="text-zinc-600 text-xs sm:text-sm">
+            Xem sự khác biệt rõ rệt giữa phương pháp đo lường truyền thống và nền tảng thông minh NutriCore.
           </p>
         </div>
 
-        {/* 3 Advantages Bento Grid with Interactive 3D Mouse Tilt & Glare */}
-        <div className="grid md:grid-cols-3 gap-6" style={{ perspective: '1200px' }}>
-          {/* Advantage 1: Instant AI Photo Logging */}
-          <TiltCard3D
-            maxTilt={6}
-            glowColor="rgba(16, 185, 129, 0.08)"
-            className="rounded-3xl bg-white p-7 shadow-sm hover:shadow-md flex flex-col justify-between space-y-6"
-          >
-            <div className="space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-zinc-100 text-black flex items-center justify-center font-bold">
-                <Clock size={22} />
-              </div>
-              <div>
-                <span className="text-[11px] font-extrabold text-emerald-600 uppercase tracking-wider block">Ưu điểm 01</span>
-                <h3 className="text-xl font-extrabold text-black mt-1">
-                  Ghi Nhận Calo Trong 1 Giây
-                </h3>
-              </div>
-              <p className="text-zinc-600 text-xs sm:text-sm leading-relaxed">
-                <strong>Thủ công:</strong> Phải đặt từng lạng thức ăn lên cân tiểu ly, mở ứng dụng nước ngoài gõ tìm tên tiếng Anh rất mất thời gian. <br />
-                <strong>NutriCore:</strong> Chỉ cần giơ máy chụp ảnh đĩa cơm Việt hoặc nói qua micro, AI bóc tách ngay thành phần và calo.
-              </p>
-            </div>
-          </TiltCard3D>
-
-          {/* Advantage 2: Exact Algorithmic Macro Balancing */}
-          <TiltCard3D
-            maxTilt={6}
-            glowColor="rgba(16, 185, 129, 0.08)"
-            className="rounded-3xl bg-white p-7 shadow-sm hover:shadow-md flex flex-col justify-between space-y-6"
-          >
-            <div className="space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-zinc-100 text-black flex items-center justify-center font-bold">
-                <Target size={22} />
-              </div>
-              <div>
-                <span className="text-[11px] font-extrabold text-emerald-600 uppercase tracking-wider block">Ưu điểm 02</span>
-                <h3 className="text-xl font-extrabold text-black mt-1">
-                  Cân Bằng Macro Chuẩn Xác
-                </h3>
-              </div>
-              <p className="text-zinc-600 text-xs sm:text-sm leading-relaxed">
-                <strong>Thủ công:</strong> Tự nhẩm tính thường xuyên dẫn đến dư thừa calo, thiếu hụt Protein nghiêm trọng khiến cơ thể mệt mỏi, tích mỡ. <br />
-                <strong>NutriCore:</strong> Thuật toán Knapsack Heuristic tối ưu bữa ăn chuẩn $\ge 100\%$ Protein, tự động né thực phẩm dị ứng.
-              </p>
-            </div>
-          </TiltCard3D>
-
-          {/* Advantage 3: 1:1 QR PT Sync */}
-          <TiltCard3D
-            maxTilt={6}
-            glowColor="rgba(16, 185, 129, 0.08)"
-            className="rounded-3xl bg-white p-7 shadow-sm hover:shadow-md flex flex-col justify-between space-y-6"
-          >
-            <div className="space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-zinc-100 text-black flex items-center justify-center font-bold">
-                <Users size={22} />
-              </div>
-              <div>
-                <span className="text-[11px] font-extrabold text-emerald-600 uppercase tracking-wider block">Ưu điểm 03</span>
-                <h3 className="text-xl font-extrabold text-black mt-1">
-                  Đồng Hành 1:1 Cùng PT
-                </h3>
-              </div>
-              <p className="text-zinc-600 text-xs sm:text-sm leading-relaxed">
-                <strong>Thủ công:</strong> Nhắn tin Zalo chụp ảnh bữa ăn rời rạc, trôi tin, PT không kiểm soát được quá trình dinh dưỡng và tập luyện. <br />
-                <strong>NutriCore:</strong> Quét QR liên kết tức thì, PT duyệt nhật ký ăn uống, giao bài tập có ảnh động và điểm danh trừ buổi an toàn.
-              </p>
-            </div>
-          </TiltCard3D>
+        <div className="rounded-3xl overflow-hidden shadow-sm bg-white">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-zinc-200 bg-zinc-50/80">
+                <th className="py-4 px-6 text-xs uppercase tracking-wider text-zinc-500 font-bold w-1/3">
+                  Tiêu chí
+                </th>
+                <th className="py-4 px-6 text-xs uppercase tracking-wider text-zinc-500 font-bold w-1/3">
+                  Phương pháp truyền thống
+                </th>
+                <th className="py-4 px-6 text-xs uppercase tracking-wider text-black font-extrabold w-1/3 bg-zinc-100/50">
+                  NutriCore AI Platform
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-zinc-100 text-xs sm:text-sm">
+              <tr>
+                <td className="py-4 px-6 font-bold text-black">1. Ghi nhận bữa ăn</td>
+                <td className="py-4 px-6 text-zinc-500">
+                  Cân tiểu ly từng lạng, tra cứu Excel mỏi mắt.
+                </td>
+                <td className="py-4 px-6 font-bold text-emerald-800 bg-emerald-50/30">
+                  Chụp 1 tấm ảnh hoặc nói 1 câu tự nhiên (1s).
+                </td>
+              </tr>
+              <tr>
+                <td className="py-4 px-6 font-bold text-black">2. Cân bằng dinh dưỡng Macro</td>
+                <td className="py-4 px-6 text-zinc-500">
+                  Tính nhẩm cảm tính, thường xuyên thiếu Protein.
+                </td>
+                <td className="py-4 px-6 font-bold text-emerald-800 bg-emerald-50/30">
+                  Thuật toán Knapsack Heuristic chuẩn hóa Macro.
+                </td>
+              </tr>
+              <tr>
+                <td className="py-4 px-6 font-bold text-black">3. Tương tác với Huấn luyện viên</td>
+                <td className="py-4 px-6 text-zinc-500">
+                  Nhắn tin Zalo rời rạc, trôi tin, khó theo dõi.
+                </td>
+                <td className="py-4 px-6 font-bold text-emerald-800 bg-emerald-50/30">
+                  Đồng bộ 1 chạm qua mã QR, lịch tập trực tiếp.
+                </td>
+              </tr>
+              <tr>
+                <td className="py-4 px-6 font-bold text-black">4. Đánh giá sự tiến bộ</td>
+                <td className="py-4 px-6 text-zinc-500">
+                  Chỉ nhìn số ký thông thường, không rõ cơ hay mỡ.
+                </td>
+                <td className="py-4 px-6 font-bold text-emerald-800 bg-emerald-50/30">
+                  Biểu đồ InBody Stock Chart & Thanh trượt Before/After.
+                </td>
+              </tr>
+              <tr>
+                <td className="py-4 px-6 font-bold text-black">5. Bảo mật dữ liệu cá nhân</td>
+                <td className="py-4 px-6 text-zinc-500">
+                  Dữ liệu vóc dáng dễ bị chia sẻ công khai.
+                </td>
+                <td className="py-4 px-6 font-bold text-emerald-800 bg-emerald-50/30">
+                  Mã hóa đầu cuối AES-256-GCM chuẩn quân đội.
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
@@ -1308,86 +1287,7 @@ export default function LandingPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 7. COMPARISON MATRIX: TRADITIONAL VS NUTRICORE */}
-      {/* ========================================================================= */}
-      <section id="comparison" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-zinc-100 scroll-mt-20">
-        <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
-          <h2 className="text-3xl font-extrabold tracking-tight text-black">
-            Bảng So Sánh NutriCore vs Cách Làm Thủ Công
-          </h2>
-          <p className="text-zinc-600 text-xs sm:text-sm">
-            Xem sự khác biệt rõ rệt giữa phương pháp đo lường truyền thống và nền tảng thông minh NutriCore.
-          </p>
-        </div>
-
-        <div className="rounded-3xl overflow-hidden shadow-sm bg-white">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-zinc-200 bg-zinc-50/80">
-                <th className="py-4 px-6 text-xs uppercase tracking-wider text-zinc-500 font-bold w-1/3">
-                  Tiêu chí
-                </th>
-                <th className="py-4 px-6 text-xs uppercase tracking-wider text-zinc-500 font-bold w-1/3">
-                  Phương pháp truyền thống
-                </th>
-                <th className="py-4 px-6 text-xs uppercase tracking-wider text-black font-extrabold w-1/3 bg-zinc-100/50">
-                  NutriCore AI Platform
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-100 text-xs sm:text-sm">
-              <tr>
-                <td className="py-4 px-6 font-bold text-black">1. Ghi nhận bữa ăn</td>
-                <td className="py-4 px-6 text-zinc-500">
-                  Cân tiểu ly từng lạng, tra cứu Excel mỏi mắt.
-                </td>
-                <td className="py-4 px-6 font-bold text-emerald-800 bg-emerald-50/30">
-                  Chụp 1 tấm ảnh hoặc nói 1 câu tự nhiên (1s).
-                </td>
-              </tr>
-              <tr>
-                <td className="py-4 px-6 font-bold text-black">2. Cân bằng dinh dưỡng Macro</td>
-                <td className="py-4 px-6 text-zinc-500">
-                  Tính nhẩm cảm tính, thường xuyên thiếu Protein.
-                </td>
-                <td className="py-4 px-6 font-bold text-emerald-800 bg-emerald-50/30">
-                  Thuật toán Knapsack Heuristic chuẩn hóa Macro.
-                </td>
-              </tr>
-              <tr>
-                <td className="py-4 px-6 font-bold text-black">3. Tương tác với Huấn luyện viên</td>
-                <td className="py-4 px-6 text-zinc-500">
-                  Nhắn tin Zalo rời rạc, trôi tin, khó theo dõi.
-                </td>
-                <td className="py-4 px-6 font-bold text-emerald-800 bg-emerald-50/30">
-                  Đồng bộ 1 chạm qua mã QR, lịch tập trực tiếp.
-                </td>
-              </tr>
-              <tr>
-                <td className="py-4 px-6 font-bold text-black">4. Đánh giá sự tiến bộ</td>
-                <td className="py-4 px-6 text-zinc-500">
-                  Chỉ nhìn số ký thông thường, không rõ cơ hay mỡ.
-                </td>
-                <td className="py-4 px-6 font-bold text-emerald-800 bg-emerald-50/30">
-                  Biểu đồ InBody Stock Chart & Thanh trượt Before/After.
-                </td>
-              </tr>
-              <tr>
-                <td className="py-4 px-6 font-bold text-black">5. Bảo mật dữ liệu cá nhân</td>
-                <td className="py-4 px-6 text-zinc-500">
-                  Dữ liệu vóc dáng dễ bị chia sẻ công khai.
-                </td>
-                <td className="py-4 px-6 font-bold text-emerald-800 bg-emerald-50/30">
-                  Mã hóa đầu cuối AES-256-GCM chuẩn quân đội.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 8. FAQ ACCORDION SECTION */}
+      {/* 7. FAQ ACCORDION SECTION */}
       {/* ========================================================================= */}
       <section id="faq" className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-zinc-100 scroll-mt-20">
         <div className="text-center max-w-xl mx-auto mb-12 space-y-2">
@@ -1475,9 +1375,9 @@ export default function LandingPage() {
 
             <div className="flex flex-wrap gap-5 font-semibold text-zinc-600 text-xs">
               <a href="#ai-scanner" className="hover:text-black transition">Quét AI</a>
-              <a href="#advantages" className="hover:text-black transition">Ưu điểm</a>
-              <a href="#roles" className="hover:text-black transition">Học viên & PT</a>
+              <a href="#comparison" className="hover:text-black transition">So sánh</a>
               <a href="#reviews" className="hover:text-black transition">Đánh giá</a>
+              <a href="#roles" className="hover:text-black transition">Học viên & PT</a>
               <a href="#faq" className="hover:text-black transition">Hỏi đáp</a>
               <Link href="/login" className="hover:text-black transition">Đăng nhập</Link>
             </div>
