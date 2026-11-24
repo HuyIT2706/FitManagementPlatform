@@ -10,7 +10,6 @@ import {
   Mic,
   CheckCircle2,
   ArrowRight,
-  Zap,
   ChevronRight,
   ChevronDown,
   RefreshCw,
@@ -47,7 +46,7 @@ const DEMO_DISHES: DemoDish[] = [
     id: 'com-tam',
     name: 'Cơm Tấm Sườn Bì Chả',
     tag: 'Bulking / Giàu Đạm',
-    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=800&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=75&w=480&auto=format&fit=crop',
     description: 'Món ăn đặc sản phổ biến, giàu protein từ sườn nướng cốt lết và chả trứng hấp.',
     components: [
       { name: 'Cơm tấm trắng', defaultGrams: 200, calPer100: 130, proPer100: 2.7, carbPer100: 28.2, fatPer100: 0.3 },
@@ -60,7 +59,7 @@ const DEMO_DISHES: DemoDish[] = [
     id: 'pho-bo',
     name: 'Phở Bò Tái Nạm Hà Nội',
     tag: 'Phục Hồi Thể Lực',
-    image: 'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?q=80&w=800&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?q=75&w=480&auto=format&fit=crop',
     description: 'Thịt bò tươi mềm giàu sắt và kẽm, nước dùng thanh hầm từ xương bò tự nhiên.',
     components: [
       { name: 'Bánh phở tươi', defaultGrams: 220, calPer100: 140, proPer100: 3.2, carbPer100: 30.0, fatPer100: 0.5 },
@@ -73,7 +72,7 @@ const DEMO_DISHES: DemoDish[] = [
     id: 'salad-uc-ga',
     name: 'Salad Ức Gà & Bơ Sáp',
     tag: 'Cutting / Siêu Nạc',
-    image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=800&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?q=75&w=480&auto=format&fit=crop',
     description: 'Khẩu phần siết mỡ tối ưu: ức gà nạc áp chảo, chất béo đơn không bão hòa từ bơ.',
     components: [
       { name: 'Ức gà phi lê áp chảo', defaultGrams: 180, calPer100: 165, proPer100: 31.0, carbPer100: 0.0, fatPer100: 3.6 },
@@ -86,7 +85,7 @@ const DEMO_DISHES: DemoDish[] = [
     id: 'bun-cha',
     name: 'Bún Chả Nướng Than Hoa',
     tag: 'Đậm Đà Hương Vị',
-    image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?q=80&w=800&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?q=75&w=480&auto=format&fit=crop',
     description: 'Chả viên nướng và thịt ba chỉ thơm lừng, ăn kèm bún tươi và nước mắm dưa góp.',
     components: [
       { name: 'Bún tươi', defaultGrams: 200, calPer100: 110, proPer100: 2.0, carbPer100: 25.0, fatPer100: 0.2 },
@@ -145,7 +144,7 @@ const TESTIMONIALS = [
   {
     name: 'Nguyễn Minh Tuấn',
     role: 'Học viên Gym • Giảm 8kg mỡ',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=75&w=96&h=96&auto=format&fit=crop',
     rating: 5,
     quote:
       'Trước đây mỗi bữa ăn là cực hình vì phải cân từng lạng ức gà, khoai lang. Dùng NutriCore chỉ cần giơ máy chụp ảnh đĩa cơm tấm hay phở bò là có ngay macro chuẩn. PT của mình cũng duyệt bữa ăn ngay trong ngày, cực kỳ kỷ luật!',
@@ -154,7 +153,7 @@ const TESTIMONIALS = [
   {
     name: 'Coach Trần Hoàng Long',
     role: 'Huấn luyện viên PT 1:1 • Quản lý 35 học viên',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=75&w=96&h=96&auto=format&fit=crop',
     rating: 5,
     quote:
       'Tính năng tạo mã QR mời học viên tùy chọn số buổi (12, 16, 24, 36...) và điểm danh trừ buổi tập nguyên tử đã giúp mình tiết kiệm 80% thời gian sổ sách. Học viên ăn gì mình cũng nắm rõ để nhắc nhở kịp thời.',
@@ -163,7 +162,7 @@ const TESTIMONIALS = [
   {
     name: 'Lê Thu Trang',
     role: 'Nhân viên văn phòng • Body Recomp',
-    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=200&auto=format&fit=crop',
+    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?q=75&w=96&h=96&auto=format&fit=crop',
     rating: 5,
     quote:
       'Mình thích nhất tính năng nhận diện giọng nói tiếng Việt, nói "sáng nay ăn 2 quả trứng với 1 bát cơm" là máy tự hiểu và quy đổi ra gram. Giao diện màu trắng sạch sẽ, mượt mà như app Apple.',
@@ -172,7 +171,7 @@ const TESTIMONIALS = [
   {
     name: 'Phạm Đức Anh',
     role: 'Vận động viên Thể hình tự nhiên',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=75&w=96&h=96&auto=format&fit=crop',
     rating: 5,
     quote:
       'Biểu đồ InBody dạng Stock Chart và thanh trượt so sánh Before/After rất chuyên nghiệp. Dữ liệu mã hóa an toàn giúp mình yên tâm lưu trữ toàn bộ hành trình siết cân.',
@@ -181,7 +180,7 @@ const TESTIMONIALS = [
   {
     name: 'Đặng Quỳnh Chi',
     role: 'Mẹ bỉm phục hồi vóc dáng',
-    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop',
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=75&w=96&h=96&auto=format&fit=crop',
     rating: 5,
     quote:
       'Bận rộn chăm con nhỏ không có thời gian gõ từng món. Cứ chụp mâm cơm gia đình là AI tự trừ khẩu phần, tính chính xác Calo theo mục tiêu thâm hụt. Vòng eo mình giảm 6cm sau 2 tháng!',
@@ -190,7 +189,7 @@ const TESTIMONIALS = [
   {
     name: 'Coach Nguyễn Hùng',
     role: 'Fitness Club Manager • Hà Nội',
-    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=200&auto=format&fit=crop',
+    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=75&w=96&h=96&auto=format&fit=crop',
     rating: 5,
     quote:
       'Toàn bộ đội ngũ 12 HLV của phòng gym chúng tôi đều chuyển sang quản lý học viên trên NutriCore. Tỷ lệ học viên tái ký hợp đồng tăng 40% nhờ tính minh bạch và chuyên nghiệp vượt trội.',
@@ -211,7 +210,7 @@ const FAQ_ITEMS = [
     a: 'Chúng tôi xây dựng theo quy trình "Human-in-the-loop": Sau khi AI phân tích xong, ứng dụng luôn hiển thị giao diện xem trước cho phép bạn chạm nhẹ vào nút (+) hoặc (-) để điều chỉnh số gram thực tế theo cảm nhận của bạn trước khi bấm lưu, đảm bảo dữ liệu ghi nhận luôn chuẩn xác 100%.',
   },
   {
-    q: 'Huấn luyện viên cá nhân (PT) kết nối với học viên ra sao?',
+    q: 'Huấn luyện viên cá nhân  kết nối với học viên ra sao?',
     a: 'Huấn luyện viên chỉ cần tạo mã QR hoặc gửi liên kết mời học viên (có thể đặt số buổi tập: 12, 16, 24, 36 buổi hoặc số buổi bất kỳ). Học viên quét mã 1 lần duy nhất để liên kết tài khoản. Sau đó, PT có thể theo dõi nhật ký ăn uống, xếp lịch tập và điểm danh trừ buổi tập an toàn qua mã QR.',
   },
   {
@@ -388,7 +387,7 @@ export default function LandingPage() {
           {/* Desktop Navigation Links */}
           <nav className="hidden md:flex items-center gap-7 text-xs font-semibold uppercase tracking-wider text-zinc-600">
             <a href="#ai-scanner" className="hover:text-black transition">
-              Quét Ảnh AI
+              Chụp món ăn
             </a>
             <a href="#comparison" className="hover:text-black transition">
               So Sánh
@@ -426,7 +425,6 @@ export default function LandingPage() {
                   href="/onboarding"
                   className="px-5 py-2.5 rounded-full bg-black hover:bg-zinc-800 text-white font-semibold text-xs uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5"
                 >
-                  <Zap size={13} />
                   <span>Dùng thử</span>
                 </Link>
               </>
@@ -548,7 +546,7 @@ export default function LandingPage() {
 
           {/* Subtitle */}
           <p className="text-zinc-600 text-base sm:text-xl max-w-2xl mx-auto leading-relaxed font-normal">
-            Không cần cân tiểu ly. Chỉ cần một bức ảnh hoặc một câu nói tự nhiên, NutriCore tự động nhận diện món ăn Việt Nam, tính chuẩn Calo & Protein và kết nối trực tiếp với Huấn luyện viên (PT) của bạn.
+            Không cần cân tiểu ly. Chỉ cần một bức ảnh hoặc một câu nói tự nhiên, NutriCore tự động nhận diện món ăn Việt Nam, tính chuẩn Calo & Protein và kết nối trực tiếp với Huấn luyện viên  của bạn.
           </p>
 
           {/* Action CTAs */}
@@ -565,7 +563,7 @@ export default function LandingPage() {
               className="w-full sm:w-auto px-7 py-4 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-900 font-semibold text-sm transition-all shadow-xs flex items-center justify-center gap-2"
             >
               <Sparkles size={16} className="text-zinc-500" />
-              <span>Xem Demo AI Scanner</span>
+              <span>Xem Demo</span>
             </a>
           </div>
 
@@ -596,8 +594,10 @@ export default function LandingPage() {
                 style={{ transformStyle: 'preserve-3d' }}
               >
                 <img
-                  src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1200&auto=format&fit=crop"
+                  src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=78&w=800&auto=format&fit=crop"
                   alt="Food Scan Preview"
+                  fetchPriority="high"
+                  decoding="async"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover/scan:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
@@ -607,37 +607,17 @@ export default function LandingPage() {
                   className="pointer-events-none absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_14px_rgba(52,211,153,0.9)]"
                   style={{ animation: 'laser-scan 3.5s ease-in-out infinite' }}
                 />
-
-                {/* 3D Spatial Optical Reticle Box over main dish */}
-                <div
-                  className="absolute top-[30%] left-[26%] w-36 h-28 border border-dashed border-emerald-400/70 rounded-xl pointer-events-none flex items-start justify-end p-1.5"
-                  style={{ transform: 'translateZ(20px)' }}
-                >
-                  <span className="text-[9px] font-mono font-bold bg-emerald-500 text-black px-1.5 py-0.5 rounded shadow-xs">
-                    GEMINI: 99.4%
-                  </span>
-                </div>
-
-                {/* Floating Chips on Image with 3D Elevation */}
-                <div
-                  className="absolute top-4 left-4 backdrop-blur-md bg-white/95 px-3.5 py-1.5 rounded-full shadow-md text-xs font-semibold text-zinc-900 flex items-center gap-2 transition-transform duration-300 group-hover/scan:translate-y-[-2px]"
-                  style={{ transform: 'translateZ(35px)' }}
-                >
-                  <Camera size={14} className="text-emerald-600" />
-                  <span>Gemini Vision AI: Cơm Tấm Sườn Bì</span>
-                </div>
-
                 <div
                   className="absolute bottom-4 left-4 right-4 flex flex-wrap gap-2 text-xs"
                   style={{ transform: 'translateZ(40px)' }}
                 >
-                  <span className="backdrop-blur-md bg-black/75 text-white font-medium px-3 py-1 rounded-full shadow-sm">
+                  <span className="backdrop-blur-md bg-black/80 text-white font-medium px-3 py-1 rounded-full shadow-sm">
                     Sườn nướng: 140g (339 kcal)
                   </span>
-                  <span className="backdrop-blur-md bg-black/75 text-white font-medium px-3 py-1 rounded-full shadow-sm">
+                  <span className="backdrop-blur-md bg-black/80 text-white font-medium px-3 py-1 rounded-full shadow-sm">
                     Cơm tấm: 200g (260 kcal)
                   </span>
-                  <span className="backdrop-blur-md bg-black/75 text-white font-medium px-3 py-1 rounded-full shadow-sm">
+                  <span className="backdrop-blur-md bg-black/80 text-white font-medium px-3 py-1 rounded-full shadow-sm">
                     Chả trứng: 60g (111 kcal)
                   </span>
                 </div>
@@ -646,13 +626,13 @@ export default function LandingPage() {
               {/* Right: Clean White Macro Metrics HUD */}
               <div className="md:col-span-5 p-4 sm:p-6 space-y-6">
                 <div>
-                  <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1">
+                  <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1">
                     <span>Mục Tiêu Hôm Nay</span>
                     <span className="text-emerald-600 font-extrabold">Đạt 88%</span>
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-4xl font-extrabold tracking-tight text-black">2,110</span>
-                    <span className="text-sm font-semibold text-zinc-500">/ 2,400 kcal</span>
+                    <span className="text-sm font-semibold text-zinc-600">/ 2,400 kcal</span>
                   </div>
                   <div className="w-full h-2.5 bg-zinc-100 rounded-full overflow-hidden mt-3">
                     <div className="bg-black h-full w-[88%] rounded-full" />
@@ -725,7 +705,7 @@ export default function LandingPage() {
               }`}
             >
               <Camera size={14} />
-              <span>Quét ảnh AI (Gemini Vision)</span>
+              <span>Quét ảnh thực đơn</span>
             </button>
             <button
               onClick={() => setDemoMode('voice')}
@@ -736,18 +716,16 @@ export default function LandingPage() {
               }`}
             >
               <Mic size={14} />
-              <span>Nói tự nhiên (Voice NLP)</span>
+              <span>Nói tự nhiên</span>
             </button>
           </div>
         </div>
 
         {demoMode === 'vision' ? (
-          /* Vision AI Clean Sandbox with Borderless Cards & Exact 1-Decimal Rounded Values */
           <div className="rounded-3xl bg-white p-5 sm:p-8 shadow-sm space-y-8">
-            {/* Dish Selection Thumbnails (BORDERLESS as requested in item 5 & item 4) */}
             <div>
               <p className="text-xs uppercase tracking-wider text-zinc-400 font-bold mb-3">
-                Chọn đĩa ăn để AI quét thử:
+                Chọn đĩa ăn để phân tích:
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {DEMO_DISHES.map((dish, idx) => (
@@ -763,6 +741,8 @@ export default function LandingPage() {
                     <img
                       src={dish.image}
                       alt={dish.name}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-24 rounded-xl object-cover"
                     />
                     <div>
@@ -784,13 +764,15 @@ export default function LandingPage() {
                   <img
                     src={currentDish?.image}
                     alt={currentDish?.name}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover"
                   />
                   {isScanning && (
                     <div className="absolute inset-0 bg-white/70 backdrop-blur-xs flex items-center justify-center">
                       <div className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-full text-xs font-semibold shadow-md">
                         <RefreshCw size={14} className="animate-spin" />
-                        <span>Gemini Vision đang bóc tách...</span>
+                        <span>Đang phân tích món ăn...</span>
                       </div>
                     </div>
                   )}
@@ -799,15 +781,8 @@ export default function LandingPage() {
                     <span className="bg-white/90 backdrop-blur-md px-3 py-1 rounded-full font-bold text-zinc-900 shadow-xs">
                       {currentDish?.name}
                     </span>
-                    <span className="bg-black text-white px-2.5 py-1 rounded-full font-semibold text-[11px]">
-                      Gemini 2.5 Flash
-                    </span>
                   </div>
                 </div>
-
-                <p className="text-xs text-zinc-500 leading-relaxed italic">
-                  💡 {currentDish?.description}
-                </p>
               </div>
 
               {/* Right Side: Nutrients & Granular Gram Adjuster */}
@@ -978,10 +953,10 @@ export default function LandingPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-zinc-200 bg-zinc-50/80">
-                <th className="py-4 px-6 text-xs uppercase tracking-wider text-zinc-500 font-bold w-1/3">
+                <th className="py-4 px-6 text-xs uppercase tracking-wider text-zinc-600 font-bold w-1/3">
                   Tiêu chí
                 </th>
-                <th className="py-4 px-6 text-xs uppercase tracking-wider text-zinc-500 font-bold w-1/3">
+                <th className="py-4 px-6 text-xs uppercase tracking-wider text-zinc-600 font-bold w-1/3">
                   Phương pháp truyền thống
                 </th>
                 <th className="py-4 px-6 text-xs uppercase tracking-wider text-black font-extrabold w-1/3 bg-zinc-100/50">
@@ -992,46 +967,46 @@ export default function LandingPage() {
             <tbody className="divide-y divide-zinc-100 text-xs sm:text-sm">
               <tr>
                 <td className="py-4 px-6 font-bold text-black">1. Ghi nhận bữa ăn</td>
-                <td className="py-4 px-6 text-zinc-500">
+                <td className="py-4 px-6 text-zinc-600">
                   Cân tiểu ly từng lạng, tra cứu Excel mỏi mắt.
                 </td>
-                <td className="py-4 px-6 font-bold text-emerald-800 bg-emerald-50/30">
+                <td className="py-4 px-6 font-bold text-emerald-900 bg-emerald-50/40">
                   Chụp 1 tấm ảnh hoặc nói 1 câu tự nhiên (1s).
                 </td>
               </tr>
               <tr>
                 <td className="py-4 px-6 font-bold text-black">2. Cân bằng dinh dưỡng Macro</td>
-                <td className="py-4 px-6 text-zinc-500">
+                <td className="py-4 px-6 text-zinc-600">
                   Tính nhẩm cảm tính, thường xuyên thiếu Protein.
                 </td>
-                <td className="py-4 px-6 font-bold text-emerald-800 bg-emerald-50/30">
+                <td className="py-4 px-6 font-bold text-emerald-900 bg-emerald-50/40">
                   Thuật toán Knapsack Heuristic chuẩn hóa Macro.
                 </td>
               </tr>
               <tr>
                 <td className="py-4 px-6 font-bold text-black">3. Tương tác với Huấn luyện viên</td>
-                <td className="py-4 px-6 text-zinc-500">
+                <td className="py-4 px-6 text-zinc-600">
                   Nhắn tin Zalo rời rạc, trôi tin, khó theo dõi.
                 </td>
-                <td className="py-4 px-6 font-bold text-emerald-800 bg-emerald-50/30">
+                <td className="py-4 px-6 font-bold text-emerald-900 bg-emerald-50/40">
                   Đồng bộ 1 chạm qua mã QR, lịch tập trực tiếp.
                 </td>
               </tr>
               <tr>
                 <td className="py-4 px-6 font-bold text-black">4. Đánh giá sự tiến bộ</td>
-                <td className="py-4 px-6 text-zinc-500">
+                <td className="py-4 px-6 text-zinc-600">
                   Chỉ nhìn số ký thông thường, không rõ cơ hay mỡ.
                 </td>
-                <td className="py-4 px-6 font-bold text-emerald-800 bg-emerald-50/30">
+                <td className="py-4 px-6 font-bold text-emerald-900 bg-emerald-50/40">
                   Biểu đồ InBody Stock Chart & Thanh trượt Before/After.
                 </td>
               </tr>
               <tr>
                 <td className="py-4 px-6 font-bold text-black">5. Bảo mật dữ liệu cá nhân</td>
-                <td className="py-4 px-6 text-zinc-500">
+                <td className="py-4 px-6 text-zinc-600">
                   Dữ liệu vóc dáng dễ bị chia sẻ công khai.
                 </td>
-                <td className="py-4 px-6 font-bold text-emerald-800 bg-emerald-50/30">
+                <td className="py-4 px-6 font-bold text-emerald-900 bg-emerald-50/40">
                   Mã hóa đầu cuối AES-256-GCM chuẩn quân đội.
                 </td>
               </tr>
@@ -1127,11 +1102,13 @@ export default function LandingPage() {
                   <img
                     src={review.avatar}
                     alt={review.name}
+                    loading="lazy"
+                    decoding="async"
                     className="w-11 h-11 rounded-full object-cover shadow-xs"
                   />
                   <div>
                     <h4 className="font-extrabold text-xs sm:text-sm text-black">{review.name}</h4>
-                    <p className="text-[11px] text-zinc-500 mt-0.5">{review.role}</p>
+                    <p className="text-[11px] text-zinc-600 mt-0.5">{review.role}</p>
                   </div>
                 </div>
               </div>
@@ -1197,7 +1174,7 @@ export default function LandingPage() {
                     : 'text-zinc-600 hover:text-black'
                 }`}
               >
-                Huấn luyện viên PT
+                Huấn luyện viên 
               </button>
               <button
                 onClick={() => setActiveRoleTab('admin')}
@@ -1316,7 +1293,7 @@ export default function LandingPage() {
                 />
               </button>
               {openFaq === idx && (
-                <div className="px-5 pb-5 text-xs sm:text-sm text-zinc-600 leading-relaxed border-t border-zinc-100 pt-3">
+                <div className="px-5 pb-5 text-xs sm:text-sm text-zinc-700 leading-relaxed border-t border-zinc-100 pt-3">
                   {item.a}
                 </div>
               )}
@@ -1326,34 +1303,47 @@ export default function LandingPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 9. FINAL CALL TO ACTION BANNER */}
+      {/* 9. FINAL CALL TO ACTION BANNER (WITH LUXURY GYM ATMOSPHERE & COLOR HARMONY) */}
       {/* ========================================================================= */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
-        <div className="rounded-3xl bg-black text-white p-8 sm:p-14 text-center space-y-6 shadow-xl">
-          <span className="inline-block px-3 py-1 rounded-full bg-zinc-800 text-zinc-300 text-xs font-semibold uppercase tracking-wider">
-            Bắt đầu miễn phí hôm nay
-          </span>
-          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
-            Kỷ luật tạo nên hình thể. <br />
-            <span className="text-zinc-400">Dữ liệu tạo nên kết quả.</span>
-          </h2>
-          <p className="text-zinc-400 max-w-lg mx-auto text-xs sm:text-sm leading-relaxed">
-            Mở toàn bộ tính năng hoàn toàn miễn phí. Khám phá chỉ số TDEE cá nhân và theo dõi calo dễ dàng hơn bao giờ hết.
-          </p>
+        <div className="relative rounded-3xl overflow-hidden shadow-2xl min-h-[380px] sm:min-h-[440px] flex items-center justify-center">
+          {/* Luxury Gym Background Image */}
+          <img
+            src="/cta-gym.jpg"
+            alt="NutriCore Fitness Space"
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 w-full h-full object-cover object-center scale-105"
+          />
+          {/* Rich Dark Frosted Glass Gradient Overlay for Maximum Text Contrast & Legibility */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/75 to-black/60 backdrop-blur-[2px]" />
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-            <Link
-              href="/onboarding"
-              className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-white text-black font-extrabold text-sm tracking-wide hover:bg-zinc-100 transition shadow-sm"
-            >
-              Thiết lập TDEE của tôi ngay
-            </Link>
-            <Link
-              href="/login"
-              className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-zinc-900 text-zinc-300 hover:text-white font-semibold text-sm transition"
-            >
-              Đăng nhập tài khoản
-            </Link>
+          <div className="relative z-10 p-8 sm:p-14 text-center space-y-6 max-w-2xl mx-auto">
+            <span className="inline-block px-3.5 py-1.5 rounded-full bg-white/15 backdrop-blur-md text-zinc-100 text-xs font-semibold uppercase tracking-wider border border-white/20 shadow-xs">
+              Bắt đầu miễn phí hôm nay
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+              Kỷ luật tạo nên hình thể. <br />
+              <span className="text-emerald-400">Dữ liệu tạo nên kết quả.</span>
+            </h2>
+            <p className="text-zinc-200 text-xs sm:text-sm leading-relaxed max-w-lg mx-auto font-normal">
+              Mở toàn bộ tính năng hoàn toàn miễn phí. Khám phá chỉ số TDEE cá nhân và theo dõi calo dễ dàng hơn bao giờ hết.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <Link
+                href="/onboarding"
+                className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-white text-black font-extrabold text-sm tracking-wide hover:bg-zinc-100 transition shadow-lg hover:scale-105"
+              >
+                Thiết lập TDEE của tôi ngay
+              </Link>
+              <Link
+                href="/login"
+                className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border border-white/25 font-semibold text-sm transition hover:scale-105"
+              >
+                Đăng nhập tài khoản
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -1366,7 +1356,7 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 rounded-full overflow-hidden border border-zinc-200 bg-white flex items-center justify-center shadow-xs">
-                <img src="/logoApp.jpg" alt="NutriCore Logo" className="w-full h-full object-cover" />
+                <img src="/logoApp.jpg" alt="NutriCore Logo" loading="lazy" decoding="async" className="w-full h-full object-cover" />
               </div>
               <span className="font-extrabold text-sm text-black tracking-tight">
                 Nutri<span className="text-emerald-600">Core</span>
@@ -1374,7 +1364,7 @@ export default function LandingPage() {
             </div>
 
             <div className="flex flex-wrap gap-5 font-semibold text-zinc-600 text-xs">
-              <a href="#ai-scanner" className="hover:text-black transition">Quét AI</a>
+              <a href="#ai-scanner" className="hover:text-black transition">Chụp món ăn </a>
               <a href="#comparison" className="hover:text-black transition">So sánh</a>
               <a href="#reviews" className="hover:text-black transition">Đánh giá</a>
               <a href="#roles" className="hover:text-black transition">Học viên & PT</a>

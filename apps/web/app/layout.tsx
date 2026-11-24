@@ -55,6 +55,10 @@ const RootLayout = ({
       className={`dark ${plusJakartaSans.variable} ${inter.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+      </head>
       <body suppressHydrationWarning className="bg-background text-on-surface font-sans">
         <ThemeProvider>
           {children}
