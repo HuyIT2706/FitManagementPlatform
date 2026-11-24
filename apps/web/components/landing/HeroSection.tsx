@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, Sparkles, Star } from 'lucide-react';
+import { ArrowRight, Star } from 'lucide-react';
 import HeroScannerTilt from './HeroScannerTilt';
 
 export default function HeroSection() {
@@ -41,7 +41,6 @@ export default function HeroSection() {
             href="#ai-scanner"
             className="w-full sm:w-auto px-7 py-4 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-900 font-semibold text-sm transition-all shadow-xs flex items-center justify-center gap-2"
           >
-            <Sparkles size={16} className="text-zinc-500" />
             <span>Xem Demo</span>
           </a>
         </div>

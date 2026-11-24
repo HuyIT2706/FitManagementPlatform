@@ -62,7 +62,7 @@ export default function InteractiveAiScanner() {
     <section id="ai-scanner" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 scroll-mt-20">
       <div className="text-center max-w-2xl mx-auto mb-10 space-y-3">
         <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-black">
-          Xem AI nhận diện món ăn trong 1 giây
+          Chụp ảnh nhận diện món ăn đa dạng
         </h2>
         <p className="text-zinc-600 text-sm sm:text-base">
           Chọn một món ăn mẫu hoặc câu nói dưới đây để trải nghiệm cách NutriCore bóc tách Calo và thành phần dinh dưỡng.
@@ -188,7 +188,6 @@ export default function InteractiveAiScanner() {
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between text-xs text-zinc-500 font-semibold">
                   <span>Thành phần nhận diện</span>
-                  <span>Chạm (+) (-) để chỉnh số gram</span>
                 </div>
 
                 {currentDish?.components.map((comp, idx) => {

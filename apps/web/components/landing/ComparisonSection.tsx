@@ -34,7 +34,7 @@ export default function ComparisonSection() {
                 Cân tiểu ly từng lạng, tra cứu Excel mỏi mắt.
               </td>
               <td className="py-4 px-6 font-bold text-emerald-900 bg-emerald-50/40">
-                Chụp 1 tấm ảnh hoặc nói 1 câu tự nhiên (1s).
+                Chụp 1 tấm ảnh hoặc nói 1 câu tự nhiên.
               </td>
             </tr>
             <tr>
@@ -43,7 +43,7 @@ export default function ComparisonSection() {
                 Tính nhẩm cảm tính, thường xuyên thiếu Protein.
               </td>
               <td className="py-4 px-6 font-bold text-emerald-900 bg-emerald-50/40">
-                Thuật toán Knapsack Heuristic chuẩn hóa Macro.
+                Thuật toán sắp xếp chuẩn hóa Macro.
               </td>
             </tr>
             <tr>
@@ -61,7 +61,7 @@ export default function ComparisonSection() {
                 Chỉ nhìn số ký thông thường, không rõ cơ hay mỡ.
               </td>
               <td className="py-4 px-6 font-bold text-emerald-900 bg-emerald-50/40">
-                Biểu đồ InBody Stock Chart & Thanh trượt Before/After.
+                Biểu đồ trực quan hóa các chỉ số.
               </td>
             </tr>
             <tr>
@@ -70,7 +70,7 @@ export default function ComparisonSection() {
                 Dữ liệu vóc dáng dễ bị chia sẻ công khai.
               </td>
               <td className="py-4 px-6 font-bold text-emerald-900 bg-emerald-50/40">
-                Mã hóa đầu cuối AES-256-GCM chuẩn quân đội.
+                Bảo mật dữ liệu người dùng
               </td>
             </tr>
           </tbody>

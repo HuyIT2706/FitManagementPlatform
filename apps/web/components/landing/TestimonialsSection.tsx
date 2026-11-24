@@ -8,12 +8,7 @@ export default function TestimonialsSection() {
         <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-black">
           Đánh Giá Từ Cộng Đồng Tập Luyện
         </h2>
-        <p className="text-zinc-600 text-sm sm:text-base">
-          Lắng nghe câu chuyện thay đổi vóc dáng và thói quen dinh dưỡng từ những học viên và PT tiên phong.
-        </p>
       </div>
-
-      {/* 3D Horizontal Infinite Marquee Carousel (3 Cards Per Row on Desktop) */}
       <TestimonialsMarquee />
     </section>
   );
