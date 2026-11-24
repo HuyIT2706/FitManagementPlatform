@@ -577,7 +577,7 @@ export default function LandingPage() {
               ))}
             </div>
             <span className="font-medium text-zinc-700">
-              4.9/5 xếp hạng • Hơn 10,000+ món ăn & thức uống Việt Nam đã tối ưu
+              4.9/5 xếp hạng • Cơ sở dữ liệu hơn 10,000 món ăn & thức uống Việt Nam
             </span>
           </div>
         </div>
@@ -1046,10 +1046,10 @@ export default function LandingPage() {
       <section id="reviews" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-zinc-100 scroll-mt-20">
         <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-black">
-            Được Tin Dùng Bởi Hơn 10,000+ Người Tập & PT
+            Đánh Giá Từ Cộng Đồng Tập Luyện
           </h2>
           <p className="text-zinc-600 text-sm sm:text-base">
-            Lắng nghe chia sẻ từ những học viên và huấn luyện viên đã thay đổi vóc dáng cùng NutriCore.
+            Lắng nghe câu chuyện thay đổi vóc dáng và thói quen dinh dưỡng từ những học viên và PT tiên phong.
           </p>
         </div>
 
