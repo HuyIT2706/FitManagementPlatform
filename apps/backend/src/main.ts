@@ -44,6 +44,8 @@ async function bootstrap() {
   // CORS origin whitelist
   const allowedOrigins: (string | RegExp)[] = [
     'https://nutricore-olive.vercel.app',
+    'https://nutricore.id.vn',
+    'https://www.nutricore.id.vn',
   ];
 
   if (!isProd) {

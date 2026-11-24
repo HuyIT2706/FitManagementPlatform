@@ -67,7 +67,7 @@ const PTProfilePage = () => {
   const currentOrigin =
     typeof window !== 'undefined'
       ? window.location.origin
-      : 'https://nutricore-olive.vercel.app';
+      : 'https://nutricore.id.vn';
   const ptCode = codeQrData?.ptCode || 'PT-HUY066';
   const qrUrl =
     codeQrData?.qrCodeUrl &&

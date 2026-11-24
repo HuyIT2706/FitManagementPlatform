@@ -54,7 +54,7 @@ const PTStudentsPage = () => {
     const clientBaseUrl =
       typeof window !== 'undefined'
         ? window.location.origin
-        : 'https://nutricore-olive.vercel.app';
+        : 'https://nutricore.id.vn';
 
     apiClient
       .post<{ inviteUrl: string; inviteCode: string }>('/pt/students/invite', {
@@ -71,7 +71,7 @@ const PTStudentsPage = () => {
         const currentOrigin =
           typeof window !== 'undefined'
             ? window.location.origin
-            : 'https://nutricore-olive.vercel.app';
+            : 'https://nutricore.id.vn';
         const sessionsParam = totalSessions ? `&sessions=${totalSessions}` : '';
         const pkgParam = packageName ? `&pkg=${encodeURIComponent(packageName)}` : '';
         const url =

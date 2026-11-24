@@ -345,7 +345,10 @@ const LoginContent = () => {
 
     // Use redirect on mobile to avoid WebView popup issues
     if (isApp || isMobile) {
-      const redirectUri = "https://nutricore-olive.vercel.app/login";
+      const redirectUri =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/login`
+          : "https://nutricore.id.vn/login";
       const stateParam = isApp ? "mobile_app" : "mobile_web";
       const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(
         GOOGLE_CLIENT_ID,
