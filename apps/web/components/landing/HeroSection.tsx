@@ -31,12 +31,6 @@ export default function HeroSection() {
 
       {/* 4. Main Hero Typography & Call-To-Action */}
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-6">
-        {/* Pulsing Live Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 hover:bg-white/15 backdrop-blur-md text-zinc-100 text-xs font-semibold tracking-wider uppercase border border-white/20 transition-all shadow-sm">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>Nền tảng AI Dinh dưỡng & Huấn luyện PT 1:1</span>
-        </div>
-
         {/* Minimalist Stark Headline with Emerald Accent */}
         <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white leading-[1.08]">
           Chụp ảnh bữa ăn. <br />

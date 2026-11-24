@@ -2,23 +2,11 @@
 'use client';
 
 import React from 'react';
-import { CheckCircle2, Sparkles, Flame } from 'lucide-react';
 import TiltCard3D from './TiltCard3D';
 
 export default function HeroScannerTilt() {
   return (
     <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-10" style={{ perspective: '1200px' }}>
-      {/* 3D Floating Spatial Micro-Chips (Orbiting the Centerpiece) */}
-      <div className="hidden lg:flex items-center gap-2.5 absolute -top-1 -left-4 z-20 px-4 py-2.5 rounded-2xl bg-black/85 border border-emerald-400/40 backdrop-blur-md text-white text-xs font-bold shadow-2xl animate-float-slow">
-        <Sparkles size={16} className="text-emerald-400 shrink-0" />
-        <span>AI Vision: Nhận diện 4 món (1.2s)</span>
-      </div>
-
-      <div className="hidden lg:flex items-center gap-2.5 absolute -bottom-3 -right-4 z-20 px-4 py-2.5 rounded-2xl bg-black/85 border border-amber-400/40 backdrop-blur-md text-white text-xs font-bold shadow-2xl animate-float-slow-delayed">
-        <Flame size={16} className="text-amber-400 shrink-0" />
-        <span>Thâm hụt calo: -450 kcal hôm nay</span>
-      </div>
-
       <TiltCard3D
         maxTilt={4}
         glowColor="rgba(52, 211, 153, 0.22)"
@@ -108,11 +96,6 @@ export default function HeroScannerTilt() {
                 </span>
               </div>
             </div>
-
-            <div className="pt-2 flex items-center gap-3 text-xs text-zinc-300">
-              <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
-              <span>Coach Đào Trần đã xem & duyệt thực đơn 10 phút trước</span>
-            </div>
           </div>
         </div>
       </TiltCard3D>
@@ -123,22 +106,6 @@ export default function HeroScannerTilt() {
           15%  { opacity: 1; }
           85%  { opacity: 1; }
           100% { top: 96%; opacity: 0; }
-        }
-        @keyframes float-slow {
-          0%   { transform: translateY(0px); }
-          50%  { transform: translateY(-8px); }
-          100% { transform: translateY(0px); }
-        }
-        @keyframes float-slow-delayed {
-          0%   { transform: translateY(0px); }
-          50%  { transform: translateY(8px); }
-          100% { transform: translateY(0px); }
-        }
-        .animate-float-slow {
-          animation: float-slow 4s ease-in-out infinite;
-        }
-        .animate-float-slow-delayed {
-          animation: float-slow-delayed 4.5s ease-in-out infinite 0.5s;
         }
       `}</style>
     </div>
