@@ -8,14 +8,11 @@ import {
   Sparkles,
   Camera,
   Mic,
-  ShieldCheck,
-  TrendingUp,
   CheckCircle2,
   ArrowRight,
   Zap,
   ChevronRight,
   ChevronDown,
-  Scale,
   RefreshCw,
   Star,
   Plus,
@@ -724,10 +721,6 @@ export default function LandingPage() {
       {/* ========================================================================= */}
       <section id="ai-scanner" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 scroll-mt-20">
         <div className="text-center max-w-2xl mx-auto mb-10 space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 text-zinc-700 text-xs font-semibold">
-            <Sparkles size={14} className="text-emerald-600" />
-            <span>Trải nghiệm tính năng AI trực tiếp</span>
-          </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-black">
             Xem AI nhận diện món ăn trong 1 giây
           </h2>
@@ -983,24 +976,20 @@ export default function LandingPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 4. 5 ƯU ĐIỂM VƯỢT TRỘI CỦA WEB SO VỚI THỦ CÔNG (AS REQUESTED IN ITEM 6) */}
+      {/* 4. ƯU ĐIỂM VƯỢT TRỘI CỦA WEB SO VỚI THỦ CÔNG */}
       {/* ========================================================================= */}
       <section id="advantages" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-zinc-100 scroll-mt-20">
         <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 text-zinc-700 text-xs font-semibold">
-            <Zap size={14} className="text-emerald-600" />
-            <span>Tại Sao Chọn NutriCore?</span>
-          </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-black">
-            5 Ưu Điểm Đột Phá So Với Cách Làm Thủ Công
+            Ưu Điểm Đột Phá So Với Cách Làm Thủ Công
           </h2>
           <p className="text-zinc-600 text-sm sm:text-base">
             Giải phóng bạn khỏi sự mệt mỏi của việc cân tiểu ly, ghi chép sổ tay và tính toán nhẩm cảm tính.
           </p>
         </div>
 
-        {/* 5 Advantages Bento Grid with Interactive 3D Mouse Tilt & Glare */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6" style={{ perspective: '1200px' }}>
+        {/* 3 Advantages Bento Grid with Interactive 3D Mouse Tilt & Glare */}
+        <div className="grid md:grid-cols-3 gap-6" style={{ perspective: '1200px' }}>
           {/* Advantage 1: Instant AI Photo Logging */}
           <TiltCard3D
             maxTilt={6}
@@ -1021,10 +1010,6 @@ export default function LandingPage() {
                 <strong>Thủ công:</strong> Phải đặt từng lạng thức ăn lên cân tiểu ly, mở ứng dụng nước ngoài gõ tìm tên tiếng Anh rất mất thời gian. <br />
                 <strong>NutriCore:</strong> Chỉ cần giơ máy chụp ảnh đĩa cơm Việt hoặc nói qua micro, AI bóc tách ngay thành phần và calo.
               </p>
-            </div>
-            <div className="pt-4 border-t border-zinc-100 flex items-center text-xs font-bold text-black">
-              <span>Nhanh hơn 10x so với cân đo</span>
-              <ChevronRight size={14} className="ml-1" />
             </div>
           </TiltCard3D>
 
@@ -1049,10 +1034,6 @@ export default function LandingPage() {
                 <strong>NutriCore:</strong> Thuật toán Knapsack Heuristic tối ưu bữa ăn chuẩn $\ge 100\%$ Protein, tự động né thực phẩm dị ứng.
               </p>
             </div>
-            <div className="pt-4 border-t border-zinc-100 flex items-center text-xs font-bold text-black">
-              <span>Đạt chuẩn TDEE & Macro</span>
-              <ChevronRight size={14} className="ml-1" />
-            </div>
           </TiltCard3D>
 
           {/* Advantage 3: 1:1 QR PT Sync */}
@@ -1076,64 +1057,6 @@ export default function LandingPage() {
                 <strong>NutriCore:</strong> Quét QR liên kết tức thì, PT duyệt nhật ký ăn uống, giao bài tập có ảnh động và điểm danh trừ buổi an toàn.
               </p>
             </div>
-            <div className="pt-4 border-t border-zinc-100 flex items-center text-xs font-bold text-black">
-              <span>Điểm danh QR nguyên tử</span>
-              <ChevronRight size={14} className="ml-1" />
-            </div>
-          </TiltCard3D>
-
-          {/* Advantage 4: InBody Stock Chart & Transformation */}
-          <TiltCard3D
-            maxTilt={6}
-            glowColor="rgba(16, 185, 129, 0.08)"
-            className="rounded-3xl bg-white p-7 shadow-sm hover:shadow-md flex flex-col justify-between space-y-6"
-          >
-            <div className="space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-zinc-100 text-black flex items-center justify-center font-bold">
-                <TrendingUp size={22} />
-              </div>
-              <div>
-                <span className="text-[11px] font-extrabold text-emerald-600 uppercase tracking-wider block">Ưu điểm 04</span>
-                <h3 className="text-xl font-extrabold text-black mt-1">
-                  Phân Tích Cơ - Mỡ Trực Quan
-                </h3>
-              </div>
-              <p className="text-zinc-600 text-xs sm:text-sm leading-relaxed">
-                <strong>Thủ công:</strong> Chỉ nhìn số ký bàn cân thông thường, cân nặng dao động làm bạn hoang mang không rõ là đang tăng cơ hay giảm mỡ. <br />
-                <strong>NutriCore:</strong> Biểu đồ Stock Chart theo dõi tỷ lệ Cơ - Mỡ thời gian thực và thanh trượt so sánh ảnh Before/After tạo động lực lột xác.
-              </p>
-            </div>
-            <div className="pt-4 border-t border-zinc-100 flex items-center text-xs font-bold text-black">
-              <span>Biểu đồ InBody chuyên nghiệp</span>
-              <ChevronRight size={14} className="ml-1" />
-            </div>
-          </TiltCard3D>
-
-          {/* Advantage 5: End-to-End Security & Multi-platform */}
-          <TiltCard3D
-            maxTilt={6}
-            glowColor="rgba(16, 185, 129, 0.08)"
-            className="rounded-3xl bg-white p-7 shadow-sm hover:shadow-md flex flex-col justify-between space-y-6 md:col-span-2"
-          >
-            <div className="space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-zinc-100 text-black flex items-center justify-center font-bold">
-                <ShieldCheck size={22} />
-              </div>
-              <div>
-                <span className="text-[11px] font-extrabold text-emerald-600 uppercase tracking-wider block">Ưu điểm 05</span>
-                <h3 className="text-xl font-extrabold text-black mt-1">
-                  Bảo Mật Đầu Cuối & Nhắc Nhở Đa Nền Tảng
-                </h3>
-              </div>
-              <p className="text-zinc-600 text-xs sm:text-sm leading-relaxed">
-                <strong>Thủ công:</strong> Sổ tay dễ thất lạc, không có hệ thống báo giờ ăn giờ tập, dữ liệu sức khỏe riêng tư dễ bị lộ. <br />
-                <strong>NutriCore:</strong> Mã hóa dữ liệu đối xứng AES-256-GCM chuẩn quân đội, tự động gửi Web Push nhắc nhở uống nước và giờ tập trên cả trình duyệt Web và Android App.
-              </p>
-            </div>
-            <div className="pt-4 border-t border-zinc-100 flex items-center text-xs font-bold text-black">
-              <span>Bảo mật AES-256-GCM & PWA Mobile</span>
-              <ChevronRight size={14} className="ml-1" />
-            </div>
           </TiltCard3D>
         </div>
       </section>
@@ -1143,10 +1066,6 @@ export default function LandingPage() {
       {/* ========================================================================= */}
       <section id="reviews" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-zinc-100 scroll-mt-20">
         <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 text-zinc-700 text-xs font-semibold">
-            <Star size={14} className="text-amber-500 fill-amber-500" />
-            <span>Đánh Giá Thực Tế</span>
-          </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-black">
             Được Tin Dùng Bởi Hơn 10,000+ Người Tập & PT
           </h2>
@@ -1238,10 +1157,6 @@ export default function LandingPage() {
                 </div>
               </div>
             ))}
-          </div>
-
-          <div className="text-center pt-2 text-[11px] text-zinc-400 font-medium">
-            <span>✨ Rê chuột vào thẻ để tạm dừng và xem chi tiết theo hiệu ứng 3D</span>
           </div>
         </div>
 
@@ -1397,10 +1312,6 @@ export default function LandingPage() {
       {/* ========================================================================= */}
       <section id="comparison" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-zinc-100 scroll-mt-20">
         <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 text-zinc-700 text-xs font-semibold">
-            <Scale size={14} className="text-emerald-600" />
-            <span>So Sánh Chi Tiết</span>
-          </div>
           <h2 className="text-3xl font-extrabold tracking-tight text-black">
             Bảng So Sánh NutriCore vs Cách Làm Thủ Công
           </h2>
@@ -1560,9 +1471,6 @@ export default function LandingPage() {
               <span className="font-extrabold text-sm text-black tracking-tight">
                 Nutri<span className="text-emerald-600">Core</span>
               </span>
-              <span className="text-[11px] text-zinc-400 border-l border-zinc-300 pl-2.5">
-                FitManagementPlatform
-              </span>
             </div>
 
             <div className="flex flex-wrap gap-5 font-semibold text-zinc-600 text-xs">
@@ -1576,11 +1484,7 @@ export default function LandingPage() {
           </div>
 
           <div className="border-t border-zinc-200/80 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-zinc-400 text-[11px]">
-            <p>© 2026 NUTRICORE. ALL RIGHTS RESERVED. POWERED BY GOOGLE GEMINI VISION AI.</p>
-            <p className="flex items-center gap-1.5 text-zinc-600 font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span>Hệ thống hoạt động ổn định 99.9%</span>
-            </p>
+            <p>© 2026 NUTRICORE. ALL RIGHTS RESERVED.</p>
           </div>
         </div>
       </footer>
