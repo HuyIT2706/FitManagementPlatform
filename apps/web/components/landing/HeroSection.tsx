@@ -55,7 +55,7 @@ export default function HeroSection() {
             href="#ai-scanner"
             className="w-full sm:w-auto px-8 py-4 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border border-white/25 font-semibold text-sm transition-all hover:scale-105 flex items-center justify-center gap-2 cursor-pointer"
           >
-            <span>Xem Demo AI</span>
+            <span>Xem Demo</span>
           </a>
         </div>
 
@@ -67,7 +67,7 @@ export default function HeroSection() {
             ))}
           </div>
           <span className="font-medium text-zinc-200">
-            4.9/5 xếp hạng • Cơ sở dữ liệu hơn 10,000 món ăn & thức uống Việt Nam
+            4.9/5 xếp hạng • Với hơn 8,000 món ăn & thức uống Việt Nam
           </span>
         </div>
       </div>

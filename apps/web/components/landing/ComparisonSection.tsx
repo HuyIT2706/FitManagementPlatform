@@ -23,7 +23,7 @@ export default function ComparisonSection() {
                 Phương pháp truyền thống
               </th>
               <th className="py-4 px-6 text-xs uppercase tracking-wider text-black font-extrabold w-1/3 bg-zinc-100/50">
-                NutriCore AI Platform
+                NutriCore 
               </th>
             </tr>
           </thead>
