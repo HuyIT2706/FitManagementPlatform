@@ -230,6 +230,80 @@ const FAQ_ITEMS = [
   },
 ];
 
+// ==========================================
+// 3D INTERACTIVE TILT CARD WITH SPECULAR SPOTLIGHT
+// ==========================================
+interface TiltCard3DProps {
+  children: React.ReactNode;
+  className?: string;
+  maxTilt?: number;
+  glowColor?: string;
+}
+
+function TiltCard3D({
+  children,
+  className = '',
+  maxTilt = 7,
+  glowColor = 'rgba(16, 185, 129, 0.08)',
+}: TiltCard3DProps) {
+  const cardRef = React.useRef<HTMLDivElement>(null);
+  const [transform, setTransform] = useState<string>(
+    'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)'
+  );
+  const [glowPos, setGlowPos] = useState({ x: 50, y: 50, opacity: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const card = cardRef.current;
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    const rotateX = ((y - centerY) / centerY) * -maxTilt;
+    const rotateY = ((x - centerX) / centerX) * maxTilt;
+
+    setTransform(
+      `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(1.015, 1.015, 1.015)`
+    );
+    setGlowPos({
+      x: Math.round((x / rect.width) * 100),
+      y: Math.round((y / rect.height) * 100),
+      opacity: 1,
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setTransform('perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)');
+    setGlowPos((prev) => ({ ...prev, opacity: 0 }));
+  };
+
+  return (
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={`relative overflow-hidden transition-all duration-200 ease-out ${className}`}
+      style={{
+        transform,
+        transformStyle: 'preserve-3d',
+        willChange: 'transform',
+      }}
+    >
+      {/* Specular Spotlight Glow Following Mouse */}
+      <div
+        className="pointer-events-none absolute inset-0 transition-opacity duration-300 z-1"
+        style={{
+          opacity: glowPos.opacity,
+          background: `radial-gradient(circle 300px at ${glowPos.x}% ${glowPos.y}%, ${glowColor}, transparent 70%)`,
+        }}
+      />
+      {children}
+    </div>
+  );
+}
+
 export default function LandingPage() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -469,11 +543,18 @@ export default function LandingPage() {
       </header>
 
       {/* ========================================================================= */}
-      {/* 2. HERO SECTION (REMOVED UNWANTED PILL BADGE AS REQUESTED) */}
+      {/* 2. HERO SECTION WITH 3D AMBIENT ORBS & SPATIAL SCANNER HUD */}
       {/* ========================================================================= */}
       <section className="relative pt-28 pb-16 sm:pt-36 sm:pb-24 overflow-hidden bg-gradient-to-b from-zinc-50/60 via-white to-white">
-        {/* Subtle decorative background circles */}
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-emerald-100/25 rounded-full blur-[110px] pointer-events-none" />
+        {/* 3D Soft Ambient Mesh Floating Spheres */}
+        <div
+          className="absolute top-12 left-1/4 w-96 h-96 rounded-full bg-gradient-to-tr from-emerald-100/40 via-teal-50/30 to-transparent blur-3xl pointer-events-none"
+          style={{ animation: 'float-orb-slow 16s ease-in-out infinite alternate' }}
+        />
+        <div
+          className="absolute top-36 right-1/4 w-80 h-80 rounded-full bg-gradient-to-bl from-zinc-200/40 via-emerald-50/20 to-transparent blur-3xl pointer-events-none"
+          style={{ animation: 'float-orb-slow 20s ease-in-out infinite alternate-reverse' }}
+        />
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-6">
           {/* Minimalist Stark Headline */}
@@ -518,33 +599,62 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Centerpiece Visual: Clean Phone Mockup & Macro HUD */}
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-10">
-          <div className="rounded-3xl bg-white p-3 sm:p-5 shadow-xl shadow-zinc-200/50">
+        {/* Centerpiece Visual: 3D Tilt Card & Multi-layer Food Scanner HUD */}
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-10" style={{ perspective: '1200px' }}>
+          <TiltCard3D
+            maxTilt={4}
+            glowColor="rgba(16, 185, 129, 0.08)"
+            className="rounded-3xl bg-white p-3 sm:p-5 shadow-xl shadow-zinc-200/50"
+          >
             <div className="grid md:grid-cols-12 gap-6 items-center">
-              {/* Left: Food Scanner Preview */}
-              <div className="md:col-span-7 relative rounded-2xl overflow-hidden aspect-4/3 sm:aspect-16/10 bg-zinc-100">
+              {/* Left: Food Scanner Preview with 3D Spatial Laser & Target Brackets */}
+              <div
+                className="md:col-span-7 relative rounded-2xl overflow-hidden aspect-4/3 sm:aspect-16/10 bg-zinc-100 group/scan"
+                style={{ transformStyle: 'preserve-3d' }}
+              >
                 <img
                   src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1200&auto=format&fit=crop"
                   alt="Food Scan Preview"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover/scan:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
 
-                {/* Floating Chips on Image */}
-                <div className="absolute top-4 left-4 backdrop-blur-md bg-white/90 px-3.5 py-1.5 rounded-full shadow-sm text-xs font-semibold text-zinc-900 flex items-center gap-2">
+                {/* 3D Laser Scanline Animation */}
+                <div
+                  className="pointer-events-none absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_14px_rgba(52,211,153,0.9)]"
+                  style={{ animation: 'laser-scan 3.5s ease-in-out infinite' }}
+                />
+
+                {/* 3D Spatial Optical Reticle Box over main dish */}
+                <div
+                  className="absolute top-[30%] left-[26%] w-36 h-28 border border-dashed border-emerald-400/70 rounded-xl pointer-events-none flex items-start justify-end p-1.5"
+                  style={{ transform: 'translateZ(20px)' }}
+                >
+                  <span className="text-[9px] font-mono font-bold bg-emerald-500 text-black px-1.5 py-0.5 rounded shadow-xs">
+                    GEMINI: 99.4%
+                  </span>
+                </div>
+
+                {/* Floating Chips on Image with 3D Elevation */}
+                <div
+                  className="absolute top-4 left-4 backdrop-blur-md bg-white/95 px-3.5 py-1.5 rounded-full shadow-md text-xs font-semibold text-zinc-900 flex items-center gap-2 transition-transform duration-300 group-hover/scan:translate-y-[-2px]"
+                  style={{ transform: 'translateZ(35px)' }}
+                >
                   <Camera size={14} className="text-emerald-600" />
                   <span>Gemini Vision AI: Cơm Tấm Sườn Bì</span>
                 </div>
 
-                <div className="absolute bottom-4 left-4 right-4 flex flex-wrap gap-2 text-xs">
-                  <span className="backdrop-blur-md bg-black/75 text-white font-medium px-3 py-1 rounded-full">
+                <div
+                  className="absolute bottom-4 left-4 right-4 flex flex-wrap gap-2 text-xs"
+                  style={{ transform: 'translateZ(40px)' }}
+                >
+                  <span className="backdrop-blur-md bg-black/75 text-white font-medium px-3 py-1 rounded-full shadow-sm">
                     Sườn nướng: 140g (339 kcal)
                   </span>
-                  <span className="backdrop-blur-md bg-black/75 text-white font-medium px-3 py-1 rounded-full">
+                  <span className="backdrop-blur-md bg-black/75 text-white font-medium px-3 py-1 rounded-full shadow-sm">
                     Cơm tấm: 200g (260 kcal)
                   </span>
-                  <span className="backdrop-blur-md bg-black/75 text-white font-medium px-3 py-1 rounded-full">
+                  <span className="backdrop-blur-md bg-black/75 text-white font-medium px-3 py-1 rounded-full shadow-sm">
                     Chả trứng: 60g (111 kcal)
                   </span>
                 </div>
@@ -605,7 +715,7 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </TiltCard3D>
         </div>
       </section>
 
@@ -889,10 +999,14 @@ export default function LandingPage() {
           </p>
         </div>
 
-        {/* 5 Advantages Bento Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* 5 Advantages Bento Grid with Interactive 3D Mouse Tilt & Glare */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6" style={{ perspective: '1200px' }}>
           {/* Advantage 1: Instant AI Photo Logging */}
-          <div className="rounded-3xl bg-white p-7 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-6">
+          <TiltCard3D
+            maxTilt={6}
+            glowColor="rgba(16, 185, 129, 0.08)"
+            className="rounded-3xl bg-white p-7 shadow-sm hover:shadow-md flex flex-col justify-between space-y-6"
+          >
             <div className="space-y-4">
               <div className="w-12 h-12 rounded-2xl bg-zinc-100 text-black flex items-center justify-center font-bold">
                 <Clock size={22} />
@@ -912,10 +1026,14 @@ export default function LandingPage() {
               <span>Nhanh hơn 10x so với cân đo</span>
               <ChevronRight size={14} className="ml-1" />
             </div>
-          </div>
+          </TiltCard3D>
 
           {/* Advantage 2: Exact Algorithmic Macro Balancing */}
-          <div className="rounded-3xl bg-white p-7 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-6">
+          <TiltCard3D
+            maxTilt={6}
+            glowColor="rgba(16, 185, 129, 0.08)"
+            className="rounded-3xl bg-white p-7 shadow-sm hover:shadow-md flex flex-col justify-between space-y-6"
+          >
             <div className="space-y-4">
               <div className="w-12 h-12 rounded-2xl bg-zinc-100 text-black flex items-center justify-center font-bold">
                 <Target size={22} />
@@ -935,10 +1053,14 @@ export default function LandingPage() {
               <span>Đạt chuẩn TDEE & Macro</span>
               <ChevronRight size={14} className="ml-1" />
             </div>
-          </div>
+          </TiltCard3D>
 
           {/* Advantage 3: 1:1 QR PT Sync */}
-          <div className="rounded-3xl bg-white p-7 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-6">
+          <TiltCard3D
+            maxTilt={6}
+            glowColor="rgba(16, 185, 129, 0.08)"
+            className="rounded-3xl bg-white p-7 shadow-sm hover:shadow-md flex flex-col justify-between space-y-6"
+          >
             <div className="space-y-4">
               <div className="w-12 h-12 rounded-2xl bg-zinc-100 text-black flex items-center justify-center font-bold">
                 <Users size={22} />
@@ -958,10 +1080,14 @@ export default function LandingPage() {
               <span>Điểm danh QR nguyên tử</span>
               <ChevronRight size={14} className="ml-1" />
             </div>
-          </div>
+          </TiltCard3D>
 
           {/* Advantage 4: InBody Stock Chart & Transformation */}
-          <div className="rounded-3xl bg-white p-7 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-6">
+          <TiltCard3D
+            maxTilt={6}
+            glowColor="rgba(16, 185, 129, 0.08)"
+            className="rounded-3xl bg-white p-7 shadow-sm hover:shadow-md flex flex-col justify-between space-y-6"
+          >
             <div className="space-y-4">
               <div className="w-12 h-12 rounded-2xl bg-zinc-100 text-black flex items-center justify-center font-bold">
                 <TrendingUp size={22} />
@@ -981,10 +1107,14 @@ export default function LandingPage() {
               <span>Biểu đồ InBody chuyên nghiệp</span>
               <ChevronRight size={14} className="ml-1" />
             </div>
-          </div>
+          </TiltCard3D>
 
           {/* Advantage 5: End-to-End Security & Multi-platform */}
-          <div className="rounded-3xl bg-white p-7 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-6 md:col-span-2">
+          <TiltCard3D
+            maxTilt={6}
+            glowColor="rgba(16, 185, 129, 0.08)"
+            className="rounded-3xl bg-white p-7 shadow-sm hover:shadow-md flex flex-col justify-between space-y-6 md:col-span-2"
+          >
             <div className="space-y-4">
               <div className="w-12 h-12 rounded-2xl bg-zinc-100 text-black flex items-center justify-center font-bold">
                 <ShieldCheck size={22} />
@@ -1004,7 +1134,7 @@ export default function LandingPage() {
               <span>Bảo mật AES-256-GCM & PWA Mobile</span>
               <ChevronRight size={14} className="ml-1" />
             </div>
-          </div>
+          </TiltCard3D>
         </div>
       </section>
 
@@ -1123,6 +1253,17 @@ export default function LandingPage() {
           }
           .marquee-track:hover {
             animation-play-state: paused !important;
+          }
+          @keyframes laser-scan {
+            0%   { top: 2%; opacity: 0; }
+            15%  { opacity: 1; }
+            85%  { opacity: 1; }
+            100% { top: 96%; opacity: 0; }
+          }
+          @keyframes float-orb-slow {
+            0%   { transform: translateY(0px) scale(1); }
+            50%  { transform: translateY(-22px) scale(1.04); }
+            100% { transform: translateY(12px) scale(0.96); }
           }
         `}</style>
       </section>
