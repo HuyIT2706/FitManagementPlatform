@@ -105,7 +105,7 @@ export default function LandingNavbar() {
               onClick={() => setIsMobileMenuOpen(false)}
               className="py-1.5 hover:text-white transition flex items-center justify-between"
             >
-              <span>Quét Ảnh AI</span>
+              <span>Chụp món ăn</span>
               <ChevronRight size={16} className="text-zinc-500" />
             </a>
             <a

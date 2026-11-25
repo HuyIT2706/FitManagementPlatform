@@ -28,7 +28,6 @@ export default function LandingFooter() {
 
         <div className="border-t border-zinc-200/60 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-zinc-400">
           <p>© {new Date().getFullYear()} NutriCore. Tất cả quyền được bảo lưu.</p>
-          <p>Mã hóa dữ liệu sức khỏe AES-256-GCM • Chuẩn giao thức PWA & Android Native</p>
         </div>
       </div>
     </footer>

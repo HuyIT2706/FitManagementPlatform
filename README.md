@@ -1,6 +1,6 @@
 <div align="center">
 
-# NutriCore — FitManagementPlatform
+# NutriCore 
 ### Nền Tảng Quản Lý Dinh Dưỡng Thông Minh, Huấn Luyện PT & Thể Hình Toàn Diện
 
 [![Turborepo](https://img.shields.io/badge/Turborepo-Monorepo-ef4444?style=for-the-badge&logo=turborepo)](https://turbo.build/)
