@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import React from 'react';
 import Link from 'next/link';
 import { ArrowRight, Star } from 'lucide-react';
@@ -8,12 +7,10 @@ export default function HeroSection() {
   return (
     <section className="relative pt-28 pb-20 sm:pt-36 sm:pb-28 overflow-hidden bg-black text-white">
       {/* 1. Cinematic Luxury Gym Background Image */}
-      <img
-        src="/cta-gym.jpg"
-        alt="NutriCore Atmospheric Space"
-        fetchPriority="high"
-        decoding="async"
-        className="absolute inset-0 w-full h-full object-cover object-center scale-105 opacity-30 pointer-events-none"
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full bg-cover bg-center scale-105 opacity-30 pointer-events-none"
+        style={{ backgroundImage: "url('/cta-gym.jpg')" }}
       />
 
       {/* 2. Deep Dark Cinematic Gradient & Ambient Lighting */}

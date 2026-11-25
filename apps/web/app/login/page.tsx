@@ -636,6 +636,7 @@ const LoginContent = () => {
       <header className="w-full sticky top-0 z-50 flex items-center p-4">
         <Link
           href="/"
+          prefetch={false}
           className="w-10 h-10 rounded-full bg-surface-container/50 backdrop-blur-md border border-outline-variant flex items-center justify-center hover:bg-surface-variant transition-colors active:scale-95 text-on-surface"
         >
           <ArrowLeft className="w-5 h-5" />

@@ -40,6 +40,7 @@ export default function GlobalError({
 
         <Link
           href="/"
+          prefetch={false}
           className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-medium border border-white/10 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         >
           <Home size={18} />
