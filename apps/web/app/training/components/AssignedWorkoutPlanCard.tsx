@@ -74,10 +74,29 @@ const AssignedWorkoutPlanCard = ({
                 : undefined) ||
               DEFAULT_EXERCISE_IMG;
 
+            const targetExercise: ExerciseItem & {
+              assignedSets?: number;
+              assignedReps?: number;
+            } = {
+              id: ex.exerciseLibraryId || ex.name || ex.id,
+              name: ex.name,
+              category: ex.category,
+              level: ex.level,
+              mechanic: ex.mechanic,
+              equipment: ex.equipment,
+              primaryMuscles: ex.primaryMuscles,
+              secondaryMuscles: ex.secondaryMuscles,
+              instructions: ex.instructions,
+              setupImageUrl: ex.setupImageUrl,
+              startImageUrl: ex.startImageUrl,
+              assignedSets: ex.sets,
+              assignedReps: ex.reps,
+            };
+
             return (
               <div
                 key={ex.id}
-                onClick={() => onSelectExercise?.(ex as unknown as ExerciseItem)}
+                onClick={() => onSelectExercise?.(targetExercise)}
                 className="p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all flex items-center justify-between gap-3 bg-surface-bright/30 border-white/5 text-on-surface hover:border-primary/40 hover:bg-surface-bright/50 cursor-pointer group"
               >
                 <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
@@ -113,7 +132,7 @@ const AssignedWorkoutPlanCard = ({
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    onSelectExercise?.(ex as unknown as ExerciseItem);
+                    onSelectExercise?.(targetExercise);
                   }}
                   aria-label={`Xem video bài tập ${ex.name}`}
                   title="Xem video & hướng dẫn bài tập"

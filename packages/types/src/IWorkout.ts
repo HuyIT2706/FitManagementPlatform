@@ -32,6 +32,11 @@ export interface ExercisePaginatedResponse {
   totalPages: number;
 }
 
+export interface ExerciseDetailResponse {
+  exercise: ExerciseItem;
+  similarExercises: ExerciseItem[];
+}
+
 export interface MealPlanAssigned {
   coachName: string;
   coachAvatar?: string;

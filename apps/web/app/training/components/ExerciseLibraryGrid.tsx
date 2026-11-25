@@ -1,245 +1,392 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { Check, ChevronLeft, ChevronRight, SearchX } from 'lucide-react';
-import type { ExerciseLibraryGridProps } from '../../../interface';
-import AppLoading from '../../../components/ui/AppLoading';
-import AppSearchInput from '../../../components/ui/AppSearchInput';
+import React, { useMemo } from 'react';
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Dumbbell,
+  Flame,
+  Heart,
+  Plus,
+  Search,
+  Sparkles,
+  X,
+} from 'lucide-react';
+import type { ExerciseItem, ExerciseLibraryGridProps } from '../../../interface';
+import {
+  formatEquipmentLabel,
+  formatLevelLabel,
+  formatMechanicLabel,
+  formatMuscleLabel,
+} from '../../../utils/exerciseHelpers';
 
 const MUSCLE_FILTERS: Array<{ id: string; label: string }> = [
   { id: 'ALL', label: 'Tất cả' },
-  { id: 'cơ bụng', label: 'Cơ bụng' },
-  { id: 'cơ ngực', label: 'Cơ ngực' },
-  { id: 'cơ vai', label: 'Cơ vai' },
-  { id: 'cơ lưng', label: 'Cơ lưng' },
-  { id: 'cơ xô', label: 'Cơ xô' },
+  { id: 'TODAY', label: 'Buổi tập' },
+  { id: 'FAVORITES', label: 'Yêu thích' },
+  { id: 'cơ ngực', label: 'Ngực' },
+  { id: 'cơ vai', label: 'Vai' },
+  { id: 'cơ lưng', label: 'Lưng' },
+  { id: 'cơ xô', label: 'Xô' },
   { id: 'cơ đùi trước', label: 'Đùi trước' },
   { id: 'cơ đùi sau', label: 'Đùi sau' },
-  { id: 'cơ mông', label: 'Cơ mông' },
+  { id: 'cơ mông', label: 'Mông' },
   { id: 'cơ tay trước', label: 'Tay trước' },
   { id: 'cơ tay sau', label: 'Tay sau' },
+  { id: 'cơ bụng', label: 'Bụng' },
   { id: 'bắp chân', label: 'Bắp chân' },
 ];
 
+const DEFAULT_EXERCISE_IMG =
+  'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80';
+
+function countActiveIds(map?: Record<string, boolean>): number {
+  if (!map) return 0;
+  return Object.values(map).filter(Boolean).length;
+}
+
 const ExerciseLibraryGrid = ({
   exercises,
-  totalExercises,
   selectedMuscle,
   searchQuery,
   exerciseLoading,
   currentPage,
   totalPages,
+  totalExercises,
   checkedExercises,
+  favoriteIds,
+  todaySessionIds,
   onMuscleSelect,
   onSearchChange,
   onClearSearch,
   onToggleExercise,
   onSelectExercise,
   onPageChange,
+  onToggleFavorite,
+  onToggleTodaySession,
 }: ExerciseLibraryGridProps) => {
+  const todayCount = useMemo(
+    () => countActiveIds(todaySessionIds),
+    [todaySessionIds],
+  );
+  const favoritesCount = useMemo(
+    () => countActiveIds(favoriteIds),
+    [favoriteIds],
+  );
+
   return (
-    <div className="space-y-6">
-      {/* Header & Search Bar */}
-      <section className="space-y-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-1">
+    <section className="space-y-4 sm:space-y-5">
+      {/* Header + Search */}
+      <div className="bg-white dark:bg-[#121a15] rounded-3xl border border-slate-200/80 dark:border-white/10 p-4 sm:p-6 shadow-2xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h3 className="font-headline-md font-bold text-lg sm:text-xl text-on-surface">
-              Thư viện bài tập
-            </h3>
-            <p className="text-xs sm:text-sm text-on-surface-variant font-medium mt-0.5">
-              {exerciseLoading ? 'Đang tìm kiếm...' : `${totalExercises} bài tập khả dụng`}
+            <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-lime-700 dark:text-lime-400 bg-lime-100 dark:bg-lime-500/15 px-2.5 py-1 rounded-full mb-2">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Thư viện động tác chuẩn</span>
+            </div>
+            <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Khám phá bài tập ({totalExercises})
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+              Chạm vào bài tập để xem hoạt ảnh 2 khung hình, bản đồ cơ và hướng dẫn chi tiết.
             </p>
           </div>
 
-          {/* Search Bar */}
-          <div className="w-full sm:w-72">
-            <AppSearchInput
+          <div className="relative w-full sm:w-80">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
               value={searchQuery}
-              onChange={(val, e) => onSearchChange(e || ({ target: { value: val } } as React.ChangeEvent<HTMLInputElement>))}
-              onClear={onClearSearch}
-              placeholder="Tìm tên bài tập..."
-              variant="glass"
+              onChange={onSearchChange}
+              placeholder="Tìm tên bài tập, dụng cụ, nhóm cơ..."
+              className="w-full pl-10 pr-9 py-2.5 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#a3e635]/60 transition-all"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={onClearSearch}
+                aria-label="Xóa tìm kiếm"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-slate-200/80 dark:bg-white/10 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-300 dark:hover:bg-white/20 cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Primary Muscles Filter Chips */}
-        <div className="space-y-2">
-          <div className="text-xs sm:text-sm text-on-surface-variant font-semibold px-1 flex items-center gap-1.5">
-            <span className="font-bold text-on-surface">Lọc theo nhóm cơ chính:</span>
-          </div>
-          <div className="flex overflow-x-auto gap-2 pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            {MUSCLE_FILTERS.map((filter) => {
-              const isActive = selectedMuscle === filter.id;
-              return (
-                <button
-                  key={filter.id}
-                  onClick={() => onMuscleSelect(filter.id)}
-                  className={`whitespace-nowrap px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-primary text-dark-slate shadow-[0_0_12px_rgba(102,200,28,0.4)] scale-[1.02]'
-                      : 'bg-surface-bright/50 text-on-surface-variant border border-outline-variant/30 hover:bg-surface-bright hover:text-on-surface'
-                  }`}
-                >
-                  {filter.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+        {/* Muscle & Local Filter Pills */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+          {MUSCLE_FILTERS.map((filter) => {
+            const isActive = selectedMuscle === filter.id;
+            const badgeCount =
+              filter.id === 'TODAY'
+                ? todayCount
+                : filter.id === 'FAVORITES'
+                  ? favoritesCount
+                  : null;
 
-      {/* Exercise Grid (Hover Effect: setupImageUrl -> startImageUrl) */}
-      <section className="space-y-4">
-        {exerciseLoading ? (
-          <AppLoading size="md" message="Đang tải thư viện bài tập..." />
-        ) : exercises.length === 0 ? (
-          <div className="bento-card p-8 sm:p-12 text-center rounded-2xl flex flex-col items-center justify-center">
-            <SearchX size={44} className="text-on-surface-variant mb-2 opacity-60" />
-            <p className="text-on-surface-variant text-sm sm:text-base">Không tìm thấy bài tập phù hợp</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            {exercises.map((exercise) => {
-              const isChecked = Boolean(checkedExercises?.[exercise.id]);
-              const setupImg =
-                exercise.setupImageUrl ||
-                exercise.startImageUrl ||
-                'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80';
-              const startImg =
-                exercise.startImageUrl ||
-                exercise.setupImageUrl ||
-                'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80';
-
-              return (
-                <div
-                  key={exercise.id}
-                  onClick={() => onSelectExercise(exercise)}
-                  className={`group relative h-52 sm:h-56 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${
-                    isChecked
-                      ? 'border-2 border-primary shadow-[0_0_16px_rgba(102,200,28,0.35)]'
-                      : 'border border-slate-200 dark:border-white/10 hover:border-primary/50'
-                  }`}
-                >
-                  {/* Setup Image (Default) */}
-                  <img
-                    src={setupImg}
-                    alt={`${exercise.name} Setup`}
-                    loading="lazy"
-                    decoding="async"
-                    className="absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:opacity-0"
+            return (
+              <button
+                key={filter.id}
+                type="button"
+                onClick={() => onMuscleSelect(filter.id)}
+                className={`px-3.5 py-2 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer border ${
+                  isActive
+                    ? 'bg-[#a3e635] text-slate-950 border-[#84cc16] font-bold shadow-xs'
+                    : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 border-slate-200/70 dark:border-white/10 hover:bg-slate-200/70 dark:hover:bg-white/10'
+                }`}
+              >
+                {filter.id === 'TODAY' && <Flame className="w-3.5 h-3.5" />}
+                {filter.id === 'FAVORITES' && (
+                  <Heart
+                    className={`w-3.5 h-3.5 ${
+                      isActive ? 'fill-slate-950' : 'text-rose-500'
+                    }`}
                   />
-
-                  {/* Start Image (Hover Effect) */}
-                  <img
-                    src={startImg}
-                    alt={`${exercise.name} Start`}
-                    loading="lazy"
-                    decoding="async"
-                    className="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100"
-                  />
-
-                  {/* Top Badges */}
-                  <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {exercise.level && (
-                        <span className="bg-black/75 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-white/20 capitalize shadow-xs">
-                          {exercise.level}
-                        </span>
-                      )}
-                      {exercise.equipment && (
-                        <span className="bg-primary text-dark-slate font-bold text-[10px] px-2.5 py-0.5 rounded-full capitalize shadow-xs">
-                          {exercise.equipment}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Toggle Completion Checkmark Button */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onToggleExercise?.(exercise.id);
-                    }}
-                    aria-label="Đánh dấu hoàn thành"
-                    className={`absolute bottom-3 right-3 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all backdrop-blur-md border cursor-pointer ${
-                      isChecked
-                        ? 'bg-primary text-dark-slate border-primary shadow-[0_0_12px_rgba(102,200,28,0.7)] scale-105'
-                        : 'bg-black/60 border-white/30 text-white hover:border-primary hover:text-primary'
+                )}
+                <span>{filter.label}</span>
+                {badgeCount !== null && badgeCount > 0 && (
+                  <span
+                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                      isActive
+                        ? 'bg-slate-950/15 text-slate-950'
+                        : 'bg-white dark:bg-white/10 text-slate-700 dark:text-slate-200'
                     }`}
                   >
-                    <Check size={18} className={`sm:w-5 sm:h-5 ${isChecked ? 'stroke-[3]' : ''}`} />
-                  </button>
+                    {badgeCount}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
-                  {/* Card Bottom Solid Overlay Bar */}
-                  <div className="absolute bottom-0 inset-x-0 p-3 sm:p-3.5 bg-black/85 backdrop-blur-md border-t border-white/10 pointer-events-none pr-14 flex flex-col justify-end">
-                    <h4 className="font-bold text-white text-sm sm:text-base leading-snug font-headline-md line-clamp-1">
-                      {exercise.name}
-                    </h4>
+      {/* Loading Skeleton */}
+      {exerciseLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, idx) => (
+            <div
+              key={idx}
+              className="rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#121a15] overflow-hidden animate-pulse"
+            >
+              <div className="aspect-[4/3] bg-slate-200/70 dark:bg-white/5" />
+              <div className="p-4 space-y-3">
+                <div className="h-4 w-3/4 rounded-full bg-slate-200/80 dark:bg-white/10" />
+                <div className="h-3 w-1/2 rounded-full bg-slate-200/60 dark:bg-white/5" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : exercises.length === 0 ? (
+        <div className="rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#121a15] p-8 sm:p-12 text-center space-y-3">
+          <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-white/5 text-slate-400 flex items-center justify-center mx-auto">
+            <Dumbbell className="w-6 h-6" />
+          </div>
+          <h3 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white">
+            {selectedMuscle === 'TODAY'
+              ? 'Chưa có bài tập nào trong buổi tập hôm nay'
+              : selectedMuscle === 'FAVORITES'
+                ? 'Bạn chưa lưu bài tập yêu thích nào'
+                : 'Không tìm thấy bài tập phù hợp'}
+          </h3>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+            {selectedMuscle === 'TODAY' || selectedMuscle === 'FAVORITES'
+              ? 'Chọn từ danh sách Tất cả để thêm bài tập vào buổi tập hoặc đánh dấu yêu thích.'
+              : 'Thử từ khóa ngắn gọn hơn hoặc chuyển sang nhóm cơ khác.'}
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {exercises.map((exercise: ExerciseItem) => {
+              const primaryThumb =
+                exercise.setupImageUrl ||
+                exercise.startImageUrl ||
+                DEFAULT_EXERCISE_IMG;
+              const secondaryThumb =
+                exercise.startImageUrl ||
+                exercise.setupImageUrl ||
+                primaryThumb;
+              const hasSwap = secondaryThumb !== primaryThumb;
 
-                    {exercise.primaryMuscles && exercise.primaryMuscles.length > 0 && (
-                      <div className="flex items-center gap-1 text-[11px] sm:text-xs text-primary font-semibold mt-0.5">
-                        <span className="line-clamp-1 capitalize">
-                          {exercise.primaryMuscles.join(', ')}
-                        </span>
-                      </div>
+              const primaryMuscle = formatMuscleLabel(
+                exercise.primaryMuscles?.[0] || '',
+              );
+              const mechanicLabel = formatMechanicLabel(exercise.mechanic);
+              const levelLabel = formatLevelLabel(exercise.level);
+              const equipmentLabel = formatEquipmentLabel(exercise.equipment);
+
+              const isFavorite = Boolean(favoriteIds?.[exercise.id]);
+              const isInSession = Boolean(todaySessionIds?.[exercise.id]);
+              const isChecked = Boolean(checkedExercises?.[exercise.id]);
+
+              return (
+                <article
+                  key={exercise.id}
+                  onClick={() => onSelectExercise(exercise)}
+                  className="group rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#121a15] overflow-hidden shadow-2xs hover:shadow-md hover:border-[#84cc16] dark:hover:border-lime-400/50 transition-all cursor-pointer flex flex-col"
+                >
+                  {/* Image Stage with 2-frame hover transition */}
+                  <div className="relative aspect-[4/3] w-full bg-slate-100 dark:bg-black/40 overflow-hidden">
+                    <img
+                      src={primaryThumb}
+                      alt={exercise.name}
+                      loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.src = DEFAULT_EXERCISE_IMG;
+                      }}
+                      className={`w-full h-full object-cover transition-opacity duration-500 ${
+                        hasSwap ? 'group-hover:opacity-0' : 'group-hover:scale-105'
+                      }`}
+                    />
+                    {hasSwap && (
+                      <img
+                        src={secondaryThumb}
+                        alt={`${exercise.name} - thực hiện`}
+                        loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.src = primaryThumb;
+                        }}
+                        className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                      />
+                    )}
+
+                    {/* Top-left Primary Muscle Pill */}
+                    {primaryMuscle && (
+                      <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/90 dark:bg-[#0d1410]/85 text-slate-900 dark:text-lime-300 backdrop-blur-sm shadow-2xs">
+                        {primaryMuscle}
+                      </span>
+                    )}
+
+                    {/* Top-right Favorite Toggle */}
+                    {onToggleFavorite && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggleFavorite(exercise);
+                        }}
+                        aria-label={isFavorite ? 'Bỏ yêu thích' : 'Yêu thích'}
+                        className={`absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-sm border transition-all cursor-pointer ${
+                          isFavorite
+                            ? 'bg-rose-50/95 dark:bg-rose-500/20 border-rose-200 dark:border-rose-500/40 text-rose-500'
+                            : 'bg-white/90 dark:bg-[#0d1410]/80 border-slate-200/70 dark:border-white/15 text-slate-600 dark:text-slate-200 hover:scale-105'
+                        }`}
+                      >
+                        <Heart
+                          className={`w-4 h-4 ${isFavorite ? 'fill-rose-500' : ''}`}
+                        />
+                      </button>
+                    )}
+
+                    {/* 2-frame indicator */}
+                    {hasSwap && (
+                      <span className="absolute bottom-2.5 right-3 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-black/55 text-white backdrop-blur-xs">
+                        2 khung hình
+                      </span>
                     )}
                   </div>
-                </div>
+
+                  {/* Card Body */}
+                  <div className="p-4 flex-1 flex flex-col justify-between gap-3">
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {mechanicLabel && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300">
+                            {mechanicLabel}
+                          </span>
+                        )}
+                        {levelLabel && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100/80 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300">
+                            {levelLabel}
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white line-clamp-2 leading-snug group-hover:text-lime-700 dark:group-hover:text-lime-300 transition-colors">
+                        {exercise.name}
+                      </h3>
+
+                      <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 truncate">
+                        <Dumbbell className="w-3.5 h-3.5 shrink-0" />
+                        <span className="truncate">{equipmentLabel}</span>
+                      </p>
+                    </div>
+
+                    {/* Card Footer CTA */}
+                    <div className="pt-2 border-t border-slate-100 dark:border-white/5 flex items-center justify-between gap-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (onToggleTodaySession) {
+                            onToggleTodaySession(exercise);
+                          } else {
+                            onToggleExercise?.(exercise.id);
+                          }
+                        }}
+                        className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                          isInSession || isChecked
+                            ? 'bg-emerald-600/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
+                            : 'bg-slate-100 dark:bg-white/5 hover:bg-[#a3e635] hover:text-slate-950 text-slate-700 dark:text-slate-200'
+                        }`}
+                      >
+                        {isInSession || isChecked ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                            <span>Trong buổi tập</span>
+                          </>
+                        ) : (
+                          <>
+                            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                            <span>Thêm buổi tập</span>
+                          </>
+                        )}
+                      </button>
+
+                      <span className="text-xs font-bold text-slate-400 dark:text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white flex items-center gap-0.5 pl-1 transition-colors">
+                        Chi tiết
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </span>
+                    </div>
+                  </div>
+                </article>
               );
             })}
           </div>
-        )}
 
-        {/* Pagination Controls */}
-        {totalPages > 1 && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 px-1">
-            <span className="text-xs text-on-surface-variant font-medium">
-              Trang {currentPage} / {totalPages} ({totalExercises} bài)
-            </span>
-
-            <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 pt-2">
               <button
-                onClick={() => onPageChange(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                className="px-2.5 sm:px-3 py-1.5 rounded-lg bg-surface-bright/40 border border-white/10 text-xs font-semibold text-on-surface disabled:opacity-40 disabled:cursor-not-allowed hover:bg-surface-bright transition-colors flex items-center gap-1 cursor-pointer"
+                type="button"
+                disabled={currentPage <= 1}
+                onClick={() => onPageChange(currentPage - 1)}
+                className="w-9 h-9 rounded-full border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121a15] text-slate-700 dark:text-slate-200 disabled:opacity-40 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer disabled:cursor-not-allowed"
               >
-                <ChevronLeft size={16} />
-                Trước
+                <ChevronLeft className="w-4 h-4" />
               </button>
 
-              <div className="flex items-center gap-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1)
-                  .slice(Math.max(0, currentPage - 3), Math.min(totalPages, currentPage + 2))
-                  .map((pg) => (
-                    <button
-                      key={pg}
-                      onClick={() => onPageChange(pg)}
-                      className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                        currentPage === pg
-                          ? 'bg-primary text-dark-slate shadow-[0_0_8px_rgba(102,200,28,0.4)]'
-                          : 'bg-surface-bright/30 text-on-surface-variant hover:bg-surface-bright hover:text-on-surface'
-                      }`}
-                    >
-                      {pg}
-                    </button>
-                  ))}
-              </div>
+              <span className="px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold bg-white dark:bg-[#121a15] border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200">
+                Trang {currentPage} / {totalPages}
+              </span>
 
               <button
-                onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
-                disabled={currentPage === totalPages}
-                className="px-2.5 sm:px-3 py-1.5 rounded-lg bg-surface-bright/40 border border-white/10 text-xs font-semibold text-on-surface disabled:opacity-40 disabled:cursor-not-allowed hover:bg-surface-bright transition-colors flex items-center gap-1 cursor-pointer"
+                type="button"
+                disabled={currentPage >= totalPages}
+                onClick={() => onPageChange(currentPage + 1)}
+                className="w-9 h-9 rounded-full border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121a15] text-slate-700 dark:text-slate-200 disabled:opacity-40 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer disabled:cursor-not-allowed"
               >
-                Sau
-                <ChevronRight size={16} />
+                <ChevronRight className="w-4 h-4" />
               </button>
             </div>
-          </div>
-        )}
-      </section>
-    </div>
+          )}
+        </>
+      )}
+    </section>
   );
 };
 

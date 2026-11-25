@@ -1,7 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
-import type { ExercisePaginatedResponse, MealPlanAssigned } from '@repo/types';
+import type {
+  ExerciseDetailResponse,
+  ExerciseItem,
+  ExercisePaginatedResponse,
+  MealPlanAssigned,
+} from '@repo/types';
 
 @Injectable()
 export class WorkoutService {
@@ -163,13 +168,82 @@ export class WorkoutService {
         totalPages: 1,
       };
     }
+  }
+
+  async getExerciseById(idOrName: string): Promise<ExerciseDetailResponse> {
+    const clean = decodeURIComponent(idOrName || '').trim();
+    if (!clean) {
+      throw new NotFoundException('Không tìm thấy bài tập');
+    }
+
+    let exercise: ExerciseItem | null =
+      await this.prisma.exerciseLibrary.findUnique({
+        where: { id: clean },
+      });
+
+    if (!exercise) {
+      const scheduled = await this.prisma.scheduleExercise.findUnique({
+        where: { id: clean },
+        include: { exercise: true },
+      });
+      if (scheduled?.exercise) {
+        exercise = scheduled.exercise;
+      }
+    }
+
+    if (!exercise) {
+      exercise = await this.prisma.exerciseLibrary.findFirst({
+        where: {
+          name: {
+            equals: clean,
+            mode: 'insensitive',
+          },
+        },
+      });
+    }
+
+    if (!exercise) {
+      throw new NotFoundException('Không tìm thấy bài tập trong thư viện');
+    }
+
+    const primaryMuscles = exercise.primaryMuscles || [];
+    let similarExercises: ExerciseItem[] = [];
+
+    if (primaryMuscles.length > 0) {
+      similarExercises = await this.prisma.exerciseLibrary.findMany({
+        where: {
+          id: { not: exercise.id },
+          primaryMuscles: { hasSome: primaryMuscles },
+        },
+        take: 12,
+        orderBy: { name: 'asc' },
+      });
+
+      // Rank exercises sharing category or force slightly higher while keeping deterministic order
+      similarExercises.sort((a, b) => {
+        const scoreA =
+          (a.category === exercise.category ? 2 : 0) +
+          (a.mechanic === exercise.mechanic ? 1 : 0);
+        const scoreB =
+          (b.category === exercise.category ? 2 : 0) +
+          (b.mechanic === exercise.mechanic ? 1 : 0);
+        return scoreB - scoreA;
+      });
+      similarExercises = similarExercises.slice(0, 8);
+    } else if (exercise.category) {
+      similarExercises = await this.prisma.exerciseLibrary.findMany({
+        where: {
+          id: { not: exercise.id },
+          category: exercise.category,
+        },
+        take: 8,
+        orderBy: { name: 'asc' },
+      });
+    }
 
     return {
-      data: [],
-      total: 0,
-      page: pageNum,
-      limit: limitNum,
-      totalPages: 1,
+      exercise,
+      similarExercises,
     };
   }
 
@@ -442,6 +516,7 @@ export class WorkoutService {
 
     let exercises: Array<{
       id: string;
+      exerciseLibraryId?: string;
       name: string;
       category?: string;
       force?: string | null;
@@ -488,6 +563,7 @@ export class WorkoutService {
 
         return {
           id: se.id,
+          exerciseLibraryId: se.exerciseLibraryId,
           name: ex?.name || 'Bài tập 1:1',
           category: ex?.category || 'FULL_BODY',
           force: ex?.force,

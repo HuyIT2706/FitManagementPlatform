@@ -6,6 +6,7 @@ import type {
   DailyNutritionData,
   MealPlanAssigned,
   AssignedWorkoutPlanData,
+  ExerciseDetailResponse,
   ExercisePaginatedResponse,
   NotificationItem,
 } from '../interface';
@@ -131,6 +132,23 @@ export const useExerciseLibrary = (
       ...DEFAULT_SWR_OPTIONS,
       dedupingInterval: 30000,
       keepPreviousData: true,
+      ...options,
+    }
+  );
+};
+
+export const useExerciseDetail = (
+  id?: string | null,
+  options?: SWRConfiguration
+) => {
+  const hasToken = useHasToken();
+  const encodedId = id ? encodeURIComponent(id) : null;
+  return useSWR<ExerciseDetailResponse>(
+    hasToken && encodedId ? `/workout/exercises/${encodedId}` : null,
+    swrFetcher,
+    {
+      ...DEFAULT_SWR_OPTIONS,
+      dedupingInterval: 60000,
       ...options,
     }
   );

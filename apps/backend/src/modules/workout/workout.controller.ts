@@ -1,4 +1,11 @@
-import { Controller, Get, Query, Request, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Query,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { WorkoutService } from './workout.service';
 import { JwtGuard } from '../auth/jwt.guard';
 import type { RequestWithUser } from '@repo/types';
@@ -33,6 +40,11 @@ export class WorkoutController {
         totalPages: 1,
       };
     }
+  }
+
+  @Get('exercises/:id')
+  async getExerciseById(@Param('id') id: string) {
+    return this.workoutService.getExerciseById(id);
   }
 
   @Get('assigned-meal-plan')

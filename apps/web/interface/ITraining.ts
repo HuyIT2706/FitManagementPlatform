@@ -3,6 +3,7 @@ import type { UserDataHome } from './IHome';
 
 export type {
   ExerciseCategoryType,
+  ExerciseDetailResponse,
   ExerciseItem,
   ExercisePaginatedResponse,
   MealPlanAssigned,
@@ -22,10 +23,14 @@ export interface ExerciseLibraryGridProps {
   exerciseLoading: boolean;
   currentPage: number;
   totalPages: number;
+  favoriteIds?: Record<string, boolean>;
+  todaySessionIds?: Record<string, boolean>;
   checkedExercises?: Record<string, boolean>;
   onMuscleSelect: (muscleId: string) => void;
   onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onClearSearch: () => void;
+  onToggleFavorite?: (exercise: ExerciseItem) => void;
+  onToggleTodaySession?: (exercise: ExerciseItem) => void;
   onToggleExercise?: (id: string) => void;
   onSelectExercise: (exercise: ExerciseItem) => void;
   onPageChange: (page: number) => void;
@@ -45,6 +50,7 @@ export interface AssignedWorkoutPlanData {
   exercisesCount: number;
   exercises: Array<{
     id: string;
+    exerciseLibraryId?: string;
     name: string;
     category?: string | null;
     force?: string | null;
