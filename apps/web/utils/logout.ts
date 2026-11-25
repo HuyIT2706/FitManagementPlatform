@@ -1,5 +1,6 @@
 import apiClient from '../api/axios';
 import { mutate } from 'swr';
+import { clearPendingInvite, isInvitePath } from './pendingInvite';
 
 /**
  * Logs out the user: clears SWR cache, revokes backend refresh token,
@@ -20,6 +21,9 @@ export const performLogout = async (redirectPath = '/login'): Promise<void> => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('jwt_token');
       localStorage.removeItem('refresh_token');
+      if (!isInvitePath(redirectPath)) {
+        clearPendingInvite();
+      }
       try {
         sessionStorage.removeItem('nutricore_push_synced');
       } catch {

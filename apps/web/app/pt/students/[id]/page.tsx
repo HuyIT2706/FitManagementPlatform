@@ -297,14 +297,31 @@ const PTStudentDetailPage = () => {
         setSaving(false);
         setIsEditingInBody(false);
         if (studentDetail) {
+          const now = new Date();
+          const displayDate = `${now.toLocaleDateString('vi-VN', {
+            timeZone: 'Asia/Ho_Chi_Minh',
+          })} • ${now.toLocaleTimeString('vi-VN', {
+            timeZone: 'Asia/Ho_Chi_Minh',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+          })}`;
           const newHistoryPoint: InBodyHistoryPoint = {
-            date: new Date().toISOString(),
-            displayDate: new Date().toLocaleDateString('vi-VN'),
+            date: now.toISOString(),
+            displayDate,
             weightKg: inbodyWeight,
             bodyFatPercent: inbodyFat,
             muscleMassKg: inbodyMuscle,
           };
-          const updatedHistory = [...(studentDetail.bodyMetricsHistory || []), newHistoryPoint];
+          const existingHistory = [...(studentDetail.bodyMetricsHistory || [])];
+          const lastPoint = existingHistory[existingHistory.length - 1];
+          const isWithinOneHour =
+            lastPoint &&
+            Math.abs(now.getTime() - new Date(lastPoint.date).getTime()) <=
+              60 * 60 * 1000;
+          const updatedHistory = isWithinOneHour
+            ? [...existingHistory.slice(0, -1), newHistoryPoint]
+            : [...existingHistory, newHistoryPoint];
 
           const isGain =
             studentDetail.goal === 'GAIN_WEIGHT' ||

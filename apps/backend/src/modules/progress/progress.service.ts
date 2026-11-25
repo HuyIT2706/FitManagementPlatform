@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import type { CreateProgressPhotoDto, CreateBodyMetricDto } from '@repo/types';
+import { upsertRecentBodyMetric } from '../../common/utils/body-metric.util';
 
 @Injectable()
 export class ProgressService {
@@ -72,12 +73,9 @@ export class ProgressService {
 
   async addPhoto(userId: string, dto: CreateProgressPhotoDto) {
     if (dto.weightAtTime && dto.weightAtTime > 0) {
-      await this.prisma.bodyMetric.create({
-        data: {
-          userId,
-          weight: dto.weightAtTime,
-          recordedAt: dto.takenAt ? new Date(dto.takenAt) : new Date(),
-        },
+      await upsertRecentBodyMetric(this.prisma, userId, {
+        weight: dto.weightAtTime,
+        recordedAt: dto.takenAt ? new Date(dto.takenAt) : new Date(),
       });
     }
 
@@ -128,14 +126,11 @@ export class ProgressService {
   }
 
   async addMetric(userId: string, dto: CreateBodyMetricDto) {
-    const metric = await this.prisma.bodyMetric.create({
-      data: {
-        userId,
-        weight: dto.weight,
-        height: dto.height,
-        bodyFat: dto.bodyFat,
-        muscleMass: dto.muscleMass,
-      },
+    const metric = await upsertRecentBodyMetric(this.prisma, userId, {
+      weight: dto.weight,
+      height: dto.height,
+      bodyFat: dto.bodyFat,
+      muscleMass: dto.muscleMass,
     });
 
     // Update current user height if provided

@@ -24,6 +24,16 @@ export const toastStore = {
   },
 
   add(toast: Omit<ToastItem, 'id'>): string {
+    const existing = toasts.find(
+      (t) =>
+        t.type === toast.type &&
+        (t.title || '') === (toast.title || '') &&
+        t.message === toast.message
+    );
+    if (existing) {
+      return existing.id;
+    }
+
     const id = Math.random().toString(36).substring(2, 9);
     const duration = toast.duration ?? 1000;
     const newItem: ToastItem = {

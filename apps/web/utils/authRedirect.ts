@@ -1,4 +1,5 @@
 import type { UserData } from '../interface';
+import { isInvitePath } from './pendingInvite';
 
 export type UserRole = 'ADMIN' | 'PT' | 'USER';
 
@@ -67,8 +68,12 @@ export const handleRoleRedirect = (
       targetPath = '/admin';
     }
   } else if (user.role === 'USER') {
-    if (!cleanRedirect || cleanRedirect.startsWith('/pt') || cleanRedirect.startsWith('/admin')) {
-      targetPath = user.onboardingCompleted === false ? '/onboarding' : '/home';
+    if (user.onboardingCompleted === false) {
+      targetPath = isInvitePath(cleanRedirect)
+        ? `/onboarding?redirect=${encodeURIComponent(cleanRedirect)}`
+        : '/onboarding';
+    } else if (!cleanRedirect || cleanRedirect.startsWith('/pt') || cleanRedirect.startsWith('/admin')) {
+      targetPath = '/home';
     }
   }
 

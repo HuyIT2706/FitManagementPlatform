@@ -26,6 +26,11 @@ import { handleRoleRedirect } from "../../utils/authRedirect";
 import { toast } from "../../utils/toast";
 import { autoSyncPushSubscription } from "../../utils/pushNotification";
 import { mutate as globalMutate } from "swr";
+import {
+  getPendingInvite,
+  isInvitePath,
+  savePendingInvite,
+} from "../../utils/pendingInvite";
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
 
@@ -58,6 +63,12 @@ const LoginContent = () => {
   const [loading, setLoading] = useState(false);
   const [pendingPtNotice, setPendingPtNotice] = useState<string | null>(null);
   const [mobileAuthRedirectUrl, setMobileAuthRedirectUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isInvitePath(redirectPath)) {
+      savePendingInvite(redirectPath);
+    }
+  }, [redirectPath]);
 
   useEffect(() => {
     const token = localStorage.getItem("jwt_token");
@@ -184,7 +195,10 @@ const LoginContent = () => {
           "Đăng nhập Google thành công",
         );
 
-        handleRoleRedirect(data.user, router, redirectPath);
+        const effectiveRedirect = isInvitePath(redirectPath)
+          ? redirectPath
+          : getPendingInvite();
+        handleRoleRedirect(data.user, router, effectiveRedirect);
       } catch (err: unknown) {
         console.error("Google login error:", err);
         const errObj = err as {
@@ -573,7 +587,14 @@ const LoginContent = () => {
             "Tạo tài khoản Học viên thành công! Đang chuyển đến bước thiết lập hồ sơ...",
             "Đăng ký thành công",
           );
-          router.replace("/onboarding");
+          const inviteTarget = isInvitePath(redirectPath)
+            ? redirectPath
+            : getPendingInvite();
+          router.replace(
+            inviteTarget
+              ? `/onboarding?redirect=${encodeURIComponent(inviteTarget)}`
+              : "/onboarding",
+          );
         }
       }
     } catch (err: unknown) {

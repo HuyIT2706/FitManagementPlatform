@@ -2,6 +2,7 @@ import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import type { Gender, ActivityLevel } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { OnboardingDto } from './dto/onboarding.dto';
+import { upsertRecentBodyMetric } from '../../common/utils/body-metric.util';
 
 export interface UpdateProfileDto {
   fullName?: string;
@@ -531,9 +532,7 @@ export class UsersService {
 
     return this.prisma.$transaction(async (tx) => {
       if (weight) {
-        await tx.bodyMetric.create({
-          data: { userId, weight, height },
-        });
+        await upsertRecentBodyMetric(tx, userId, { weight, height });
       }
 
       await tx.nutritionTarget.create({
@@ -692,14 +691,12 @@ export class UsersService {
 
     return this.prisma.$transaction(async (tx) => {
       if (weightChanged || bodyFatChanged || muscleMassChanged) {
-        await tx.bodyMetric.create({
-          data: {
-            userId,
-            weight: effectiveWeight,
-            height: effectiveHeight,
-            bodyFat: dto.bodyFat ? Number(dto.bodyFat) : undefined,
-            muscleMass: dto.muscleMass ? Number(dto.muscleMass) : undefined,
-          },
+        await upsertRecentBodyMetric(tx, userId, {
+          weight: effectiveWeight,
+          height: effectiveHeight,
+          bodyFat: dto.bodyFat !== undefined ? Number(dto.bodyFat) : undefined,
+          muscleMass:
+            dto.muscleMass !== undefined ? Number(dto.muscleMass) : undefined,
         });
       }
       if (hasBiometricsChanged) {

@@ -17,6 +17,8 @@ import apiClient from '../../api/axios';
 import { toast } from '../../utils/toast';
 import { isAxiosError } from 'axios';
 import { getApiErrorMessage } from '../../utils/apiError';
+import { broadcastSync } from '../../utils/realtimeSync';
+import { clearPendingInvite, savePendingInvite } from '../../utils/pendingInvite';
 
 function InviteContent() {
   const searchParams = useSearchParams();
@@ -33,6 +35,7 @@ function InviteContent() {
     'IDLE' | 'UNAUTHENTICATED' | 'BINDING' | 'SUCCESS' | 'ALREADY_BOUND' | 'ERROR'
   >('IDLE');
   const [message, setMessage] = useState<string>('');
+  const [isPendingApproval, setIsPendingApproval] = useState<boolean>(false);
 
   // AbortController ref to cancel in-flight request if component unmounts
   const abortRef = useRef<AbortController | null>(null);
@@ -43,13 +46,19 @@ function InviteContent() {
         ? localStorage.getItem('jwt_token')
         : null;
     const bindTarget = ptId || code || ptCode;
+    const queryStr = searchParams.toString();
+    const currentInviteUrl = `${pathname}${queryStr ? `?${queryStr}` : ''}`;
 
     if (!token) {
+      if (bindTarget) {
+        savePendingInvite(currentInviteUrl);
+      }
       setStatus('UNAUTHENTICATED');
       return;
     }
 
     if (!bindTarget) {
+      clearPendingInvite();
       setStatus('ERROR');
       setMessage('Mã mời không hợp lệ hoặc đường link không đầy đủ thông tin.');
       return;
@@ -71,17 +80,22 @@ function InviteContent() {
         { signal: controller.signal }
       )
       .then((res) => {
-        setStatus('SUCCESS');
-        setMessage(
+        clearPendingInvite();
+        broadcastSync('PT_BIND_UPDATED');
+        const msg =
           res.data?.message ||
-            'Chúc mừng bạn đã kết nối thành công với Huấn Luyện Viên! Gói tập và thực đơn đã sẵn sàng.'
-        );
-        toast.success('Kết nối thành công với Huấn luyện viên!');
+          'Đã gửi yêu cầu liên kết tới Huấn luyện viên! Đang chờ HLV phê duyệt.';
+        const pending = msg.toLowerCase().includes('chờ');
+        setIsPendingApproval(pending);
+        setStatus('SUCCESS');
+        setMessage(msg);
+        toast.success(msg);
       })
       .catch((err: unknown) => {
         // Ignore cancellation — component unmounted while request was in-flight
         if (isAxiosError(err) && err.code === 'ERR_CANCELED') return;
 
+        clearPendingInvite();
         const errMsg = getApiErrorMessage(err);
         if (
           errMsg.toLowerCase().includes('đã có') ||
@@ -102,7 +116,7 @@ function InviteContent() {
     return () => {
       controller.abort();
     };
-  }, [code, ptId, ptCode, sessions, pkg]);
+  }, [code, ptId, ptCode, sessions, pkg, pathname, searchParams]);
 
   const handleLoginRedirect = (mode = 'login') => {
     // Use Next.js hooks instead of window.location to stay framework-consistent
@@ -212,7 +226,9 @@ function InviteContent() {
             </div>
             <div>
               <h2 className="text-lg font-bold text-white flex items-center justify-center gap-2">
-                Liên Kết Thành Công!
+                {isPendingApproval
+                  ? 'Đã Gửi Yêu Cầu Cho PT Duyệt!'
+                  : 'Liên Kết Thành Công!'}
               </h2>
               <p className="text-sm text-on-surface-variant mt-2 leading-relaxed">
                 {message ||

@@ -21,6 +21,10 @@ import type {
 } from '@repo/types';
 
 import { NotificationsService } from '../notifications/notifications.service';
+import {
+  formatBodyMetricDisplayDate,
+  upsertRecentBodyMetric,
+} from '../../common/utils/body-metric.util';
 
 @Injectable()
 export class PtService {
@@ -917,7 +921,7 @@ export class PtService {
         bodyFatPercent: latestMetric?.bodyFat ?? 0,
         muscleMassKg: latestMetric?.muscleMass ?? 0,
         updatedAt: latestMetric?.recordedAt
-          ? latestMetric.recordedAt.toLocaleDateString('vi-VN')
+          ? formatBodyMetricDisplayDate(latestMetric.recordedAt)
           : 'Chưa có',
       },
       bodyMetrics: {
@@ -926,7 +930,7 @@ export class PtService {
         bodyFatPercent: latestMetric?.bodyFat ?? 0,
         muscleMassKg: latestMetric?.muscleMass ?? 0,
         updatedAt: latestMetric?.recordedAt
-          ? latestMetric.recordedAt.toLocaleDateString('vi-VN')
+          ? formatBodyMetricDisplayDate(latestMetric.recordedAt)
           : 'Chưa có',
       },
       bodyMetricsHistory: [...student.bodyMetrics]
@@ -936,7 +940,7 @@ export class PtService {
         )
         .map((bm) => ({
           date: bm.recordedAt.toISOString(),
-          displayDate: bm.recordedAt.toLocaleDateString('vi-VN'),
+          displayDate: formatBodyMetricDisplayDate(bm.recordedAt),
           weightKg: bm.weight,
           bodyFatPercent: bm.bodyFat ?? 0,
           muscleMassKg: bm.muscleMass ?? 0,
@@ -1032,12 +1036,9 @@ export class PtService {
       await this.verifyPtOwnsStudent(ptId, studentId);
     }
     if (dto.weightAtTime && dto.weightAtTime > 0) {
-      await this.prisma.bodyMetric.create({
-        data: {
-          userId: studentId,
-          weight: dto.weightAtTime,
-          recordedAt: dto.takenAt ? new Date(dto.takenAt) : new Date(),
-        },
+      await upsertRecentBodyMetric(this.prisma, studentId, {
+        weight: dto.weightAtTime,
+        recordedAt: dto.takenAt ? new Date(dto.takenAt) : new Date(),
       });
     }
 
@@ -1284,13 +1285,11 @@ export class PtService {
       if (ptId) {
         await this.verifyPtOwnsStudent(ptId, dto.studentId);
       }
-      await this.prisma.bodyMetric.create({
-        data: {
-          userId: dto.studentId,
-          weight: dto.weightKg,
-          bodyFat: dto.bodyFatPercent,
-          muscleMass: dto.muscleMassKg,
-        },
+      await upsertRecentBodyMetric(this.prisma, dto.studentId, {
+        weight: dto.weightKg,
+        height: dto.heightCm,
+        bodyFat: dto.bodyFatPercent,
+        muscleMass: dto.muscleMassKg,
       });
 
       if (dto.heightCm) {

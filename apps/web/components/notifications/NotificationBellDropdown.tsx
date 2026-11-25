@@ -29,6 +29,9 @@ import type {
   NotificationBellDropdownProps,
 } from '../../interface';
 
+// Module-level deduplication across desktop & mobile Header instances sharing SWR notifications
+const toastedNotificationIds = new Set<string>();
+
 const NotificationBellDropdown = ({
   buttonClassName,
 }: NotificationBellDropdownProps) => {
@@ -49,11 +52,15 @@ const NotificationBellDropdown = ({
     const currentIds = data.notifications.map((n) => n.id);
     if (prevNotificationsRef.current !== null) {
       const newNotifs = data.notifications.filter(
-        (n) => !prevNotificationsRef.current?.includes(n.id) && !n.isRead
+        (n) =>
+          !prevNotificationsRef.current?.includes(n.id) &&
+          !n.isRead &&
+          !toastedNotificationIds.has(n.id)
       );
       if (newNotifs.length > 0) {
         const latest = newNotifs[0];
         if (latest) {
+          toastedNotificationIds.add(latest.id);
           toast.info(latest.message, latest.title);
         }
       }

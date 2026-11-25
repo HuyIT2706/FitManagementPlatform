@@ -190,22 +190,38 @@ export default function WeightTrackingPage() {
             false
           );
         } else {
-          // Create initial baseline
+          // Create initial baseline (merges within 1h on backend)
           const res = await apiClient.post('/progress/metrics', {
             weight: val,
           });
           const created = res.data;
-          await mutateMetrics((prev) => (prev ? [created, ...prev] : [created]), false);
+          await mutateMetrics(
+            (prev) =>
+              prev
+                ? prev.some((m) => m.id === created.id)
+                  ? prev.map((m) => (m.id === created.id ? created : m))
+                  : [created, ...prev]
+                : [created],
+            false
+          );
         }
         await mutateUser((prev) => (prev ? { ...prev, weight: val } : prev), false);
         toast.success(`Đã cập nhật cân nặng ban đầu: ${val} kg`, 'Thành công');
       } else {
-        // CURRENT: Add new metric entry
+        // CURRENT: Add or update within 1-hour window
         const res = await apiClient.post('/progress/metrics', {
           weight: val,
         });
         const created = res.data;
-        await mutateMetrics((prev) => (prev ? [...prev, created] : [created]), false);
+        await mutateMetrics(
+          (prev) =>
+            prev
+              ? prev.some((m) => m.id === created.id)
+                ? prev.map((m) => (m.id === created.id ? created : m))
+                : [...prev, created]
+              : [created],
+          false
+        );
         await mutateUser((prev) => (prev ? { ...prev, weight: val } : prev), false);
         toast.success(`Đã ghi nhận cân nặng hôm nay: ${val} kg`, 'Thành công');
       }

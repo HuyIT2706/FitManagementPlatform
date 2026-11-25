@@ -19,6 +19,7 @@ import StepDiet from './components/StepDiet';
 import StepHealth from './components/StepHealth';
 import StepNotify from './components/StepNotify';
 import { subscribeToPushNotifications } from '../../utils/pushNotification';
+import { getPendingInvite, isInvitePath } from '../../utils/pendingInvite';
 
 const steps = 11;
 
@@ -26,6 +27,7 @@ const OnboardingPage = () => {
   const store = useOnboardingStore();
   const [currentStep, setCurrentStep] = useState(1);
   const [isClient, setIsClient] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<OnboardingFormData>({
     birthYear: store.birthYear || 2002,
     gender: store.gender,
@@ -162,6 +164,8 @@ const OnboardingPage = () => {
       setCurrentStep(nextStep);
       store.setCurrentStep(nextStep);
     } else {
+      if (isSubmitting) return;
+      setIsSubmitting(true);
       try {
         const payload = {
           gender: formData.gender,
@@ -194,9 +198,18 @@ const OnboardingPage = () => {
           // ignore
         }
 
-        window.location.href = '/';
+        const queryRedirect =
+          typeof window !== 'undefined'
+            ? new URLSearchParams(window.location.search).get('redirect')
+            : null;
+        const pendingInvite = isInvitePath(queryRedirect)
+          ? queryRedirect
+          : getPendingInvite();
+
+        window.location.href = pendingInvite || '/home';
       } catch (err) {
         console.error(err);
+        setIsSubmitting(false);
         toast.error('Có lỗi xảy ra khi lưu thông tin');
       }
     }
@@ -276,9 +289,14 @@ const OnboardingPage = () => {
             type="button"
             suppressHydrationWarning
             onClick={handleNext}
-            className="w-full h-12 sm:h-14 rounded-full bg-[#10b981] text-[#003824] font-extrabold text-base sm:text-lg hover:opacity-95 active:scale-[0.99] transition-all flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.35)] cursor-pointer"
+            disabled={isSubmitting}
+            className="w-full h-12 sm:h-14 rounded-full bg-[#10b981] text-[#003824] font-extrabold text-base sm:text-lg hover:opacity-95 active:scale-[0.99] transition-all flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.35)] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {currentStep === steps ? 'Hoàn tất' : 'Tiếp tục'}
+            {currentStep === steps
+              ? isSubmitting
+                ? 'Đang lưu...'
+                : 'Hoàn tất'
+              : 'Tiếp tục'}
           </button>
         </footer>
       </div>

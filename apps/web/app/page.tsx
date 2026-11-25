@@ -8,21 +8,24 @@ import RoleSwitcher from '../components/landing/RoleSwitcher';
 import FaqSection from '../components/landing/FaqSection';
 import CtaBanner from '../components/landing/CtaBanner';
 import LandingFooter from '../components/landing/LandingFooter';
+import RootAuthGate from '../components/landing/RootAuthGate';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white text-zinc-900 selection:bg-zinc-900 selection:text-white font-sans overflow-x-hidden antialiased">
-      <LandingNavbar />
-      <main>
-        <HeroSection />
-        <InteractiveAiScanner />
-        <ComparisonSection />
-        <TestimonialsSection />
-        <RoleSwitcher />
-        <FaqSection />
-        <CtaBanner />
-      </main>
-      <LandingFooter />
-    </div>
+    <RootAuthGate>
+      <div className="min-h-screen bg-white text-zinc-900 selection:bg-zinc-900 selection:text-white font-sans overflow-x-hidden antialiased">
+        <LandingNavbar />
+        <main>
+          <HeroSection />
+          <InteractiveAiScanner />
+          <ComparisonSection />
+          <TestimonialsSection />
+          <RoleSwitcher />
+          <FaqSection />
+          <CtaBanner />
+        </main>
+        <LandingFooter />
+      </div>
+    </RootAuthGate>
   );
 }
