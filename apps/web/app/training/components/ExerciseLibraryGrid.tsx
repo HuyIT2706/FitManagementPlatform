@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import {
   Check,
   ChevronLeft,
@@ -67,6 +67,8 @@ const ExerciseLibraryGrid = ({
   onToggleFavorite,
   onToggleTodaySession,
 }: ExerciseLibraryGridProps) => {
+  const filterScrollRef = useRef<HTMLDivElement>(null);
+
   const todayCount = useMemo(
     () => countActiveIds(todaySessionIds),
     [todaySessionIds],
@@ -75,6 +77,13 @@ const ExerciseLibraryGrid = ({
     () => countActiveIds(favoriteIds),
     [favoriteIds],
   );
+
+  const scrollFilters = (direction: -1 | 1) => {
+    filterScrollRef.current?.scrollBy({
+      left: direction * 240,
+      behavior: 'smooth',
+    });
+  };
 
   return (
     <section className="space-y-4 sm:space-y-5">
@@ -117,50 +126,73 @@ const ExerciseLibraryGrid = ({
         </div>
 
         {/* Muscle & Local Filter Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          {MUSCLE_FILTERS.map((filter) => {
-            const isActive = selectedMuscle === filter.id;
-            const badgeCount =
-              filter.id === 'TODAY'
-                ? todayCount
-                : filter.id === 'FAVORITES'
-                  ? favoritesCount
-                  : null;
+        <div className="relative flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => scrollFilters(-1)}
+            aria-label="Cuộn bộ lọc sang trái"
+            className="hidden sm:flex w-8 h-8 rounded-full border border-slate-200/80 dark:border-white/10 bg-slate-50 dark:bg-white/5 hover:bg-slate-200/70 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 items-center justify-center shrink-0 transition-colors cursor-pointer"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
 
-            return (
-              <button
-                key={filter.id}
-                type="button"
-                onClick={() => onMuscleSelect(filter.id)}
-                className={`px-3.5 py-2 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer border ${
-                  isActive
-                    ? 'bg-[#a3e635] text-slate-950 border-[#84cc16] font-bold shadow-xs'
-                    : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 border-slate-200/70 dark:border-white/10 hover:bg-slate-200/70 dark:hover:bg-white/10'
-                }`}
-              >
-                {filter.id === 'TODAY' && <Flame className="w-3.5 h-3.5" />}
-                {filter.id === 'FAVORITES' && (
-                  <Heart
-                    className={`w-3.5 h-3.5 ${
-                      isActive ? 'fill-slate-950' : 'text-rose-500'
-                    }`}
-                  />
-                )}
-                <span>{filter.label}</span>
-                {badgeCount !== null && badgeCount > 0 && (
-                  <span
-                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                      isActive
-                        ? 'bg-slate-950/15 text-slate-950'
-                        : 'bg-white dark:bg-white/10 text-slate-700 dark:text-slate-200'
-                    }`}
-                  >
-                    {badgeCount}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+          <div
+            ref={filterScrollRef}
+            className="flex-1 flex items-center gap-2 overflow-x-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {MUSCLE_FILTERS.map((filter) => {
+              const isActive = selectedMuscle === filter.id;
+              const badgeCount =
+                filter.id === 'TODAY'
+                  ? todayCount
+                  : filter.id === 'FAVORITES'
+                    ? favoritesCount
+                    : null;
+
+              return (
+                <button
+                  key={filter.id}
+                  type="button"
+                  onClick={() => onMuscleSelect(filter.id)}
+                  className={`px-3.5 py-2 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer border ${
+                    isActive
+                      ? 'bg-[#a3e635] text-slate-950 border-[#84cc16] font-bold shadow-xs'
+                      : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 border-slate-200/70 dark:border-white/10 hover:bg-slate-200/70 dark:hover:bg-white/10'
+                  }`}
+                >
+                  {filter.id === 'TODAY' && <Flame className="w-3.5 h-3.5" />}
+                  {filter.id === 'FAVORITES' && (
+                    <Heart
+                      className={`w-3.5 h-3.5 ${
+                        isActive ? 'fill-slate-950' : 'text-rose-500'
+                      }`}
+                    />
+                  )}
+                  <span>{filter.label}</span>
+                  {badgeCount !== null && badgeCount > 0 && (
+                    <span
+                      className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                        isActive
+                          ? 'bg-slate-950/15 text-slate-950'
+                          : 'bg-white dark:bg-white/10 text-slate-700 dark:text-slate-200'
+                      }`}
+                    >
+                      {badgeCount}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => scrollFilters(1)}
+            aria-label="Cuộn bộ lọc sang phải"
+            className="hidden sm:flex w-8 h-8 rounded-full border border-slate-200/80 dark:border-white/10 bg-slate-50 dark:bg-white/5 hover:bg-slate-200/70 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 items-center justify-center shrink-0 transition-colors cursor-pointer"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
       </div>
 

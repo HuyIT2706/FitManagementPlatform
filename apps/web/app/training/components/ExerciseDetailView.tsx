@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Check,
   ChevronLeft,
@@ -73,6 +73,14 @@ const ExerciseDetailView = ({
   const [inTodaySession, setInTodaySession] = useState<boolean>(() =>
     isExerciseInTodaySession(exercise.id),
   );
+  const similarScrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollSimilar = (direction: -1 | 1) => {
+    similarScrollRef.current?.scrollBy({
+      left: direction * 240,
+      behavior: 'smooth',
+    });
+  };
 
   useEffect(() => {
     const syncState = () => {
@@ -383,15 +391,38 @@ const ExerciseDetailView = ({
             {similarExercises.length > 0 && (
               <section className="space-y-3 pt-1">
                 <div className="flex items-center justify-between gap-2">
-                  <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">
-                    Bài tập tương tự
-                  </h2>
-                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                    Cùng nhóm cơ <ChevronRight className="w-3.5 h-3.5" />
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">
+                      Bài tập tương tự
+                    </h2>
+                    <span className="hidden sm:inline-block text-xs font-medium text-slate-500 dark:text-slate-400">
+                      • Cùng nhóm cơ
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => scrollSimilar(-1)}
+                      aria-label="Xem bài tập trước"
+                      className="w-7 h-7 rounded-full border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors cursor-pointer"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => scrollSimilar(1)}
+                      aria-label="Xem bài tập tiếp theo"
+                      className="w-7 h-7 rounded-full border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors cursor-pointer"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
 
-                <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide">
+                <div
+                  ref={similarScrollRef}
+                  className="flex gap-3 overflow-x-auto pb-1 snap-x snap-mandatory no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                >
                   {similarExercises.map((sim) => {
                     const thumb =
                       sim.setupImageUrl || sim.startImageUrl || DEFAULT_THUMBNAIL;
