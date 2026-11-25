@@ -96,16 +96,18 @@ export const useDailyNutrition = (dateStr?: string, options?: SWRConfiguration) 
 };
 
 export const useAssignedMealPlan = (options?: SWRConfiguration) => {
+  const hasToken = useHasToken();
   return useSWR<MealPlanAssigned | null>(
-    '/workout/assigned-meal-plan',
+    hasToken ? '/workout/assigned-meal-plan' : null,
     swrFetcher,
     { ...DEFAULT_SWR_OPTIONS, ...options }
   );
 };
 
 export const useAssignedWorkoutPlan = (options?: SWRConfiguration) => {
+  const hasToken = useHasToken();
   return useSWR<AssignedWorkoutPlanData | null>(
-    '/workout/assigned-workout-plan',
+    hasToken ? '/workout/assigned-workout-plan' : null,
     swrFetcher,
     { ...DEFAULT_SWR_OPTIONS, ...options }
   );
@@ -118,6 +120,7 @@ export const useExerciseLibrary = (
   search = '',
   options?: SWRConfiguration
 ) => {
+  const hasToken = useHasToken();
   const params = new URLSearchParams({
     page: String(page),
     limit: String(limit),
@@ -126,7 +129,7 @@ export const useExerciseLibrary = (
   if (search.trim()) params.set('search', search.trim());
 
   return useSWR<ExercisePaginatedResponse>(
-    `/workout/exercises?${params.toString()}`,
+    hasToken ? `/workout/exercises?${params.toString()}` : null,
     swrFetcher,
     {
       ...DEFAULT_SWR_OPTIONS,

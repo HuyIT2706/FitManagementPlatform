@@ -28,9 +28,9 @@ function ExerciseDetailPageContent() {
 
   useEffect(() => {
     const token =
-      typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      typeof window !== 'undefined' ? localStorage.getItem('jwt_token') : null;
     if (!token) {
-      router.push('/login');
+      router.replace('/login');
     }
   }, [router]);
 
