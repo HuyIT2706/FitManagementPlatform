@@ -3,7 +3,14 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, ChevronRight, Dumbbell, Flame, Trash2 } from 'lucide-react';
+import {
+  Check,
+  ChevronRight,
+  Dumbbell,
+  Flame,
+  Plus,
+  Trash2,
+} from 'lucide-react';
 import Header from '../../components/ui/Header';
 import BottomNavBar from '../../components/navigation/BottomNavBar';
 import AppLoading from '../../components/ui/AppLoading';
@@ -12,9 +19,13 @@ import {
   useAssignedMealPlan,
   useAssignedWorkoutPlan,
   useCurrentUser,
+  useDailyNutrition,
   useExerciseLibrary,
 } from '../../hooks/swr';
 import { performLogout } from '../../utils/logout';
+import { formatYYYYMMDD } from '../../utils/date';
+import { broadcastSync } from '../../utils/realtimeSync';
+import apiClient from '../../api/axios';
 import toast from '../../utils/toast';
 import {
   formatEquipmentLabel,
@@ -35,6 +46,7 @@ import ExerciseLibraryGrid from './components/ExerciseLibraryGrid';
 import AssignedMealPlanCard from './components/AssignedMealPlanCard';
 import AssignedWorkoutPlanCard from './components/AssignedWorkoutPlanCard';
 import SmartMealPlannerModal from '../../components/nutrition/SmartMealPlannerModal';
+import LogBurnedCaloriesModal from '../../components/nutrition/LogBurnedCaloriesModal';
 
 type ExerciseWithPlan = ExerciseItem & {
   assignedSets?: number;
@@ -47,6 +59,9 @@ export default function TrainingPage() {
   const { data: assignedMealPlan, mutate: mutateAssignedMealPlan } =
     useAssignedMealPlan();
   const { data: assignedWorkoutPlan } = useAssignedWorkoutPlan();
+  const todayStr = useMemo(() => formatYYYYMMDD(new Date()), []);
+  const { data: dailyNutrition, mutate: mutateDailyNutrition } =
+    useDailyNutrition(todayStr);
 
   const [selectedMuscle, setSelectedMuscle] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -66,6 +81,7 @@ export default function TrainingPage() {
     checkedIds: {},
   });
   const [isAiMealModalOpen, setIsAiMealModalOpen] = useState(false);
+  const [isBurnModalOpen, setIsBurnModalOpen] = useState(false);
 
   useEffect(() => {
     const token =
@@ -249,6 +265,92 @@ export default function TrainingPage() {
           assignedMealPlan={assignedMealPlan ?? null}
           assignedWorkoutPlan={assignedWorkoutPlan}
         />
+
+        {/* Today's Energy Expenditure Card */}
+        {(() => {
+          const burnedCalories = Math.round(dailyNutrition?.burnedCalories || 0);
+          const activities = dailyNutrition?.activities || [];
+
+          const handleDeleteBurnActivity = async (activityId: string) => {
+            try {
+              await apiClient.delete(
+                `/nutrition/activities/${encodeURIComponent(activityId)}`,
+              );
+              broadcastSync('WORKOUT_UPDATED');
+              await mutateDailyNutrition();
+              toast.success('Đã xóa hoạt động tiêu hao');
+            } catch {
+              toast.error('Không thể xóa hoạt động lúc này');
+            }
+          };
+
+          return (
+            <section className="bg-white dark:bg-[#121a15] rounded-3xl border border-slate-200/80 dark:border-white/10 p-4 sm:p-5 shadow-2xs space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-2xl bg-orange-500/15 border border-orange-500/25 text-orange-600 dark:text-orange-400 flex items-center justify-center shrink-0">
+                    <Flame className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">
+                        Năng lượng tiêu hao hôm nay
+                      </h3>
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-orange-500/15 text-orange-600 dark:text-orange-400">
+                        {burnedCalories} kcal
+                      </span>
+                    </div>
+                    <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      {activities.length > 0
+                        ? `Đã ghi nhận ${activities.length} hoạt động, tự động cộng vào calo mục tiêu hôm nay.`
+                        : 'Ghi nhận calo đốt cháy sau khi tập tạ, chạy bộ, đạp xe hoặc cardio.'}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsBurnModalOpen(true)}
+                  className="px-4 py-2.5 rounded-full bg-orange-500 hover:bg-orange-600 active:scale-[0.98] text-white text-xs sm:text-sm font-extrabold flex items-center justify-center gap-1.5 shadow-sm shadow-orange-500/20 transition-all cursor-pointer shrink-0"
+                >
+                  <Plus className="w-4 h-4 stroke-[2.5]" />
+                  <span>Ghi nhận tiêu hao</span>
+                </button>
+              </div>
+
+              {activities.length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-1 border-t border-slate-100 dark:border-white/5">
+                  {activities.map((act) => (
+                    <div
+                      key={act.id}
+                      className="flex items-center gap-2 pl-3 pr-1.5 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-xs"
+                    >
+                      <span className="font-bold text-slate-800 dark:text-white">
+                        {act.activityName}
+                      </span>
+                      {act.durationMinutes && (
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                          {act.durationMinutes}p
+                        </span>
+                      )}
+                      <span className="font-extrabold text-orange-600 dark:text-orange-400">
+                        -{Math.round(act.caloriesBurned)} kcal
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => void handleDeleteBurnActivity(act.id)}
+                        aria-label={`Xóa ${act.activityName}`}
+                        className="w-5 h-5 rounded-full hover:bg-rose-500/15 text-slate-400 hover:text-rose-500 flex items-center justify-center transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          );
+        })()}
 
         {/* Today's Personal Workout Session Strip */}
         {todaySession.exercises.length > 0 && (() => {
@@ -460,6 +562,14 @@ export default function TrainingPage() {
           onToggleTodaySession={handleToggleTodaySession}
         />
       </main>
+
+      <LogBurnedCaloriesModal
+        isOpen={isBurnModalOpen}
+        onClose={() => setIsBurnModalOpen(false)}
+        selectedDateStr={todayStr}
+        userWeightKg={userData?.weight ?? userData?.initialWeight}
+        onSaved={() => void mutateDailyNutrition()}
+      />
 
       <BottomNavBar activeTab="workout" />
     </div>

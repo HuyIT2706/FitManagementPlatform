@@ -99,6 +99,17 @@ export interface StreakData {
   loggedDates: string[];
 }
 
+export interface ActivityLogItem {
+  id: string;
+  userId?: string;
+  logDate: Date | string;
+  activityName: string;
+  durationMinutes?: number | null;
+  caloriesBurned: number;
+  intensity?: string | null;
+  createdAt?: Date | string;
+}
+
 export interface DailyNutritionData {
   date?: string;
   targets?: NutritionTargetSummary;
@@ -108,6 +119,8 @@ export interface DailyNutritionData {
     carbs?: number;
     fat?: number;
   };
+  burnedCalories?: number;
+  activities?: ActivityLogItem[];
   progress?: NutritionProgress;
   streak?: StreakData;
   mealSlots?: MealSlotConfig[];

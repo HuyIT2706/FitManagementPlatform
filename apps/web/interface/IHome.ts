@@ -1,6 +1,11 @@
-import type { MealSlotConfig } from '@repo/types';
+import type { ActivityLogItem, MealSlotConfig } from '@repo/types';
 
-export type { UserDataHome, DailyNutritionData, MealSlotConfig } from '@repo/types';
+export type {
+  ActivityLogItem,
+  UserDataHome,
+  DailyNutritionData,
+  MealSlotConfig,
+} from '@repo/types';
 
 export interface MealItem {
   foodName: string;
@@ -24,9 +29,14 @@ export interface DailyFuelHeroCardProps {
   consumedCalo: number;
   targetCalo: number;
   remainingCalories: number;
+  burnedCalories?: number;
+  activities?: ActivityLogItem[];
   strokeDashoffset?: number;
   isSelectedDateToday: boolean;
   selectedDateFormatted: string;
+  isFutureDate?: boolean;
+  onOpenBurnModal?: () => void;
+  onDeleteActivity?: (id: string) => void;
 }
 
 export interface MacroCardsProps {

@@ -146,3 +146,18 @@ export function cleanInstructionSteps(instructions?: string[]): string[] {
   );
   return filtered.length > 0 ? filtered : instructions.filter((s) => Boolean(s?.trim()));
 }
+
+export function estimateBurnedCalories(
+  met: number,
+  durationMinutes: number,
+  weightKg: number,
+  intensityMultiplier = 1.0,
+): number {
+  if (!met || durationMinutes <= 0 || weightKg <= 0 || intensityMultiplier <= 0) {
+    return 0;
+  }
+  return Math.max(
+    1,
+    Math.round(met * intensityMultiplier * weightKg * (durationMinutes / 60)),
+  );
+}

@@ -34,7 +34,8 @@ const HistoryPage = () => {
       if (
         type === 'MEAL_PLAN_UPDATED' ||
         type === 'PROFILE_UPDATED' ||
-        type === 'PT_BIND_UPDATED'
+        type === 'PT_BIND_UPDATED' ||
+        type === 'WORKOUT_UPDATED'
       ) {
         mutateDaily();
       }
@@ -159,6 +160,8 @@ const HistoryPage = () => {
     dailyData?.targets?.fat || userData?.nutritionTargets?.[0]?.targetFat || 0;
 
   const consumedCalo = dailyData?.consumed?.calories || 0;
+  const burnedCalories = dailyData?.burnedCalories || 0;
+  const activities = dailyData?.activities || [];
   const consumedProtein = dailyData?.consumed?.protein || 0;
   const consumedCarbs = dailyData?.consumed?.carbs || 0;
   const consumedFat = dailyData?.consumed?.fat || 0;
@@ -231,6 +234,8 @@ const HistoryPage = () => {
             isSelectedDateToday={isSelectedDateToday}
             consumedCalo={consumedCalo}
             targetCalo={targetCalo}
+            burnedCalories={burnedCalories}
+            activities={activities}
             totalCaloPercent={totalCaloPercent}
             consumedProtein={consumedProtein}
             targetProtein={targetProtein}

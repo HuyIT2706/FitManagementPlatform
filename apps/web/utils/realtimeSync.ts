@@ -87,6 +87,7 @@ export const executeSync = (type: SyncEventType): void => {
       mutate('/workout/assigned-workout-plan');
       mutate('/pt/dashboard');
       mutate('/notifications');
+      mutate((key) => typeof key === 'string' && key.startsWith('/nutrition/daily'));
       break;
     default:
       mutate('/users/me');

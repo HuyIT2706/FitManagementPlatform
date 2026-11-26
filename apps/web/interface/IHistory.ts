@@ -1,3 +1,4 @@
+import type { ActivityLogItem } from '@repo/types';
 import type { MealSlotConfig } from './IHome';
 
 export interface MonthCell {
@@ -35,6 +36,8 @@ export interface HistoryNutritionDetailsProps {
   isSelectedDateToday: boolean;
   consumedCalo: number;
   targetCalo: number;
+  burnedCalories?: number;
+  activities?: ActivityLogItem[];
   totalCaloPercent: number;
   consumedProtein: number;
   targetProtein: number;

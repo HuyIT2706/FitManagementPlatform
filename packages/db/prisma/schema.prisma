@@ -92,6 +92,7 @@ model User {
   nutritionTargets    NutritionTarget[]
   workoutSchedules    WorkoutSchedule[]
   mealLogs            MealLog[]
+  activityLogs        ActivityLog[]
   trainerReviews      MealReview[]        @relation("TrainerReviews")
   bodyMetrics         BodyMetric[]
   progressPhotos      ProgressPhoto[]
@@ -271,6 +272,21 @@ model MealReview {
   @@index([mealLogId])
   @@index([ptId])
   @@map("meal_reviews")
+}
+
+model ActivityLog {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  logDate         DateTime @default(now()) @map("log_date")
+  activityName    String   @map("activity_name")
+  durationMinutes Int?     @map("duration_minutes")
+  caloriesBurned  Float    @map("calories_burned")
+  intensity       String?  @default("MODERATE")
+  createdAt       DateTime @default(now()) @map("created_at")
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, logDate])
+  @@map("activity_logs")
 }
 
 model BodyMetric {

@@ -1,6 +1,8 @@
 import {
   Controller,
+  Delete,
   Get,
+  Param,
   Post,
   Body,
   UseGuards,
@@ -10,6 +12,7 @@ import {
 import { Throttle } from '@nestjs/throttler';
 import { NutritionService } from './nutrition.service';
 import { LogMealDto } from './dto/log-meal.dto';
+import { LogActivityDto } from './dto/log-activity.dto';
 import {
   SmartParseFoodDto,
   SmartParseFoodImageDto,
@@ -78,6 +81,22 @@ export class NutritionController {
     return this.nutritionService.logMeal(req.user.sub, dto);
   }
 
+  @Post('activities')
+  async logActivity(
+    @Request() req: RequestWithUser,
+    @Body() dto: LogActivityDto,
+  ) {
+    return this.nutritionService.logActivity(req.user.sub, dto);
+  }
+
+  @Delete('activities/:id')
+  async deleteActivity(
+    @Request() req: RequestWithUser,
+    @Param('id') id: string,
+  ) {
+    return this.nutritionService.deleteActivity(req.user.sub, id);
+  }
+
   @Get('streak')
   async getStreakData(@Request() req: RequestWithUser) {
     return this.nutritionService.getStreakData(req.user.sub);
@@ -88,23 +107,7 @@ export class NutritionController {
     @Request() req: RequestWithUser,
     @Query('date') dateString?: string,
   ) {
-    let date = new Date();
-    if (dateString) {
-      const parts = dateString.split('-');
-      if (parts.length === 3) {
-        const y = parseInt(parts[0], 10);
-        const m = parseInt(parts[1], 10) - 1;
-        const d = parseInt(parts[2], 10);
-        if (!isNaN(y) && !isNaN(m) && !isNaN(d)) {
-          date = new Date(y, m, d);
-        }
-      } else {
-        const parsed = new Date(dateString);
-        if (!isNaN(parsed.getTime())) {
-          date = parsed;
-        }
-      }
-    }
+    const date = this.nutritionService.parseDateInput(dateString);
     return this.nutritionService.getDailyNutrition(req.user.sub, date);
   }
 

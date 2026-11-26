@@ -2,6 +2,8 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
+  ServiceUnavailableException,
   Logger,
 } from '@nestjs/common';
 import type {
@@ -15,15 +17,94 @@ import type {
   GeneratedMealSession,
   GeneratedMealPlanItem,
 } from '@repo/types';
-import { Prisma } from '@prisma/client';
+import { Prisma, type ActivityLog } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogMealDto } from './dto/log-meal.dto';
+import { LogActivityDto } from './dto/log-activity.dto';
 
 @Injectable()
 export class NutritionService {
   private readonly logger = new Logger(NutritionService.name);
 
   constructor(private prisma: PrismaService) {}
+
+  parseDateInput(dateString?: string): Date {
+    if (!dateString) return new Date();
+    const parts = dateString.trim().split('-');
+    if (parts.length === 3 && /^\d{4}-\d{2}-\d{2}$/.test(dateString.trim())) {
+      const y = parseInt(parts[0], 10);
+      const m = parseInt(parts[1], 10) - 1;
+      const d = parseInt(parts[2], 10);
+      if (!isNaN(y) && !isNaN(m) && !isNaN(d)) {
+        return new Date(y, m, d, 12, 0, 0, 0);
+      }
+    }
+    const parsed = new Date(dateString);
+    return !isNaN(parsed.getTime()) ? parsed : new Date();
+  }
+
+  private isMissingActivityTableError(err: unknown): boolean {
+    const prismaErr = err as { code?: string; message?: string };
+    return (
+      prismaErr?.code === 'P2021' ||
+      Boolean(prismaErr?.message?.includes('activity_logs'))
+    );
+  }
+
+  async logActivity(userId: string, dto: LogActivityDto) {
+    const targetLogDate = this.parseDateInput(dto.logDate);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    if (targetLogDate > todayEnd) {
+      throw new BadRequestException(
+        'Không thể ghi nhận tiêu hao cho các ngày ở tương lai!',
+      );
+    }
+
+    try {
+      return await this.prisma.activityLog.create({
+        data: {
+          userId,
+          logDate: targetLogDate,
+          activityName: dto.activityName.trim(),
+          durationMinutes: dto.durationMinutes ?? null,
+          caloriesBurned: Math.round(dto.caloriesBurned),
+          intensity: dto.intensity?.trim() || 'MODERATE',
+        },
+      });
+    } catch (err) {
+      if (this.isMissingActivityTableError(err)) {
+        throw new ServiceUnavailableException(
+          'Bảng activity_logs chưa được khởi tạo trong cơ sở dữ liệu. Vui lòng chạy migration/db push.',
+        );
+      }
+      throw err;
+    }
+  }
+
+  async deleteActivity(userId: string, activityId: string) {
+    try {
+      const existing = await this.prisma.activityLog.findUnique({
+        where: { id: activityId },
+      });
+      if (!existing) {
+        throw new NotFoundException('Không tìm thấy hoạt động cần xóa');
+      }
+      if (existing.userId !== userId) {
+        throw new ForbiddenException('Bạn không có quyền xóa hoạt động này');
+      }
+      await this.prisma.activityLog.delete({ where: { id: activityId } });
+      return { deleted: true, id: activityId };
+    } catch (err) {
+      if (this.isMissingActivityTableError(err)) {
+        throw new ServiceUnavailableException(
+          'Bảng activity_logs chưa được khởi tạo trong cơ sở dữ liệu.',
+        );
+      }
+      throw err;
+    }
+  }
 
   async searchFoods(
     query?: string,
@@ -555,6 +636,7 @@ export class NutritionService {
 
       let meals: MealLogWithItems[] = [];
       let user: UserWithTargets | null = null;
+      let activities: ActivityLog[] = [];
       let streak = {
         currentStreak: 0,
         totalLoggedDays: 0,
@@ -598,6 +680,25 @@ export class NutritionService {
         }
       } catch (dbErr) {
         this.logger.error('Database query failed in getDailyNutrition:', dbErr);
+      }
+
+      if (this.prisma.activityLog?.findMany) {
+        try {
+          activities = await this.prisma.activityLog.findMany({
+            where: {
+              userId,
+              logDate: {
+                gte: startOfDay,
+                lte: endOfDay,
+              },
+            },
+            orderBy: { createdAt: 'desc' },
+          });
+        } catch (actErr) {
+          this.logger.warn(
+            `ActivityLog query skipped in getDailyNutrition: ${(actErr as Error)?.message || actErr}`,
+          );
+        }
       }
 
       // Tổng kết toàn ngày & Nhóm theo bữa ăn (mealName)
@@ -676,8 +777,13 @@ export class NutritionService {
       const consumedCarbsRound = Math.round((totalCarbs || 0) * 10) / 10;
       const consumedFatRound = Math.round((totalFat || 0) * 10) / 10;
 
-      const caloPercentage = targetCalo
-        ? Math.min((consumedCaloRound / targetCalo) * 100, 100)
+      const burnedCalories = Math.round(
+        activities.reduce((sum, act) => sum + (act.caloriesBurned || 0), 0),
+      );
+      const effectiveCalorieBudget = targetCalo + burnedCalories;
+
+      const caloPercentage = effectiveCalorieBudget
+        ? Math.min((consumedCaloRound / effectiveCalorieBudget) * 100, 100)
         : 0;
       const proteinPercentage = targetProtein
         ? Math.min((consumedProteinRound / targetProtein) * 100, 100)
@@ -694,7 +800,7 @@ export class NutritionService {
         circumference - (caloPercentage / 100) * circumference,
       );
       const remainingCalories = Math.round(
-        Math.max(0, targetCalo - consumedCaloRound),
+        Math.max(0, effectiveCalorieBudget - consumedCaloRound),
       );
 
       const mealSlots = this.getMealSlotsByFrequency(user?.mealFrequency);
@@ -713,6 +819,8 @@ export class NutritionService {
           carbs: consumedCarbsRound,
           fat: consumedFatRound,
         },
+        burnedCalories,
+        activities,
         progress: {
           caloriesPercent: Math.round(caloPercentage * 10) / 10,
           proteinPercent: Math.round(proteinPercentage * 10) / 10,
@@ -739,6 +847,8 @@ export class NutritionService {
         date: startOfDay.toISOString(),
         targets: { calories: 2000, protein: 150, carbs: 200, fat: 65 },
         consumed: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+        burnedCalories: 0,
+        activities: [],
         progress: {
           caloriesPercent: 0,
           proteinPercent: 0,

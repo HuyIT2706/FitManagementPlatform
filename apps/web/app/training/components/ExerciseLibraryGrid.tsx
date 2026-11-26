@@ -91,12 +91,8 @@ const ExerciseLibraryGrid = ({
       <div className="bg-white dark:bg-[#121a15] rounded-3xl border border-slate-200/80 dark:border-white/10 p-4 sm:p-6 shadow-2xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-lime-700 dark:text-lime-400 bg-lime-100 dark:bg-lime-500/15 px-2.5 py-1 rounded-full mb-2">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Thư viện động tác chuẩn</span>
-            </div>
             <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Khám phá bài tập ({totalExercises})
+              Khám phá các bài tập ({totalExercises})
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
               Chạm vào bài tập để xem hoạt ảnh 2 khung hình, bản đồ cơ và hướng dẫn chi tiết.

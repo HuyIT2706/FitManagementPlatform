@@ -105,6 +105,12 @@ describe('NutritionService - Core Business Logic', () => {
         findMany: jest.fn().mockResolvedValue([]),
         create: jest.fn().mockResolvedValue({ id: 'log-1' }),
       },
+      activityLog: {
+        findMany: jest.fn().mockResolvedValue([]),
+        create: jest.fn().mockResolvedValue({ id: 'act-1' }),
+        findUnique: jest.fn(),
+        delete: jest.fn().mockResolvedValue({ id: 'act-1' }),
+      },
       $queryRaw: jest
         .fn()
         .mockRejectedValue(
@@ -312,6 +318,86 @@ describe('NutritionService - Core Business Logic', () => {
               weightInGram: 100,
             },
           ],
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('Activity burn logging & daily balance', () => {
+    it('logs burned calories and adds burned budget into daily remainingCalories', async () => {
+      prismaMock.activityLog.create.mockResolvedValueOnce({
+        id: 'act-run',
+        userId: 'user-1',
+        activityName: 'Chạy bộ',
+        durationMinutes: 30,
+        caloriesBurned: 300,
+        intensity: 'HIGH',
+        logDate: new Date('2026-11-26T12:00:00Z'),
+      });
+
+      const created = await service.logActivity('user-1', {
+        activityName: 'Chạy bộ',
+        caloriesBurned: 300,
+        durationMinutes: 30,
+        intensity: 'HIGH',
+        logDate: '2026-11-26',
+      });
+
+      expect(created.caloriesBurned).toBe(300);
+
+      prismaMock.mealLog.findMany.mockResolvedValueOnce([
+        {
+          id: 'meal-1',
+          mealName: 'LUNCH',
+          totalCalories: 800,
+          totalProtein: 50,
+          totalCarbs: 90,
+          totalFat: 25,
+          items: [],
+        },
+      ]);
+      prismaMock.user.findUnique.mockResolvedValueOnce({
+        id: 'user-1',
+        mealFrequency: 4,
+        nutritionTargets: [
+          {
+            targetCalo: 2000,
+            targetProtein: 150,
+            targetCarbs: 200,
+            targetFat: 65,
+          },
+        ],
+      });
+      prismaMock.activityLog.findMany.mockResolvedValueOnce([
+        {
+          id: 'act-run',
+          activityName: 'Chạy bộ',
+          durationMinutes: 30,
+          caloriesBurned: 300,
+          logDate: new Date(),
+        },
+      ]);
+
+      const daily = await service.getDailyNutrition(
+        'user-1',
+        new Date('2026-11-26T12:00:00Z'),
+      );
+
+      expect(daily.burnedCalories).toBe(300);
+      expect(daily.activities).toHaveLength(1);
+      // 2000 target + 300 burned - 800 consumed = 1500 remaining
+      expect(daily.progress.remainingCalories).toBe(1500);
+    });
+
+    it('rejects future dates when logging burned calories', async () => {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 2);
+
+      await expect(
+        service.logActivity('user-1', {
+          activityName: 'Đạp xe',
+          caloriesBurned: 250,
+          logDate: tomorrow.toISOString(),
         }),
       ).rejects.toThrow(BadRequestException);
     });

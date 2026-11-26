@@ -18,11 +18,14 @@ import {
 
 import { useCurrentUser, useDailyNutrition } from '../../hooks/swr';
 import { performLogout } from '../../utils/logout';
-import { subscribeSync } from '../../utils/realtimeSync';
+import { broadcastSync, subscribeSync } from '../../utils/realtimeSync';
+import apiClient from '../../api/axios';
+import toast from '../../utils/toast';
 import CalendarStrip from './components/CalendarStrip';
 import DailyFuelHeroCard from './components/DailyFuelHeroCard';
 import MacroCards from './components/MacroCards';
 import DailyMealGrid from './components/DailyMealGrid';
+import LogBurnedCaloriesModal from '../../components/nutrition/LogBurnedCaloriesModal';
 import HomeLoading from './loading';
 
 const HomeContent = () => {
@@ -35,6 +38,7 @@ const HomeContent = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
   const [currentMonday, setCurrentMonday] = useState<Date>(() => getMonday(new Date()));
   const [isSavingMeal, setIsSavingMeal] = useState(isSavingQuery);
+  const [isBurnModalOpen, setIsBurnModalOpen] = useState(false);
 
   // Sync date from URL if user is redirected after saving meal
   useEffect(() => {
@@ -81,7 +85,8 @@ const HomeContent = () => {
       if (
         type === 'MEAL_PLAN_UPDATED' ||
         type === 'PROFILE_UPDATED' ||
-        type === 'PT_BIND_UPDATED'
+        type === 'PT_BIND_UPDATED' ||
+        type === 'WORKOUT_UPDATED'
       ) {
         mutateDaily();
       }
@@ -134,6 +139,8 @@ const HomeContent = () => {
     const targetFat = dailyData?.targets?.fat || userData?.nutritionTargets?.[0]?.targetFat || 0;
 
     const consumedCalo = Math.round(dailyData?.consumed?.calories || 0);
+    const burnedCalories = Math.round(dailyData?.burnedCalories || 0);
+    const activities = dailyData?.activities || [];
     const consumedProtein = Math.round((dailyData?.consumed?.protein || 0) * 10) / 10;
     const consumedCarbs = Math.round((dailyData?.consumed?.carbs || 0) * 10) / 10;
     const consumedFat = Math.round((dailyData?.consumed?.fat || 0) * 10) / 10;
@@ -143,12 +150,13 @@ const HomeContent = () => {
     const fatPercentage = Math.round((dailyData?.progress?.fatPercent || 0) * 10) / 10;
     const strokeDashoffset = dailyData?.progress?.strokeDashoffset ?? 816;
     const remainingCalories = Math.round(
-      dailyData?.progress?.remainingCalories ?? Math.max(0, targetCalo - consumedCalo)
+      dailyData?.progress?.remainingCalories ??
+        Math.max(0, targetCalo + burnedCalories - consumedCalo)
     );
 
     return {
       targetCalo, targetProtein, targetCarbs, targetFat,
-      consumedCalo, consumedProtein, consumedCarbs, consumedFat,
+      consumedCalo, burnedCalories, activities, consumedProtein, consumedCarbs, consumedFat,
       proteinPercentage, carbsPercentage, fatPercentage,
       strokeDashoffset, remainingCalories,
     };
@@ -156,10 +164,21 @@ const HomeContent = () => {
 
   const {
     targetCalo, targetProtein, targetCarbs, targetFat,
-    consumedCalo, consumedProtein, consumedCarbs, consumedFat,
+    consumedCalo, burnedCalories, activities, consumedProtein, consumedCarbs, consumedFat,
     proteinPercentage, carbsPercentage, fatPercentage,
     strokeDashoffset, remainingCalories,
   } = nutritionStats;
+
+  const handleDeleteActivity = async (activityId: string) => {
+    try {
+      await apiClient.delete(`/nutrition/activities/${encodeURIComponent(activityId)}`);
+      broadcastSync('WORKOUT_UPDATED');
+      await mutateDaily();
+      toast.success('Đã xóa hoạt động tiêu hao');
+    } catch {
+      toast.error('Không thể xóa hoạt động lúc này');
+    }
+  };
 
   if (userLoading && !userData) {
     return <AppLoading fullScreen size="lg" message="Đang nạp dữ liệu dinh dưỡng hôm nay..." />;
@@ -198,6 +217,9 @@ const HomeContent = () => {
   const isSelectedDateToday = isSameDay(selectedDate, new Date());
   const selectedDateFormattedStr = formatYYYYMMDD(selectedDate);
   const selectedDateFormattedDisplay = formatDisplayDate(selectedDate);
+  const todayEnd = new Date();
+  todayEnd.setHours(23, 59, 59, 999);
+  const isFutureSelectedDate = selectedDate > todayEnd;
 
   return (
     <div className="min-h-screen bg-background pb-32 text-on-surface">
@@ -240,9 +262,14 @@ const HomeContent = () => {
             consumedCalo={consumedCalo}
             targetCalo={targetCalo}
             remainingCalories={remainingCalories}
+            burnedCalories={burnedCalories}
+            activities={activities}
             strokeDashoffset={strokeDashoffset}
             isSelectedDateToday={isSelectedDateToday}
             selectedDateFormatted={selectedDateFormattedDisplay}
+            isFutureDate={isFutureSelectedDate}
+            onOpenBurnModal={() => setIsBurnModalOpen(true)}
+            onDeleteActivity={handleDeleteActivity}
           />
 
           {/* Macros Column */}
@@ -266,6 +293,14 @@ const HomeContent = () => {
           />
         </div>
       </main>
+
+      <LogBurnedCaloriesModal
+        isOpen={isBurnModalOpen}
+        onClose={() => setIsBurnModalOpen(false)}
+        selectedDateStr={selectedDateFormattedStr}
+        userWeightKg={userData?.weight ?? userData?.initialWeight}
+        onSaved={() => void mutateDaily()}
+      />
 
       <BottomNavBar activeTab="diary" />
     </div>

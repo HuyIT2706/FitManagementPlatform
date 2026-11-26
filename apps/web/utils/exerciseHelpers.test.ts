@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildExerciseOverview,
   cleanInstructionSteps,
+  estimateBurnedCalories,
   formatEquipmentLabel,
   formatLevelLabel,
   formatMechanicLabel,
@@ -81,5 +82,13 @@ describe('exerciseHelpers utility', () => {
     const overview = buildExerciseOverview(mockExercise);
     expect(overview).toContain('ngực');
     expect(overview).toContain('thanh đòn');
+  });
+
+  it('estimates burned calories from MET, duration, weight, and intensity', () => {
+    // 6.0 MET * 1.0 intensity * 70kg * (60 / 60 h) = 420 kcal
+    expect(estimateBurnedCalories(6.0, 60, 70, 1.0)).toBe(420);
+    // 9.5 MET * 1.25 intensity * 60kg * (30 / 60 h) = 356.25 -> 356 kcal
+    expect(estimateBurnedCalories(9.5, 30, 60, 1.25)).toBe(356);
+    expect(estimateBurnedCalories(6.0, 0, 70, 1.0)).toBe(0);
   });
 });

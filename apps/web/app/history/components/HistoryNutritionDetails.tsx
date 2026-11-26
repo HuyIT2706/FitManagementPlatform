@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle2, Coffee, Sun, Moon, Apple } from 'lucide-react';
+import { CheckCircle2, Coffee, Sun, Moon, Apple, Flame } from 'lucide-react';
 import type { HistoryNutritionDetailsProps } from '../../../interface';
 import { formatDisplayDate } from '../../../utils/date';
 
@@ -9,6 +9,8 @@ const HistoryNutritionDetails = ({
   isSelectedDateToday,
   consumedCalo,
   targetCalo,
+  burnedCalories = 0,
+  activities = [],
   totalCaloPercent,
   consumedProtein,
   targetProtein,
@@ -89,11 +91,16 @@ const HistoryNutritionDetails = ({
         </div>
 
         <div className="flex flex-col md:items-end">
-          <div className="flex items-center gap-2 mb-1 sm:mb-1.5">
+          <div className="flex flex-wrap items-center gap-2 mb-1 sm:mb-1.5">
             <span className="text-xs text-on-surface-variant font-medium">Calo đã nạp:</span>
             <span className="text-sm sm:text-base font-bold text-green-light">
               {consumedCalo} / {targetCalo} kcal
             </span>
+            {burnedCalories > 0 && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/25 text-orange-600 dark:text-orange-400 text-[11px] font-bold">
+                <Flame className="w-3 h-3" />-{Math.round(burnedCalories)} đốt cháy
+              </span>
+            )}
           </div>
           <div className="w-full md:w-64 h-2 sm:h-2.5 bg-slate-200 dark:bg-surface-bright rounded-full overflow-hidden">
             <div
@@ -209,6 +216,38 @@ const HistoryNutritionDetails = ({
           })}
         </div>
       </div>
+
+      {/* Activity Burn History Row */}
+      {activities.length > 0 && (
+        <div className="space-y-2.5 pt-1 border-t border-bento-border/40">
+          <div className="flex items-center justify-between gap-2 pt-3">
+            <h3 className="text-sm sm:text-base font-headline-md font-bold text-on-surface flex items-center gap-1.5">
+              <Flame className="w-4 h-4 text-orange-500" />
+              <span>Năng lượng tiêu hao ({Math.round(burnedCalories)} kcal)</span>
+            </h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {activities.map((act) => (
+              <div
+                key={act.id}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-500/20 text-xs"
+              >
+                <span className="font-bold text-on-surface">
+                  {act.activityName}
+                </span>
+                {act.durationMinutes && (
+                  <span className="text-on-surface-variant">
+                    ({act.durationMinutes} phút)
+                  </span>
+                )}
+                <span className="font-extrabold text-orange-600 dark:text-orange-400">
+                  -{Math.round(act.caloriesBurned)} kcal
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   );
 };

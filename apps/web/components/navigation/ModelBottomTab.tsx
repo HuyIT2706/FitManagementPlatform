@@ -13,11 +13,14 @@ import {
   Scale,
   Dumbbell,
   Droplets,
+  Flame,
 } from 'lucide-react';
 import { toast } from '../../utils/toast';
 import { getWaterForDate, addWaterForDate } from '../../utils/waterTracker';
 import { formatYYYYMMDD } from '../../utils/date';
 import { CreateFoodModal } from '../nutrition/CreateFoodModal';
+import LogBurnedCaloriesModal from '../nutrition/LogBurnedCaloriesModal';
+import { useCurrentUser } from '../../hooks/swr';
 import apiClient from '../../api/axios';
 
 interface QuickActionBottomSheetProps {
@@ -30,9 +33,11 @@ export const QuickActionBottomSheet = ({
   onClose,
 }: QuickActionBottomSheetProps) => {
   const router = useRouter();
+  const { data: userData } = useCurrentUser();
   const [waterInput, setWaterInput] = useState<string>('');
   const [totalWaterToday, setTotalWaterToday] = useState<number>(0);
   const [isCreateFoodOpen, setIsCreateFoodOpen] = useState(false);
+  const [isBurnModalOpen, setIsBurnModalOpen] = useState(false);
 
   // Quick Weight Modal State
   const [isWeightModalOpen, setIsWeightModalOpen] = useState(false);
@@ -226,7 +231,23 @@ export const QuickActionBottomSheet = ({
                     </span>
                   </button>
 
-                  {/* 2. Cân nặng (Thay thế Tạo công thức) */}
+                  {/* 2. Tiêu hao năng lượng (Năng lượng đốt cháy) */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsBurnModalOpen(true);
+                    }}
+                    className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/[0.08] transition-all text-left cursor-pointer h-full"
+                  >
+                    <div className="w-9 h-9 rounded-xl bg-orange-500/15 text-orange-500 flex items-center justify-center shrink-0">
+                      <Flame size={18} />
+                    </div>
+                    <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white truncate">
+                      Tiêu hao calo
+                    </span>
+                  </button>
+
+                  {/* 3. Cân nặng (Thay thế Tạo công thức) */}
                   <button
                     type="button"
                     onClick={() => handleActionClick('/weight', 'Theo dõi cân nặng')}
@@ -240,13 +261,13 @@ export const QuickActionBottomSheet = ({
                     </span>
                   </button>
 
-                  {/* 3. Tập luyện (Thay thế Tạo thực đơn) */}
+                  {/* 4. Tập luyện (Thay thế Tạo thực đơn) */}
                   <button
                     type="button"
                     onClick={() => handleActionClick('/training', 'Tập luyện')}
                     className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/[0.08] transition-all text-left cursor-pointer h-full"
                   >
-                    <div className="w-9 h-9 rounded-xl bg-orange-500/15 text-orange-500 flex items-center justify-center shrink-0">
+                    <div className="w-9 h-9 rounded-xl bg-lime-500/15 text-lime-600 dark:text-lime-400 flex items-center justify-center shrink-0">
                       <Dumbbell size={18} />
                     </div>
                     <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white truncate">
@@ -254,8 +275,8 @@ export const QuickActionBottomSheet = ({
                     </span>
                   </button>
 
-                  {/* 4. Uống nước (Lưu từng ngày) */}
-                  <div className="flex flex-col justify-between p-2.5 sm:p-3 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-left h-full">
+                  {/* 5. Uống nước (Lưu từng ngày) */}
+                  <div className="col-span-2 flex flex-col justify-between p-2.5 sm:p-3 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-left h-full">
                     <div
                       onClick={() => document.getElementById('water-quick-input')?.focus()}
                       className="flex items-center justify-between mb-2 cursor-pointer"
@@ -319,6 +340,17 @@ export const QuickActionBottomSheet = ({
         }}
         onSuccess={() => {
           setIsCreateFoodOpen(false);
+          onClose();
+        }}
+      />
+
+      {/* Ghi nhận năng lượng tiêu hao Modal */}
+      <LogBurnedCaloriesModal
+        isOpen={isBurnModalOpen}
+        onClose={() => setIsBurnModalOpen(false)}
+        userWeightKg={userData?.weight ?? userData?.initialWeight}
+        onSaved={() => {
+          setIsBurnModalOpen(false);
           onClose();
         }}
       />
