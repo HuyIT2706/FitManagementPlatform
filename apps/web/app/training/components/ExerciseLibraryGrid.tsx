@@ -11,7 +11,6 @@ import {
   Heart,
   Plus,
   Search,
-  Sparkles,
   X,
 } from 'lucide-react';
 import type { ExerciseItem, ExerciseLibraryGridProps } from '../../../interface';
