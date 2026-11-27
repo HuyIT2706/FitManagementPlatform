@@ -14,10 +14,10 @@ const PtScheduleSlotCard = ({
   const avatar = getAvatarUrl(slot.studentAvatar);
 
   return (
-    <div className="relative group">
+    <div className="relative group min-w-0">
       {/* Timeline Glowing Bullet Dot */}
       <div
-        className={`absolute -left-[33px] sm:-left-[41px] top-4 w-4 h-4 rounded-full border-2 transition-all ${
+        className={`absolute -left-[29px] sm:-left-[41px] top-4 w-4 h-4 rounded-full border-2 transition-all ${
           slot.isBusy
             ? isSlotChecked
               ? 'border-green-light bg-green-light shadow-[0_0_10px_rgba(102,200,28,0.8)]'
@@ -32,7 +32,7 @@ const PtScheduleSlotCard = ({
       {slot.isBusy ? (
         /* Busy Class Session Card */
         <div
-          className={`bento-card rounded-xl sm:rounded-2xl p-3.5 sm:p-5 md:p-6 border-l-4 transition-all duration-300 space-y-3 sm:space-y-4 ${
+          className={`bento-card rounded-xl sm:rounded-2xl p-3.5 sm:p-5 md:p-6 border-l-4 transition-all duration-300 space-y-3 sm:space-y-4 overflow-hidden min-w-0 ${
             isSlotChecked
               ? 'border-l-green-600 dark:border-l-green-light border-green-500/30 dark:border-green-light/40 bg-green-50/70 dark:bg-green-light/10'
               : slot.status === 'ONGOING'
@@ -132,9 +132,9 @@ const PtScheduleSlotCard = ({
         </div>
       ) : (
         /* Free / Empty Slot Dashed Card */
-        <div className="border border-dashed border-slate-300 dark:border-white/10 bg-slate-50/60 dark:bg-surface-bright/10 p-3 sm:p-3.5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-on-surface-variant/70 hover:border-primary/50 hover:text-primary transition-all cursor-pointer group/slot">
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            <span className="text-xs font-bold text-on-surface min-w-[80px] sm:min-w-[90px]">
+        <div className="border border-dashed border-slate-300 dark:border-white/10 bg-slate-50/60 dark:bg-surface-bright/10 p-3 sm:p-3.5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-on-surface-variant/70 hover:border-primary/50 hover:text-primary transition-all cursor-pointer group/slot overflow-hidden min-w-0">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+            <span className="text-xs font-bold text-on-surface min-w-[80px] sm:min-w-[90px] shrink-0">
               {slot.startTime} - {slot.endTime}
             </span>
             <span className="text-xs font-medium italic truncate">

@@ -127,13 +127,13 @@ const PtScheduleMonthGrid = ({
   }, [monthInfo]);
 
   return (
-    <section className="bento-card rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 md:p-6 border border-slate-200 dark:border-white/10 shadow-2xl space-y-3 sm:space-y-4 overflow-hidden">
+    <section className="bento-card rounded-2xl sm:rounded-3xl p-2 sm:p-4 md:p-6 border border-slate-200 dark:border-white/10 shadow-2xl space-y-2.5 sm:space-y-4 overflow-hidden w-full">
       {/* Weekday Column Headers */}
-      <div className="grid grid-cols-7 gap-1 sm:gap-1.5 md:gap-2 text-center">
+      <div className="grid grid-cols-7 gap-0.5 sm:gap-1.5 md:gap-2 text-center">
         {WEEKDAY_NAMES_VI.map((name, idx) => (
           <div
             key={name}
-            className={`py-1 sm:py-2 text-[10px] sm:text-xs md:text-sm font-bold uppercase tracking-wider ${
+            className={`min-w-0 py-1 sm:py-2 text-[10px] sm:text-xs md:text-sm font-bold uppercase tracking-wider truncate ${
               idx >= 5 ? 'text-amber-700 dark:text-amber-400/80' : 'text-slate-800 dark:text-white/60'
             }`}
           >
@@ -143,7 +143,7 @@ const PtScheduleMonthGrid = ({
       </div>
 
       {/* Monthly Days Grid */}
-      <div className="grid grid-cols-7 gap-1 sm:gap-1.5 md:gap-2">
+      <div className="grid grid-cols-7 gap-0.5 sm:gap-1.5 md:gap-2">
         {calendarCells.map((cell) => {
           const isToday = mounted ? isSameDay(cell.date, today) : false;
           const isSelected = isSameDay(cell.date, selectedDate);
@@ -161,7 +161,7 @@ const PtScheduleMonthGrid = ({
                   onOpenDayDetails(cell.date);
                 }
               }}
-              className={`min-h-[68px] sm:min-h-[105px] md:min-h-[125px] p-1 sm:p-2 md:p-2.5 rounded-xl sm:rounded-2xl md:rounded-3xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group relative ${
+              className={`min-w-0 overflow-hidden min-h-[60px] sm:min-h-[105px] md:min-h-[125px] p-1 sm:p-2 md:p-2.5 rounded-xl sm:rounded-2xl md:rounded-3xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group relative ${
                 isSelected
                   ? 'bg-primary/[0.08] border-primary shadow-[0_0_15px_rgba(102,200,28,0.25)] ring-1 ring-primary/40'
                   : cell.isCurrentMonth

@@ -416,7 +416,7 @@ export const SmartFoodInputView = ({
   );
 
   return (
-    <div className="min-h-screen bg-surface-container-low dark:bg-background text-on-surface flex flex-col justify-between">
+    <div className="min-h-screen w-full overflow-x-hidden bg-surface-container-low dark:bg-background text-on-surface flex flex-col justify-between">
       {/* Hidden file inputs for Camera and Gallery */}
       <input
         type="file"
@@ -434,18 +434,18 @@ export const SmartFoodInputView = ({
         className="hidden"
       />
 
-      <header className="sticky top-0 z-40 bg-white/90 dark:bg-background/90 backdrop-blur-xl border-b border-slate-200 dark:border-white/10 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between">
+      <header className="sticky top-0 z-40 w-full bg-white/90 dark:bg-background/90 backdrop-blur-xl border-b border-slate-200 dark:border-white/10 px-2.5 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2">
         <button
           type="button"
           onClick={onBack}
-          className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-800 dark:text-white transition-colors cursor-pointer"
+          className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-800 dark:text-white transition-colors cursor-pointer shrink-0"
           aria-label="Quay lại"
         >
           <ArrowLeft size={20} />
         </button>
 
         {/* 3-Tab Segmented Control */}
-        <div className="flex items-center bg-slate-100 dark:bg-white/10 p-1 rounded-full border border-slate-200/80 dark:border-white/10">
+        <div className="flex items-center bg-slate-100 dark:bg-white/10 p-1 rounded-full border border-slate-200/80 dark:border-white/10 min-w-0 max-w-full overflow-x-auto no-scrollbar">
           {/* 1. Chụp ảnh */}
           <button
             type="button"
@@ -453,7 +453,7 @@ export const SmartFoodInputView = ({
               setActiveTab('camera');
               stopListening();
             }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
               activeTab === 'camera'
                 ? 'bg-white dark:bg-white/20 text-[#82c91e] dark:text-[#82c91e] shadow-xs'
                 : 'text-slate-500 dark:text-white/60 hover:text-slate-800 dark:hover:text-white'
@@ -469,7 +469,7 @@ export const SmartFoodInputView = ({
             onClick={() => {
               setActiveTab('voice');
             }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
               activeTab === 'voice'
                 ? 'bg-white dark:bg-white/20 text-blue-600 dark:text-blue-400 shadow-xs'
                 : 'text-slate-500 dark:text-white/60 hover:text-slate-800 dark:hover:text-white'
@@ -486,7 +486,7 @@ export const SmartFoodInputView = ({
               setActiveTab('text');
               stopListening();
             }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
               activeTab === 'text'
                 ? 'bg-white dark:bg-white/20 text-slate-900 dark:text-white shadow-xs'
                 : 'text-slate-500 dark:text-white/60 hover:text-slate-800 dark:hover:text-white'
@@ -497,11 +497,11 @@ export const SmartFoodInputView = ({
           </button>
         </div>
 
-        <div className="w-9" />
+        <div className="hidden sm:block w-9 shrink-0" />
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col items-center justify-start max-w-md mx-auto w-full px-5 sm:px-6 pt-6 sm:pt-8 pb-6 text-center">
+      <main className="flex-1 flex flex-col items-center justify-start max-w-md mx-auto w-full px-4 sm:px-6 pt-5 sm:pt-8 pb-6 text-center overflow-x-hidden">
         {/* Tab: Camera */}
         {activeTab === 'camera' && (
           <div className="w-full flex flex-col items-center">
@@ -657,7 +657,7 @@ export const SmartFoodInputView = ({
         {activeTab === 'voice' && (
           <>
             {/* Voice Mode Instructions */}
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-snug mb-5">
+            <h1 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-snug mb-4 sm:mb-5 px-1">
               Hãy đọc chậm và rõ ràng, Nhấn mic để nói nhé.
             </h1>
 
@@ -668,7 +668,7 @@ export const SmartFoodInputView = ({
                 setSpeechTranscript(sample);
                 triggerAnalyze(sample);
               }}
-              className="mb-6 px-4 py-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 max-w-xs transition-all cursor-pointer hover:bg-emerald-500/15"
+              className="mb-5 px-4 py-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 w-full max-w-sm transition-all cursor-pointer hover:bg-emerald-500/15 overflow-hidden"
               title="Nhấn để phân tích câu này ngay"
             >
               <p className="text-emerald-600 dark:text-primary font-bold text-sm sm:text-base leading-relaxed break-words">
@@ -678,14 +678,14 @@ export const SmartFoodInputView = ({
 
             {/* Live Token Preview if detected */}
             {recognizedTokens.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 justify-center mb-6">
+              <div className="flex flex-wrap gap-1.5 justify-center mb-5 max-w-full">
                 {recognizedTokens.map((t, idx) => (
                   <span
                     key={idx}
-                    className="px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex items-center gap-1"
+                    className="px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex items-center gap-1 max-w-full"
                   >
-                    <span>{t.query}</span>
-                    <span className="text-primary font-black">({t.weight}g)</span>
+                    <span className="truncate">{t.query}</span>
+                    <span className="text-primary font-black shrink-0">({t.weight}g)</span>
                   </span>
                 ))}
               </div>
@@ -695,16 +695,16 @@ export const SmartFoodInputView = ({
             <button
               type="button"
               onClick={onManualSearch}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-slate-300 dark:border-white/20 bg-white dark:bg-white/5 text-slate-700 dark:text-white/80 hover:bg-slate-50 dark:hover:bg-white/10 text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer mb-8"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-slate-300 dark:border-white/20 bg-white dark:bg-white/5 text-slate-700 dark:text-white/80 hover:bg-slate-50 dark:hover:bg-white/10 text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer mb-6 max-w-full"
             >
-              <Search size={15} className="text-slate-400" />
+              <Search size={15} className="text-slate-400 shrink-0" />
               <span>Tìm kiếm thủ công</span>
             </button>
 
             {/* Auto-analyzing indicator */}
             {isAnalyzing && (
-              <div className="mb-6 flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-primary text-xs sm:text-sm font-extrabold animate-pulse shadow-sm">
-                <Loader2 size={16} className="animate-spin" />
+              <div className="mb-5 flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-primary text-xs sm:text-sm font-extrabold animate-pulse shadow-sm max-w-full">
+                <Loader2 size={16} className="animate-spin shrink-0" />
                 <span>Đang phân tích món ăn giúp bạn...</span>
               </div>
             )}
@@ -768,17 +768,17 @@ export const SmartFoodInputView = ({
                 </div>
               </div>
             ) : (
-              <div className="my-auto py-6 flex flex-col items-center justify-center relative">
-                {/* Outer Pulsing Aura Circles */}
+              <div className="w-full overflow-hidden my-auto py-8 sm:py-10 flex flex-col items-center justify-center relative">
+                {/* Outer Pulsing Aura Circles (clipped cleanly inside container) */}
                 <div
-                  className={`absolute w-64 h-64 rounded-full pointer-events-none transition-all duration-700 ${
+                  className={`absolute w-36 h-36 sm:w-44 sm:h-44 rounded-full pointer-events-none transition-all duration-700 ${
                     isListening
                       ? 'bg-emerald-500/15 dark:bg-primary/15 animate-ping opacity-75'
                       : 'bg-emerald-500/5 dark:bg-primary/5 opacity-40'
                   }`}
                 />
                 <div
-                  className={`absolute w-48 h-48 rounded-full pointer-events-none transition-all duration-500 ${
+                  className={`absolute w-36 h-36 sm:w-44 sm:h-44 rounded-full pointer-events-none transition-all duration-500 ${
                     isListening
                       ? 'bg-emerald-500/20 dark:bg-primary/20 animate-pulse'
                       : 'bg-emerald-500/10 dark:bg-primary/10'
@@ -789,7 +789,7 @@ export const SmartFoodInputView = ({
                 <button
                   type="button"
                   onClick={handleMicToggle}
-                  className={`relative w-28 h-28 rounded-full flex flex-col items-center justify-center transition-all duration-300 cursor-pointer shadow-xl ${
+                  className={`relative z-10 w-24 h-24 sm:w-28 sm:h-28 rounded-full flex flex-col items-center justify-center transition-all duration-300 cursor-pointer shadow-xl ${
                     isListening
                       ? 'bg-emerald-100 dark:bg-emerald-950/80 border-4 border-emerald-500 dark:border-primary scale-105'
                       : 'bg-slate-100 dark:bg-white/10 hover:bg-emerald-50 dark:hover:bg-white/15 border-2 border-slate-200 dark:border-white/10'
@@ -804,11 +804,11 @@ export const SmartFoodInputView = ({
                       <span className="w-1.5 h-4 bg-emerald-600 dark:bg-primary rounded-full animate-bounce [animation-delay:-0.2s]" />
                     </div>
                   ) : (
-                    <Mic size={34} className="text-slate-600 dark:text-white/80" />
+                    <Mic size={32} className="text-slate-600 dark:text-white/80" />
                   )}
                 </button>
 
-                <span className="mt-4 text-xs font-bold text-slate-500 dark:text-white/60">
+                <span className="relative z-10 mt-4 text-xs font-bold text-slate-500 dark:text-white/60">
                   {isListening ? 'Đang lắng nghe...' : 'Nhấn vào micro để nói'}
                 </span>
               </div>

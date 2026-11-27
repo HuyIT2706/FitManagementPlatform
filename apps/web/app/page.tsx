@@ -9,6 +9,7 @@ import FaqSection from '../components/landing/FaqSection';
 import CtaBanner from '../components/landing/CtaBanner';
 import LandingFooter from '../components/landing/LandingFooter';
 import RootAuthGate from '../components/landing/RootAuthGate';
+import PwaInstallPrompt from '../components/landing/PwaInstallPrompt';
 
 export default function LandingPage() {
   return (
@@ -25,6 +26,7 @@ export default function LandingPage() {
           <CtaBanner />
         </main>
         <LandingFooter />
+        <PwaInstallPrompt />
       </div>
     </RootAuthGate>
   );

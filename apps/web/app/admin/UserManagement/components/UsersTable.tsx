@@ -11,6 +11,7 @@ import {
   Award,
 } from 'lucide-react';
 import type { AdminUsersTableProps } from '../../../../interface';
+import { formatGoalLabel } from '../../../../utils/goalLabels';
 import { getAvatarUrl } from '../../../../utils/avatar';
 import AppLoading from '../../../../components/ui/AppLoading';
 
@@ -113,13 +114,7 @@ const AdminUsersTable = ({
                   {/* Goal */}
                   <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                     <span className="text-slate-700 dark:text-white/80 font-medium text-xs">
-                      {u.goal === 'LOSE_WEIGHT'
-                        ? 'Giảm Mỡ'
-                        : u.goal === 'BUILD_MUSCLE'
-                          ? 'Tăng Cơ'
-                          : u.goal === 'MAINTAIN'
-                            ? 'Giữ Vóc Dáng'
-                            : u.goal || 'Chưa chọn'}
+                      {formatGoalLabel(u.goal, 'short', 'Chưa chọn')}
                     </span>
                   </td>
 

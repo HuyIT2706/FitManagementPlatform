@@ -3,6 +3,7 @@
 import React from 'react';
 import { Target } from 'lucide-react';
 import type { AdminGoalDistributionCardProps } from '../../../interface';
+import { formatGoalLabel } from '../../../utils/goalLabels';
 
 const AdminGoalDistributionCard = ({
   goalDistribution,
@@ -22,14 +23,7 @@ const AdminGoalDistributionCard = ({
           <p className="text-xs text-slate-400 dark:text-white/40 italic">Chưa có dữ liệu mục tiêu học viên</p>
         ) : (
           goalDistribution.map((g) => {
-            const label =
-              g.goal === 'LOSE_WEIGHT'
-                ? 'Giảm Mỡ / Giảm Cân'
-                : g.goal === 'BUILD_MUSCLE'
-                  ? 'Tăng Cơ / Xây Dựng Vóc Dáng'
-                  : g.goal === 'MAINTAIN'
-                    ? 'Duy Trì Vóc Dáng & Sức Khỏe'
-                    : g.goal;
+            const label = formatGoalLabel(g.goal, 'descriptive', 'Chưa xác định');
             const percent = Math.round((g.count / totalGoalUsers) * 100);
 
             return (

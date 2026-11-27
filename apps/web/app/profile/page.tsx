@@ -84,6 +84,8 @@ const ProfilePage = () => {
   const goalTextMap: Record<string, string> = {
     LOSE_WEIGHT: 'Mục tiêu Giảm cân (Thâm hụt Calo)',
     GAIN_WEIGHT: 'Mục tiêu Tăng cân (Thặng dư Calo)',
+    GAIN_MUSCLE: 'Mục tiêu Tăng cơ (Thặng dư Calo)',
+    BUILD_MUSCLE: 'Mục tiêu Tăng cơ (Thặng dư Calo)',
     MAINTAIN: 'Mục tiêu Giữ cân (Cân bằng Calo)',
   };
 

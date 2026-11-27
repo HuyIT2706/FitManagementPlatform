@@ -267,7 +267,9 @@ const StudentInbodyTab = ({
         targetWeightKg={targetWeight || 0}
         goalTextMap={{
           LOSE_WEIGHT: 'Giảm mỡ & Tăng cơ',
+          GAIN_WEIGHT: 'Tăng cân & Tăng cơ',
           GAIN_MUSCLE: 'Tăng cơ & Giảm mỡ',
+          BUILD_MUSCLE: 'Tăng cơ & Giảm mỡ',
           MAINTAIN: 'Duy trì vóc dáng',
           ENDURANCE: 'Sức bền & Thể lực',
         }}

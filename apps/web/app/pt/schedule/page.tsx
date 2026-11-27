@@ -24,6 +24,7 @@ import AccessDenied from "../../../components/ui/AccessDenied";
 import PtPendingApproval from "../../../components/ui/PtPendingApproval";
 import { performLogout } from "../../../utils/logout";
 import PtScheduleMonthGrid from "./components/PtScheduleMonthGrid";
+import PtScheduleSlotCard from "./components/PtScheduleSlotCard";
 import type { ScheduleSlot } from "../../../interface";
 
 import {
@@ -322,16 +323,20 @@ const PTSchedulePage = () => {
   const selectedStudentObj = studentsList.find((s) => s.id === filterStudentId);
 
   return (
-    <div className="min-h-screen bg-background pb-32 text-on-surface">
+    <div className="min-h-screen w-full overflow-x-hidden bg-background pb-32 text-on-surface">
       <Header userData={userData} onLogout={handleLogout} />
 
-      <main className="max-w-6xl mx-auto px-container-padding mt-3 sm:mt-4 md:mt-8 space-y-4 sm:space-y-6">
+      <main className="max-w-6xl mx-auto px-3 sm:px-6 mt-3 sm:mt-4 md:mt-8 space-y-4 sm:space-y-6">
         {/* Top Hero Banner & Toolbar Controls */}
         <section className="bento-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-7 border border-outline-variant/30 relative z-20 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+          <div className="absolute inset-0 rounded-2xl sm:rounded-3xl overflow-hidden pointer-events-none">
+            <div className="absolute -right-12 -top-12 w-44 h-44 bg-primary/10 blur-[60px] rounded-full"></div>
+          </div>
+
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
             {/* Title & Description */}
-            <div>
-              <h1 className="inline-flex items-center gap-1.5 sm:gap-2 bg-primary/10 text-primary px-3 py-1 rounded-full font-bold uppercase tracking-wider mb-1.5 border border-primary/30">
+            <div className="min-w-0">
+              <h1 className="inline-flex items-center gap-1.5 sm:gap-2 bg-primary/10 text-primary px-3 py-1 rounded-full font-bold uppercase tracking-wider mb-1.5 border border-primary/30 text-xs sm:text-sm">
                 <Calendar size={14} />
                 Lịch Dạy PT
               </h1>
@@ -355,22 +360,22 @@ const PTSchedulePage = () => {
           </div>
 
           {/* Sub Toolbar: Month Navigation + Custom Glassmorphism Filter Dropdown */}
-          <div className="pt-3 border-t border-slate-200 dark:border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div className="relative z-10 pt-3 border-t border-slate-200 dark:border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
             {/* Month / Period Navigation Controls */}
-            <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
-              <div className="flex items-center gap-1 bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 rounded-2xl p-1">
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-start min-w-0">
+              <div className="flex items-center gap-1 bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 rounded-2xl p-1 min-w-0">
                 <button
                   type="button"
                   suppressHydrationWarning
                   onClick={handlePrevMonth}
                   title="Tháng trước"
                   aria-label="Tháng trước"
-                  className="w-8 h-8 rounded-xl bg-slate-200/70 hover:bg-slate-300 dark:bg-white/5 dark:hover:bg-white/15 text-slate-700 hover:text-slate-900 dark:text-white/70 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                  className="w-8 h-8 rounded-xl bg-slate-200/70 hover:bg-slate-300 dark:bg-white/5 dark:hover:bg-white/15 text-slate-700 hover:text-slate-900 dark:text-white/70 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
                 >
                   <ChevronLeft size={18} />
                 </button>
 
-                <span className="px-2 sm:px-3 text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white whitespace-nowrap min-w-[105px] sm:min-w-[130px] text-center">
+                <span className="px-2 sm:px-3 text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white whitespace-nowrap min-w-0 sm:min-w-[130px] text-center truncate">
                   {monthYearLabel}
                 </span>
 
@@ -380,7 +385,7 @@ const PTSchedulePage = () => {
                   onClick={handleNextMonth}
                   title="Tháng sau"
                   aria-label="Tháng sau"
-                  className="w-8 h-8 rounded-xl bg-slate-200/70 hover:bg-slate-300 dark:bg-white/5 dark:hover:bg-white/15 text-slate-700 hover:text-slate-900 dark:text-white/70 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                  className="w-8 h-8 rounded-xl bg-slate-200/70 hover:bg-slate-300 dark:bg-white/5 dark:hover:bg-white/15 text-slate-700 hover:text-slate-900 dark:text-white/70 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
                 >
                   <ChevronRight size={18} />
                 </button>
@@ -391,7 +396,7 @@ const PTSchedulePage = () => {
                   type="button"
                   suppressHydrationWarning
                   onClick={handleGoToToday}
-                  className="px-3 sm:px-3.5 py-2 rounded-2xl bg-white dark:bg-surface-bright text-on-surface border border-slate-300 dark:border-white/10 font-bold text-xs hover:border-primary/40 transition-colors flex items-center gap-1.5 cursor-pointer shrink-0"
+                  className="px-3 sm:px-3.5 py-2 rounded-2xl bg-white dark:bg-surface-bright text-on-surface border border-slate-300 dark:border-white/10 font-bold text-xs hover:border-primary/40 transition-colors flex items-center gap-1.5 cursor-pointer shrink-0 whitespace-nowrap"
                 >
                   <RotateCcw size={14} />
                   Hôm nay
@@ -400,17 +405,17 @@ const PTSchedulePage = () => {
             </div>
 
             {/* Right Filters: Custom Glassmorphism Student Dropdown */}
-            <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
-              <div ref={dropdownRef} className="relative w-full sm:w-auto">
+            <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end min-w-0">
+              <div ref={dropdownRef} className="relative w-full sm:w-auto min-w-0">
                 <button
                   type="button"
                   suppressHydrationWarning
                   onClick={() => setIsStudentDropdownOpen((prev) => !prev)}
-                  className="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.05] dark:hover:bg-white/[0.08] border border-slate-300 dark:border-white/15 hover:border-primary/40 rounded-2xl px-3.5 sm:px-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white transition-all cursor-pointer shadow-xs"
+                  className="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.05] dark:hover:bg-white/[0.08] border border-slate-300 dark:border-white/15 hover:border-primary/40 rounded-2xl px-3.5 sm:px-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white transition-all cursor-pointer shadow-xs min-w-0"
                 >
-                  <div className="flex items-center gap-2 truncate">
+                  <div className="flex items-center gap-2 min-w-0 truncate">
                     <Filter size={14} className="text-primary shrink-0" />
-                    <span className="max-w-[140px] sm:max-w-[160px] truncate">
+                    <span className="truncate max-w-full sm:max-w-[160px]">
                       {selectedStudentObj
                         ? selectedStudentObj.fullName
                         : `Tất cả học viên (${studentsList.length})`}
@@ -419,7 +424,7 @@ const PTSchedulePage = () => {
                 </button>
 
                 {isStudentDropdownOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-full sm:w-64 max-w-[calc(100vw-32px)] bg-white dark:bg-[#121620]/95 backdrop-blur-xl border border-slate-200 dark:border-white/15 rounded-2xl p-1.5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1 max-h-60 overflow-y-auto [&&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+                  <div className="absolute left-0 sm:left-auto right-0 top-full mt-2 w-full sm:w-64 max-w-full bg-white dark:bg-[#121620]/95 backdrop-blur-xl border border-slate-200 dark:border-white/15 rounded-2xl p-1.5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1 max-h-60 overflow-y-auto no-scrollbar">
                     <button
                       type="button"
                       suppressHydrationWarning
@@ -433,17 +438,17 @@ const PTSchedulePage = () => {
                           : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"
                       }`}
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
                         <Filter
                           size={13}
-                          className={
+                          className={`shrink-0 ${
                             !filterStudentId ? "text-primary" : "text-slate-400 dark:text-white/40"
-                          }
+                          }`}
                         />
-                        <span>Tất cả học viên ({studentsList.length})</span>
+                        <span className="truncate">Tất cả học viên ({studentsList.length})</span>
                       </div>
                       {!filterStudentId && (
-                        <Check size={14} className="text-primary" />
+                        <Check size={14} className="text-primary shrink-0" />
                       )}
                     </button>
                     {studentsList.map((st) => {
@@ -463,7 +468,7 @@ const PTSchedulePage = () => {
                               : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"
                           }`}
                         >
-                          <div className="flex items-center gap-2 truncate">
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
                             <span className="w-5 h-5 rounded-full bg-primary/20 text-primary-dark dark:text-primary text-[10px] font-black flex items-center justify-center shrink-0 border border-primary/30">
                               {st.fullName ? st.fullName.charAt(0) : "H"}
                             </span>
@@ -483,8 +488,6 @@ const PTSchedulePage = () => {
               </div>
             </div>
           </div>
-
-          <div className="absolute -right-12 -top-12 w-44 h-44 bg-primary/10 blur-[60px] rounded-full pointer-events-none"></div>
         </section>
 
         {/* Main Monthly Calendar Grid */}
@@ -498,6 +501,47 @@ const PTSchedulePage = () => {
           onOpenDayDetails={handleOpenDayDetails}
           filterStudentId={filterStudentId}
         />
+
+        {/* Mobile Daily Schedule List for Selected Day */}
+        <section className="sm:hidden bento-card rounded-2xl p-4 border border-slate-200 dark:border-white/10 space-y-3.5 overflow-hidden">
+          <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-200 dark:border-white/10">
+            <div className="min-w-0">
+              <h2 className="text-sm font-extrabold text-slate-900 dark:text-white truncate">
+                Lịch dạy ngày {selectedDate.getDate()}/{selectedDate.getMonth() + 1}/{selectedDate.getFullYear()}
+              </h2>
+              <p className="text-[11px] text-slate-500 dark:text-white/50 font-medium">
+                {timelineSlots.length > 0
+                  ? `${timelineSlots.length} ca dạy đã xếp`
+                  : "Chưa có ca dạy nào trong ngày này"}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleOpenAddModalForDate(selectedDate)}
+              className="px-3 py-1.5 rounded-xl bg-primary/15 border border-primary/30 text-primary text-xs font-extrabold flex items-center gap-1 shrink-0 cursor-pointer"
+            >
+              <PlusCircle size={13} />
+              <span>Thêm ca</span>
+            </button>
+          </div>
+
+          {timelineSlots.length > 0 ? (
+            <div className="relative pl-5 border-l-2 border-slate-200 dark:border-outline-variant/30 space-y-3">
+              {timelineSlots.map((slot) => (
+                <PtScheduleSlotCard
+                  key={slot.id}
+                  slot={slot}
+                  isChecked={Boolean(checkedSessions[slot.id])}
+                  onCheckIn={handleCheckIn}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="py-5 text-center rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-dashed border-slate-200 dark:border-white/10 text-xs text-slate-500 dark:text-white/50">
+              Chạm vào ngày trên lịch hoặc bấm Thêm ca để xếp lịch dạy mới.
+            </div>
+          )}
+        </section>
       </main>
 
       {/* Modal Thêm Ca Dạy Thủ Công */}

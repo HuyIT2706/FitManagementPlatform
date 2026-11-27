@@ -391,10 +391,10 @@ const AddScheduleModal = ({
                                 : 'text-slate-800 dark:text-on-surface hover:bg-slate-100 dark:hover:bg-white/10'
                             }`}
                           >
-                            <div className="flex items-center gap-2 truncate">
-                              <span className="font-extrabold">{st.fullName}</span>
+                            <div className="flex items-center gap-2 min-w-0 flex-1">
+                              <span className="font-extrabold truncate">{st.fullName}</span>
                               <span
-                                className={`text-[10px] opacity-80 ${
+                                className={`text-[10px] opacity-80 truncate ${
                                   isSelected ? 'text-dark-slate font-extrabold' : 'text-primary-dark dark:text-primary'
                                 }`}
                               >
@@ -420,9 +420,9 @@ const AddScheduleModal = ({
           </div>
 
           {/* Time Picker Row with Custom Dark Dropdowns */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
             {/* Giờ bắt đầu */}
-            <div className="relative space-y-1.5">
+            <div className="relative space-y-1.5 min-w-0">
               <label className="text-xs font-bold text-on-surface flex items-center gap-1.5">
                 <Clock size={14} className="text-primary" />
                 Giờ bắt đầu
@@ -474,7 +474,7 @@ const AddScheduleModal = ({
             </div>
 
             {/* Giờ kết thúc */}
-            <div className="relative space-y-1.5">
+            <div className="relative space-y-1.5 min-w-0">
               <label className="text-xs font-bold text-on-surface flex items-center gap-1.5">
                 <Clock size={14} className="text-primary" />
                 Giờ kết thúc

@@ -59,7 +59,7 @@ const DaySessionsModal = ({
         {/* Sessions list */}
         <div className="space-y-4">
           {slots.length > 0 ? (
-            <div className="relative pl-6 sm:pl-8 border-l-2 border-slate-200 dark:border-outline-variant/30 space-y-3 sm:space-y-5">
+            <div className="relative pl-5 sm:pl-8 border-l-2 border-slate-200 dark:border-outline-variant/30 space-y-3 sm:space-y-5">
               {slots.map((slot) => (
                 <PtScheduleSlotCard
                   key={slot.id}
