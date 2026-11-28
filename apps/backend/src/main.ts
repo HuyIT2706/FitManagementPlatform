@@ -74,7 +74,19 @@ async function bootstrap() {
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     exposedHeaders: ['X-Encrypted-Response'],
   });
-  app.use(compression());
+  app.use(
+    compression({
+      filter: (req, res) => {
+        if (
+          req.headers.accept?.includes('text/event-stream') ||
+          req.path.endsWith('/notifications/stream')
+        ) {
+          return false;
+        }
+        return compression.filter(req, res);
+      },
+    }),
+  );
   app.use(cookieParser());
   app.use(httpLoggerMiddleware);
   // Limit payload size to mitigate memory DoS

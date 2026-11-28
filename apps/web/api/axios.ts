@@ -2,7 +2,15 @@ import axios from 'axios';
 import { encryptPayload, decryptPayload } from '../utils/payload-crypto';
 import { clearSwrCache } from '../utils/swrCache';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3100';
+export const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3100';
+export const AUTH_CHANGED_EVENT = 'nutricore-auth-changed';
+
+export function notifyAuthChanged(): void {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
+  }
+}
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -96,6 +104,23 @@ async function getFreshToken(shouldRedirectOnFail = true): Promise<string | null
   })();
 
   return refreshTokenPromise;
+}
+
+/**
+ * Returns a valid access token from localStorage, proactively refreshing if near expiry.
+ */
+export async function getValidAccessToken(forceRefresh = false): Promise<string | null> {
+  if (typeof window === 'undefined') return null;
+  const token = localStorage.getItem('jwt_token');
+  if (!token) return null;
+
+  if (forceRefresh || isTokenExpiringSoon(token, 120)) {
+    const fresh = await getFreshToken(false);
+    if (fresh) return fresh;
+    return forceRefresh ? null : token;
+  }
+
+  return token;
 }
 
 // Request Interceptor: Proactive Auth + End-to-End Payload Encryption

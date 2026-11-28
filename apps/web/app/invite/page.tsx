@@ -17,8 +17,9 @@ import apiClient from '../../api/axios';
 import { toast } from '../../utils/toast';
 import { isAxiosError } from 'axios';
 import { getApiErrorMessage } from '../../utils/apiError';
-import { broadcastSync } from '../../utils/realtimeSync';
+import { broadcastSync, subscribeSync } from '../../utils/realtimeSync';
 import { clearPendingInvite, savePendingInvite } from '../../utils/pendingInvite';
+import type { UserDataHome } from '../../interface';
 
 function InviteContent() {
   const searchParams = useSearchParams();
@@ -39,6 +40,43 @@ function InviteContent() {
 
   // AbortController ref to cancel in-flight request if component unmounts
   const abortRef = useRef<AbortController | null>(null);
+
+  // Realtime reaction when PT approves or rejects while student waits on /invite
+  useEffect(() => {
+    if (status !== 'SUCCESS' || !isPendingApproval) return;
+    let cancelled = false;
+    const unsubscribe = subscribeSync((event) => {
+      if (
+        event === 'PT_REQUEST_UPDATED' ||
+        event === 'PT_BIND_UPDATED' ||
+        event === 'NOTIFICATION_RECEIVED'
+      ) {
+        void apiClient
+          .get<UserDataHome>('/users/me')
+          .then((res) => {
+            if (cancelled) return;
+            const pt = res.data?.assignedPt;
+            if (pt?.isApproved || pt?.status === 'APPROVED') {
+              setIsPendingApproval(false);
+              setMessage(
+                `Coach ${pt.fullName || 'của bạn'} đã phê duyệt yêu cầu ghép lớp 1:1! Bắt đầu lộ trình tập luyện ngay hôm nay.`,
+              );
+            } else if (pt?.status === 'REJECTED') {
+              setIsPendingApproval(false);
+              setStatus('ERROR');
+              setMessage(
+                'Huấn luyện viên chưa thể nhận thêm học viên vào lúc này. Bạn có thể kết nối với Coach khác.',
+              );
+            }
+          })
+          .catch(() => {});
+      }
+    });
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
+  }, [status, isPendingApproval]);
 
   useEffect(() => {
     const token =

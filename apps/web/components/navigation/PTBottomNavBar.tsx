@@ -5,72 +5,47 @@ import React from "react";
 import { Home, Calendar, Users, User, Plus } from "lucide-react";
 import type { PTBottomNavBarProps } from "../../interface";
 
+const PT_NAV_ITEMS: Array<{
+  key: PTBottomNavBarProps["activeTab"];
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+}> = [
+  { key: "home", href: "/pt", label: "Trang chủ", icon: Home },
+  { key: "schedule", href: "/pt/schedule", label: "Lịch dạy", icon: Calendar },
+  { key: "students", href: "/pt/students", label: "Học viên", icon: Users },
+  { key: "profile", href: "/pt/profile", label: "Tôi", icon: User },
+];
+
 const PTBottomNavBar = ({ activeTab }: PTBottomNavBarProps) => {
   return (
     <>
-      <div className="md:hidden fixed bottom-8 left-1/2 -translate-x-1/2 w-[94%] max-w-md z-50 flex items-center justify-center gap-2.5">
-        <nav className="flex-1 min-w-0 flex items-center justify-between rounded-full p-1.5 sm:p-2 shadow-2xl bg-white/95 dark:bg-[#121926]/90 backdrop-blur-xl border border-slate-200 dark:border-white/20">
-          {/* Trang chủ */}
-          <Link
-            href="/pt"
-            prefetch={true}
-            className={`flex items-center gap-1.5 rounded-full transition-colors whitespace-nowrap shrink-0 ${
-              activeTab === "home"
-                ? "bg-green-light/15 text-green-light px-3 sm:px-4 py-2 font-bold"
-                : "w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50"
-            }`}
-          >
-            <Home className="w-5 h-5 shrink-0" />
-            {activeTab === "home" && <span className="font-headline-md text-xs sm:text-sm">Trang chủ</span>}
-          </Link>
-
-          <div className="flex items-center min-w-0">
-            {/* Lịch dạy */}
-            <Link
-              href="/pt/schedule"
-              prefetch={true}
-              className={`flex items-center gap-1.5 rounded-full transition-colors whitespace-nowrap shrink-0 ${
-                activeTab === "schedule"
-                  ? "bg-green-light/15 text-green-light px-3 sm:px-4 py-2 font-bold"
-                  : "w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50"
-              }`}
-            >
-              <Calendar className="w-5 h-5 shrink-0" />
-              {activeTab === "schedule" && (
-                <span className="font-headline-md text-xs sm:text-sm">Lịch dạy</span>
-              )}
-            </Link>
-
-            {/* Học viên */}
-            <Link
-              href="/pt/students"
-              prefetch={true}
-              className={`flex items-center gap-1.5 rounded-full transition-colors whitespace-nowrap shrink-0 ${
-                activeTab === "students"
-                  ? "bg-green-light/15 text-green-light px-3 sm:px-4 py-2 font-bold"
-                  : "w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50"
-              }`}
-            >
-              <Users className="w-5 h-5 shrink-0" />
-              {activeTab === "students" && (
-                <span className="font-headline-md text-xs sm:text-sm">Học viên</span>
-              )}
-            </Link>
-
-            {/* Tôi */}
-            <Link
-              href="/pt/profile"
-              prefetch={true}
-              className={`flex items-center gap-1.5 rounded-full transition-colors whitespace-nowrap shrink-0 ${
-                activeTab === "profile"
-                  ? "bg-green-light/15 text-green-light px-3 sm:px-4 py-2 font-bold"
-                  : "w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50"
-              }`}
-            >
-              <User className="w-5 h-5 shrink-0" />
-              {activeTab === "profile" && <span className="font-headline-md text-xs sm:text-sm">Tôi</span>}
-            </Link>
-          </div>
+      <div className="md:hidden fixed bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 w-[94%] max-w-md z-50 flex items-center justify-center gap-2 sm:gap-2.5">
+        <nav className="flex-1 min-w-0 flex items-center justify-between gap-1 rounded-full p-1.5 sm:p-2 shadow-2xl bg-white/95 dark:bg-[#121926]/90 backdrop-blur-xl border border-slate-200 dark:border-white/20">
+          {PT_NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.key;
+            return (
+              <Link
+                key={item.key}
+                href={item.href}
+                prefetch={true}
+                aria-label={item.label}
+                className={`flex items-center justify-center gap-1.5 rounded-full transition-colors whitespace-nowrap shrink-0 ${
+                  isActive
+                    ? "bg-green-light/15 text-green-light px-3 sm:px-4 py-2 font-bold"
+                    : "w-9 h-9 sm:w-10 sm:h-10 text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50"
+                }`}
+              >
+                <Icon className="w-5 h-5 shrink-0" />
+                {isActive && (
+                  <span className="font-headline-md text-xs sm:text-sm">
+                    {item.label}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Separate Floating Action Button (+) on the right linked to /pt/schedule */}

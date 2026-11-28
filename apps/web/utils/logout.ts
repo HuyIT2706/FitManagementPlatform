@@ -1,4 +1,4 @@
-import apiClient from '../api/axios';
+import apiClient, { notifyAuthChanged } from '../api/axios';
 import { mutate } from 'swr';
 import { clearPendingInvite, isInvitePath } from './pendingInvite';
 import { clearSwrCache } from './swrCache';
@@ -23,6 +23,7 @@ export const performLogout = async (redirectPath = '/login'): Promise<void> => {
       localStorage.removeItem('jwt_token');
       localStorage.removeItem('refresh_token');
       clearSwrCache();
+      notifyAuthChanged();
       if (!isInvitePath(redirectPath)) {
         clearPendingInvite();
       }

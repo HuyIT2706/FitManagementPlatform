@@ -19,6 +19,14 @@ export interface NotificationItem {
   createdAt: string;
 }
 
+export interface RealtimeNotificationEvent {
+  event: 'notification' | 'sync';
+  notification?: NotificationItem;
+  syncType?: string;
+  type?: string;
+  timestamp: string;
+}
+
 export interface PushSubscriptionPayload {
   endpoint: string;
   keys: {
@@ -56,12 +64,72 @@ export interface WebPushErrorLike {
 @Injectable()
 export class NotificationsService implements OnModuleInit {
   private readonly logger = new Logger(NotificationsService.name);
+  private readonly streamSubscribers = new Map<
+    string,
+    Set<(payload: RealtimeNotificationEvent) => void>
+  >();
 
   public readonly vapidPublicKey = process.env.VAPID_PUBLIC_KEY;
   private readonly vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
   private readonly vapidSubject = process.env.VAPID_SUBJECT;
 
   constructor(private readonly prisma: PrismaService) {}
+
+  /**
+   * Registers an in-memory SSE listener for the given user and returns an unsubscribe handler.
+   */
+  subscribeStream(
+    userId: string,
+    listener: (payload: RealtimeNotificationEvent) => void,
+  ): () => void {
+    if (!userId) {
+      return () => undefined;
+    }
+
+    let listeners = this.streamSubscribers.get(userId);
+    if (!listeners) {
+      listeners = new Set();
+      this.streamSubscribers.set(userId, listeners);
+    }
+    listeners.add(listener);
+
+    return () => {
+      const current = this.streamSubscribers.get(userId);
+      if (!current) return;
+      current.delete(listener);
+      if (current.size === 0) {
+        this.streamSubscribers.delete(userId);
+      }
+    };
+  }
+
+  /**
+   * Pushes a realtime notification or cache-sync signal to active SSE clients of userId.
+   */
+  emitRealtimeEvent(
+    userId: string,
+    payload: Omit<RealtimeNotificationEvent, 'timestamp'>,
+  ): void {
+    if (!userId) return;
+    const listeners = this.streamSubscribers.get(userId);
+    if (!listeners || listeners.size === 0) return;
+
+    const eventPayload: RealtimeNotificationEvent = {
+      ...payload,
+      timestamp: new Date().toISOString(),
+    };
+
+    for (const listener of listeners) {
+      try {
+        listener(eventPayload);
+      } catch (err) {
+        this.logger.warn(
+          `Failed to push SSE notification to user ${userId}:`,
+          err,
+        );
+      }
+    }
+  }
 
   onModuleInit(): void {
     if (this.vapidSubject && this.vapidPublicKey && this.vapidPrivateKey) {
@@ -136,6 +204,7 @@ export class NotificationsService implements OnModuleInit {
   }) {
     const { userId, title, message, type = 'INFO', linkUrl = '/home' } = data;
     let notifId: string;
+    let createdAt = new Date().toISOString();
 
     try {
       const created = await this.prisma.notification.create({
@@ -148,6 +217,9 @@ export class NotificationsService implements OnModuleInit {
         },
       });
       notifId = created.id;
+      if (created.createdAt instanceof Date) {
+        createdAt = created.createdAt.toISOString();
+      }
     } catch (err) {
       this.logger.error(
         `Failed to store notification for user ${userId}:`,
@@ -155,6 +227,21 @@ export class NotificationsService implements OnModuleInit {
       );
       notifId = randomUUID();
     }
+
+    this.emitRealtimeEvent(userId, {
+      event: 'notification',
+      type,
+      notification: {
+        id: notifId,
+        userId,
+        title,
+        message,
+        type,
+        isRead: false,
+        linkUrl,
+        createdAt,
+      },
+    });
 
     try {
       const subscriptions = await this.prisma.pushSubscription.findMany({

@@ -43,6 +43,7 @@ describe('PtService - Student Invitation & Binding Guards', () => {
 
     notificationsServiceMock = {
       sendNotification: jest.fn().mockResolvedValue(true),
+      emitRealtimeEvent: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -241,6 +242,27 @@ describe('PtService - Student Invitation & Binding Guards', () => {
           ptCodeOrInviteCode: 'PT-NAM123',
         }),
       ).rejects.toThrow(/đang có gói tập còn hiệu lực/);
+    });
+  });
+
+  describe('cancelBindRequest', () => {
+    it('emits realtime PT_REQUEST_UPDATED sync event to affected trainer', async () => {
+      prismaMock.studentProfile.findMany.mockResolvedValue([
+        { trainerId: 'pt-123' },
+      ]);
+      prismaMock.studentProfile.deleteMany.mockResolvedValue({ count: 1 });
+
+      const res = await service.cancelBindRequest('student-1');
+
+      expect(res.success).toBe(true);
+      expect(notificationsServiceMock.emitRealtimeEvent).toHaveBeenCalledWith(
+        'pt-123',
+        {
+          event: 'sync',
+          syncType: 'PT_REQUEST_UPDATED',
+          type: 'PT_REQUEST_CANCELLED',
+        },
+      );
     });
   });
 });

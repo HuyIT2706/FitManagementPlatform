@@ -2093,12 +2093,34 @@ export class PtService {
   }
 
   async cancelBindRequest(studentUserId: string) {
+    const pendingProfiles = await this.prisma.studentProfile.findMany({
+      where: {
+        studentId: studentUserId,
+        status: 'PENDING',
+      },
+      select: { trainerId: true },
+    });
+
     const deleted = await this.prisma.studentProfile.deleteMany({
       where: {
         studentId: studentUserId,
         status: 'PENDING',
       },
     });
+
+    if (deleted.count > 0 && pendingProfiles.length > 0) {
+      const trainerIds = Array.from(
+        new Set(pendingProfiles.map((p) => p.trainerId).filter(Boolean)),
+      );
+      for (const trainerId of trainerIds) {
+        this.notificationsService.emitRealtimeEvent?.(trainerId, {
+          event: 'sync',
+          syncType: 'PT_REQUEST_UPDATED',
+          type: 'PT_REQUEST_CANCELLED',
+        });
+      }
+    }
+
     return {
       success: true,
       message:

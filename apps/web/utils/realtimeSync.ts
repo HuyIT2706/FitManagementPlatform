@@ -17,6 +17,36 @@ const CHANNEL_NAME = 'nutricore_realtime_sync';
 // Global BroadcastChannel instance
 let broadcastChannel: BroadcastChannel | null = null;
 const syncListeners = new Set<(type: SyncEventType) => void>();
+const toastedNotificationIds = new Set<string>();
+
+const NOTIFICATION_SYNC_MAP: Record<string, SyncEventType> = {
+  STUDENT_REQUEST: 'PT_REQUEST_UPDATED',
+  PT_REQUEST: 'PT_REQUEST_UPDATED',
+  PT_REQUEST_CANCELLED: 'PT_REQUEST_UPDATED',
+  PT_ACCEPTED: 'PT_REQUEST_UPDATED',
+  PT_REJECTED: 'PT_REQUEST_UPDATED',
+  PT_APPLICATION: 'PT_APPLICATION_UPDATED',
+  NUTRITION_ASSIGNED: 'MEAL_PLAN_UPDATED',
+  MEAL_REVIEW: 'MEAL_PLAN_UPDATED',
+  WORKOUT_ASSIGNED: 'WORKOUT_UPDATED',
+  SESSION_DEDUCT: 'SCHEDULE_UPDATED',
+  PACKAGE_UPDATE: 'SCHEDULE_UPDATED',
+};
+
+export const mapNotificationTypeToSyncEvent = (type?: string): SyncEventType => {
+  if (!type) return 'NOTIFICATION_RECEIVED';
+  return NOTIFICATION_SYNC_MAP[type] || 'NOTIFICATION_RECEIVED';
+};
+
+export const markNotificationToasted = (id: string): boolean => {
+  if (!id || toastedNotificationIds.has(id)) return false;
+  if (toastedNotificationIds.size >= 200) {
+    const oldest = toastedNotificationIds.values().next().value;
+    if (oldest) toastedNotificationIds.delete(oldest);
+  }
+  toastedNotificationIds.add(id);
+  return true;
+};
 
 export const subscribeSync = (listener: (type: SyncEventType) => void): (() => void) => {
   syncListeners.add(listener);

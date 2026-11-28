@@ -69,11 +69,11 @@ export const useCurrentUser = (options?: SWRConfiguration) => {
     swrFetcher,
     {
       ...DEFAULT_SWR_OPTIONS,
-      revalidateIfStale: false,
-      revalidateOnFocus: false,
+      revalidateIfStale: true,
+      revalidateOnFocus: true,
       revalidateOnReconnect: true,
       keepPreviousData: true,
-      dedupingInterval: 120000,
+      dedupingInterval: 10000,
       onSuccess: (data) => {
         writeSwrCache('me', data);
       },
@@ -131,7 +131,14 @@ export const useAssignedMealPlan = (options?: SWRConfiguration) => {
   return useSWR<MealPlanAssigned | null>(
     hasToken ? '/workout/assigned-meal-plan' : null,
     swrFetcher,
-    { ...DEFAULT_SWR_OPTIONS, ...options }
+    {
+      ...DEFAULT_SWR_OPTIONS,
+      revalidateIfStale: true,
+      revalidateOnFocus: true,
+      revalidateOnReconnect: true,
+      dedupingInterval: 10000,
+      ...options,
+    }
   );
 };
 
@@ -140,7 +147,14 @@ export const useAssignedWorkoutPlan = (options?: SWRConfiguration) => {
   return useSWR<AssignedWorkoutPlanData | null>(
     hasToken ? '/workout/assigned-workout-plan' : null,
     swrFetcher,
-    { ...DEFAULT_SWR_OPTIONS, ...options }
+    {
+      ...DEFAULT_SWR_OPTIONS,
+      revalidateIfStale: true,
+      revalidateOnFocus: true,
+      revalidateOnReconnect: true,
+      dedupingInterval: 10000,
+      ...options,
+    }
   );
 };
 
@@ -195,7 +209,9 @@ export const usePtDashboard = (options?: SWRConfiguration) => {
     swrFetcher,
     {
       ...DEFAULT_SWR_OPTIONS,
-      dedupingInterval: 30000,
+      revalidateOnFocus: true,
+      revalidateOnReconnect: true,
+      dedupingInterval: 5000,
       ...options,
     }
   );
@@ -259,8 +275,9 @@ export const useNotifications = (options?: SWRConfiguration) => {
       ...DEFAULT_SWR_OPTIONS,
       refreshInterval: getNotificationRefreshInterval,
       shouldRetryOnError: false,
-      revalidateOnFocus: false,
-      dedupingInterval: 30000,
+      revalidateOnFocus: true,
+      revalidateOnReconnect: true,
+      dedupingInterval: 5000,
       ...options,
     }
   );

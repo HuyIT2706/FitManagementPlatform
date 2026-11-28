@@ -92,7 +92,7 @@ const Header = ({ userData, onLogout }: HeaderProps) => {
   return (
     <>
       {/* TopAppBar (Desktop) */}
-      <header className="hidden md:flex justify-between items-center px-container-padding py-stack-sm w-full bg-white dark:bg-[#121926] backdrop-blur-xl border-b border-slate-200 dark:border-white/10 sticky top-0 z-50 transition-colors duration-200 relative shadow-xs">
+      <header className="hidden md:flex justify-between items-center gap-3 px-4 lg:px-container-padding py-stack-sm w-full bg-white dark:bg-[#121926] backdrop-blur-xl border-b border-slate-200 dark:border-white/10 sticky top-0 z-50 transition-colors duration-200 relative shadow-xs">
         {/* Brand App Logo & Name (Clickable link to Role Home) */}
         <Link
           href={homeHref}
@@ -116,7 +116,7 @@ const Header = ({ userData, onLogout }: HeaderProps) => {
 
         {/* Center Navigation Bar (Desktop / Laptop) */}
         {navItems.length > 0 && (
-          <nav className="absolute left-1/2 -translate-x-1/2 flex items-center justify-between w-[320px] md:w-[360px] lg:w-[420px]">
+          <nav className="flex items-center justify-center lg:justify-between gap-1 lg:gap-0 lg:w-[420px] lg:absolute lg:left-1/2 lg:-translate-x-1/2 min-w-0">
             {navItems.map((item) => {
               const isActive = item.isActive;
               const Icon = item.icon;
@@ -124,7 +124,7 @@ const Header = ({ userData, onLogout }: HeaderProps) => {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all relative flex items-center gap-2 group cursor-pointer ${
+                  className={`px-2.5 lg:px-3.5 py-1.5 rounded-full text-xs font-bold transition-all relative flex items-center gap-1.5 lg:gap-2 group cursor-pointer whitespace-nowrap shrink-0 ${
                     isActive
                       ? 'text-primary font-bold'
                       : 'text-slate-900 dark:text-on-surface-variant hover:text-primary dark:hover:text-on-surface font-semibold'
@@ -146,7 +146,7 @@ const Header = ({ userData, onLogout }: HeaderProps) => {
         )}
 
         {/* Right Section: Notification Bell + User Profile Capsule with Dropdown */}
-        <div className="flex gap-3 items-center shrink-0">
+        <div className="flex gap-2 lg:gap-3 items-center shrink-0">
           {/* Circular Badge Notification Bell Button with Popover */}
           <NotificationBellDropdown />
 
@@ -157,7 +157,7 @@ const Header = ({ userData, onLogout }: HeaderProps) => {
                 type="button"
                 suppressHydrationWarning
                 onClick={() => setIsUserMenuOpen((prev) => !prev)}
-                className="flex items-center gap-2.5 pl-1.5 pr-3.5 py-1.5 rounded-full bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/15 hover:border-primary/40 transition-all cursor-pointer shadow-xs group"
+                className="flex items-center gap-2 lg:gap-2.5 pl-1.5 pr-2.5 lg:pr-3.5 py-1.5 rounded-full bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/15 hover:border-primary/40 transition-all cursor-pointer shadow-xs group"
               >
                 <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-surface-bright overflow-hidden border border-primary/40 shrink-0">
                   <img
@@ -166,7 +166,7 @@ const Header = ({ userData, onLogout }: HeaderProps) => {
                     alt="Avatar"
                   />
                 </div>
-                <span className="text-xs font-extrabold text-slate-900 dark:text-on-surface max-w-[140px] truncate">
+                <span className="hidden lg:inline text-xs font-extrabold text-slate-900 dark:text-on-surface max-w-[140px] truncate">
                   {userData.fullName || 'Thành viên'}
                 </span>
                 <ChevronDown

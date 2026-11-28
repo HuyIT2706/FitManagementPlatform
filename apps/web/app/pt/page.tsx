@@ -11,6 +11,10 @@ import { toast } from '../../utils/toast';
 import { useCurrentUser, usePtDashboard } from '../../hooks/swr';
 import { performLogout } from '../../utils/logout';
 import { broadcastSync } from '../../utils/realtimeSync';
+import {
+  approvePtStudentRequest,
+  rejectPtStudentRequest,
+} from '../../utils/ptRequests';
 import PtPendingApproval from '../../components/ui/PtPendingApproval';
 import PtWelcomeHeader from './home/components/PtWelcomeHeader';
 import PtBentoStats from './home/components/PtBentoStats';
@@ -96,31 +100,15 @@ const PTPage = () => {
   };
 
   const handleApproveStudentRequest = (requestId: string) => {
-    apiClient
-      .post<{ success: boolean; message: string }>(`/pt/students/accept/${requestId}`)
-      .then((res) => {
-        toast.success(res.data.message || 'Đã chấp nhận học viên thành công!');
-        mutatePt();
-        broadcastSync('PT_BIND_UPDATED');
-      })
-      .catch((err) => {
-        console.error(err);
-        toast.error('Không thể chấp nhận yêu cầu học viên!');
-      });
+    void approvePtStudentRequest(requestId, () => {
+      void mutatePt();
+    });
   };
 
   const handleRejectStudentRequest = (requestId: string) => {
-    apiClient
-      .post<{ success: boolean; message: string }>(`/pt/students/reject/${requestId}`)
-      .then((res) => {
-        toast.success(res.data.message || 'Đã từ chối yêu cầu học viên!');
-        mutatePt();
-        broadcastSync('PT_BIND_UPDATED');
-      })
-      .catch((err) => {
-        console.error(err);
-        toast.error('Không thể từ chối yêu cầu học viên!');
-      });
+    void rejectPtStudentRequest(requestId, () => {
+      void mutatePt();
+    });
   };
 
   const handleLogout = () => {

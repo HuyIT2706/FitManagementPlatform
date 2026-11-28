@@ -27,7 +27,11 @@ export class EncryptionInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       switchMap(async (data: unknown): Promise<unknown> => {
-        if (!shouldEncrypt) {
+        if (
+          !shouldEncrypt ||
+          res.headersSent ||
+          req.headers.accept?.includes('text/event-stream')
+        ) {
           return data;
         }
 

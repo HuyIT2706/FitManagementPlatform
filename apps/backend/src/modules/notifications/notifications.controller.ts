@@ -7,7 +7,13 @@ import {
   Param,
   UseGuards,
   Request,
+  Res,
 } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
+import type {
+  Response as ExpressResponse,
+  Request as ExpressRequest,
+} from 'express';
 import {
   IsString,
   IsNotEmpty,
@@ -68,6 +74,58 @@ export class NotificationsController {
     const userId =
       req.user?.sub || (req.user as unknown as { id?: string })?.id || '';
     return this.notificationsService.getNotifications(userId);
+  }
+
+  @SkipThrottle()
+  @UseGuards(JwtGuard)
+  @Get('stream')
+  streamNotifications(
+    @Request() req: RequestWithUser,
+    @Res() res: ExpressResponse,
+  ) {
+    const userId =
+      req.user?.sub || (req.user as unknown as { id?: string })?.id || '';
+    if (!userId) {
+      res.status(401).end();
+      return;
+    }
+
+    res.status(200);
+    res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    res.flushHeaders?.();
+
+    const writeEvent = (eventName: string, data: unknown) => {
+      if (res.writableEnded) return;
+      res.write(`event: ${eventName}\ndata: ${JSON.stringify(data)}\n\n`);
+      (res as unknown as { flush?: () => void }).flush?.();
+    };
+
+    writeEvent('connected', { userId, timestamp: new Date().toISOString() });
+
+    const unsubscribe = this.notificationsService.subscribeStream(
+      userId,
+      (payload) => {
+        writeEvent(payload.event, payload);
+      },
+    );
+
+    const heartbeat = setInterval(() => {
+      if (res.writableEnded) return;
+      res.write(': ping\n\n');
+      (res as unknown as { flush?: () => void }).flush?.();
+    }, 25000);
+
+    const rawReq = req as unknown as ExpressRequest;
+    rawReq.on('close', () => {
+      clearInterval(heartbeat);
+      unsubscribe();
+      if (!res.writableEnded) {
+        res.end();
+      }
+    });
   }
 
   @UseGuards(JwtGuard)

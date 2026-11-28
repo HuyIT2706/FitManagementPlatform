@@ -10,6 +10,7 @@ import { toast } from '../../../utils/toast';
 
 import dynamic from 'next/dynamic';
 import PtStudentCard from './components/PtStudentCard';
+import PtPendingStudentRequests from '../home/components/PtPendingStudentRequests';
 import type { StudentListItem } from '../../../interface';
 import AccessDenied from '../../../components/ui/AccessDenied';
 import { useCurrentUser, usePtDashboard } from '../../../hooks/swr';
@@ -17,6 +18,10 @@ import { performLogout } from '../../../utils/logout';
 import PtPendingApproval from '../../../components/ui/PtPendingApproval';
 import { getAvatarUrl } from '../../../utils/avatar';
 import { getApiErrorMessage } from '../../../utils/apiError';
+import {
+  approvePtStudentRequest,
+  rejectPtStudentRequest,
+} from '../../../utils/ptRequests';
 
 const PtInviteStudentModal = dynamic(() => import('./components/PtInviteStudentModal'), {
   ssr: false,
@@ -96,6 +101,18 @@ const PTStudentsPage = () => {
     toast.success('Đã sao chép Link Mời vào bộ nhớ tạm!');
   };
 
+  const handleApproveStudentRequest = (requestId: string) => {
+    void approvePtStudentRequest(requestId, () => {
+      void mutatePt();
+    });
+  };
+
+  const handleRejectStudentRequest = (requestId: string) => {
+    void rejectPtStudentRequest(requestId, () => {
+      void mutatePt();
+    });
+  };
+
   const loading =
     !mounted ||
     userLoading ||
@@ -163,6 +180,13 @@ const PTStudentsPage = () => {
             <UserPlus size={18} />+ Thêm Học Viên Mới
           </button>
         </div>
+
+        {/* Pending Student Bind Requests (visible immediately when students scan PT QR) */}
+        <PtPendingStudentRequests
+          requests={ptData?.pendingStudentRequests}
+          onApproveRequest={handleApproveStudentRequest}
+          onRejectRequest={handleRejectStudentRequest}
+        />
 
         {/* Student Roster Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
