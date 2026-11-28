@@ -1,5 +1,7 @@
 import useSWR, { type SWRConfiguration, mutate as globalMutate } from 'swr';
 import apiClient from '../api/axios';
+import { readSwrCache, writeSwrCache } from '../utils/swrCache';
+import { formatYYYYMMDD } from '../utils/date';
 import type {
   UserDataHome,
   PTDashboardData,
@@ -41,6 +43,25 @@ export const prefetchCurrentUser = (): void => {
     revalidate: false,
   });
 };
+// Hydrates SWR cache from sessionStorage after mount without causing SSR mismatch
+export const hydrateSwrSnapshotCache = (): void => {
+  if (typeof window === 'undefined') return;
+  if (!localStorage.getItem('jwt_token')) return;
+
+  const cachedUser = readSwrCache<UserDataHome>('me');
+  if (cachedUser) {
+    void globalMutate('/users/me', cachedUser, { revalidate: false });
+  }
+
+  const todayStr = formatYYYYMMDD(new Date());
+  const cachedDaily = readSwrCache<DailyNutritionData>(`daily_${todayStr}`);
+  if (cachedDaily) {
+    void globalMutate(`/nutrition/daily?date=${todayStr}`, cachedDaily, {
+      revalidate: false,
+    });
+  }
+};
+
 export const useCurrentUser = (options?: SWRConfiguration) => {
   const hasToken = useHasToken();
   return useSWR<UserDataHome>(
@@ -48,10 +69,14 @@ export const useCurrentUser = (options?: SWRConfiguration) => {
     swrFetcher,
     {
       ...DEFAULT_SWR_OPTIONS,
-      revalidateIfStale: true,
+      revalidateIfStale: false,
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
-      dedupingInterval: 5000,
+      keepPreviousData: true,
+      dedupingInterval: 120000,
+      onSuccess: (data) => {
+        writeSwrCache('me', data);
+      },
       ...options,
     }
   );
@@ -81,7 +106,8 @@ export const useBodyMetrics = (options?: SWRConfiguration) => {
 };
 
 export const useDailyNutrition = (dateStr?: string, options?: SWRConfiguration) => {
-  const url = dateStr ? `/nutrition/daily?date=${dateStr}` : null;
+  const hasToken = useHasToken();
+  const url = hasToken && dateStr ? `/nutrition/daily?date=${dateStr}` : null;
   return useSWR<DailyNutritionData>(
     url,
     swrFetcher,
@@ -89,7 +115,12 @@ export const useDailyNutrition = (dateStr?: string, options?: SWRConfiguration) 
       ...DEFAULT_SWR_OPTIONS,
       revalidateIfStale: false,
       keepPreviousData: true,
-      dedupingInterval: 60000, // 1 minute
+      dedupingInterval: 120000,
+      onSuccess: (data) => {
+        if (dateStr) {
+          writeSwrCache(`daily_${dateStr}`, data);
+        }
+      },
       ...options,
     }
   );
@@ -216,7 +247,7 @@ export interface NotificationsResponse {
 
 function getNotificationRefreshInterval(): number {
   if (typeof document === 'undefined') return 0;
-  return document.visibilityState === 'hidden' ? 0 : 15000;
+  return document.visibilityState === 'hidden' ? 0 : 30000;
 }
 
 export const useNotifications = (options?: SWRConfiguration) => {
@@ -228,8 +259,8 @@ export const useNotifications = (options?: SWRConfiguration) => {
       ...DEFAULT_SWR_OPTIONS,
       refreshInterval: getNotificationRefreshInterval,
       shouldRetryOnError: false,
-      revalidateOnFocus: true,
-      dedupingInterval: 10000,
+      revalidateOnFocus: false,
+      dedupingInterval: 30000,
       ...options,
     }
   );

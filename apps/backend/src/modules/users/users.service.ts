@@ -67,94 +67,99 @@ export class UsersService {
 
   async getMe(userId: string) {
     try {
-      const user = await this.prisma.user.findUnique({
-        where: { id: userId },
-        select: {
-          id: true,
-          email: true,
-          fullName: true,
-          avatarUrl: true,
-          phone: true,
-          role: true,
-          gender: true,
-          height: true,
-          dateOfBirth: true,
-          activityLevel: true,
-          goal: true,
-          targetWeight: true,
-          onboardingCompleted: true,
-          createdAt: true,
-          nutritionTargets: {
-            orderBy: { effectiveDate: 'desc' },
-            take: 1,
-            select: {
-              id: true,
-              targetCalo: true,
-              targetProtein: true,
-              targetCarbs: true,
-              targetFat: true,
-              prescribedMealPlan: true,
+      const [user, earliestMetric] = await Promise.all([
+        this.prisma.user.findUnique({
+          where: { id: userId },
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+            avatarUrl: true,
+            phone: true,
+            role: true,
+            gender: true,
+            height: true,
+            dateOfBirth: true,
+            activityLevel: true,
+            goal: true,
+            targetWeight: true,
+            onboardingCompleted: true,
+            createdAt: true,
+            nutritionTargets: {
+              orderBy: { effectiveDate: 'desc' },
+              take: 1,
+              select: {
+                id: true,
+                targetCalo: true,
+                targetProtein: true,
+                targetCarbs: true,
+                targetFat: true,
+              },
             },
-          },
-          bodyMetrics: {
-            orderBy: { recordedAt: 'desc' },
-            take: 1,
-            select: {
-              weight: true,
-              height: true,
-              bodyFat: true,
-              muscleMass: true,
-              recordedAt: true,
+            bodyMetrics: {
+              orderBy: { recordedAt: 'desc' },
+              take: 1,
+              select: {
+                weight: true,
+                height: true,
+                bodyFat: true,
+                muscleMass: true,
+                recordedAt: true,
+              },
             },
-          },
-          studentProfiles: {
-            orderBy: { assignedAt: 'desc' },
-            select: {
-              id: true,
-              status: true,
-              assignedAt: true,
-              trainer: {
-                select: {
-                  id: true,
-                  fullName: true,
-                  avatarUrl: true,
-                  phone: true,
-                  email: true,
+            studentProfiles: {
+              orderBy: { assignedAt: 'desc' },
+              select: {
+                id: true,
+                status: true,
+                assignedAt: true,
+                trainer: {
+                  select: {
+                    id: true,
+                    fullName: true,
+                    avatarUrl: true,
+                    phone: true,
+                    email: true,
+                  },
                 },
               },
             },
-          },
-          userPackages: {
-            where: { isActive: true },
-            orderBy: { startDate: 'desc' },
-            take: 1,
-            select: {
-              id: true,
-              totalSessions: true,
-              remainingSessions: true,
-              startDate: true,
-              endDate: true,
-              gymPackage: {
-                select: {
-                  id: true,
-                  title: true,
-                  price: true,
+            userPackages: {
+              where: { isActive: true },
+              orderBy: { startDate: 'desc' },
+              take: 1,
+              select: {
+                id: true,
+                totalSessions: true,
+                remainingSessions: true,
+                startDate: true,
+                endDate: true,
+                gymPackage: {
+                  select: {
+                    id: true,
+                    title: true,
+                    price: true,
+                  },
                 },
               },
             },
-          },
-          ptApplication: {
-            select: {
-              status: true,
-              adminNote: true,
-              certificateUrl: true,
-              experienceYears: true,
-              specialties: true,
-              bio: true,
+            ptApplication: {
+              select: {
+                status: true,
+                adminNote: true,
+                experienceYears: true,
+                specialties: true,
+                bio: true,
+              },
             },
           },
-        },
-      });
+        }),
+        this.prisma.bodyMetric.findFirst({
+          where: { userId },
+          orderBy: { recordedAt: 'asc' },
+          select: { weight: true },
+        }),
+      ]);
 
       if (!user) return null;
 
@@ -190,14 +195,9 @@ export class UsersService {
           price: number;
         };
       } | null;
-      if (!activePackage) {
+      if (!activePackage && assignedPt?.isApproved) {
         activePackage = await this.prisma.memberPackage.findFirst({
-          where: {
-            OR: [
-              { userId: user.id },
-              { user: { email: { equals: user.email, mode: 'insensitive' } } },
-            ],
-          },
+          where: { userId: user.id },
           orderBy: { startDate: 'desc' },
           include: {
             gymPackage: {
@@ -296,11 +296,6 @@ export class UsersService {
 
       const isLosing = (weight || 70) > (user.targetWeight || 70);
       const suggestedOffset = isLosing ? -400 : 300;
-      const earliestMetric = await this.prisma.bodyMetric.findFirst({
-        where: { userId },
-        orderBy: { recordedAt: 'asc' },
-        select: { weight: true },
-      });
       const initialWeight =
         earliestMetric?.weight ?? user.targetWeight ?? weight;
 

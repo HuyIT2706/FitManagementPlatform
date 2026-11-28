@@ -617,10 +617,17 @@ export class NutritionService {
       include: { items: true };
     }>;
     type UserWithTargets = Prisma.UserGetPayload<{
-      include: {
+      select: {
+        mealFrequency: true;
         nutritionTargets: {
           orderBy: { effectiveDate: 'desc' };
           take: 1;
+          select: {
+            targetCalo: true;
+            targetProtein: true;
+            targetCarbs: true;
+            targetFat: true;
+          };
         };
       };
     }>;
@@ -643,6 +650,19 @@ export class NutritionService {
         loggedDates: [] as string[],
       };
 
+      const activitiesPromise = this.prisma.activityLog?.findMany
+        ? this.prisma.activityLog.findMany({
+            where: {
+              userId,
+              logDate: {
+                gte: startOfDay,
+                lte: endOfDay,
+              },
+            },
+            orderBy: { createdAt: 'desc' },
+          })
+        : Promise.resolve([] as ActivityLog[]);
+
       try {
         const results = await Promise.allSettled([
           this.prisma.mealLog.findMany({
@@ -659,14 +679,22 @@ export class NutritionService {
           }),
           this.prisma.user.findUnique({
             where: { id: userId },
-            include: {
+            select: {
+              mealFrequency: true,
               nutritionTargets: {
                 orderBy: { effectiveDate: 'desc' },
                 take: 1,
+                select: {
+                  targetCalo: true,
+                  targetProtein: true,
+                  targetCarbs: true,
+                  targetFat: true,
+                },
               },
             },
           }),
           this.getStreakData(userId),
+          activitiesPromise,
         ]);
 
         if (results[0].status === 'fulfilled' && results[0].value) {
@@ -678,27 +706,15 @@ export class NutritionService {
         if (results[2].status === 'fulfilled' && results[2].value) {
           streak = results[2].value;
         }
-      } catch (dbErr) {
-        this.logger.error('Database query failed in getDailyNutrition:', dbErr);
-      }
-
-      if (this.prisma.activityLog?.findMany) {
-        try {
-          activities = await this.prisma.activityLog.findMany({
-            where: {
-              userId,
-              logDate: {
-                gte: startOfDay,
-                lte: endOfDay,
-              },
-            },
-            orderBy: { createdAt: 'desc' },
-          });
-        } catch (actErr) {
+        if (results[3].status === 'fulfilled' && results[3].value) {
+          activities = results[3].value;
+        } else if (results[3].status === 'rejected') {
           this.logger.warn(
-            `ActivityLog query skipped in getDailyNutrition: ${(actErr as Error)?.message || actErr}`,
+            `ActivityLog query skipped in getDailyNutrition: ${(results[3].reason as Error)?.message || results[3].reason}`,
           );
         }
+      } catch (dbErr) {
+        this.logger.error('Database query failed in getDailyNutrition:', dbErr);
       }
 
       // Tổng kết toàn ngày & Nhóm theo bữa ăn (mealName)

@@ -5,9 +5,12 @@ import {
   autoSyncPushSubscription,
   registerServiceWorker,
 } from '../../utils/pushNotification';
+import { hydrateSwrSnapshotCache } from '../../hooks/swr';
 
 export default function PushNotificationSync() {
   useEffect(() => {
+    hydrateSwrSnapshotCache();
+
     const isNative =
       typeof window !== 'undefined' &&
       (navigator.userAgent.includes('NutriCoreApp') ||

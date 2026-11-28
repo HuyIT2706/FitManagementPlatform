@@ -1,6 +1,7 @@
 import apiClient from '../api/axios';
 import { mutate } from 'swr';
 import { clearPendingInvite, isInvitePath } from './pendingInvite';
+import { clearSwrCache } from './swrCache';
 
 /**
  * Logs out the user: clears SWR cache, revokes backend refresh token,
@@ -21,6 +22,7 @@ export const performLogout = async (redirectPath = '/login'): Promise<void> => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('jwt_token');
       localStorage.removeItem('refresh_token');
+      clearSwrCache();
       if (!isInvitePath(redirectPath)) {
         clearPendingInvite();
       }

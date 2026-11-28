@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   webDir: 'public',
   server: {
     // Point directly to live web app so updates on Vercel take effect instantly on mobile!
-    url: 'https://nutricore-olive.vercel.app',
+    url: 'https://nutricore.id.vn',
     cleartext: true,
   },
   android: {

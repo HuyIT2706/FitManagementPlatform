@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { encryptPayload, decryptPayload } from '../utils/payload-crypto';
+import { clearSwrCache } from '../utils/swrCache';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3100';
 
@@ -85,6 +86,7 @@ async function getFreshToken(shouldRedirectOnFail = true): Promise<string | null
       ) {
         localStorage.removeItem('jwt_token');
         localStorage.removeItem('refresh_token');
+        clearSwrCache();
         window.location.href = '/login';
       }
       return null;
@@ -206,6 +208,7 @@ apiClient.interceptors.response.use(
       if (typeof window !== 'undefined') {
         localStorage.removeItem('jwt_token');
         localStorage.removeItem('refresh_token');
+        clearSwrCache();
         window.location.href = '/login';
       }
       return Promise.reject(error);
